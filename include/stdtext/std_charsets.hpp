@@ -71,30 +71,6 @@ using execution_wide_character_set = STDTEXT_EXECUTION_WIDE_CHARACTER_SET;
 using universal_character_set = STDTEXT_UNIVERAL_CHARACTER_SET;
 
 
-namespace detail {
-template<>
-struct get_character_set_type_of<char> {
-    using type = execution_character_set;
-};
-
-template<>
-struct get_character_set_type_of<wchar_t> {
-    using type = execution_wide_character_set;
-};
-
-template<>
-struct get_character_set_type_of<char16_t> {
-    // Note: char16_t is only capable of holding code points from the BMP.
-    using type = universal_character_set;
-};
-
-template<>
-struct get_character_set_type_of<char32_t> {
-    using type = universal_character_set;
-};
-} // namespace detail
-
-
 } // namespace text
 } // namespace experimental
 } // namespace std

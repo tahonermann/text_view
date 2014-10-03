@@ -3,11 +3,12 @@
 
 
 #include <stdtext/codecs/trivial_codec.hpp>
-#include <stdtext/codecs/composite_codec.hpp>
-#include <stdtext/codecs/big_endian_codec.hpp>
-#include <stdtext/codecs/little_endian_codec.hpp>
 #include <stdtext/codecs/utf8_codec.hpp>
 #include <stdtext/codecs/utf16_codec.hpp>
+#include <stdtext/codecs/utf16be_codec.hpp>
+#include <stdtext/codecs/utf16le_codec.hpp>
+#include <stdtext/codecs/utf32be_codec.hpp>
+#include <stdtext/codecs/utf32le_codec.hpp>
 
 
 #endif // } STDTEXT_STD_CODECS_HPP

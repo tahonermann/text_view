@@ -189,10 +189,6 @@ void test_character_models() {
     // Archetypes
     static_assert(Character<character_archetype>(), "");
     // std
-    static_assert(Character<char>(), "");
-    static_assert(Character<wchar_t>(), "");
-    static_assert(Character<char16_t>(), "");
-    static_assert(Character<char32_t>(), "");
     static_assert(Character<character<execution_character_set>>(), "");
     static_assert(Character<character<execution_wide_character_set>>(), "");
     static_assert(Character<character<universal_character_set>>(), "");
@@ -222,8 +218,6 @@ void test_codec_models() {
     static_assert(Bidirectional_codec<codec_archetype>(), "");
     // std
     static_assert(Bidirectional_codec<trivial_codec<character_archetype, code_unit_archetype>>(), "");
-    static_assert(Bidirectional_codec<big_endian_codec<character_archetype, code_unit_archetype>>(), "");
-    static_assert(Bidirectional_codec<little_endian_codec<character_archetype, code_unit_archetype>>(), "");
     static_assert(Bidirectional_codec<utf8_encoding::codec_type>(), "");
     static_assert(Bidirectional_codec<utf16_encoding::codec_type>(), "");
     static_assert(Bidirectional_codec<utf16be_encoding::codec_type>(), "");
@@ -286,11 +280,6 @@ void test_text_iterator_models() {
     static_assert(Text_iterator<otext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
     static_assert(Text_iterator<rotext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
     // std input iterators
-    static_assert(Text_iterator<char*>(), "");
-    static_assert(Text_iterator<const char*>(), "");
-    static_assert(Text_iterator<wchar_t*>(), "");
-    static_assert(Text_iterator<char16_t*>(), "");
-    static_assert(Text_iterator<char32_t*>(), "");
     static_assert(Text_iterator<itext_iterator<basic_execution_character_encoding, char*>>(), "");
     static_assert(Text_iterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t*>>(), "");
 #if defined(__STDC_ISO_10646__)
@@ -905,78 +894,85 @@ void test_random_access_encoding(
 }
 
 void test_utf8_encoding() {
-    vector<encoded_character<char32_t, unsigned char>> encoded_characters{
-        { U'\U00000041', { 0x41 } },
-        { U'\U00000141', { 0xC5, 0x81 } },
-        { U'\U00001141', { 0xE1, 0x85, 0x81 } },
-        { U'\U00011141', { 0xF0, 0x91, 0x85, 0x81 } },
-        { U'\0'        , { 0x00 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, unsigned char>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x41 } },
+        { CT{U'\U00000141'}, { 0xC5, 0x81 } },
+        { CT{U'\U00001141'}, { 0xE1, 0x85, 0x81 } },
+        { CT{U'\U00011141'}, { 0xF0, 0x91, 0x85, 0x81 } },
+        { CT{U'\0'}        , { 0x00 } } };
 
     test_bidirectional_encoding<utf8_encoding>(encoded_characters);
 }
 
 void test_utf16_encoding() {
-    vector<encoded_character<char32_t, char16_t>> encoded_characters{
-        { U'\U00000041', { 0x0041 } },
-        { U'\U00000141', { 0x0141 } },
-        { U'\U00001141', { 0x1141 } },
-        { U'\U00011141', { 0xD804, 0xDD41 } },
-        { U'\0'        , { 0x0000 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, char16_t>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x0041 } },
+        { CT{U'\U00000141'}, { 0x0141 } },
+        { CT{U'\U00001141'}, { 0x1141 } },
+        { CT{U'\U00011141'}, { 0xD804, 0xDD41 } },
+        { CT{U'\0'}        , { 0x0000 } } };
 
     test_bidirectional_encoding<utf16_encoding>(encoded_characters);
 }
 
 void test_utf16be_encoding() {
-    vector<encoded_character<char32_t, unsigned char>> encoded_characters{
-        { U'\U00000041', { 0x00, 0x41 } },
-        { U'\U00000141', { 0x01, 0x41 } },
-        { U'\U00001141', { 0x11, 0x41 } },
-        { U'\U00011141', { 0xD8, 0x04, 0xDD, 0x41 } },
-        { U'\0'        , { 0x00, 0x00 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, unsigned char>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x00, 0x41 } },
+        { CT{U'\U00000141'}, { 0x01, 0x41 } },
+        { CT{U'\U00001141'}, { 0x11, 0x41 } },
+        { CT{U'\U00011141'}, { 0xD8, 0x04, 0xDD, 0x41 } },
+        { CT{U'\0'}        , { 0x00, 0x00 } } };
 
     test_bidirectional_encoding<utf16be_encoding>(encoded_characters);
 }
 
 void test_utf16le_encoding() {
-    vector<encoded_character<char32_t, unsigned char>> encoded_characters{
-        { U'\U00000041', { 0x41, 0x00 } },
-        { U'\U00000141', { 0x41, 0x01 } },
-        { U'\U00001141', { 0x41, 0x11 } },
-        { U'\U00011141', { 0x04, 0xD8, 0x41, 0xDD } },
-        { U'\0'        , { 0x00, 0x00 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, unsigned char>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x41, 0x00 } },
+        { CT{U'\U00000141'}, { 0x41, 0x01 } },
+        { CT{U'\U00001141'}, { 0x41, 0x11 } },
+        { CT{U'\U00011141'}, { 0x04, 0xD8, 0x41, 0xDD } },
+        { CT{U'\0'}        , { 0x00, 0x00 } } };
 
     test_bidirectional_encoding<utf16le_encoding>(encoded_characters);
 }
 
 void test_utf32_encoding() {
-    vector<encoded_character<char32_t, char32_t>> encoded_characters{
-        { U'\U00000041', { 0x00000041 } },
-        { U'\U00000141', { 0x00000141 } },
-        { U'\U00001141', { 0x00001141 } },
-        { U'\U00011141', { 0x00011141 } },
-        { U'\0'        , { 0x00000000 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, char32_t>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x00000041 } },
+        { CT{U'\U00000141'}, { 0x00000141 } },
+        { CT{U'\U00001141'}, { 0x00001141 } },
+        { CT{U'\U00011141'}, { 0x00011141 } },
+        { CT{U'\0'}        , { 0x00000000 } } };
 
     test_random_access_encoding<utf32_encoding>(encoded_characters);
 }
 
 void test_utf32be_encoding() {
-    vector<encoded_character<char32_t, unsigned char>> encoded_characters{
-        { U'\U00000041', { 0x00, 0x00, 0x00, 0x41 } },
-        { U'\U00000141', { 0x00, 0x00, 0x01, 0x41 } },
-        { U'\U00001141', { 0x00, 0x00, 0x11, 0x41 } },
-        { U'\U00011141', { 0x00, 0x01, 0x11, 0x41 } },
-        { U'\0'        , { 0x00, 0x00, 0x00, 0x00 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, unsigned char>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x00, 0x00, 0x00, 0x41 } },
+        { CT{U'\U00000141'}, { 0x00, 0x00, 0x01, 0x41 } },
+        { CT{U'\U00001141'}, { 0x00, 0x00, 0x11, 0x41 } },
+        { CT{U'\U00011141'}, { 0x00, 0x01, 0x11, 0x41 } },
+        { CT{U'\0'}        , { 0x00, 0x00, 0x00, 0x00 } } };
 
     test_random_access_encoding<utf32be_encoding>(encoded_characters);
 }
 
 void test_utf32le_encoding() {
-    vector<encoded_character<char32_t, unsigned char>> encoded_characters{
-        { U'\U00000041', { 0x41, 0x00, 0x00, 0x00 } },
-        { U'\U00000141', { 0x41, 0x01, 0x00, 0x00 } },
-        { U'\U00001141', { 0x41, 0x11, 0x00, 0x00 } },
-        { U'\U00011141', { 0x41, 0x11, 0x01, 0x00 } },
-        { U'\0'        , { 0x00, 0x00, 0x00, 0x00 } } };
+    using CT = character<unicode_character_set_template<char32_t>>;
+    vector<encoded_character<CT, unsigned char>> encoded_characters{
+        { CT{U'\U00000041'}, { 0x41, 0x00, 0x00, 0x00 } },
+        { CT{U'\U00000141'}, { 0x41, 0x01, 0x00, 0x00 } },
+        { CT{U'\U00001141'}, { 0x41, 0x11, 0x00, 0x00 } },
+        { CT{U'\U00011141'}, { 0x41, 0x11, 0x01, 0x00 } },
+        { CT{U'\0'}        , { 0x00, 0x00, 0x00, 0x00 } } };
 
     test_random_access_encoding<utf32le_encoding>(encoded_characters);
 }

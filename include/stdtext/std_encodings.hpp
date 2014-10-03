@@ -76,7 +76,9 @@ struct utf8_encoding_template {
     using codec_type = utf8_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf8_encoding = utf8_encoding_template<char32_t, unsigned char>;
+using utf8_encoding = utf8_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              unsigned char>;
 
 
 /*
@@ -87,27 +89,27 @@ struct utf16_encoding_template {
     using codec_type = utf16_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf16_encoding = utf16_encoding_template<char32_t, char16_t>;
+using utf16_encoding = utf16_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              char16_t>;
 
-template<Character CT, Character ICT, Code_unit CUT>
+template<Character CT, Code_unit CUT>
 struct utf16be_encoding_template {
-    using codec_type = composite_codec<
-                           utf16_codec<CT, ICT>,
-                           big_endian_codec<ICT, CUT>>;
+    using codec_type = utf16be_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf16be_encoding =
-          utf16be_encoding_template<char32_t, char16_t, unsigned char>;
+using utf16be_encoding = utf16be_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              unsigned char>;
 
-template<Character CT, Character ICT, Code_unit CUT>
+template<Character CT, Code_unit CUT>
 struct utf16le_encoding_template {
-    using codec_type = composite_codec<
-                           utf16_codec<CT, ICT>,
-                           little_endian_codec<ICT, CUT>>;
+    using codec_type = utf16le_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf16le_encoding =
-          utf16le_encoding_template<char32_t, char16_t, unsigned char>;
+using utf16le_encoding = utf16le_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              unsigned char>;
 
 
 /*
@@ -118,21 +120,27 @@ struct utf32_encoding_template {
     using codec_type = trivial_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf32_encoding = utf32_encoding_template<char32_t, char32_t>;
+using utf32_encoding = utf32_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              char32_t>;
 
 template<Character CT, Code_unit CUT>
 struct utf32be_encoding_template {
-    using codec_type = big_endian_codec<CT, CUT>;
+    using codec_type = utf32be_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf32be_encoding = utf32be_encoding_template<char32_t, unsigned char>;
+using utf32be_encoding = utf32be_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              unsigned char>;
 
 template<Character CT, Code_unit CUT>
 struct utf32le_encoding_template {
-    using codec_type = little_endian_codec<CT, CUT>;
+    using codec_type = utf32le_codec<CT, CUT>;
     static const typename codec_type::state_type initial_state;
 };
-using utf32le_encoding = utf32le_encoding_template<char32_t, unsigned char>;
+using utf32le_encoding = utf32le_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              unsigned char>;
 
 
 /*
