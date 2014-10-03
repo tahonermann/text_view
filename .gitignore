@@ -1,0 +1,4 @@
+# Ignore all generated make dependency files.
+*.d
+# Ignore the generated 'test' executable.
+test
