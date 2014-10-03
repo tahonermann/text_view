@@ -2,3 +2,5 @@
 *.d
 # Ignore the generated 'test' executable.
 test
+# Ignore GNU idutils ID file.
+ID
