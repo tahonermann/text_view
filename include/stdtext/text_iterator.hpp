@@ -349,7 +349,11 @@ struct itext_iterator<E, CUIT>
         return (first - it.first) / encoding_type::codec_type::max_code_units;
     }
 
-    reference operator[](difference_type n) const
+    // Random access iterator requirements state that operator[] must return
+    // a reference.  That isn't possible here since the reference would be to
+    // a value stored in an object (The itext_iterator instance produced for
+    // '*this + n') that is destroyed before the function returns.
+    value_type operator[](difference_type n) const
         requires origin::Derived<
                      iterator_category,
                      std::random_access_iterator_tag>()
