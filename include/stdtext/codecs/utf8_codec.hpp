@@ -29,11 +29,11 @@ struct utf8_codec {
         character_type c,
         int &encoded_code_units)
     {
+        encoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp = c;
-
-        encoded_code_units = 0;
+        code_point_type cp{c.get_code_point()};
 
         if (cp <= 0x0000007F) {
             *out++ = code_unit_type(cp);
@@ -83,11 +83,11 @@ struct utf8_codec {
         character_type c,
         int &encoded_code_units)
     {
+        encoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp = c;
-
-        encoded_code_units = 0;
+        code_point_type cp{c.get_code_point()};
 
         if (cp <= 0x0000007F) {
             *out++ = code_unit_type(cp);
@@ -139,11 +139,11 @@ struct utf8_codec {
         character_type &c,
         int &decoded_code_units)
     {
+        decoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp;
-
-        decoded_code_units = 0;
 
         if (in_next == in_end)
             throw text_decode_underflow_error("text decode underflow error");
@@ -151,7 +151,7 @@ struct utf8_codec {
         ++decoded_code_units;
         if (cu1 <= 0x7F) {
             cp = (cu1 & 0x7F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -166,7 +166,7 @@ struct utf8_codec {
             ((cu2 & 0xC0) == 0x80))
         {
             cp = ((cu1 & 0x1F) << 6) + (cu2 & 0x3F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -182,7 +182,7 @@ struct utf8_codec {
             ((cu3 & 0xC0) == 0x80))
         {
             cp = ((cu1 & 0x0F) << 12) + ((cu2 & 0x3F) << 6) + (cu3 & 0x3F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -202,7 +202,7 @@ struct utf8_codec {
                  ((cu2 & 0x3F) << 12) +
                  ((cu3 & 0x3F) << 6) +
                   (cu4 & 0x3F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -219,11 +219,11 @@ struct utf8_codec {
         character_type &c,
         int &decoded_code_units)
     {
+        decoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp;
-
-        decoded_code_units = 0;
 
         if (in_next == in_end)
             throw text_decode_underflow_error("text decode underflow error");
@@ -231,7 +231,7 @@ struct utf8_codec {
         ++decoded_code_units;
         if (rcu1 <= 0x7F) {
             cp = (rcu1 & 0x7F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -244,7 +244,7 @@ struct utf8_codec {
         }
         if (rcu2 & 0x40) {
             cp = ((rcu2 & 0x1F) << 6) + (rcu1 & 0x3F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -257,7 +257,7 @@ struct utf8_codec {
         }
         if (rcu3 & 0x40) {
             cp = ((rcu3 & 0x0F) << 12) + ((rcu2 & 0x3F) << 6) + (rcu1 & 0x3F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 
@@ -273,7 +273,7 @@ struct utf8_codec {
                  ((rcu3 & 0x3F) << 12) +
                  ((rcu2 & 0x3F) << 6) +
                   (rcu1 & 0x3F);
-            c = cp;
+            c.set_code_point(cp);
             return;
         }
 

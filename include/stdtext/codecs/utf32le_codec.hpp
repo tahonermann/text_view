@@ -34,7 +34,7 @@ struct utf32le_codec {
 
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp{c};
+        code_point_type cp{c.get_code_point()};
 
         code_unit_type octet1 = (cp >>  0) & 0xFF;
         code_unit_type octet2 = (cp >>  8) & 0xFF;
@@ -63,7 +63,7 @@ struct utf32le_codec {
 
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp{c};
+        code_point_type cp{c.get_code_point()};
 
         code_unit_type roctet4 = (cp >>  0) & 0xFF;
         code_unit_type roctet3 = (cp >>  8) & 0xFF;
@@ -117,7 +117,7 @@ struct utf32le_codec {
            | ((octet2 & 0xFF) <<  8)
            | ((octet3 & 0xFF) << 16)
            | ((octet4 & 0xFF) << 24);
-        c = cp;
+        c.set_code_point(cp);
     }
 
     template<Code_unit_iterator CUIT>
@@ -157,7 +157,7 @@ struct utf32le_codec {
            | ((roctet3 & 0xFF) <<  8)
            | ((roctet2 & 0xFF) << 16)
            | ((roctet1 & 0xFF) << 24);
-        c = cp;
+        c.set_code_point(cp);
     }
 };
 

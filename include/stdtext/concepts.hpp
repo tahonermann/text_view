@@ -57,15 +57,13 @@ concept bool Character_set() {
 template<typename T>
 concept bool Character() {
     return Character_set<character_set_type_of<T>>()
-        && origin::Ordered<T>()
+        && origin::Regular<T>()
         && origin::Copy_assignable<T>()
-        && origin::Convertible<
-               T,
-               typename character_set_type_of<T>::code_point_type>()
-        // FIXME: Why is 'T&' required for Assignable?
-        && origin::Assignable<
-               T&,
-               typename character_set_type_of<T>::code_point_type>();
+        && requires (T t, code_point_type_of<character_set_type_of<T>> cp) {
+               t.set_code_point(cp);
+               { t.get_code_point() } -> code_point_type_of<character_set_type_of<T>>;
+               { t.get_character_set_id() } -> character_set_id;
+           };
 }
 
 

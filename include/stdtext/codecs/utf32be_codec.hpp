@@ -34,7 +34,7 @@ struct utf32be_codec {
 
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp{c};
+        code_point_type cp{c.get_code_point()};
 
         code_unit_type octet1 = (cp >> 24) & 0xFF;
         code_unit_type octet2 = (cp >> 16) & 0xFF;
@@ -63,7 +63,7 @@ struct utf32be_codec {
 
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp{c};
+        code_point_type cp{c.get_code_point()};
 
         code_unit_type roctet4 = (cp >> 24) & 0xFF;
         code_unit_type roctet3 = (cp >> 16) & 0xFF;
@@ -117,7 +117,7 @@ struct utf32be_codec {
            | ((octet2 & 0xFF) << 16)
            | ((octet3 & 0xFF) <<  8)
            | ((octet4 & 0xFF) <<  0);
-        c = cp;
+        c.set_code_point(cp);
     }
 
     template<Code_unit_iterator CUIT>
@@ -157,7 +157,7 @@ struct utf32be_codec {
            | ((roctet3 & 0xFF) << 16)
            | ((roctet2 & 0xFF) <<  8)
            | ((roctet1 & 0xFF) <<  0);
-        c = cp;
+        c.set_code_point(cp);
     }
 };
 

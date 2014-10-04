@@ -30,7 +30,12 @@ struct trivial_codec {
         character_type c,
         int &encoded_code_units)
     {
-        *out++ = c;
+        using code_point_type =
+            code_point_type_of<character_set_type_of<character_type>>;
+
+        code_point_type cp{c.get_code_point()};
+        code_unit_type cu{cp};
+        *out++ = cu;
         encoded_code_units = 1;
     }
 
@@ -42,7 +47,12 @@ struct trivial_codec {
         character_type c,
         int &encoded_code_units)
     {
-        *out++ = c;
+        using code_point_type =
+            code_point_type_of<character_set_type_of<character_type>>;
+
+        code_point_type cp{c.get_code_point()};
+        code_unit_type cu{cp};
+        *out++ = cu;
         encoded_code_units = 1;
     }
 
@@ -56,10 +66,15 @@ struct trivial_codec {
         character_type &c,
         int &decoded_code_units)
     {
+        using code_point_type =
+            code_point_type_of<character_set_type_of<character_type>>;
+
         if (in_next == in_end) {
             throw text_decode_underflow_error("text decode underflow error");
         } else {
-            c = *in_next++;
+            code_unit_type cu{*in_next++};
+            code_point_type cp{cu};
+            c.set_code_point(cp);
             decoded_code_units = 1;
         }
     }
@@ -74,10 +89,15 @@ struct trivial_codec {
         character_type &c,
         int &decoded_code_units)
     {
+        using code_point_type =
+            code_point_type_of<character_set_type_of<character_type>>;
+
         if (in_next == in_end) {
             throw text_decode_underflow_error("text decode underflow error");
         } else {
-            c = *in_next++;
+            code_unit_type cu{*in_next++};
+            code_point_type cp{cu};
+            c.set_code_point(cp);
             decoded_code_units = 1;
         }
     }

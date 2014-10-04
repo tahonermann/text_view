@@ -4,6 +4,7 @@
 
 #include <stdtext/concepts.hpp>
 #include <stdtext/traits.hpp>
+#include <cstdint>
 
 
 #if !defined(STDTEXT_EXECUTION_CHARACTER_SET)
@@ -50,6 +51,15 @@ struct unicode_character_set_template {
     using code_point_type = CPT;
 };
 using unicode_character_set = unicode_character_set_template<char32_t>;
+
+/*
+ * Any character set
+ * This character set is associated with characters that do not have a
+ * statically known character set.
+ */
+struct any_character_set {
+    using code_point_type = uint_least32_t;
+};
 
 
 /*

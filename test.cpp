@@ -183,6 +183,7 @@ void test_character_set_models() {
     static_assert(Character_set<execution_character_set>(), "");
     static_assert(Character_set<execution_wide_character_set>(), "");
     static_assert(Character_set<universal_character_set>(), "");
+    static_assert(Character_set<any_character_set>(), "");
 }
 
 void test_character_models() {
@@ -192,6 +193,7 @@ void test_character_models() {
     static_assert(Character<character<execution_character_set>>(), "");
     static_assert(Character<character<execution_wide_character_set>>(), "");
     static_assert(Character<character<universal_character_set>>(), "");
+    static_assert(Character<character<any_character_set>>(), "");
 }
 
 void test_code_unit_iterator_models() {
@@ -633,7 +635,8 @@ void test_random_decode(
     assert(begin(tv) <= end(tv));
     assert(end(tv)   >  begin(tv));
     assert(end(tv)   >= begin(tv));
-    assert(end(tv) - begin(tv) == num_characters);
+    assert(static_cast<decltype(num_characters)>(end(tv) - begin(tv)) ==
+           num_characters);
     assert(begin(tv) + num_characters == end(tv));
     assert(num_characters + begin(tv) == end(tv));
     assert(end(tv) - num_characters == begin(tv));
@@ -893,8 +896,30 @@ void test_random_access_encoding(
     }
 }
 
+void test_any_character_set() {
+    character<any_character_set> c1(U'\U00011141');
+    character<any_character_set> c2(get_character_set_id<unicode_character_set>(), U'\U00011141');
+    character<unicode_character_set> c3(U'\U00011141');
+    assert(c1 == c1);
+    assert(c2 == c2);
+    assert(c3 == c3);
+    assert(c1 != c2);
+    assert(c2 != c1);
+    assert(c1.get_character_set_id() != c2.get_character_set_id());
+    assert(c1.get_code_point() == c2.get_code_point());
+    assert(c2 == c3);
+    assert(c3 == c2);
+    assert(c2.get_character_set_id() == c3.get_character_set_id());
+    assert(c2.get_code_point() == c3.get_code_point());
+    c2.set_character_set_id(get_character_set_id<any_character_set>());
+    assert(c2 != c3);
+    assert(c3 != c2);
+    assert(c2.get_character_set_id() != c3.get_character_set_id());
+    assert(c2.get_code_point() == c3.get_code_point());
+}
+
 void test_utf8_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, unsigned char>> encoded_characters{
         { CT{U'\U00000041'}, { 0x41 } },
         { CT{U'\U00000141'}, { 0xC5, 0x81 } },
@@ -906,7 +931,7 @@ void test_utf8_encoding() {
 }
 
 void test_utf16_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, char16_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x0041 } },
         { CT{U'\U00000141'}, { 0x0141 } },
@@ -918,7 +943,7 @@ void test_utf16_encoding() {
 }
 
 void test_utf16be_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, unsigned char>> encoded_characters{
         { CT{U'\U00000041'}, { 0x00, 0x41 } },
         { CT{U'\U00000141'}, { 0x01, 0x41 } },
@@ -930,7 +955,7 @@ void test_utf16be_encoding() {
 }
 
 void test_utf16le_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, unsigned char>> encoded_characters{
         { CT{U'\U00000041'}, { 0x41, 0x00 } },
         { CT{U'\U00000141'}, { 0x41, 0x01 } },
@@ -942,7 +967,7 @@ void test_utf16le_encoding() {
 }
 
 void test_utf32_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, char32_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x00000041 } },
         { CT{U'\U00000141'}, { 0x00000141 } },
@@ -954,7 +979,7 @@ void test_utf32_encoding() {
 }
 
 void test_utf32be_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, unsigned char>> encoded_characters{
         { CT{U'\U00000041'}, { 0x00, 0x00, 0x00, 0x41 } },
         { CT{U'\U00000141'}, { 0x00, 0x00, 0x01, 0x41 } },
@@ -966,7 +991,7 @@ void test_utf32be_encoding() {
 }
 
 void test_utf32le_encoding() {
-    using CT = character<unicode_character_set_template<char32_t>>;
+    using CT = character<unicode_character_set>;
     vector<encoded_character<CT, unsigned char>> encoded_characters{
         { CT{U'\U00000041'}, { 0x41, 0x00, 0x00, 0x00 } },
         { CT{U'\U00000141'}, { 0x41, 0x01, 0x00, 0x00 } },
@@ -988,6 +1013,8 @@ int main() {
     test_encoding_models();
     test_text_iterator_models();
     test_text_view_models();
+
+    test_any_character_set();
 
     test_utf8_encoding();
     test_utf16_encoding();

@@ -47,21 +47,25 @@ struct character_archetype_template
     using character_set_type = CST;
     using code_point_type = typename CST::code_point_type;
 
-    character_archetype_template() : cp(0) {}
+    character_archetype_template() : cp{} {}
     character_archetype_template(code_point_type cp) : cp(cp) {}
 
-    bool operator==(const character_archetype_template& other) {
+    bool operator==(const character_archetype_template& other) const noexcept {
         return cp == other.cp;
     }
-    bool operator!=(const character_archetype_template& other) {
-        return cp != other.cp;
+    bool operator!=(const character_archetype_template& other) const noexcept {
+        return !(*this == other);
     }
 
-    character_archetype_template& operator=(code_point_type) {
-        return *this;
+    void set_code_point(code_point_type cp) noexcept {
+        this->cp = cp;
     }
-    operator code_point_type() const {
+    code_point_type get_code_point() const noexcept {
         return cp;
+    }
+
+    static character_set_id get_character_set_id() noexcept {
+        return character_set_type::id;
     }
 
 private:

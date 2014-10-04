@@ -13,6 +13,60 @@ namespace text {
 
 
 /*
+ * Character set ID
+ * character_set_id is modeled after std::locale::id.  Instances of this class
+ * must only be declared with static storage duration.
+ */
+struct character_set_id {
+    character_set_id() = delete;
+    character_set_id(const character_set_id&) = default;
+    character_set_id(character_set_id&&) = default;
+    character_set_id& operator=(const character_set_id&) = default;
+    character_set_id& operator=(character_set_id&&) = default;
+
+    bool operator==(const character_set_id& other) const noexcept {
+        return id == other.id;
+    }
+    bool operator!=(const character_set_id& other) const noexcept {
+        return !(*this == other);
+    }
+
+    bool operator<(const character_set_id &other) const noexcept {
+        return id < other.id;
+    }
+    bool operator>(const character_set_id &other) const noexcept {
+        return other < *this;
+    }
+    bool operator<=(const character_set_id &other) const noexcept {
+        return !(other < *this);
+    }
+    bool operator>=(const character_set_id &other) const noexcept {
+        return !(*this < other);
+    }
+
+private:
+    template<typename T>
+    friend character_set_id get_character_set_id() noexcept;
+
+    character_set_id(int id) noexcept : id{id} {}
+
+    int id;
+};
+
+namespace detail {
+inline int get_next_character_set_id() noexcept {
+    static int next_id = 0;
+    return ++next_id;
+}
+} // namespace detail
+
+template<typename CST>
+character_set_id get_character_set_id() noexcept {
+    static int id = detail::get_next_character_set_id();
+    return character_set_id{id};
+}
+
+/*
  * Associated code point type helper
  */
 namespace detail {

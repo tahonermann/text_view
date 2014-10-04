@@ -29,11 +29,11 @@ struct utf16_codec {
         character_type c,
         int &encoded_code_units)
     {
+        encoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp = c;
-
-        encoded_code_units = 0;
+        code_point_type cp{c.get_code_point()};
 
         if (cp >= 0xD800 && cp <= 0xDFFF) {
             throw text_encode_error("Invalid Unicode code point");
@@ -58,11 +58,11 @@ struct utf16_codec {
         character_type c,
         int &encoded_code_units)
     {
+        encoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp = c;
-
-        encoded_code_units = 0;
+        code_point_type cp{c.get_code_point()};
 
         if (cp >= 0xD800 && cp <= 0xDFFF) {
             throw text_encode_error("Invalid Unicode code point");
@@ -89,12 +89,11 @@ struct utf16_codec {
         character_type &c,
         int &decoded_code_units)
     {
+        decoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp;
-
-        cp = 0;
-        decoded_code_units = 0;
 
         if (in_next == in_end)
             throw text_decode_underflow_error("text decode underflow error");
@@ -109,12 +108,12 @@ struct utf16_codec {
                 throw text_decode_error("Invalid UTF-16 code unit sequence");
             }
             cp = 0x10000 + (((cu1 & 0x3FF) << 10) | (cu2 & 0x3FF));
-            c = cp;
+            c.set_code_point(cp);
         } else if (cu1 >= 0xDC00 && cu1 <= 0xDFFF) {
             throw text_decode_error("Invalid UTF-16 code unit sequence");
         } else {
             cp = cu1;
-            c = cp;
+            c.set_code_point(cp);
         }
     }
 
@@ -128,12 +127,11 @@ struct utf16_codec {
         character_type &c,
         int &decoded_code_units)
     {
+        decoded_code_units = 0;
+
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp;
-
-        cp = 0;
-        decoded_code_units = 0;
 
         if (in_next == in_end)
             throw text_decode_underflow_error("text decode underflow error");
@@ -148,12 +146,12 @@ struct utf16_codec {
                 throw text_decode_error("Invalid UTF-16 code unit sequence");
             }
             cp = 0x10000 + (((rcu2 & 0x3FF) << 10) | (rcu1 & 0x3FF));
-            c = cp;
+            c.set_code_point(cp);
         } else if (rcu1 >= 0xD800 && rcu1 <= 0xDBFF) {
             throw text_decode_error("Invalid UTF-16 code unit sequence");
         } else {
             cp = rcu1;
-            c = cp;
+            c.set_code_point(cp);
         }
     }
 };
