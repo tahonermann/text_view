@@ -7,6 +7,7 @@
 #include <list>
 #include <vector>
 #include <utility>
+#include <string>
 #include <stdtext/text>
 
 
@@ -928,6 +929,12 @@ void test_utf8_encoding() {
         { CT{U'\0'}        , { 0x00 } } };
 
     test_bidirectional_encoding<utf8_encoding>(encoded_characters);
+
+    string encoded_string(u8"a\U00011141z");
+    auto tv = make_text_view<utf8_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 1);
+    assert(tit.end() == begin(encoded_string) + 5);
 }
 
 void test_utf16_encoding() {
@@ -940,6 +947,12 @@ void test_utf16_encoding() {
         { CT{U'\0'}        , { 0x0000 } } };
 
     test_bidirectional_encoding<utf16_encoding>(encoded_characters);
+
+    u16string encoded_string(u"a\U00011141z");
+    auto tv = make_text_view<utf16_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 1);
+    assert(tit.end() == begin(encoded_string) + 3);
 }
 
 void test_utf16be_encoding() {
@@ -952,6 +965,12 @@ void test_utf16be_encoding() {
         { CT{U'\0'}        , { 0x00, 0x00 } } };
 
     test_bidirectional_encoding<utf16be_encoding>(encoded_characters);
+
+    string encoded_string("\x00\x61\xD8\x04\xDD\x41\x00\x7A", 8);
+    auto tv = make_text_view<utf16be_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 2);
+    assert(tit.end() == begin(encoded_string) + 6);
 }
 
 void test_utf16le_encoding() {
@@ -964,6 +983,12 @@ void test_utf16le_encoding() {
         { CT{U'\0'}        , { 0x00, 0x00 } } };
 
     test_bidirectional_encoding<utf16le_encoding>(encoded_characters);
+
+    string encoded_string("\x61\x00\x04\xD8\x41\xDD\x7A\x00", 8);
+    auto tv = make_text_view<utf16le_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 2);
+    assert(tit.end() == begin(encoded_string) + 6);
 }
 
 void test_utf32_encoding() {
@@ -976,6 +1001,12 @@ void test_utf32_encoding() {
         { CT{U'\0'}        , { 0x00000000 } } };
 
     test_random_access_encoding<utf32_encoding>(encoded_characters);
+
+    u32string encoded_string(U"a\U00011141z");
+    auto tv = make_text_view<utf32_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 1);
+    assert(tit.end() == begin(encoded_string) + 2);
 }
 
 void test_utf32be_encoding() {
@@ -988,6 +1019,12 @@ void test_utf32be_encoding() {
         { CT{U'\0'}        , { 0x00, 0x00, 0x00, 0x00 } } };
 
     test_random_access_encoding<utf32be_encoding>(encoded_characters);
+
+    string encoded_string("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\x00\x7A", 12);
+    auto tv = make_text_view<utf32be_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 4);
+    assert(tit.end() == begin(encoded_string) + 8);
 }
 
 void test_utf32le_encoding() {
@@ -1000,6 +1037,12 @@ void test_utf32le_encoding() {
         { CT{U'\0'}        , { 0x00, 0x00, 0x00, 0x00 } } };
 
     test_random_access_encoding<utf32le_encoding>(encoded_characters);
+
+    string encoded_string("\x61\x00\x00\x00\x41\x11\x01\x00\x7A\x00\x00\x00", 12);
+    auto tv = make_text_view<utf32le_encoding>(encoded_string);
+    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(tit.begin() == begin(encoded_string) + 4);
+    assert(tit.end() == begin(encoded_string) + 8);
 }
 
 int main() {
