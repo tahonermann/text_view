@@ -2,7 +2,6 @@
 #define STDTEXT_STD_ENCODINGS_HPP
 
 
-#include <stdtext/traits.hpp>
 #include <stdtext/encodings/basic_encodings.hpp>
 #include <stdtext/encodings/unicode_encodings.hpp>
 
@@ -67,29 +66,6 @@ using char16_character_encoding = STDTEXT_CHAR16_CHARACTER_ENCODING;
  * ISO/IEC 14882:2011(E) 2.14.5 [lex.string]
  */
 using char32_character_encoding = STDTEXT_CHAR32_CHARACTER_ENCODING;
-
-
-namespace detail {
-template<>
-struct get_encoding_type_of<char*> {
-    using type = execution_character_encoding;
-};
-
-template<>
-struct get_encoding_type_of<wchar_t*> {
-    using type = execution_wide_character_encoding;
-};
-
-template<>
-struct get_encoding_type_of<char16_t*> {
-    using type = char16_character_encoding;
-};
-
-template<>
-struct get_encoding_type_of<char32_t*> {
-    using type = char32_character_encoding;
-};
-} // namespace detail
 
 
 } // namespace text

@@ -1,5 +1,5 @@
-#ifndef STDTEXT_STD_CODECS_HPP // {
-#define STDTEXT_STD_CODECS_HPP
+#ifndef STDTEXT_CODECS_HPP // {
+#define STDTEXT_CODECS_HPP
 
 
 #include <stdtext/codecs/trivial_codec.hpp>
@@ -11,4 +11,4 @@
 #include <stdtext/codecs/utf32le_codec.hpp>
 
 
-#endif // } STDTEXT_STD_CODECS_HPP
+#endif // } STDTEXT_CODECS_HPP

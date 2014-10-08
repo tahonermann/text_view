@@ -5,9 +5,9 @@
 #include <stdtext/concepts.hpp>
 #include <stdtext/archetypes.hpp>
 #include <stdtext/character.hpp>
-#include <stdtext/std_charsets.hpp>
-#include <stdtext/std_codecs.hpp>
-#include <stdtext/std_encodings.hpp>
+#include <stdtext/charsets.hpp>
+#include <stdtext/codecs.hpp>
+#include <stdtext/encodings.hpp>
 #include <stdtext/text_iterator.hpp>
 #include <stdtext/text_view.hpp>
 
