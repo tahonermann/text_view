@@ -2,64 +2,28 @@
 #define STDTEXT_STD_CHARSETS_HPP
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/traits.hpp>
-#include <cstdint>
+#include <stdtext/charsets/any_charset.hpp>
+#include <stdtext/charsets/basic_charsets.hpp>
+#include <stdtext/charsets/unicode_charsets.hpp>
 
 
 #if !defined(STDTEXT_EXECUTION_CHARACTER_SET)
 #define STDTEXT_EXECUTION_CHARACTER_SET \
-        basic_execution_character_set
+        ::std::experimental::text::basic_execution_character_set
 #endif
 #if !defined(STDTEXT_EXECUTION_WIDE_CHARACTER_SET)
 #define STDTEXT_EXECUTION_WIDE_CHARACTER_SET \
-        basic_execution_wide_character_set
+        ::std::experimental::text::basic_execution_wide_character_set
 #endif
 #if !defined(STDTEXT_UNIVERAL_CHARACTER_SET)
 #define STDTEXT_UNIVERAL_CHARACTER_SET \
-        unicode_character_set
+        ::std::experimental::text::unicode_character_set
 #endif
 
 
 namespace std {
 namespace experimental {
 namespace text {
-
-
-/*
- * C++ basic execution character set
- * ISO/IEC 14882:2011(E) 2.3
- */
-struct basic_execution_character_set {
-    using code_point_type = char;
-};
-
-/*
- * C++ basic execution wide character set
- * ISO/IEC 14882:2011(E) 2.3
- */
-struct basic_execution_wide_character_set {
-    using code_point_type = wchar_t;
-};
-
-/*
- * C++ universal character set
- * ISO/IEC 14882:2011(E) 2.3
- */
-template<Code_point CPT>
-struct unicode_character_set_template {
-    using code_point_type = CPT;
-};
-using unicode_character_set = unicode_character_set_template<char32_t>;
-
-/*
- * Any character set
- * This character set is associated with characters that do not have a
- * statically known character set.
- */
-struct any_character_set {
-    using code_point_type = uint_least32_t;
-};
 
 
 /*
