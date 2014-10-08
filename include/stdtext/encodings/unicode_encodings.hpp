@@ -11,6 +11,7 @@
 #include <stdtext/codecs/utf16le_codec.hpp>
 #include <stdtext/codecs/utf32be_codec.hpp>
 #include <stdtext/codecs/utf32le_codec.hpp>
+#include <cstdint>
 
 
 namespace std {
@@ -41,7 +42,7 @@ struct utf8_encoding_template {
 };
 using utf8_encoding = utf8_encoding_template<
               character<unicode_character_set_template<char32_t>>,
-              unsigned char>;
+              uint_least8_t>;
 
 
 /*
@@ -63,7 +64,7 @@ struct utf16be_encoding_template {
 };
 using utf16be_encoding = utf16be_encoding_template<
               character<unicode_character_set_template<char32_t>>,
-              unsigned char>;
+              uint_least8_t>;
 
 template<Character CT, Code_unit CUT>
 struct utf16le_encoding_template {
@@ -72,7 +73,7 @@ struct utf16le_encoding_template {
 };
 using utf16le_encoding = utf16le_encoding_template<
               character<unicode_character_set_template<char32_t>>,
-              unsigned char>;
+              uint_least8_t>;
 
 
 /*
@@ -94,7 +95,7 @@ struct utf32be_encoding_template {
 };
 using utf32be_encoding = utf32be_encoding_template<
               character<unicode_character_set_template<char32_t>>,
-              unsigned char>;
+              uint_least8_t>;
 
 template<Character CT, Code_unit CUT>
 struct utf32le_encoding_template {
@@ -103,7 +104,7 @@ struct utf32le_encoding_template {
 };
 using utf32le_encoding = utf32le_encoding_template<
               character<unicode_character_set_template<char32_t>>,
-              unsigned char>;
+              uint_least8_t>;
 
 
 } // namespace text

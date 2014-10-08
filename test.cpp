@@ -288,31 +288,31 @@ void test_text_iterator_models() {
 #if defined(__STDC_ISO_10646__)
     static_assert(Text_iterator<itext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
 #endif
-    static_assert(Text_iterator<itext_iterator<utf8_encoding, unsigned char*>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf8_encoding, uint_least8_t*>>(), "");
     static_assert(Text_iterator<itext_iterator<utf16_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16be_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16le_encoding, char16_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16be_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16le_encoding, uint_least8_t*>>(), "");
     static_assert(Text_iterator<itext_iterator<utf32_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32be_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32le_encoding, char32_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32be_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32le_encoding, uint_least8_t*>>(), "");
     // std output iterators
     static_assert(Text_iterator<otext_iterator<basic_execution_character_encoding, char*>>(), "");
     static_assert(Text_iterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>(), "");
 #if defined(__STDC_ISO_10646__)
     static_assert(Text_iterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
 #endif
-    static_assert(Text_iterator<otext_iterator<utf8_encoding, unsigned char*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf8_encoding, uint_least8_t*>>(), "");
     static_assert(Text_iterator<otext_iterator<utf16_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16be_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16le_encoding, char16_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf16be_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf16le_encoding, uint_least8_t*>>(), "");
     static_assert(Text_iterator<otext_iterator<utf32_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32be_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32le_encoding, char32_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf32be_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf32le_encoding, uint_least8_t*>>(), "");
     // std reverse output iterators
 #if defined(__STDC_ISO_10646__)
     static_assert(Text_iterator<rotext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
 #endif
-    static_assert(Text_iterator<rotext_iterator<utf8_encoding, unsigned char*>>(), "");
+    static_assert(Text_iterator<rotext_iterator<utf8_encoding, uint_least8_t*>>(), "");
     static_assert(Text_iterator<rotext_iterator<utf16_encoding, char16_t*>>(), "");
     static_assert(Text_iterator<rotext_iterator<utf16be_encoding, char16_t*>>(), "");
     static_assert(Text_iterator<rotext_iterator<utf16le_encoding, char16_t*>>(), "");
@@ -332,7 +332,7 @@ void test_text_view_models() {
     static_assert(Text_view<text_view<execution_character_encoding, char(&)[5]>>(), "");
     static_assert(Text_view<text_view<execution_character_encoding, const char(&)[5]>>(), "");
     static_assert(Text_view<text_view<execution_wide_character_encoding, wchar_t*>>(), "");
-    static_assert(Text_view<text_view<char8_character_encoding, unsigned char*>>(), "");
+    static_assert(Text_view<text_view<char8_character_encoding, uint_least8_t*>>(), "");
     static_assert(Text_view<text_view<char16_character_encoding, char16_t*>>(), "");
     static_assert(Text_view<text_view<char32_character_encoding, char32_t*>>(), "");
 }
@@ -921,7 +921,7 @@ void test_any_character_set() {
 
 void test_utf8_encoding() {
     using CT = character<unicode_character_set>;
-    vector<encoded_character<CT, unsigned char>> encoded_characters{
+    vector<encoded_character<CT, uint_least8_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x41 } },
         { CT{U'\U00000141'}, { 0xC5, 0x81 } },
         { CT{U'\U00001141'}, { 0xE1, 0x85, 0x81 } },
@@ -957,7 +957,7 @@ void test_utf16_encoding() {
 
 void test_utf16be_encoding() {
     using CT = character<unicode_character_set>;
-    vector<encoded_character<CT, unsigned char>> encoded_characters{
+    vector<encoded_character<CT, uint_least8_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x00, 0x41 } },
         { CT{U'\U00000141'}, { 0x01, 0x41 } },
         { CT{U'\U00001141'}, { 0x11, 0x41 } },
@@ -975,7 +975,7 @@ void test_utf16be_encoding() {
 
 void test_utf16le_encoding() {
     using CT = character<unicode_character_set>;
-    vector<encoded_character<CT, unsigned char>> encoded_characters{
+    vector<encoded_character<CT, uint_least8_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x41, 0x00 } },
         { CT{U'\U00000141'}, { 0x41, 0x01 } },
         { CT{U'\U00001141'}, { 0x41, 0x11 } },
@@ -1011,7 +1011,7 @@ void test_utf32_encoding() {
 
 void test_utf32be_encoding() {
     using CT = character<unicode_character_set>;
-    vector<encoded_character<CT, unsigned char>> encoded_characters{
+    vector<encoded_character<CT, uint_least8_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x00, 0x00, 0x00, 0x41 } },
         { CT{U'\U00000141'}, { 0x00, 0x00, 0x01, 0x41 } },
         { CT{U'\U00001141'}, { 0x00, 0x00, 0x11, 0x41 } },
@@ -1029,7 +1029,7 @@ void test_utf32be_encoding() {
 
 void test_utf32le_encoding() {
     using CT = character<unicode_character_set>;
-    vector<encoded_character<CT, unsigned char>> encoded_characters{
+    vector<encoded_character<CT, uint_least8_t>> encoded_characters{
         { CT{U'\U00000041'}, { 0x41, 0x00, 0x00, 0x00 } },
         { CT{U'\U00000141'}, { 0x41, 0x01, 0x00, 0x00 } },
         { CT{U'\U00001141'}, { 0x41, 0x11, 0x00, 0x00 } },
