@@ -136,6 +136,8 @@ concept bool Codec() {
 template<typename T>
 concept bool Bidirectional_codec() {
     return Codec<T>()
+        // FIXME: Move the requirement for a rencode() member function to a
+        // FIXME: different concept that validates a particular iterator type?
         && requires (
                typename T::state_type &state,
                typename T::code_unit_type *&out,
@@ -144,6 +146,8 @@ concept bool Bidirectional_codec() {
            {
                T::rencode(state, out, c, encoded_code_units);
            }
+        // FIXME: Move the requirement for a rdecode() member function to a
+        // FIXME: different concept that validates a particular iterator type?
         && requires (
                typename T::state_type &state,
                typename T::code_unit_type *&in_next,

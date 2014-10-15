@@ -56,13 +56,14 @@ struct trivial_codec {
         encoded_code_units = 1;
     }
 
-    template<Code_unit_iterator CUIT>
+    template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
+          && origin::Sentinel<CUST, CUIT>()
     static void decode(
         state_type &state,
         CUIT &in_next,
-        CUIT in_end,
+        CUST in_end,
         character_type &c,
         int &decoded_code_units)
     {
@@ -79,13 +80,14 @@ struct trivial_codec {
         }
     }
 
-    template<Code_unit_iterator CUIT>
+    template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
+          && origin::Sentinel<CUST, CUIT>()
     static void rdecode(
         state_type &state,
         CUIT &in_next,
-        CUIT in_end,
+        CUST in_end,
         character_type &c,
         int &decoded_code_units)
     {
