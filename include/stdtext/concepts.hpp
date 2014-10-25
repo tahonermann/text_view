@@ -204,7 +204,7 @@ concept bool Text_iterator() {
 template<typename T>
 concept bool Text_view() {
     return Encoding<encoding_type_of<T>>()
-        && origin::Range<T>();
+        && origin::Input_range<T>();
 }
 
 

@@ -53,6 +53,13 @@ struct text_iterator_category_selector<C, CUIT> {
 } // namespace detail
 
 
+// FIXME: Per D4128 (Ranges for the Standard Library), should text iterators
+// FIXME: require a text_view object and refer to it for the underlying range?
+// FIXME: Doing so would simplify constructor declarations and make text
+// FIXME: iterators less expensive to copy.  Perhaps this would avoid the need
+// FIXME: to specialze itext_iterator for input iterators and forward+
+// FIXME: iterators?  Presumably, this would also avoid the need to specialize
+// FIXME: begin() and end() in the text_view specializations.
 template<typename E, typename CUIT>
 struct itext_iterator;
 

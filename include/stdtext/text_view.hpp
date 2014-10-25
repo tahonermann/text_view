@@ -50,7 +50,10 @@ private:
     code_unit_iterator first, last;
 };
 
-template<Encoding E, origin::Range R>
+// FIXME: Per D4128 (Ranges for the Standard Library), an Iterable concept is
+// FIXME: defined with less constraints than Range (or Input_range).  Does
+// FIXME: text_view require the stronger Input_range constraints?
+template<Encoding E, origin::Input_range R>
 struct text_view<E, R> {
     using encoding_type = E;
     using code_unit_iterator = origin::Iterator_type<R>;
@@ -88,7 +91,7 @@ private:
 /*
  * Make text view
  */
-template<Encoding E, origin::Range R>
+template<Encoding E, origin::Input_range R>
 auto make_text_view(const R &range) {
     return text_view<E, const R>{range};
 }
