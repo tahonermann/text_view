@@ -145,15 +145,10 @@ void test_code_unit_models() {
     static_assert(Code_unit<wchar_t>(), "");
     static_assert(Code_unit<char16_t>(), "");
     static_assert(Code_unit<char32_t>(), "");
-    static_assert(Code_unit<signed char>(), "");
     static_assert(Code_unit<unsigned char>(), "");
-    static_assert(Code_unit<signed short>(), "");
     static_assert(Code_unit<unsigned short>(), "");
-    static_assert(Code_unit<signed int>(), "");
     static_assert(Code_unit<unsigned int>(), "");
-    static_assert(Code_unit<signed long>(), "");
     static_assert(Code_unit<unsigned long>(), "");
-    static_assert(Code_unit<signed long long>(), "");
     static_assert(Code_unit<unsigned long long>(), "");
 }
 
@@ -165,15 +160,10 @@ void test_code_point_models() {
     static_assert(Code_point<wchar_t>(), "");
     static_assert(Code_point<char16_t>(), "");
     static_assert(Code_point<char32_t>(), "");
-    static_assert(Code_point<signed char>(), "");
     static_assert(Code_point<unsigned char>(), "");
-    static_assert(Code_point<signed short>(), "");
     static_assert(Code_point<unsigned short>(), "");
-    static_assert(Code_point<signed int>(), "");
     static_assert(Code_point<unsigned int>(), "");
-    static_assert(Code_point<signed long>(), "");
     static_assert(Code_point<unsigned long>(), "");
-    static_assert(Code_point<signed long long>(), "");
     static_assert(Code_point<unsigned long long>(), "");
 }
 

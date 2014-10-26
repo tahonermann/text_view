@@ -26,7 +26,10 @@ concept bool Same_value() {
  */
 template<typename T>
 concept bool Code_unit() {
-    return origin::Integral_type<T>();
+    return origin::Integral_type<T>()
+        && (origin::Unsigned_type<T>()
+            || origin::Same<T, origin::Remove_cv<char>>()
+            || origin::Same<T, origin::Remove_cv<wchar_t>>());
 }
 
 
@@ -35,7 +38,10 @@ concept bool Code_unit() {
  */
 template<typename T>
 concept bool Code_point() {
-    return origin::Integral_type<T>();
+    return origin::Integral_type<T>()
+        && (origin::Unsigned_type<T>()
+            || origin::Same<T, origin::Remove_cv<char>>()
+            || origin::Same<T, origin::Remove_cv<wchar_t>>());
 }
 
 
