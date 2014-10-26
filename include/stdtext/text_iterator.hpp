@@ -74,9 +74,10 @@ struct itext_iterator<E, CUIT>
                  origin::Difference_type<CUIT>,
                  const typename E::codec_type::character_type*,
                  const typename E::codec_type::character_type&>
-    , public E::codec_type::state_type
+    , private E::codec_type::state_type
 {
     using encoding_type = E;
+    using state_type = typename E::codec_type::state_type;
     using iterator = CUIT;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
@@ -106,6 +107,13 @@ struct itext_iterator<E, CUIT>
         ++*this;
     }
 
+    const state_type& state() const {
+        return *this;
+    }
+    state_type& state() {
+        return *this;
+    }
+
     iterator base() const {
         return current;
     }
@@ -132,7 +140,7 @@ struct itext_iterator<E, CUIT>
             value_type tmp_value;
             int decoded_code_units = 0;
             codec_type::decode(
-                *this,
+                state(),
                 tmp_iterator,
                 end,
                 tmp_value,
@@ -165,9 +173,10 @@ struct itext_iterator<E, CUIT>
                  origin::Difference_type<CUIT>,
                  const typename E::codec_type::character_type*,
                  const typename E::codec_type::character_type&>
-    , public E::codec_type::state_type
+    , private E::codec_type::state_type
 {
     using encoding_type = E;
+    using state_type = typename E::codec_type::state_type;
     using iterator = CUIT;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
@@ -196,6 +205,13 @@ struct itext_iterator<E, CUIT>
         start{start}, first{first}, last{first}, finish{finish}
     {
         ++*this;
+    }
+
+    const state_type& state() const {
+        return *this;
+    }
+    state_type& state() {
+        return *this;
     }
 
     iterator base() const {
@@ -260,7 +276,7 @@ struct itext_iterator<E, CUIT>
             value_type tmp_value;
             int decoded_code_units = 0;
             codec_type::decode(
-                *this,
+                state(),
                 tmp_iterator,
                 finish,
                 tmp_value,
@@ -288,7 +304,7 @@ struct itext_iterator<E, CUIT>
         value_type tmp_value;
         int decoded_code_units = 0;
         codec_type::rdecode(
-            *this,
+            state(),
             rcurrent,
             rfinish,
             tmp_value,
@@ -395,9 +411,10 @@ struct otext_iterator<E, CUIT>
                  origin::Difference_type<CUIT>,
                  typename E::codec_type::character_type*,
                  typename E::codec_type::character_type&>
-    , public E::codec_type::state_type
+    , private E::codec_type::state_type
 {
     using encoding_type = E;
+    using state_type = typename E::codec_type::state_type;
     using iterator = CUIT;
     using iterator_category = typename otext_iterator::iterator_category;
     using value_type = typename otext_iterator::value_type;
@@ -420,6 +437,13 @@ struct otext_iterator<E, CUIT>
     :
         encoding_type::codec_type::state_type{state}, current{current}
     {}
+
+    const state_type& state() const {
+        return *this;
+    }
+    state_type& state() {
+        return *this;
+    }
 
     iterator base() const {
         return current;
@@ -449,7 +473,7 @@ struct otext_iterator<E, CUIT>
         using codec_type = typename encoding_type::codec_type;
         iterator tmp{current};
         int encoded_code_units = 0;
-        codec_type::encode(*this, tmp, value, encoded_code_units);
+        codec_type::encode(state(), tmp, value, encoded_code_units);
         current = tmp;
         return *this;
     }
@@ -471,9 +495,10 @@ struct rotext_iterator<E, CUIT>
                  origin::Difference_type<CUIT>,
                  typename E::codec_type::character_type*,
                  typename E::codec_type::character_type&>
-    , public E::codec_type::state_type
+    , private E::codec_type::state_type
 {
     using encoding_type = E;
+    using state_type = typename E::codec_type::state_type;
     using iterator = CUIT;
     using iterator_category = typename rotext_iterator::iterator_category;
     using value_type = typename rotext_iterator::value_type;
@@ -496,6 +521,13 @@ struct rotext_iterator<E, CUIT>
     :
         encoding_type::codec_type::state_type{state}, current{current}
     {}
+
+    const state_type& state() const {
+        return *this;
+    }
+    state_type& state() {
+        return *this;
+    }
 
     iterator base() const {
         return current;
@@ -525,7 +557,7 @@ struct rotext_iterator<E, CUIT>
         using codec_type = typename encoding_type::codec_type;
         iterator tmp{current};
         int encoded_code_units = 0;
-        codec_type::rencode(*this, tmp, value, encoded_code_units);
+        codec_type::rencode(state(), tmp, value, encoded_code_units);
         current = tmp;
         return *this;
     }
