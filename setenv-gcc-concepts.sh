@@ -1,5 +1,7 @@
 #!/bin/sh
 
+alias cdst="cd $PWD"
+
 GCC_INSTALL_PATH="$HOME/products/gcc-c++-concepts"
 export GCC_INSTALL_PATH
 
