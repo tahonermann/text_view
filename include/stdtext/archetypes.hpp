@@ -3,6 +3,8 @@
 
 
 #include <stdtext/concepts.hpp>
+#include <origin/core/concepts.hpp>
+#include <origin/sequence/concepts.hpp>
 
 
 namespace std {
@@ -165,17 +167,51 @@ using encoding_archetype = encoding_archetype_template<codec_archetype>;
 /*
  * Text iterator archetype
  */
-namespace detail {
-template<Character_set CST>
-struct get_encoding_type_of<character_archetype_template<CST>*> {
-    using type = encoding_archetype;
-};
-} // namespace detail
+template<Encoding E, Code_unit_iterator CUIT>
+struct text_iterator_archetype_template {
+    using encoding_type = E;
+    using state_type = typename E::codec_type::state_type;
+    using iterator = CUIT;
+    using iterator_category = origin::Iterator_category<CUIT>;
+    using value_type = typename E::codec_type::character_type;
+    using reference = typename E::codec_type::character_type&;
+    using pointer = typename E::codec_type::character_type*;
+    using difference_type = origin::Difference_type<CUIT>;
 
-template<Character_set CST>
-using text_iterator_archetype_template = character_archetype_template<CST>*;
-using text_iterator_archetype =
-          text_iterator_archetype_template<character_set_archetype>;
+    text_iterator_archetype_template();
+    text_iterator_archetype_template(iterator, iterator);
+    text_iterator_archetype_template(state_type, iterator, iterator);
+    const state_type& state() const;
+    state_type& state();
+    iterator base() const;
+    iterator begin() const;
+    iterator end() const;
+    reference operator*() const;
+    pointer operator->() const;
+    bool operator==(const text_iterator_archetype_template& other) const;
+    bool operator!=(const text_iterator_archetype_template& other) const;
+    bool operator<(const text_iterator_archetype_template& other) const;
+    bool operator>(const text_iterator_archetype_template& other) const;
+    bool operator<=(const text_iterator_archetype_template& other) const;
+    bool operator>=(const text_iterator_archetype_template& other) const;
+    text_iterator_archetype_template& operator++();
+    text_iterator_archetype_template operator++(int);
+    text_iterator_archetype_template& operator--();
+    text_iterator_archetype_template operator--(int);
+    text_iterator_archetype_template& operator+=(difference_type n);
+    text_iterator_archetype_template operator+(difference_type n) const;
+    text_iterator_archetype_template& operator-=(difference_type n);
+    text_iterator_archetype_template operator-(difference_type n) const;
+    difference_type operator-(text_iterator_archetype_template it) const;
+    value_type operator[](difference_type n) const;
+};
+template<Encoding E, Code_unit_iterator CUIT>
+text_iterator_archetype_template<E, CUIT> operator+(
+    origin::Difference_type<CUIT> n,
+    text_iterator_archetype_template<E, CUIT> it);
+using text_iterator_archetype = text_iterator_archetype_template<
+                                    encoding_archetype,
+                                    code_unit_iterator_archetype>;
 
 
 /*

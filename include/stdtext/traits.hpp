@@ -176,33 +176,6 @@ template<typename T>
 using encoding_type_of = detail::encoding_type_of<T>;
 
 
-/*
- * Associated code unit iterator type helper
- */
-namespace detail {
-template<typename T>
-struct get_code_unit_iterator_type_of;
-
-template<typename T>
-struct get_code_unit_iterator_type_of<T*> {
-    using type = T*;
-};
-
-template<typename T>
-requires requires () { typename T::code_unit_iterator_type; }
-struct get_code_unit_iterator_type_of<T> {
-    using type = typename T::code_unit_iterator_type;
-};
-
-template<typename T>
-using code_unit_iterator_type_of =
-          typename get_code_unit_iterator_type_of<origin::Strip<T>>::type;
-} // namespace detail
-
-template<typename T>
-using code_unit_iterator_type_of = detail::code_unit_iterator_type_of<T>;
-
-
 } // namespace text
 } // namespace experimental
 } // namespace std

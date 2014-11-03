@@ -188,7 +188,7 @@ concept bool Encoding() {
         && Codec<typename T::codec_type>()
         && requires () {
                { T::initial_state } noexcept
-                   -> typename T::codec_type::state_type;
+                   -> const typename T::codec_type::state_type&;
            };
 }
 
@@ -200,7 +200,13 @@ template<typename T>
 concept bool Text_iterator() {
     return Encoding<encoding_type_of<T>>()
         && origin::Iterator<T>()
-        && Character<origin::Value_type<T>>();
+        && Character<origin::Value_type<T>>()
+        && requires (T t, const T ct) {
+               { t.state() }
+                   -> typename encoding_type_of<T>::codec_type::state_type&;
+               { ct.state() }
+                   -> const typename encoding_type_of<T>::codec_type::state_type&;
+           };
 }
 
 
