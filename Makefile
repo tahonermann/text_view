@@ -1,5 +1,6 @@
 all: test
 
+.PHONY: test
 test: bin/test-stdtext
 	./bin/test-stdtext
 
