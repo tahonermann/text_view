@@ -159,7 +159,10 @@ template<Codec CT>
 struct encoding_archetype_template
 {
     using codec_type = CT;
-    static typename codec_type::state_type initial_state;
+    static const typename codec_type::state_type& initial_state() noexcept {
+        static const typename codec_type::state_type state;
+        return state;
+    }
 };
 using encoding_archetype = encoding_archetype_template<codec_archetype>;
 

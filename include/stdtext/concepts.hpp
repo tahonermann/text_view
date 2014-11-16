@@ -187,7 +187,7 @@ concept bool Encoding() {
            }
         && Codec<typename T::codec_type>()
         && requires () {
-               { T::initial_state } noexcept
+               { T::initial_state() } noexcept
                    -> const typename T::codec_type::state_type&;
            };
 }
