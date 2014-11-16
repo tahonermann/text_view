@@ -86,22 +86,20 @@ struct itext_iterator<E, CUIT>
     using difference_type = typename itext_iterator::difference_type;
 
     itext_iterator() = default
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>();
+        requires origin::Default_constructible<state_type>();
 
     itext_iterator(iterator first, iterator last)
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>()
+        requires origin::Default_constructible<state_type>()
         : current{first}, end{last}
     {
         ++*this;
     }
 
     itext_iterator(
-        typename encoding_type::codec_type::state_type state,
+        state_type state,
         iterator first, iterator last)
     :
-        encoding_type::codec_type::state_type{state},
+        state_type{state},
         current{first}, end{last}
     {
         ++*this;
@@ -185,12 +183,10 @@ struct itext_iterator<E, CUIT>
     using difference_type = typename itext_iterator::difference_type;
 
     itext_iterator() = default
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>();
+        requires origin::Default_constructible<state_type>();
 
     itext_iterator(iterator start, iterator first, iterator finish)
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>()
+        requires origin::Default_constructible<state_type>()
     :
         start{start}, first{first}, last{first}, finish{finish}
     {
@@ -198,10 +194,10 @@ struct itext_iterator<E, CUIT>
     }
 
     itext_iterator(
-        typename encoding_type::codec_type::state_type state,
+        state_type state,
         iterator start, iterator first, iterator finish)
     :
-        encoding_type::codec_type::state_type{state},
+        state_type{state},
         start{start}, first{first}, last{first}, finish{finish}
     {
         ++*this;
@@ -423,19 +419,17 @@ struct otext_iterator<E, CUIT>
     using difference_type = typename otext_iterator::difference_type;
 
     otext_iterator() = default
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>();
+        requires origin::Default_constructible<state_type>();
 
     otext_iterator(iterator current)
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>()
+        requires origin::Default_constructible<state_type>()
         : current{current} {}
 
     otext_iterator(
-        typename encoding_type::codec_type::state_type state,
+        state_type state,
         iterator current)
     :
-        encoding_type::codec_type::state_type{state}, current{current}
+        state_type{state}, current{current}
     {}
 
     const state_type& state() const {
@@ -507,19 +501,17 @@ struct rotext_iterator<E, CUIT>
     using difference_type = typename rotext_iterator::difference_type;
 
     rotext_iterator() = default
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>();
+        requires origin::Default_constructible<state_type>();
 
     rotext_iterator(iterator current)
-        requires origin::Default_constructible<
-                     typename encoding_type::codec_type::state_type>()
+        requires origin::Default_constructible<state_type>()
         : current{current} {}
 
     rotext_iterator(
-        typename encoding_type::codec_type::state_type state,
+        state_type state,
         iterator current)
     :
-        encoding_type::codec_type::state_type{state}, current{current}
+        state_type{state}, current{current}
     {}
 
     const state_type& state() const {
