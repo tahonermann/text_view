@@ -478,21 +478,27 @@ void test_forward_decode(
     // Validate pre-increment iteration.
     auto tvit = begin(tv);
     for (const auto &ecp : encoded_characters) {
+        // Decode and advance.
         auto tvcp = *tvit;
         ++tvit;
+        // Validate the decoded character.
         assert(tvcp == ecp.character);
     }
-    assert(tvit == end(tv));
+    // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
+    assert(tvit == end(tv));
 
     // Validate post-increment iteration.
     tvit = begin(tv);
     for (const auto &ecp : encoded_characters) {
+        // Decode and advance.
         auto tvcp = *tvit++;
+        // Validate the decoded character.
         assert(tvcp == ecp.character);
     }
-    assert(tvit == end(tv));
+    // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
+    assert(tvit == end(tv));
 
     // Validate iterator equality comparison.
     assert(begin(tv) == begin(tv));
@@ -518,24 +524,50 @@ void test_forward_decode(
 {
     // Validate pre-increment iteration.
     auto tvit = begin(tv);
+    auto cuit = begin(code_unit_range);
     for (const auto &ecp : encoded_characters) {
+        // Validate base code unit iterators.
+        assert(tvit.base() == cuit);
+        assert(begin(tvit) == cuit);
+        advance(cuit, ecp.code_units.size());
+        assert(end(tvit) == cuit);
+        // Validate the underlying code unit sequence.
         assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        // Decode and advance.
         auto tvcp = *tvit;
         ++tvit;
+        // Validate the decoded character.
         assert(tvcp == ecp.character);
     }
+    // Validate base code unit iterators.
+    assert(tvit.base() == cuit);
+    assert(begin(tvit) == cuit);
+    assert(end(tvit) == cuit);
+    assert(begin(tvit) == end(code_unit_range));
     assert(tvit == end(tv));
-    assert(tvit.base() == end(code_unit_range));
 
     // Validate post-increment iteration.
     tvit = begin(tv);
+    cuit = begin(code_unit_range);
     for (const auto &ecp : encoded_characters) {
+        // Validate base code unit iterators.
+        assert(tvit.base() == cuit);
+        assert(begin(tvit) == cuit);
+        advance(cuit, ecp.code_units.size());
+        assert(end(tvit) == cuit);
+        // Validate the underlying code unit sequence.
         assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        // Decode and advance.
         auto tvcp = *tvit++;
+        // Validate the decoded character.
         assert(tvcp == ecp.character);
     }
+    // Validate base code unit iterators.
+    assert(tvit.base() == cuit);
+    assert(begin(tvit) == cuit);
+    assert(end(tvit) == cuit);
+    assert(begin(tvit) == end(code_unit_range));
     assert(tvit == end(tv));
-    assert(tvit.base() == end(code_unit_range));
 
     // Validate iterator equality comparison.
     assert(begin(tv) == begin(tv));
@@ -565,35 +597,59 @@ void test_reverse_decode(
 {
     // Validate pre-decrement.
     auto tvit = end(tv);
+    auto cuit = end(code_unit_range);
     for (auto ecpit = end(encoded_characters);
          ecpit != begin(encoded_characters);
          )
     {
+        // Decode and decrement.
         const auto &ecp = *--ecpit;
         auto tvcp = *--tvit;
-        assert(tvcp == ecp.character);
+        // Validate base code unit iterators.
+        assert(end(tvit) == cuit);
+        advance(cuit, -ecp.code_units.size());
+        assert(begin(tvit) == cuit);
+        assert(tvit.base() == cuit);
+        // Validate the underlying code unit sequence.
         assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        // Validate the decoded character.
+        assert(tvcp == ecp.character);
     }
+    // Validate base code unit iterators.
+    assert(tvit.base() == cuit);
+    assert(begin(tvit) == cuit);
+    assert(begin(tvit) == begin(code_unit_range));
     assert(tvit == begin(tv));
-    assert(tvit.base() == begin(code_unit_range));
 
     // Validate post-decrement.
     tvit = end(tv);
+    cuit = end(code_unit_range);
     for (auto ecpit = end(encoded_characters);
          ecpit != begin(encoded_characters);
          )
     {
+        // Decode and decrement.
         const auto &ecp = *--ecpit;
         tvit--;
         auto tvcp = *tvit;
-        assert(tvcp == ecp.character);
+        // Validate base code unit iterators.
+        assert(end(tvit) == cuit);
+        advance(cuit, -ecp.code_units.size());
+        assert(begin(tvit) == cuit);
+        assert(tvit.base() == cuit);
+        // Validate the underlying code unit sequence.
         assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        // Validate the decoded character.
+        assert(tvcp == ecp.character);
     }
+    // Validate base code unit iterators.
+    assert(tvit.base() == cuit);
+    assert(begin(tvit) == cuit);
+    assert(begin(tvit) == begin(code_unit_range));
     assert(tvit == begin(tv));
-    assert(tvit.base() == begin(code_unit_range));
 }
 
-// Test reverse decoding of the code unit sequence present in the
+// Test random access decoding of the code unit sequence present in the
 // 'code_unit_range' range using the 'tv' text view of that range.  The
 // 'encoded_characters' vector provides the characters and code unit sequences
 // to compare against.  'tv' is expected to provide random access iterators for
@@ -613,11 +669,24 @@ void test_random_decode(
     // Validate random access.
     int i = 0;
     auto tvit = begin(tv);
+    auto cuit = begin(code_unit_range);
     for (const auto &ecp : encoded_characters) {
-        assert(tvit[i] == ecp.character);
+        // Validate base code unit iterators.
+        assert((tvit+i).base() == cuit);
+        assert(begin(tvit+i) == cuit);
+        advance(cuit, ecp.code_units.size());
+        assert(end(tvit+i) == cuit);
+        // Validate the underlying code unit sequence.
         assert(equal(begin(tvit+i), end(tvit+i), begin(ecp.code_units)));
+        // Validate the decoded character.
+        assert(tvit[i] == ecp.character);
+        // Advance.
         ++i;
     }
+    // Validate base code unit iterators.
+    assert(end(tv).base() == cuit);
+    assert(begin(end(tv)) == cuit);
+    assert(end(end(tv)) == cuit);
 
     // Validate random access iterator requirements.
     auto num_characters = encoded_characters.size();
@@ -656,7 +725,7 @@ template<
     Encoding E,
     Character CT,
     Code_unit CUT>
-void test_encoding(
+void test_forward_encoding(
     const vector<encoded_character<CT, CUT>> &encoded_characters)
 {
     using codec_type = typename E::codec_type;
@@ -778,7 +847,7 @@ requires Bidirectional_codec<typename E::codec_type>()
 void test_bidirectional_encoding(
     const vector<encoded_character<CT, CUT>> &encoded_characters)
 {
-    test_encoding<E>(encoded_characters);
+    test_forward_encoding<E>(encoded_characters);
 
     using codec_type = typename E::codec_type;
     using code_unit_type = typename codec_type::code_unit_type;
