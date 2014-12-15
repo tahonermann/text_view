@@ -2,6 +2,7 @@
 #define STDTEXT_TEXT_VIEW_HPP
 
 
+#include <stdtext/adl_customization.hpp>
 #include <stdtext/concepts.hpp>
 #include <stdtext/text_iterator.hpp>
 #include <iterator>
@@ -64,23 +65,29 @@ struct text_view<E, R> {
     iterator begin() const
         requires ! origin::Forward_iterator<iterator>() // Input_iterator only
     {
-        return iterator{std::begin(range), std::end(range)};
+        return iterator{detail::adl_begin(range), detail::adl_end(range)};
     }
     iterator end() const
         requires ! origin::Forward_iterator<iterator>() // Input_iterator only
     {
-        return iterator{std::end(range), std::end(range)};
+        return iterator{detail::adl_end(range), detail::adl_end(range)};
     }
 
     iterator begin() const
         requires origin::Forward_iterator<iterator>()
     {
-        return iterator{std::begin(range), std::begin(range), std::end(range)};
+        return iterator{
+                   detail::adl_begin(range),
+                   detail::adl_begin(range),
+                   detail::adl_end(range)};
     }
     iterator end() const
         requires origin::Forward_iterator<iterator>()
     {
-        return iterator{std::begin(range), std::end(range), std::end(range)};
+        return iterator{
+                   detail::adl_begin(range),
+                   detail::adl_end(range),
+                   detail::adl_end(range)};
     }
 
 private:

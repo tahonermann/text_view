@@ -1,3 +1,4 @@
+#include <stdtext/adl_customization.hpp>
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
@@ -29,12 +30,12 @@ struct encoded_character {
 // specialization for its character type.
 template<origin::Input_iterator IT>
 struct input_iterator
-    : public std::iterator<
-                 std::input_iterator_tag,
-                 typename std::iterator_traits<IT>::value_type,
-                 typename std::iterator_traits<IT>::difference_type,
-                 typename std::iterator_traits<IT>::pointer,
-                 typename std::iterator_traits<IT>::reference>
+    : public iterator<
+                 input_iterator_tag,
+                 typename iterator_traits<IT>::value_type,
+                 typename iterator_traits<IT>::difference_type,
+                 typename iterator_traits<IT>::pointer,
+                 typename iterator_traits<IT>::reference>
 {
     input_iterator(IT it) : it(it) {}
 
@@ -45,7 +46,7 @@ struct input_iterator
         return it != o.it;
     }
 
-    auto operator*() const -> typename std::iterator_traits<IT>::reference {
+    auto operator*() const -> typename iterator_traits<IT>::reference {
         return *it;
     }
 
@@ -73,12 +74,12 @@ template<
     typename T>
 requires origin::Output_iterator<IT, T>()
 struct output_iterator
-    : public std::iterator<
-                 std::output_iterator_tag,
-                 typename std::iterator_traits<IT>::value_type,
-                 typename std::iterator_traits<IT>::difference_type,
-                 typename std::iterator_traits<IT>::pointer,
-                 typename std::iterator_traits<IT>::reference>
+    : public iterator<
+                 output_iterator_tag,
+                 typename iterator_traits<IT>::value_type,
+                 typename iterator_traits<IT>::difference_type,
+                 typename iterator_traits<IT>::pointer,
+                 typename iterator_traits<IT>::reference>
 {
     output_iterator(IT it) : it(it) {}
 
@@ -120,16 +121,16 @@ struct input_range_view {
     input_range_view(RT &r) : r(r) {}
 
     auto begin() const
-        -> input_iterator<decltype(std::begin(std::declval<const RT>()))>
+        -> input_iterator<decltype(detail::adl_begin(declval<const RT>()))>
     {
         return input_iterator<
-            decltype(std::begin(std::declval<const RT>()))>{std::begin(r)};
+            decltype(detail::adl_begin(declval<const RT>()))>{detail::adl_begin(r)};
     }
     auto end() const
-        -> input_iterator<decltype(std::end(std::declval<const RT>()))>
+        -> input_iterator<decltype(detail::adl_end(declval<const RT>()))>
     {
         return input_iterator<
-            decltype(std::end(std::declval<const RT>()))>{std::end(r)};
+            decltype(detail::adl_end(declval<const RT>()))>{detail::adl_end(r)};
     }
 
 private:
