@@ -5,6 +5,7 @@
 #include <stdtext/concepts.hpp>
 #include <origin/core/concepts.hpp>
 #include <origin/sequence/concepts.hpp>
+#include <origin/sequence/range.hpp>
 
 
 namespace std {
@@ -170,15 +171,15 @@ using encoding_archetype = encoding_archetype_template<codec_archetype>;
 /*
  * Text iterator archetype
  */
-template<Encoding E, Code_unit_iterator CUIT>
+template<Encoding ET, Code_unit_iterator CUIT>
 struct text_iterator_archetype_template {
-    using encoding_type = E;
-    using state_type = typename E::codec_type::state_type;
+    using encoding_type = ET;
+    using state_type = typename ET::codec_type::state_type;
     using iterator = CUIT;
     using iterator_category = origin::Iterator_category<CUIT>;
-    using value_type = typename E::codec_type::character_type;
-    using reference = typename E::codec_type::character_type&;
-    using pointer = typename E::codec_type::character_type*;
+    using value_type = typename ET::codec_type::character_type;
+    using reference = typename ET::codec_type::character_type&;
+    using pointer = typename ET::codec_type::character_type*;
     using difference_type = origin::Difference_type<CUIT>;
 
     text_iterator_archetype_template();
@@ -208,10 +209,10 @@ struct text_iterator_archetype_template {
     difference_type operator-(text_iterator_archetype_template it) const;
     value_type operator[](difference_type n) const;
 };
-template<Encoding E, Code_unit_iterator CUIT>
-text_iterator_archetype_template<E, CUIT> operator+(
+template<Encoding ET, Code_unit_iterator CUIT>
+text_iterator_archetype_template<ET, CUIT> operator+(
     origin::Difference_type<CUIT> n,
-    text_iterator_archetype_template<E, CUIT> it);
+    text_iterator_archetype_template<ET, CUIT> it);
 using text_iterator_archetype = text_iterator_archetype_template<
                                     encoding_archetype,
                                     code_unit_iterator_archetype>;
@@ -220,9 +221,25 @@ using text_iterator_archetype = text_iterator_archetype_template<
 /*
  * Text view archetype
  */
-template<Code_unit CUT, unsigned N>
-using text_view_archetype_template = CUT[N];
-using text_view_archetype = text_view_archetype_template<code_unit_archetype, 5>;
+template<Encoding ET, origin::Input_range R>
+struct text_view_archetype_template {
+    using range_type = R;
+    using encoding_type = ET;
+    using state_type = typename ET::codec_type::state_type;
+    using code_unit_iterator = origin::Iterator_type<R>;
+    using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;
+
+    text_view_archetype_template(const state_type &initial_state, R r);
+    const R& base() const;
+    R& base();
+    const state_type& initial_state() const;
+    state_type& initial_state();
+    iterator begin() const;
+    iterator end() const;
+};
+using text_view_archetype = text_view_archetype_template<
+                                encoding_archetype,
+                                origin::bounded_range<code_unit_archetype*>>;
 
 
 } // namespace text

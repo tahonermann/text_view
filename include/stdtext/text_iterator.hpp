@@ -160,6 +160,15 @@ protected:
     bool ok;
 };
 
+// FIXME: N4128 specifies a range_base class that is used as a base class to
+// FIXME: explicitly specify that a class models the N4128 Range concept.
+// FIXME: itext_iterator (with a forward iterator) models the N4128 Range
+// FIXME: concept, and so could (should?) derive from range_base to make this
+// FIXME: explicit.  Origin does define a range_base template class that
+// FIXME: differs from what N4128 specifies.  Deriving from it causes conflicts
+// FIXME: due to multiple conflicting definitions of value_type (since
+// FIXME: itext_iterator models an iterator requiring a different value_type
+// FIXME: definition).
 template<Encoding E, Code_unit_iterator CUIT>
 requires origin::Forward_iterator<CUIT>()
 struct itext_iterator<E, CUIT>

@@ -198,7 +198,12 @@ concept bool Encoding() {
  */
 template<typename T>
 concept bool Text_iterator() {
-    return Encoding<encoding_type_of<T>>()
+    return requires () {
+               typename T::encoding_type;
+               typename T::state_type;
+           }
+        && Encoding<typename T::encoding_type>()
+        && Codec_state<typename T::state_type>()
         && origin::Iterator<T>()
         && Character<origin::Value_type<T>>()
         && requires (T t, const T ct) {
@@ -215,8 +220,28 @@ concept bool Text_iterator() {
  */
 template<typename T>
 concept bool Text_view() {
-    return Encoding<encoding_type_of<T>>()
-        && origin::Input_range<T>();
+    return requires () {
+               typename T::range_type;
+               typename T::encoding_type;
+               typename T::state_type;
+               typename T::code_unit_iterator;
+           }
+        && origin::Input_range<typename T::range_type>()
+        && Encoding<typename T::encoding_type>()
+        && Codec_state<typename T::state_type>()
+        && origin::Iterator<typename T::code_unit_iterator>()
+        && origin::Input_range<T>()
+        && Text_iterator<origin::Iterator_type<T>>()
+        && requires (T t, const T ct) {
+               { t.base() }
+                   -> typename T::range_type&;
+               { ct.base() }
+                   -> const typename T::range_type&;
+               { t.initial_state() }
+                   -> typename T::state_type&;
+               { ct.initial_state() }
+                   -> const typename T::state_type&;
+           };
 }
 
 

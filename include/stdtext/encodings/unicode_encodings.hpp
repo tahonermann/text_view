@@ -48,9 +48,14 @@ struct utf8_encoding_template {
         return state;
     }
 };
+// FIXME: If N3398 were to be adopted, replace char with char8_t.
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-8
+// FIXME: code units.  char is used anyway since the standard specifies that
+// FIXME: u8 string literals are const arrays of char.  Use of char is also
+// FIXME: problematic for implementations with a signed char.
 using utf8_encoding = utf8_encoding_template<
               character<unicode_character_set_template<char32_t>>,
-              uint_least8_t>;
+              char>;
 
 
 /*
@@ -78,6 +83,10 @@ struct utf16be_encoding_template {
         return state;
     }
 };
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-16be
+// FIXME: code units.  uint_least8_t is used now, but char would be preferred.
+// FIXME: Use of char would also be problematic for implementations with a
+// FIXME: signed char.
 using utf16be_encoding = utf16be_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               uint_least8_t>;
@@ -91,6 +100,10 @@ struct utf16le_encoding_template {
         return state;
     }
 };
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-16le
+// FIXME: code units.  uint_least8_t is used now, but char would be preferred.
+// FIXME: Use of char would also be problematic for implementations with a
+// FIXME: signed char.
 using utf16le_encoding = utf16le_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               uint_least8_t>;
@@ -121,6 +134,10 @@ struct utf32be_encoding_template {
         return state;
     }
 };
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-32be
+// FIXME: code units.  uint_least8_t is used now, but char would be preferred.
+// FIXME: Use of char would also be problematic for implementations with a
+// FIXME: signed char.
 using utf32be_encoding = utf32be_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               uint_least8_t>;
@@ -134,6 +151,10 @@ struct utf32le_encoding_template {
         return state;
     }
 };
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-32le
+// FIXME: code units.  uint_least8_t is used now, but char would be preferred.
+// FIXME: Use of char would also be problematic for implementations with a
+// FIXME: signed char.
 using utf32le_encoding = utf32le_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               uint_least8_t>;
