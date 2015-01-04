@@ -2,8 +2,10 @@
 #define STDTEXT_TEXT_ITERATOR_HPP
 
 
+#include <stdtext/adl_customization.hpp>
 #include <stdtext/concepts.hpp>
 #include <iterator>
+#include <origin/core/traits.hpp>
 
 
 namespace std {
@@ -53,54 +55,49 @@ struct text_iterator_category_selector<C, CUIT> {
 } // namespace detail
 
 
-// FIXME: Per D4128 (Ranges for the Standard Library), should text iterators
-// FIXME: require a text_view object and refer to it for the underlying range?
-// FIXME: Doing so would simplify constructor declarations and make text
-// FIXME: iterators less expensive to copy.  Perhaps this would avoid the need
-// FIXME: to specialze itext_iterator for input iterators and forward+
-// FIXME: iterators?  Presumably, this would also avoid the need to specialize
-// FIXME: begin() and end() in the text_view specializations.
-template<typename E, typename CUIT>
+template<typename ET, typename RT>
 struct itext_iterator;
 
-template<Encoding E, Code_unit_iterator CUIT>
-requires origin::Input_iterator<CUIT>()
-struct itext_iterator<E, CUIT>
+template<Encoding ET, origin::Input_range RT>
+requires origin::Input_iterator<origin::Iterator_type<RT>>()
+struct itext_iterator<ET, RT>
     : public std::iterator<
                  typename detail::text_iterator_category_selector<
-                     typename E::codec_type,
-                     CUIT>::type,
-                 typename E::codec_type::character_type,
-                 origin::Difference_type<CUIT>,
-                 const typename E::codec_type::character_type*,
-                 const typename E::codec_type::character_type&>
-    , private E::codec_type::state_type
+                     typename ET::codec_type,
+                     origin::Iterator_type<RT>>::type,
+                 typename ET::codec_type::character_type,
+                 origin::Difference_type<origin::Iterator_type<RT>>,
+                 const typename ET::codec_type::character_type*,
+                 const typename ET::codec_type::character_type&>
+    , private ET::codec_type::state_type
 {
-    using encoding_type = E;
-    using state_type = typename E::codec_type::state_type;
-    using iterator = CUIT;
+    using encoding_type = ET;
+    using range_type = origin::Remove_reference<RT>;
+    using state_type = typename encoding_type::codec_type::state_type;
+    using iterator = origin::Iterator_type<range_type>;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
     using reference = typename itext_iterator::reference;
     using pointer = typename itext_iterator::pointer;
     using difference_type = typename itext_iterator::difference_type;
 
-    itext_iterator() = default
-        requires origin::Default_constructible<state_type>();
-
-    itext_iterator(iterator first, iterator last)
+    itext_iterator()
         requires origin::Default_constructible<state_type>()
-        : current{first}, end{last}
-    {
-        ++*this;
-    }
+              && origin::Default_constructible<iterator>()
+        : range{}, current{}, value{}, ok{false} {}
 
+    // FIXME: If the state_type base class is initialized using braces instead
+    // FIXME: of parenthesis, gcc errors out with a diagnostic like:
+    // FIXME:   error: too many initializers for ‘trivial_codec_state’
+    // FIXME: This appears to be a gcc defect.
     itext_iterator(
-        state_type state,
-        iterator first, iterator last)
+        const state_type &state,
+        const range_type *range,
+        iterator current)
     :
-        state_type{state},
-        current{first}, end{last}
+        state_type(state),
+        range{range},
+        current{current}
     {
         ++*this;
     }
@@ -124,14 +121,15 @@ struct itext_iterator<E, CUIT>
     }
 
     bool operator==(const itext_iterator& other) const {
-        return ok == other.ok && (!ok || current == other.current);
+        return ok == other.ok
+            && (!ok || current == other.current);
     }
     bool operator!=(const itext_iterator& other) const {
         return !(*this == other);
     }
 
     itext_iterator& operator++() {
-        ok = (current != end);
+        ok = (current != detail::adl_end(*range));
         if (ok) {
             using codec_type = typename encoding_type::codec_type;
             iterator tmp_iterator{current};
@@ -140,7 +138,7 @@ struct itext_iterator<E, CUIT>
             codec_type::decode(
                 state(),
                 tmp_iterator,
-                end,
+                detail::adl_end(*range),
                 tmp_value,
                 decoded_code_units);
             current = tmp_iterator;
@@ -154,8 +152,9 @@ struct itext_iterator<E, CUIT>
         return it;
     }
 
-protected:
-    iterator current, end;
+private:
+    const range_type *range;
+    iterator current;
     value_type value;
     bool ok;
 };
@@ -169,45 +168,47 @@ protected:
 // FIXME: due to multiple conflicting definitions of value_type (since
 // FIXME: itext_iterator models an iterator requiring a different value_type
 // FIXME: definition).
-template<Encoding E, Code_unit_iterator CUIT>
-requires origin::Forward_iterator<CUIT>()
-struct itext_iterator<E, CUIT>
+template<Encoding ET, origin::Input_range RT>
+requires origin::Forward_iterator<origin::Iterator_type<RT>>()
+struct itext_iterator<ET, RT>
     : public std::iterator<
                  typename detail::text_iterator_category_selector<
-                     typename E::codec_type,
-                     CUIT>::type,
-                 typename E::codec_type::character_type,
-                 origin::Difference_type<CUIT>,
-                 const typename E::codec_type::character_type*,
-                 const typename E::codec_type::character_type&>
-    , private E::codec_type::state_type
+                     typename ET::codec_type,
+                     origin::Iterator_type<RT>>::type,
+                 typename ET::codec_type::character_type,
+                 origin::Difference_type<origin::Iterator_type<RT>>,
+                 const typename ET::codec_type::character_type*,
+                 const typename ET::codec_type::character_type&>
+    , private ET::codec_type::state_type
 {
-    using encoding_type = E;
-    using state_type = typename E::codec_type::state_type;
-    using iterator = CUIT;
+    using encoding_type = ET;
+    using range_type = origin::Remove_reference<RT>;
+    using state_type = typename ET::codec_type::state_type;
+    using iterator = origin::Iterator_type<RT>;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
     using reference = typename itext_iterator::reference;
     using pointer = typename itext_iterator::pointer;
     using difference_type = typename itext_iterator::difference_type;
 
-    itext_iterator() = default
-        requires origin::Default_constructible<state_type>();
-
-    itext_iterator(iterator start, iterator first, iterator finish)
+    itext_iterator()
         requires origin::Default_constructible<state_type>()
-    :
-        start{start}, first{first}, last{first}, finish{finish}
-    {
-        ++*this;
-    }
+              && origin::Default_constructible<iterator>()
+        : range{}, first{}, last{}, value{} {}
 
+    // FIXME: If the state_type base class is initialized using braces instead
+    // FIXME: of parenthesis, gcc errors out with a diagnostic like:
+    // FIXME:   error: too many initializers for ‘trivial_codec_state’
+    // FIXME: This appears to be a gcc defect.
     itext_iterator(
-        state_type state,
-        iterator start, iterator first, iterator finish)
+        const state_type &state,
+        const range_type *range,
+        iterator first)
     :
-        state_type{state},
-        start{start}, first{first}, last{first}, finish{finish}
+        state_type(state),
+        range{range},
+        first{first},
+        last{first}
     {
         ++*this;
     }
@@ -275,7 +276,7 @@ struct itext_iterator<E, CUIT>
 
     itext_iterator& operator++() {
         first = last;
-        if (first != finish) {
+        if (first != detail::adl_end(*range)) {
             using codec_type = typename encoding_type::codec_type;
             iterator tmp_iterator{first};
             value_type tmp_value;
@@ -283,7 +284,7 @@ struct itext_iterator<E, CUIT>
             codec_type::decode(
                 state(),
                 tmp_iterator,
-                finish,
+                detail::adl_end(*range),
                 tmp_value,
                 decoded_code_units);
             last = tmp_iterator;
@@ -305,13 +306,13 @@ struct itext_iterator<E, CUIT>
         last = first;
         using codec_type = typename encoding_type::codec_type;
         std::reverse_iterator<iterator> rcurrent{last};
-        std::reverse_iterator<iterator> rfinish{start};
+        std::reverse_iterator<iterator> rend{detail::adl_begin(*range)};
         value_type tmp_value;
         int decoded_code_units = 0;
         codec_type::rdecode(
             state(),
             rcurrent,
-            rfinish,
+            rend,
             tmp_value,
             decoded_code_units);
         first = rcurrent.base();
@@ -389,16 +390,17 @@ struct itext_iterator<E, CUIT>
         return *(*this + n);
     }
 
-protected:
-    iterator start, first, last, finish;
+private:
+    const range_type *range;
+    iterator first, last;
     value_type value;
 };
 
-template<Encoding E, Code_unit_iterator CUIT>
-requires origin::Random_access_iterator<CUIT>()
-itext_iterator<E, CUIT> operator+(
-    origin::Difference_type<CUIT> n,
-    itext_iterator<E, CUIT> it)
+template<Encoding ET, origin::Input_range RT>
+requires origin::Random_access_iterator<origin::Iterator_type<RT>>()
+itext_iterator<ET, RT> operator+(
+    origin::Difference_type<origin::Iterator_type<RT>> n,
+    itext_iterator<ET, RT> it)
 {
     return it += n;
 }

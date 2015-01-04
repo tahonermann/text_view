@@ -176,11 +176,11 @@ struct text_iterator_archetype_template {
     using encoding_type = ET;
     using state_type = typename ET::codec_type::state_type;
     using iterator = CUIT;
-    using iterator_category = origin::Iterator_category<CUIT>;
+    using iterator_category = origin::Iterator_category<iterator>;
     using value_type = typename ET::codec_type::character_type;
     using reference = typename ET::codec_type::character_type&;
     using pointer = typename ET::codec_type::character_type*;
-    using difference_type = origin::Difference_type<CUIT>;
+    using difference_type = origin::Difference_type<iterator>;
 
     text_iterator_archetype_template();
     text_iterator_archetype_template(iterator, iterator);
@@ -221,17 +221,17 @@ using text_iterator_archetype = text_iterator_archetype_template<
 /*
  * Text view archetype
  */
-template<Encoding ET, origin::Input_range R>
+template<Encoding ET, origin::Input_range RT>
 struct text_view_archetype_template {
-    using range_type = R;
+    using range_type = RT;
     using encoding_type = ET;
     using state_type = typename ET::codec_type::state_type;
-    using code_unit_iterator = origin::Iterator_type<R>;
+    using code_unit_iterator = origin::Iterator_type<RT>;
     using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;
 
-    text_view_archetype_template(const state_type &initial_state, R r);
-    const R& base() const;
-    R& base();
+    text_view_archetype_template(const state_type &initial_state, RT r);
+    const RT& base() const;
+    RT& base();
     const state_type& initial_state() const;
     state_type& initial_state();
     iterator begin() const;
@@ -239,7 +239,7 @@ struct text_view_archetype_template {
 };
 using text_view_archetype = text_view_archetype_template<
                                 encoding_archetype,
-                                origin::bounded_range<code_unit_archetype*>>;
+                                origin::bounded_range<code_unit_iterator_archetype>>;
 
 
 } // namespace text

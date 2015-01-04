@@ -272,22 +272,22 @@ void test_encoding_models() {
 void test_text_iterator_models() {
     // Archetypes
     static_assert(Text_iterator<text_iterator_archetype>(), "");
-    static_assert(Text_iterator<itext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
+    static_assert(Text_iterator<text_view_archetype::iterator>(), "");
     static_assert(Text_iterator<otext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
     static_assert(Text_iterator<rotext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
     // std input iterators
-    static_assert(Text_iterator<itext_iterator<basic_execution_character_encoding, char*>>(), "");
-    static_assert(Text_iterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<basic_execution_character_encoding, char(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
 #if defined(__STDC_ISO_10646__)
-    static_assert(Text_iterator<itext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<iso_10646_wide_character_encoding, wchar_t(&)[5]>>(), "");
 #endif
-    static_assert(Text_iterator<itext_iterator<utf8_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16be_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16le_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32be_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32le_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf8_encoding, char(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16_encoding, char16_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16be_encoding, uint_least8_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16le_encoding, uint_least8_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32_encoding, char32_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32be_encoding, uint_least8_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32le_encoding, uint_least8_t(&)[5]>>(), "");
     // std output iterators
     static_assert(Text_iterator<otext_iterator<basic_execution_character_encoding, char*>>(), "");
     static_assert(Text_iterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>(), "");

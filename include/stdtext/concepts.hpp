@@ -221,13 +221,13 @@ concept bool Text_iterator() {
 template<typename T>
 concept bool Text_view() {
     return requires () {
-               typename T::range_type;
                typename T::encoding_type;
+               typename T::range_type;
                typename T::state_type;
                typename T::code_unit_iterator;
            }
-        && origin::Input_range<typename T::range_type>()
         && Encoding<typename T::encoding_type>()
+        && origin::Input_range<typename T::range_type>()
         && Codec_state<typename T::state_type>()
         && origin::Iterator<typename T::code_unit_iterator>()
         && origin::Input_range<T>()

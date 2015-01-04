@@ -59,17 +59,20 @@ namespace text {
 // FIXME: obtained by iterating from the begin state to the end iterator would,
 // FIXME: in general, require iterating the entire range.
 
-template<Encoding E, origin::Input_range R>
+// FIXME: N4128 specifies a range_base class that is used as a base class to
+// FIXME: explicitly specify that a class models the N4128 Range concept.
+// FIXME: text_view models the N4128 Range concept, and so could (should?)
+// FIXME: derive from range_base to make this explicit.  Origin does define a
+// FIXME: range_base template class that differs from what N4128 specifies.
+template<Encoding ET, origin::Input_range RT>
 struct text_view
-    : private E::codec_type::state_type
-    , public origin::range_base<
-                 itext_iterator<E, origin::Iterator_type<const R>>>
+    : private ET::codec_type::state_type
 {
-    using range_type = R;
-    using encoding_type = E;
-    using state_type = typename E::codec_type::state_type;
+    using encoding_type = ET;
+    using range_type = RT;
+    using state_type = typename ET::codec_type::state_type;
     using code_unit_iterator = origin::Iterator_type<const range_type>;
-    using iterator = itext_iterator<encoding_type, code_unit_iterator>;
+    using iterator = itext_iterator<ET, RT>;
 
     // Overload to initialize a text view with an empty range.  Note that this
     // constructor will be defined as deleted if either state_type or range_type
@@ -245,32 +248,15 @@ struct text_view
         return *this;
     }
 
-    iterator begin() const
-        requires ! origin::Forward_iterator<iterator>() // Input_iterator only
-    {
-        return iterator{detail::adl_begin(r), detail::adl_end(r)};
+    iterator begin() const {
+        return iterator{initial_state(), &r, detail::adl_begin(r)};
     }
-    iterator end() const
-        requires ! origin::Forward_iterator<iterator>() // Input_iterator only
-    {
-        return iterator{detail::adl_end(r), detail::adl_end(r)};
-    }
-
-    iterator begin() const
-        requires origin::Forward_iterator<iterator>()
-    {
-        return iterator{
-                   detail::adl_begin(r),
-                   detail::adl_begin(r),
-                   detail::adl_end(r)};
-    }
-    iterator end() const
-        requires origin::Forward_iterator<iterator>()
-    {
-        return iterator{
-                   detail::adl_begin(r),
-                   detail::adl_end(r),
-                   detail::adl_end(r)};
+    iterator end() const {
+        // End iterators are constructed with the encoding's initial state.
+        // This state may not be appropriate for stateful bidirectional
+        // encodings.
+        // FIXME: Perhaps encodings should provide an initial_end_state?
+        return iterator{ET::initial_state(), &r, detail::adl_end(r)};
     }
 
 private:
@@ -300,38 +286,38 @@ using u32text_view = text_view<
  */
 // Overload to construct a text view from an N4128 IteratorRange and an
 // explicitly specified initial codec state.
-template<Encoding E, origin::Iterator I>
+template<Encoding ET, origin::Iterator IT>
 auto make_text_view(
-    typename E::codec_type::state_type state,
-    I first,
-    I last)
+    typename ET::codec_type::state_type state,
+    IT first,
+    IT last)
 {
-    using range_type = origin::bounded_range<I>;
-    return text_view<E, range_type>{state, first, last};
+    using range_type = origin::bounded_range<IT>;
+    return text_view<ET, range_type>{state, first, last};
 }
 
 // Overload to construct a text view from an N4128 IteratorRange and an
 // implicit initial codec state.
-template<Encoding E, origin::Iterator I>
+template<Encoding ET, origin::Iterator IT>
 auto make_text_view(
-    I first,
-    I last)
+    IT first,
+    IT last)
 {
-    return make_text_view<E>(
-               E::initial_state(),
+    return make_text_view<ET>(
+               ET::initial_state(),
                first,
                last);
 }
 
 // Overload to construct a text view from an N4128 SizedIteratorRange and an
 // explicitly specified initial codec state.
-template<Encoding E, origin::Forward_iterator I>
+template<Encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
-    typename E::codec_type::state_type state,
-    I first,
-    origin::Make_unsigned<origin::Difference_type<I>> n)
+    typename ET::codec_type::state_type state,
+    IT first,
+    origin::Make_unsigned<origin::Difference_type<IT>> n)
 {
-    return make_text_view<E>(
+    return make_text_view<ET>(
                state,
                first,
                std::next(first, n));
@@ -339,24 +325,24 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4128 SizedIteratorRange and an
 // implicit initial codec state.
-template<Encoding E, origin::Forward_iterator I>
+template<Encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
-    I first,
-    origin::Make_unsigned<origin::Difference_type<I>> n)
+    IT first,
+    origin::Make_unsigned<origin::Difference_type<IT>> n)
 {
-    return make_text_view<E>(
+    return make_text_view<ET>(
                first,
                std::next(first, n));
 }
 
 // Overload to construct a text view from an N4128 Iterable const reference
 // and an explicitly specified initial codec state.
-template<Encoding E, origin::Input_range Iterable>
+template<Encoding ET, origin::Input_range Iterable>
 auto make_text_view(
-    typename E::codec_type::state_type state,
+    typename ET::codec_type::state_type state,
     const Iterable &iterable)
 {
-    return make_text_view<E>(
+    return make_text_view<ET>(
                state,
                detail::adl_begin(iterable),
                detail::adl_end(iterable));
@@ -364,33 +350,33 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4128 Iterable const reference
 // and an implicit initial codec state.
-template<Encoding E, origin::Input_range Iterable>
+template<Encoding ET, origin::Input_range Iterable>
 auto make_text_view(
     const Iterable &iterable)
 {
-    return make_text_view<E>(
+    return make_text_view<ET>(
                detail::adl_begin(iterable),
                detail::adl_end(iterable));
 }
 
 // Overload to construct a text view from a text iterator pair.  The
 // initial codec state is inferred from the first iterator.
-template<Text_iterator TI>
+template<Text_iterator TIT>
 auto make_text_view(
-    TI first,
-    TI last)
+    TIT first,
+    TIT last)
 {
-    using E = encoding_type_of<TI>;
-    return make_text_view<E>(
+    using ET = encoding_type_of<TIT>;
+    return make_text_view<ET>(
                first.state(),
                first.base(),
                last.base());
 }
 
 // Overload to construct a text view from an existing text view.
-template<Text_view TV>
+template<Text_view TVT>
 auto make_text_view(
-    TV tv)
+    TVT tv)
 {
     return tv;
 }
