@@ -82,15 +82,18 @@ struct text_view
     // Overload to initialize a text view from an N4128 Range and an explicitly
     // specified initial codec state.  This overload requires that range_type
     // be copy constructible.
-    // FIXME: If the state_type base class is initialized using braces instead
-    // FIXME: of parenthesis, gcc errors out with a diagnostic like:
-    // FIXME:   error: too many initializers for ‘trivial_codec_state’
-    // FIXME: This appears to be a gcc defect.
     text_view(
         state_type state,
         range_type r)
     requires origin::Copy_constructible<range_type>()
-    : state_type(state), r{r} {}
+    :
+        // CWG DR1467.  List-initialization doesn't consider copy constructors
+        // for aggregates.  The state_type base class must be initialized with
+        // an expression-list.
+        state_type(state),
+        r{r}
+    {}
+
 
     // Overload to initialize a text view from an N4128 Range and an implicit
     // initial codec state.  This overload requires that range_type be copy
@@ -103,17 +106,19 @@ struct text_view
     // Overload to initialize a text view from an N4128 IteratorRange and an
     // explicitly specified initial codec state.  This overload requires that
     // range_type be constructible from a code_unit_iterator pair.
-    // FIXME: If the state_type base class is initialized using braces instead
-    // FIXME: of parenthesis, gcc errors out with a diagnostic like:
-    // FIXME:   error: too many initializers for ‘trivial_codec_state’
-    // FIXME: This appears to be a gcc defect.
     text_view(
         state_type state,
         code_unit_iterator first,
         code_unit_iterator last)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_iterator>()
-    : state_type(state), r{first, last} {}
+    :
+        // CWG DR1467.  List-initialization doesn't consider copy constructors
+        // for aggregates.  The state_type base class must be initialized with
+        // an expression-list.
+        state_type(state),
+        r{first, last}
+    {}
 
     // Overload to initialize a text view from an N4128 IteratorRange and an
     // implicit initial codec state.  This overload requires that range_type be

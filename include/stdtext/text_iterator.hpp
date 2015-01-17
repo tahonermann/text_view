@@ -86,15 +86,14 @@ struct itext_iterator<ET, RT>
               && origin::Default_constructible<iterator>()
         : range{}, current{}, value{}, ok{false} {}
 
-    // FIXME: If the state_type base class is initialized using braces instead
-    // FIXME: of parenthesis, gcc errors out with a diagnostic like:
-    // FIXME:   error: too many initializers for ‘trivial_codec_state’
-    // FIXME: This appears to be a gcc defect.
     itext_iterator(
         const state_type &state,
         const range_type *range,
         iterator current)
     :
+        // CWG DR1467.  List-initialization doesn't consider copy constructors
+        // for aggregates.  The state_type base class must be initialized with
+        // an expression-list.
         state_type(state),
         range{range},
         current{current}
@@ -196,15 +195,14 @@ struct itext_iterator<ET, RT>
               && origin::Default_constructible<iterator>()
         : range{}, first{}, last{}, value{} {}
 
-    // FIXME: If the state_type base class is initialized using braces instead
-    // FIXME: of parenthesis, gcc errors out with a diagnostic like:
-    // FIXME:   error: too many initializers for ‘trivial_codec_state’
-    // FIXME: This appears to be a gcc defect.
     itext_iterator(
         const state_type &state,
         const range_type *range,
         iterator first)
     :
+        // CWG DR1467.  List-initialization doesn't consider copy constructors
+        // for aggregates.  The state_type base class must be initialized with
+        // an expression-list.
         state_type(state),
         range{range},
         first{first},
