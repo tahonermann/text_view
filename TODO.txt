@@ -1,0 +1,11 @@
+- Add Unicode encodings that support BOMs.
+- Change text_view to support use of range sentinels for end().
+- Add transcoding support.
+- Modify text_view and text iterators to derive from the codec
+  state type only if the state type is an empty class and to
+  declare a non-static data member otherwise.  This will reduce
+  the size of text_view and text iterator objects when the codec
+  state type is non-empty and has lower alignment requirements
+  than the first non-static data member of the text_view and text
+  iterator types.
+- Add support for additional encodings...
