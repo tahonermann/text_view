@@ -6,6 +6,7 @@
 #include <stdtext/exceptions.hpp>
 #include <stdtext/character.hpp>
 #include <stdtext/codecs/trivial_codec.hpp>
+#include <climits>
 #include <cstdint>
 
 
@@ -21,6 +22,8 @@ struct utf32le_codec {
     using code_unit_type = CUT;
     static constexpr int min_code_units = 4;
     static constexpr int max_code_units = 4;
+
+    static_assert(sizeof(code_unit_type) * CHAR_BIT >= 8, "");
 
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
