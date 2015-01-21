@@ -563,11 +563,14 @@ void test_forward_decode(
     for (const auto &ecp : encoded_characters) {
         // Validate base code unit iterators.
         assert(tvit.base() == cuit);
-        assert(begin(tvit) == cuit);
+        assert(begin(tvit.base_range()) == cuit);
         advance(cuit, ecp.code_units.size());
-        assert(end(tvit) == cuit);
+        assert(end(tvit.base_range()) == cuit);
         // Validate the underlying code unit sequence.
-        assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        assert(equal(
+            begin(tvit.base_range()),
+            end(tvit.base_range()),
+            begin(ecp.code_units)));
         // Decode and advance.
         auto tvcp = *tvit;
         ++tvit;
@@ -576,9 +579,9 @@ void test_forward_decode(
     }
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
-    assert(begin(tvit) == cuit);
-    assert(end(tvit) == cuit);
-    assert(begin(tvit) == end(code_unit_range));
+    assert(begin(tvit.base_range()) == cuit);
+    assert(end(tvit.base_range()) == cuit);
+    assert(begin(tvit.base_range()) == end(code_unit_range));
     assert(tvit == end(tv));
 
     // Validate post-increment iteration.
@@ -587,11 +590,14 @@ void test_forward_decode(
     for (const auto &ecp : encoded_characters) {
         // Validate base code unit iterators.
         assert(tvit.base() == cuit);
-        assert(begin(tvit) == cuit);
+        assert(begin(tvit.base_range()) == cuit);
         advance(cuit, ecp.code_units.size());
-        assert(end(tvit) == cuit);
+        assert(end(tvit.base_range()) == cuit);
         // Validate the underlying code unit sequence.
-        assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        assert(equal(
+            begin(tvit.base_range()),
+            end(tvit.base_range()),
+            begin(ecp.code_units)));
         // Decode and advance.
         auto tvcp = *tvit++;
         // Validate the decoded character.
@@ -599,9 +605,9 @@ void test_forward_decode(
     }
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
-    assert(begin(tvit) == cuit);
-    assert(end(tvit) == cuit);
-    assert(begin(tvit) == end(code_unit_range));
+    assert(begin(tvit.base_range()) == cuit);
+    assert(end(tvit.base_range()) == cuit);
+    assert(begin(tvit.base_range()) == end(code_unit_range));
     assert(tvit == end(tv));
 
     // Validate iterator equality comparison.
@@ -642,19 +648,22 @@ void test_reverse_decode(
         const auto &ecp = *--ecpit;
         auto tvcp = *--tvit;
         // Validate base code unit iterators.
-        assert(end(tvit) == cuit);
+        assert(end(tvit.base_range()) == cuit);
         advance(cuit, -ecp.code_units.size());
-        assert(begin(tvit) == cuit);
+        assert(begin(tvit.base_range()) == cuit);
         assert(tvit.base() == cuit);
         // Validate the underlying code unit sequence.
-        assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        assert(equal(
+            begin(tvit.base_range()),
+            end(tvit.base_range()),
+            begin(ecp.code_units)));
         // Validate the decoded character.
         assert(tvcp == ecp.character);
     }
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
-    assert(begin(tvit) == cuit);
-    assert(begin(tvit) == begin(code_unit_range));
+    assert(begin(tvit.base_range()) == cuit);
+    assert(begin(tvit.base_range()) == begin(code_unit_range));
     assert(tvit == begin(tv));
 
     // Validate post-decrement.
@@ -669,19 +678,22 @@ void test_reverse_decode(
         tvit--;
         auto tvcp = *tvit;
         // Validate base code unit iterators.
-        assert(end(tvit) == cuit);
+        assert(end(tvit.base_range()) == cuit);
         advance(cuit, -ecp.code_units.size());
-        assert(begin(tvit) == cuit);
+        assert(begin(tvit.base_range()) == cuit);
         assert(tvit.base() == cuit);
         // Validate the underlying code unit sequence.
-        assert(equal(begin(tvit), end(tvit), begin(ecp.code_units)));
+        assert(equal(
+            begin(tvit.base_range()),
+            end(tvit.base_range()),
+            begin(ecp.code_units)));
         // Validate the decoded character.
         assert(tvcp == ecp.character);
     }
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
-    assert(begin(tvit) == cuit);
-    assert(begin(tvit) == begin(code_unit_range));
+    assert(begin(tvit.base_range()) == cuit);
+    assert(begin(tvit.base_range()) == begin(code_unit_range));
     assert(tvit == begin(tv));
 }
 
@@ -708,11 +720,14 @@ void test_random_decode(
     for (const auto &ecp : encoded_characters) {
         // Validate base code unit iterators.
         assert((tvit+i).base() == cuit);
-        assert(begin(tvit+i) == cuit);
+        assert(begin((tvit+i).base_range()) == cuit);
         advance(cuit, ecp.code_units.size());
-        assert(end(tvit+i) == cuit);
+        assert(end((tvit+i).base_range()) == cuit);
         // Validate the underlying code unit sequence.
-        assert(equal(begin(tvit+i), end(tvit+i), begin(ecp.code_units)));
+        assert(equal(
+            begin((tvit+i).base_range()),
+            end((tvit+i).base_range()),
+            begin(ecp.code_units)));
         // Validate the decoded character.
         assert(tvit[i] == ecp.character);
         // Advance.
@@ -720,8 +735,8 @@ void test_random_decode(
     }
     // Validate base code unit iterators.
     assert(end(tv).base() == cuit);
-    assert(begin(end(tv)) == cuit);
-    assert(end(end(tv)) == cuit);
+    assert(begin(end(tv).base_range()) == cuit);
+    assert(end(end(tv).base_range()) == cuit);
 
     // Validate random access iterator requirements.
     auto num_characters = encoded_characters.size();
@@ -1131,7 +1146,7 @@ void test_construct_text_view(
     // Test initialization with a text iterator pair.
     TVT tv18 = {begin(tv17), end(tv17)};
     test_text_view<TVT>(characters_without_terminator,
-                        RT{begin(begin(tv17)), end(end(tv17))},
+                        RT{begin(begin(tv17).base_range()), end(end(tv17).base_range())},
                         tv18);
                              
     // Test initialization via the copy constructor.
@@ -1508,8 +1523,8 @@ void test_utf8_encoding() {
     string encoded_string(u8"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 1);
-    assert(end(tit) == begin(encoded_string) + 5);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 1);
+    assert(end(tit.base_range()) == begin(encoded_string) + 5);
 }
 
 void test_utf16_encoding() {
@@ -1528,8 +1543,8 @@ void test_utf16_encoding() {
     u16string encoded_string(u"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 1);
-    assert(end(tit) == begin(encoded_string) + 3);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 1);
+    assert(end(tit.base_range()) == begin(encoded_string) + 3);
 }
 
 void test_utf16be_encoding() {
@@ -1548,8 +1563,8 @@ void test_utf16be_encoding() {
     string encoded_string("\x00\x61\xD8\x04\xDD\x41\x00\x7A", 8);
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 2);
-    assert(end(tit) == begin(encoded_string) + 6);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 2);
+    assert(end(tit.base_range()) == begin(encoded_string) + 6);
 }
 
 void test_utf16le_encoding() {
@@ -1568,8 +1583,8 @@ void test_utf16le_encoding() {
     string encoded_string("\x61\x00\x04\xD8\x41\xDD\x7A\x00", 8);
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 2);
-    assert(end(tit) == begin(encoded_string) + 6);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 2);
+    assert(end(tit.base_range()) == begin(encoded_string) + 6);
 }
 
 void test_utf32_encoding() {
@@ -1588,8 +1603,8 @@ void test_utf32_encoding() {
     u32string encoded_string(U"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 1);
-    assert(end(tit) == begin(encoded_string) + 2);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 1);
+    assert(end(tit.base_range()) == begin(encoded_string) + 2);
 }
 
 void test_utf32be_encoding() {
@@ -1608,8 +1623,8 @@ void test_utf32be_encoding() {
     string encoded_string("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\x00\x7A", 12);
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 4);
-    assert(end(tit) == begin(encoded_string) + 8);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 4);
+    assert(end(tit.base_range()) == begin(encoded_string) + 8);
 }
 
 void test_utf32le_encoding() {
@@ -1628,8 +1643,8 @@ void test_utf32le_encoding() {
     string encoded_string("\x61\x00\x00\x00\x41\x11\x01\x00\x7A\x00\x00\x00", 12);
     auto tv = make_text_view<ET>(encoded_string);
     auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit) == begin(encoded_string) + 4);
-    assert(end(tit) == begin(encoded_string) + 8);
+    assert(begin(tit.base_range()) == begin(encoded_string) + 4);
+    assert(end(tit.base_range()) == begin(encoded_string) + 8);
 }
 
 int main() {

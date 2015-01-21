@@ -158,15 +158,6 @@ private:
     bool ok;
 };
 
-// FIXME: N4128 specifies a range_base class that is used as a base class to
-// FIXME: explicitly specify that a class models the N4128 Range concept.
-// FIXME: itext_iterator (with a forward iterator) models the N4128 Range
-// FIXME: concept, and so could (should?) derive from range_base to make this
-// FIXME: explicit.  Origin does define a range_base template class that
-// FIXME: differs from what N4128 specifies.  Deriving from it causes conflicts
-// FIXME: due to multiple conflicting definitions of value_type (since
-// FIXME: itext_iterator models an iterator requiring a different value_type
-// FIXME: definition).
 template<Encoding ET, origin::Input_range RT>
 requires origin::Forward_iterator<origin::Iterator_type<RT>>()
 struct itext_iterator<ET, RT>
@@ -190,10 +181,23 @@ struct itext_iterator<ET, RT>
     using pointer = typename itext_iterator::pointer;
     using difference_type = typename itext_iterator::difference_type;
 
+    struct current_range_type {
+        current_range_type()
+            : first{}, last{} {}
+        current_range_type(iterator first, iterator last)
+            : first{first}, last{last} {}
+
+        iterator begin() const { return first; }
+        iterator end() const { return last; }
+
+        iterator first;
+        iterator last;
+    };
+
     itext_iterator()
         requires origin::Default_constructible<state_type>()
               && origin::Default_constructible<iterator>()
-        : range{}, first{}, last{}, value{} {}
+        : range{}, current_range{}, value{} {}
 
     itext_iterator(
         const state_type &state,
@@ -205,8 +209,7 @@ struct itext_iterator<ET, RT>
         // an expression-list.
         state_type(state),
         range{range},
-        first{first},
-        last{first}
+        current_range{first, first}
     {
         ++*this;
     }
@@ -219,14 +222,11 @@ struct itext_iterator<ET, RT>
     }
 
     iterator base() const {
-        return first;
+        return current_range.first;
     }
 
-    iterator begin() const {
-        return first;
-    }
-    iterator end() const {
-        return last;
+    const current_range_type& base_range() const {
+        return current_range;
     }
 
     reference operator*() const {
@@ -237,7 +237,7 @@ struct itext_iterator<ET, RT>
     }
 
     bool operator==(const itext_iterator& other) const {
-        return first == other.first;
+        return current_range.first == other.current_range.first;
     }
     bool operator!=(const itext_iterator& other) const {
         return !(*this == other);
@@ -273,10 +273,10 @@ struct itext_iterator<ET, RT>
     }
 
     itext_iterator& operator++() {
-        first = last;
-        if (first != detail::adl_end(*range)) {
+        current_range.first = current_range.last;
+        if (current_range.first != detail::adl_end(*range)) {
             using codec_type = typename encoding_type::codec_type;
-            iterator tmp_iterator{first};
+            iterator tmp_iterator{current_range.first};
             value_type tmp_value;
             int decoded_code_units = 0;
             codec_type::decode(
@@ -285,7 +285,7 @@ struct itext_iterator<ET, RT>
                 detail::adl_end(*range),
                 tmp_value,
                 decoded_code_units);
-            last = tmp_iterator;
+            current_range.last = tmp_iterator;
             value = tmp_value;
         }
         return *this;
@@ -301,9 +301,9 @@ struct itext_iterator<ET, RT>
                      iterator_category,
                      std::bidirectional_iterator_tag>()
     {
-        last = first;
+        current_range.last = current_range.first;
         using codec_type = typename encoding_type::codec_type;
-        std::reverse_iterator<iterator> rcurrent{last};
+        std::reverse_iterator<iterator> rcurrent{current_range.last};
         std::reverse_iterator<iterator> rend{detail::adl_begin(*range)};
         value_type tmp_value;
         int decoded_code_units = 0;
@@ -313,7 +313,7 @@ struct itext_iterator<ET, RT>
             rend,
             tmp_value,
             decoded_code_units);
-        first = rcurrent.base();
+        current_range.first = rcurrent.base();
         value = tmp_value;
         return *this;
     }
@@ -333,10 +333,12 @@ struct itext_iterator<ET, RT>
                      std::random_access_iterator_tag>()
     {
         if (n < 0) {
-            first += ((n+1) * encoding_type::codec_type::max_code_units);
+            current_range.first +=
+                ((n+1) * encoding_type::codec_type::max_code_units);
             --*this;
         } else if (n > 0) {
-            last += ((n-1) * encoding_type::codec_type::max_code_units);
+            current_range.last +=
+                ((n-1) * encoding_type::codec_type::max_code_units);
             ++*this;
         }
         return *this;
@@ -373,7 +375,8 @@ struct itext_iterator<ET, RT>
                      iterator_category,
                      std::random_access_iterator_tag>()
     {
-        return (first - it.first) / encoding_type::codec_type::max_code_units;
+        return (current_range.first - it.current_range.first) /
+               encoding_type::codec_type::max_code_units;
     }
 
     // Random access iterator requirements state that operator[] must return
@@ -390,7 +393,7 @@ struct itext_iterator<ET, RT>
 
 private:
     const range_type *range;
-    iterator first, last;
+    current_range_type current_range;
     value_type value;
 };
 
