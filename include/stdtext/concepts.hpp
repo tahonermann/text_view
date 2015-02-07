@@ -216,6 +216,16 @@ concept bool Text_iterator() {
 
 
 /*
+ * Text sentinel concept
+ */
+template<typename T, typename I>
+concept bool Text_sentinel() {
+    return origin::Sentinel<T, I>()
+        && Text_iterator<I>();
+}
+
+
+/*
  * Text view concept
  */
 template<typename T>

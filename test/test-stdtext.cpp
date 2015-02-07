@@ -1,4 +1,5 @@
 #include <stdtext/adl_customization.hpp>
+#include <stdtext/advance_to.hpp>
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -137,6 +138,140 @@ struct input_range_view {
 
 private:
     RT &r;
+};
+
+
+// Iterable model.  The standard doesn't provide a container type that has
+// different return types for begin() and end() as permitted by the N4128
+// Iterable concept.  This template class is used to wrap a type that models
+// the N4128 Range concept to produce a type that merely models the N4128
+// Iterable concept.
+template<origin::Range RT>
+struct iterable_view {
+    using range_type = origin::Remove_reference<RT>;
+    using iterator = origin::Iterator_type<RT>;
+
+    struct sentinel {
+        sentinel(iterator i) : i{i} {}
+
+        bool operator==(const sentinel& other) const {
+            // Sentinels always compare equal regardless of any internal state.
+            // See N4128, 10.1 "Sentinel Equality".
+            return true;
+        }
+        bool operator!=(const sentinel& other) const {
+            return !(*this == other);
+        }
+
+        friend bool operator==(
+            const iterator &i,
+            const sentinel &s)
+        {
+            return i == s.i;
+        }
+        friend bool operator!=(
+            const iterator &i,
+            const sentinel &s)
+        {
+            return !(i == s);
+        }
+        friend bool operator==(
+            const sentinel &s,
+            const iterator &i)
+        {
+            return i == s;
+        }
+        friend bool operator!=(
+            const sentinel &s,
+            const iterator &i)
+        {
+            return !(s == i);
+        }
+
+        bool operator<(const sentinel& other) const {
+            // Sentinels always compare equal regardless of any internal state.
+            // See N4128, 10.1 "Sentinel Equality".
+            return false;
+        }   
+        bool operator>(const sentinel& other) const {
+            return other < *this;
+        }   
+        bool operator<=(const sentinel& other) const {
+            return !(*this > other);
+        }   
+        bool operator>=(const sentinel& other) const {
+            return !(*this < other);
+        }   
+
+        friend bool operator<(
+            const iterator &i,
+            const sentinel &s)
+        {   
+            return i < s.i;
+        }   
+        friend bool operator>(
+            const iterator &i,
+            const sentinel &s)
+        {   
+            return i > s.i;
+        }   
+        friend bool operator<=(
+            const iterator &i,
+            const sentinel &s)
+        {   
+            return i <= s.i;
+        }   
+        friend bool operator>=(
+            const iterator &i,
+            const sentinel &s)
+        {   
+            return i >= s.i;
+        }   
+
+        friend bool operator<(
+            const sentinel &s,
+            const iterator &i)
+        {
+            return s.i < i;
+        }
+        friend bool operator>(
+            const sentinel &s,
+            const iterator &i)
+        {
+            return s.i > i;
+        }
+        friend bool operator<=(
+            const sentinel &s,
+            const iterator &i)
+        {
+            return s.i <= i;
+        }
+        friend bool operator>=(
+            const sentinel &s,
+            const iterator &i)
+        {
+            return s.i >= i;
+        }
+
+        iterator base() const {
+            return i;
+        }
+
+    private:
+        iterator i;
+    };
+
+    iterable_view(range_type &r) : r{r} {}
+
+    iterator begin() const {
+        return detail::adl_begin(r);
+    }
+    sentinel end() const {
+        return sentinel(detail::adl_end(r));
+    }
+
+private:
+    range_type &r;
 };
 
 
@@ -612,7 +747,11 @@ void test_forward_decode(
 
     // Validate iterator equality comparison.
     assert(begin(tv) == begin(tv));
-    if (distance(begin(code_unit_range), end(code_unit_range)) > 0) {
+    if (distance(
+            begin(code_unit_range),
+            detail::advance_to(begin(code_unit_range), end(code_unit_range)))
+        > 0)
+    {
         assert(begin(tv) != end(tv));
     }
 
@@ -638,8 +777,8 @@ void test_reverse_decode(
     TVT tv)
 {
     // Validate pre-decrement.
-    auto tvit = end(tv);
-    auto cuit = end(code_unit_range);
+    auto tvit = detail::advance_to(begin(tv), end(tv));
+    auto cuit = detail::advance_to(begin(code_unit_range), end(code_unit_range));
     for (auto ecpit = end(encoded_characters);
          ecpit != begin(encoded_characters);
          )
@@ -667,8 +806,8 @@ void test_reverse_decode(
     assert(tvit == begin(tv));
 
     // Validate post-decrement.
-    tvit = end(tv);
-    cuit = end(code_unit_range);
+    tvit = detail::advance_to(begin(tv), end(tv));
+    cuit = detail::advance_to(begin(code_unit_range), end(code_unit_range));
     for (auto ecpit = end(encoded_characters);
          ecpit != begin(encoded_characters);
          )
@@ -735,8 +874,8 @@ void test_random_decode(
     }
     // Validate base code unit iterators.
     assert(end(tv).base() == cuit);
-    assert(begin(end(tv).base_range()) == cuit);
-    assert(end(end(tv).base_range()) == cuit);
+    assert(begin(detail::advance_to(begin(tv), end(tv)).base_range()) == cuit);
+    assert(end(detail::advance_to(begin(tv), end(tv)).base_range()) == cuit);
 
     // Validate random access iterator requirements.
     auto num_characters = encoded_characters.size();
@@ -745,20 +884,24 @@ void test_random_decode(
     assert(begin(tv) <= end(tv));
     assert(end(tv)   >  begin(tv));
     assert(end(tv)   >= begin(tv));
-    assert(static_cast<decltype(num_characters)>(end(tv) - begin(tv)) ==
-           num_characters);
+    assert(static_cast<decltype(num_characters)>(
+               detail::advance_to(begin(tv), end(tv)) - begin(tv))
+               == num_characters);
     assert(begin(tv) + num_characters == end(tv));
     assert(num_characters + begin(tv) == end(tv));
-    assert(end(tv) - num_characters == begin(tv));
-    assert(-num_characters + end(tv) == begin(tv));
-    assert(end(tv)[-num_characters] == *begin(tv));
+    assert(detail::advance_to(begin(tv), end(tv)) - num_characters
+           == begin(tv));
+    assert(-num_characters + detail::advance_to(begin(tv), end(tv))
+           == begin(tv));
+    assert(detail::advance_to(begin(tv), end(tv))[-num_characters]
+           == *begin(tv));
     tvit = begin(tv);
     tvit += num_characters;
     assert(tvit == end(tv));
-    tvit = end(tv);
+    tvit = detail::advance_to(begin(tv), end(tv));
     tvit -= num_characters;
     assert(tvit == begin(tv));
-    tvit = end(tv);
+    tvit = detail::advance_to(begin(tv), end(tv));
     tvit += -num_characters;
     assert(tvit == begin(tv));
     tvit = begin(tv);
@@ -880,6 +1023,19 @@ void test_forward_encoding(
     auto tv = make_text_view<ET>(container);
     test_forward_decode(encoded_characters, container, tv);
     }
+
+    // Test itext_iterator with an underlying N4128 Iterable.
+    {
+    vector<code_unit_type> container;
+    for (const auto &ecp : encoded_characters) {
+        for (const auto &ecu : ecp.code_units) {
+            container.push_back(ecu);
+        }
+    }
+    iterable_view<decltype(container)> iv_container{container};
+    auto tv = make_text_view<ET>(iv_container);
+    test_forward_decode(encoded_characters, iv_container, tv);
+    }
 }
 
 // Test bidirectional encoding and decoding of the character sequence and code
@@ -972,6 +1128,19 @@ void test_bidirectional_encoding(
     auto tv = make_text_view<ET>(container);
     test_reverse_decode(encoded_characters, container, tv);
     }
+
+    // Test itext_iterator with an underlying N4128 Iterable.
+    {
+    vector<code_unit_type> container;
+    for (const auto &ecp : encoded_characters) {
+        for (const auto &ecu : ecp.code_units) {
+            container.push_back(ecu);
+        }
+    }
+    iterable_view<decltype(container)> iv_container{container};
+    auto tv = make_text_view<ET>(iv_container);
+    test_reverse_decode(encoded_characters, iv_container, tv);
+    }
 }
 
 // Test random access encoding and decoding of the character sequence and code
@@ -1000,6 +1169,19 @@ void test_random_access_encoding(
     }
     auto tv = make_text_view<ET>(container);
     test_random_decode(encoded_characters, container, tv);
+    }
+
+    // Test itext_iterator with an underlying N4128 Iterable.
+    {
+    vector<code_unit_type> container;
+    for (const auto &ecp : encoded_characters) {
+        for (const auto &ecu : ecp.code_units) {
+            container.push_back(ecu);
+        }
+    }
+    iterable_view<decltype(container)> iv_container{container};
+    auto tv = make_text_view<ET>(iv_container);
+    test_random_decode(encoded_characters, iv_container, tv);
     }
 }
 
@@ -1522,9 +1704,10 @@ void test_utf8_encoding() {
 
     string encoded_string(u8"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 1);
-    assert(end(tit.base_range()) == begin(encoded_string) + 5);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 5);
 }
 
 void test_utf16_encoding() {
@@ -1542,9 +1725,10 @@ void test_utf16_encoding() {
 
     u16string encoded_string(u"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 1);
-    assert(end(tit.base_range()) == begin(encoded_string) + 3);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 3);
 }
 
 void test_utf16be_encoding() {
@@ -1562,9 +1746,10 @@ void test_utf16be_encoding() {
 
     string encoded_string("\x00\x61\xD8\x04\xDD\x41\x00\x7A", 8);
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 2);
-    assert(end(tit.base_range()) == begin(encoded_string) + 6);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 6);
 }
 
 void test_utf16le_encoding() {
@@ -1582,9 +1767,10 @@ void test_utf16le_encoding() {
 
     string encoded_string("\x61\x00\x04\xD8\x41\xDD\x7A\x00", 8);
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 2);
-    assert(end(tit.base_range()) == begin(encoded_string) + 6);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 6);
 }
 
 void test_utf32_encoding() {
@@ -1602,9 +1788,10 @@ void test_utf32_encoding() {
 
     u32string encoded_string(U"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 1);
-    assert(end(tit.base_range()) == begin(encoded_string) + 2);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 2);
 }
 
 void test_utf32be_encoding() {
@@ -1622,9 +1809,10 @@ void test_utf32be_encoding() {
 
     string encoded_string("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\x00\x7A", 12);
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 4);
-    assert(end(tit.base_range()) == begin(encoded_string) + 8);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 8);
 }
 
 void test_utf32le_encoding() {
@@ -1642,9 +1830,10 @@ void test_utf32le_encoding() {
 
     string encoded_string("\x61\x00\x00\x00\x41\x11\x01\x00\x7A\x00\x00\x00", 12);
     auto tv = make_text_view<ET>(encoded_string);
-    auto tit = find(begin(tv), end(tv), CT{U'\U00011141'});
-    assert(begin(tit.base_range()) == begin(encoded_string) + 4);
-    assert(end(tit.base_range()) == begin(encoded_string) + 8);
+    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string) + 8);
 }
 
 int main() {

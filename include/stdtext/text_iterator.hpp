@@ -74,7 +74,7 @@ struct itext_iterator<ET, RT>
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
     using state_type = typename encoding_type::codec_type::state_type;
-    using iterator = origin::Iterator_type<range_type>;
+    using iterator = origin::Iterator_type<RT>;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
     using reference = typename itext_iterator::reference;
@@ -405,6 +405,154 @@ itext_iterator<ET, RT> operator+(
 {
     return it += n;
 }
+
+
+template<Encoding ET, origin::Input_range RT>
+struct itext_sentinel {
+    using range_type = origin::Remove_reference<RT>;
+    using sentinel = origin::Sentinel_type<RT>;
+
+    itext_sentinel(sentinel s)
+        : s{s} {}
+
+    // This constructor is provided in lieu of a specialization of
+    // std::common_type in order to satisfy the common type requirement for
+    // cross-type equality comparison.  See N4128, 10 "Appendix 2: Sentinels,
+    // Iterators, and the Cross-Type EqualityComparable Concept" and N3351,
+    // 3.3 "Foundational Concepts".
+    itext_sentinel(const itext_iterator<ET, RT> &ti)
+        : s{ti.base()} {}
+
+    bool operator==(const itext_sentinel& other) const {
+        // Sentinels always compare equal regardless of any internal state.
+        // See N4128, 10.1 "Sentinel Equality".
+        return true;
+    }
+    bool operator!=(const itext_sentinel& other) const {
+        return !(*this == other);
+    }
+
+    friend bool operator==(
+        const itext_iterator<ET, RT> &ti,
+        const itext_sentinel &ts)
+    {
+        return ti.base() == ts.base();
+    }
+    friend bool operator!=(
+        const itext_iterator<ET, RT> &ti,
+        const itext_sentinel &ts)
+    {
+        return !(ti == ts);
+    }
+    friend bool operator==(
+        const itext_sentinel &ts,
+        const itext_iterator<ET, RT> &ti)
+    {
+        return ti == ts;
+    }
+    friend bool operator!=(
+        const itext_sentinel &ts,
+        const itext_iterator<ET, RT> &ti)
+    {
+        return !(ts == ti);
+    }
+
+    bool operator<(const itext_sentinel& other) const {
+        // Sentinels always compare equal regardless of any internal state.
+        // See N4128, 10.1 "Sentinel Equality".
+        return false;
+    }
+    bool operator>(const itext_sentinel& other) const {
+        return other < *this;
+    }
+    bool operator<=(const itext_sentinel& other) const {
+        return !(*this > other);
+    }
+    bool operator>=(const itext_sentinel& other) const {
+        return !(*this < other);
+    }
+
+    friend bool operator<(
+        const itext_iterator<ET, RT> &ti,
+        const itext_sentinel &ts)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ti.base() < ts.base();
+    }
+    friend bool operator>(
+        const itext_iterator<ET, RT> &ti,
+        const itext_sentinel &ts)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ti.base() > ts.base();
+    }
+    friend bool operator<=(
+        const itext_iterator<ET, RT> &ti,
+        const itext_sentinel &ts)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ti.base() <= ts.base();
+    }
+    friend bool operator>=(
+        const itext_iterator<ET, RT> &ti,
+        const itext_sentinel &ts)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ti.base() >= ts.base();
+    }
+
+    friend bool operator<(
+        const itext_sentinel &ts,
+        const itext_iterator<ET, RT> &ti)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ts.base() < ti.base();
+    }
+    friend bool operator>(
+        const itext_sentinel &ts,
+        const itext_iterator<ET, RT> &ti)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ts.base() > ti.base();
+    }
+    friend bool operator<=(
+        const itext_sentinel &ts,
+        const itext_iterator<ET, RT> &ti)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ts.base() <= ti.base();
+    }
+    friend bool operator>=(
+        const itext_sentinel &ts,
+        const itext_iterator<ET, RT> &ti)
+    requires origin::Weakly_ordered<
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>()
+    {
+        return ts.base() >= ti.base();
+    }
+
+    sentinel base() const {
+        return s;
+    }
+
+private:
+    sentinel s;
+};
 
 
 template<typename E, typename CUIT>
