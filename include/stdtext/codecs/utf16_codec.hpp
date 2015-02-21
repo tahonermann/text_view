@@ -86,7 +86,7 @@ struct utf16_codec {
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
-    static void decode(
+    static bool decode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -119,13 +119,14 @@ struct utf16_codec {
             cp = cu1;
             c.set_code_point(cp);
         }
+        return true;
     }
 
     template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
-    static void rdecode(
+    static bool rdecode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -158,6 +159,7 @@ struct utf16_codec {
             cp = rcu1;
             c.set_code_point(cp);
         }
+        return true;
     }
 };
 

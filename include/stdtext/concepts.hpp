@@ -131,7 +131,7 @@ concept bool Codec() {
                typename T::character_type &c,
                int &decoded_code_units)
            {
-               T::decode(state, in_next, in_end, c, decoded_code_units);
+               { T::decode(state, in_next, in_end, c, decoded_code_units) } -> bool;
            };
 }
 
@@ -161,7 +161,7 @@ concept bool Bidirectional_codec() {
                typename T::character_type &c,
                int &decoded_code_units)
            {
-               T::rdecode(state, in_next, in_end, c, decoded_code_units);
+               { T::rdecode(state, in_next, in_end, c, decoded_code_units) } -> bool;
            };
 }
 

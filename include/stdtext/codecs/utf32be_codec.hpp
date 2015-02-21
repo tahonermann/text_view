@@ -87,7 +87,7 @@ struct utf32be_codec {
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
-    static void decode(
+    static bool decode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -122,13 +122,14 @@ struct utf32be_codec {
            | ((octet3 & 0xFF) <<  8)
            | ((octet4 & 0xFF) <<  0);
         c.set_code_point(cp);
+        return true;
     }
 
     template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
-    static void rdecode(
+    static bool rdecode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -163,6 +164,7 @@ struct utf32be_codec {
            | ((roctet2 & 0xFF) <<  8)
            | ((roctet1 & 0xFF) <<  0);
         c.set_code_point(cp);
+        return true;
     }
 };
 

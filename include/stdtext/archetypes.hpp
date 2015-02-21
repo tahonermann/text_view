@@ -111,7 +111,7 @@ struct codec_archetype_template {
 
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
-    static void encode (
+    static void encode(
         state_type &state,
         CUIT &out,
         character_type c,
@@ -119,7 +119,7 @@ struct codec_archetype_template {
 
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
-    static void rencode (
+    static void rencode(
         state_type &state,
         CUIT &out,
         character_type c,
@@ -129,7 +129,7 @@ struct codec_archetype_template {
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
-    static void decode (
+    static bool decode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -140,7 +140,7 @@ struct codec_archetype_template {
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
-    static void rdecode (
+    static bool rdecode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,

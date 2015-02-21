@@ -147,7 +147,7 @@ struct utf8_codec {
                  origin::Value_type<CUIT>,
                  origin::Make_unsigned<code_unit_type>>()
           && origin::Sentinel<CUST, CUIT>()
-    static void decode(
+    static bool decode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -169,7 +169,7 @@ struct utf8_codec {
         if (cu1 <= 0x7F) {
             cp = (cu1 & 0x7F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         if (in_next == in_end)
@@ -184,7 +184,7 @@ struct utf8_codec {
         {
             cp = ((cu1 & 0x1F) << 6) + (cu2 & 0x3F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         if (in_next == in_end)
@@ -200,7 +200,7 @@ struct utf8_codec {
         {
             cp = ((cu1 & 0x0F) << 12) + ((cu2 & 0x3F) << 6) + (cu3 & 0x3F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         if (in_next == in_end)
@@ -220,7 +220,7 @@ struct utf8_codec {
                  ((cu3 & 0x3F) << 6) +
                   (cu4 & 0x3F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         throw text_decode_error("Invalid UTF-8 code unit sequence");
@@ -232,7 +232,7 @@ struct utf8_codec {
                  origin::Value_type<CUIT>,
                  origin::Make_unsigned<code_unit_type>>()
           && origin::Sentinel<CUST, CUIT>()
-    static void rdecode(
+    static bool rdecode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -254,7 +254,7 @@ struct utf8_codec {
         if (rcu1 <= 0x7F) {
             cp = (rcu1 & 0x7F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         if (in_next == in_end)
@@ -267,7 +267,7 @@ struct utf8_codec {
         if (rcu2 & 0x40) {
             cp = ((rcu2 & 0x1F) << 6) + (rcu1 & 0x3F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         if (in_next == in_end)
@@ -280,7 +280,7 @@ struct utf8_codec {
         if (rcu3 & 0x40) {
             cp = ((rcu3 & 0x0F) << 12) + ((rcu2 & 0x3F) << 6) + (rcu1 & 0x3F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         if (in_next == in_end)
@@ -296,7 +296,7 @@ struct utf8_codec {
                  ((rcu2 & 0x3F) << 6) +
                   (rcu1 & 0x3F);
             c.set_code_point(cp);
-            return;
+            return true;
         }
 
         throw text_decode_error("Invalid UTF-8 code unit sequence");

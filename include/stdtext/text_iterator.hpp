@@ -84,7 +84,7 @@ struct itext_iterator<ET, RT>
     itext_iterator()
         requires origin::Default_constructible<state_type>()
               && origin::Default_constructible<iterator>()
-        : range{}, current{}, value{}, ok{false} {}
+        : range{}, current{}, value{} {}
 
     itext_iterator(
         const state_type &state,
@@ -120,28 +120,31 @@ struct itext_iterator<ET, RT>
     }
 
     bool operator==(const itext_iterator& other) const {
-        return ok == other.ok
-            && (!ok || current == other.current);
+        return current == other.current;
     }
     bool operator!=(const itext_iterator& other) const {
         return !(*this == other);
     }
 
     itext_iterator& operator++() {
-        ok = (current != detail::adl_end(*range));
-        if (ok) {
-            using codec_type = typename encoding_type::codec_type;
-            iterator tmp_iterator{current};
+        using codec_type = typename encoding_type::codec_type;
+
+        iterator tmp_iterator{current};
+        auto end(detail::adl_end(*range));
+        while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
-            codec_type::decode(
+            bool decoded_code_point = codec_type::decode(
                 state(),
                 tmp_iterator,
-                detail::adl_end(*range),
+                end,
                 tmp_value,
                 decoded_code_units);
             current = tmp_iterator;
-            value = tmp_value;
+            if (decoded_code_point) {
+                value = tmp_value;
+                break;
+            }
         }
         return *this;
     }
@@ -155,7 +158,6 @@ private:
     const range_type *range;
     iterator current;
     value_type value;
-    bool ok;
 };
 
 template<Encoding ET, origin::Input_range RT>
@@ -273,20 +275,26 @@ struct itext_iterator<ET, RT>
     }
 
     itext_iterator& operator++() {
+        using codec_type = typename encoding_type::codec_type;
+
         current_range.first = current_range.last;
-        if (current_range.first != detail::adl_end(*range)) {
-            using codec_type = typename encoding_type::codec_type;
-            iterator tmp_iterator{current_range.first};
+        iterator tmp_iterator{current_range.first};
+        auto end(detail::adl_end(*range));
+        while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
-            codec_type::decode(
+            bool decoded_code_point = codec_type::decode(
                 state(),
                 tmp_iterator,
-                detail::adl_end(*range),
+                end,
                 tmp_value,
                 decoded_code_units);
             current_range.last = tmp_iterator;
-            value = tmp_value;
+            if (decoded_code_point) {
+                value = tmp_value;
+                break;
+            }
+            current_range.first = current_range.last;
         }
         return *this;
     }
@@ -301,20 +309,27 @@ struct itext_iterator<ET, RT>
                      iterator_category,
                      std::bidirectional_iterator_tag>()
     {
-        current_range.last = current_range.first;
         using codec_type = typename encoding_type::codec_type;
+
+        current_range.last = current_range.first;
         std::reverse_iterator<iterator> rcurrent{current_range.last};
         std::reverse_iterator<iterator> rend{detail::adl_begin(*range)};
-        value_type tmp_value;
-        int decoded_code_units = 0;
-        codec_type::rdecode(
-            state(),
-            rcurrent,
-            rend,
-            tmp_value,
-            decoded_code_units);
-        current_range.first = rcurrent.base();
-        value = tmp_value;
+        while (rcurrent != rend) {
+            value_type tmp_value;
+            int decoded_code_units = 0;
+            bool decoded_code_point = codec_type::rdecode(
+                state(),
+                rcurrent,
+                rend,
+                tmp_value,
+                decoded_code_units);
+            current_range.first = rcurrent.base();
+            if (decoded_code_point) {
+                value = tmp_value;
+                break;
+            }
+            current_range.last = current_range.first;
+        }
         return *this;
     }
     itext_iterator operator--(int)
