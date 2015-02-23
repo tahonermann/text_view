@@ -1,5 +1,6 @@
 #include <stdtext/adl_customization.hpp>
 #include <stdtext/advance_to.hpp>
+#include <stdtext/riterator.hpp>
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -22,7 +23,10 @@ using namespace std::experimental::text;
 // Class to associate a character with its encoded code unit sequence.
 template<Character CT, Code_unit CUT>
 struct encoded_character {
-    CT character;
+    // FIXME: std::optional would be a better choice than vector here.  The
+    // FIXME: intent is to allow associating zero or one characters with a code
+    // FIXME: unit sequence.
+    vector<CT> character;
     vector<CUT> code_units;
 };
 
@@ -516,12 +520,14 @@ void test_forward_encode(
     const RT &code_unit_range,
     TIT it)
 {
-    for (const auto &ecp : encoded_characters) {
-        *it++ = ecp.character;
+    for (const auto &ecs : encoded_characters) {
+        for (auto ec : ecs.character) {
+            *it++ = ec;
+        }
     }
     auto code_unit_it = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        for (auto ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (auto ecu : ecs.code_units) {
             auto rcu = *code_unit_it++;
             assert(ecu == rcu);
         }
@@ -545,13 +551,15 @@ void test_forward_encode(
     const RT &code_unit_range,
     TIT it)
 {
-    for (const auto &ecp : encoded_characters) {
-        *it++ = ecp.character;
+    for (const auto &ecs : encoded_characters) {
+        for (auto ec : ecs.character) {
+            *it++ = ec;
+        }
     }
     assert(it.base() == end(code_unit_range));
     auto code_unit_it = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        for (auto ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (auto ecu : ecs.code_units) {
             auto rcu = *code_unit_it++;
             assert(ecu == rcu);
         }
@@ -578,13 +586,15 @@ void test_reverse_encode(
     const RT &code_unit_range,
     TIT it)
 {
-    for (const auto &ecp : encoded_characters) {
-        *it++ = ecp.character;
+    for (const auto &ecs : encoded_characters) {
+        for (auto ec : ecs.character) {
+            *it++ = ec;
+        }
     }
     auto code_unit_it = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        for (auto ecuit = end(ecp.code_units);
-             ecuit != begin(ecp.code_units);
+    for (const auto &ecs : encoded_characters) {
+        for (auto ecuit = end(ecs.code_units);
+             ecuit != begin(ecs.code_units);
              )
         {
             assert(*--ecuit == *code_unit_it++);
@@ -612,14 +622,16 @@ void test_reverse_encode(
     const RT &code_unit_range,
     TIT it)
 {
-    for (const auto &ecp : encoded_characters) {
-        *it++ = ecp.character;
+    for (const auto &ecs : encoded_characters) {
+        for (auto ec : ecs.character) {
+            *it++ = ec;
+        }
     }
     assert(it.base() == end(code_unit_range));
     auto code_unit_it = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        for (auto ecuit = end(ecp.code_units);
-             ecuit != begin(ecp.code_units);
+    for (const auto &ecs : encoded_characters) {
+        for (auto ecuit = end(ecs.code_units);
+             ecuit != begin(ecs.code_units);
              )
         {
             assert(*--ecuit == *code_unit_it++);
@@ -648,12 +660,14 @@ void test_forward_decode(
 {
     // Validate pre-increment iteration.
     auto tvit = begin(tv);
-    for (const auto &ecp : encoded_characters) {
-        // Decode and advance.
-        auto tvcp = *tvit;
-        ++tvit;
-        // Validate the decoded character.
-        assert(tvcp == ecp.character);
+    for (const auto &ecs : encoded_characters) {
+        for (auto ec : ecs.character) {
+            // Decode and advance.
+            auto tvcp = *tvit;
+            ++tvit;
+            // Validate the decoded character.
+            assert(tvcp == ec);
+        }
     }
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
@@ -661,11 +675,13 @@ void test_forward_decode(
 
     // Validate post-increment iteration.
     tvit = begin(tv);
-    for (const auto &ecp : encoded_characters) {
-        // Decode and advance.
-        auto tvcp = *tvit++;
-        // Validate the decoded character.
-        assert(tvcp == ecp.character);
+    for (const auto &ecs : encoded_characters) {
+        for (auto ec : ecs.character) {
+            // Decode and advance.
+            auto tvcp = *tvit++;
+            // Validate the decoded character.
+            assert(tvcp == ec);
+        }
     }
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
@@ -682,7 +698,7 @@ void test_forward_decode(
 // to compare against.  'tv' is expected to provide forward, bidirectional, or
 // random access iterators for this test.
 template<
-    origin::Input_range RT,
+    origin::Forward_range RT,
     Text_view TVT>
 requires origin::Forward_iterator<origin::Iterator_type<TVT>>()
 void test_forward_decode(
@@ -695,22 +711,34 @@ void test_forward_decode(
     // Validate pre-increment iteration.
     auto tvit = begin(tv);
     auto cuit = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        // Validate base code unit iterators.
-        assert(tvit.base() == cuit);
-        assert(begin(tvit.base_range()) == cuit);
-        advance(cuit, ecp.code_units.size());
-        assert(end(tvit.base_range()) == cuit);
-        // Validate the underlying code unit sequence.
+    for (const auto &ecs : encoded_characters) {
+        // Validate the code unit sequence.
+        assert(distance(cuit, detail::advance_to(cuit, end(code_unit_range)))
+               >= (int)ecs.code_units.size());
         assert(equal(
-            begin(tvit.base_range()),
-            end(tvit.base_range()),
-            begin(ecp.code_units)));
-        // Decode and advance.
-        auto tvcp = *tvit;
-        ++tvit;
-        // Validate the decoded character.
-        assert(tvcp == ecp.character);
+            begin(ecs.code_units),
+            end(ecs.code_units),
+            cuit));
+
+        if (ecs.character.empty()) {
+            advance(cuit, ecs.code_units.size());
+        } else for (auto ec : ecs.character) {
+            // Validate base code unit iterators.
+            assert(tvit.base() == cuit);
+            assert(begin(tvit.base_range()) == cuit);
+            advance(cuit, ecs.code_units.size());
+            assert(end(tvit.base_range()) == cuit);
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin(tvit.base_range()),
+                end(tvit.base_range()),
+                begin(ecs.code_units)));
+            // Decode and advance.
+            auto tvcp = *tvit;
+            ++tvit;
+            // Validate the decoded character.
+            assert(tvcp == ec);
+        }
     }
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
@@ -722,21 +750,33 @@ void test_forward_decode(
     // Validate post-increment iteration.
     tvit = begin(tv);
     cuit = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        // Validate base code unit iterators.
-        assert(tvit.base() == cuit);
-        assert(begin(tvit.base_range()) == cuit);
-        advance(cuit, ecp.code_units.size());
-        assert(end(tvit.base_range()) == cuit);
+    for (const auto &ecs : encoded_characters) {
         // Validate the underlying code unit sequence.
+        assert(distance(cuit, detail::advance_to(cuit, end(code_unit_range)))
+               >= (int)ecs.code_units.size());
         assert(equal(
-            begin(tvit.base_range()),
-            end(tvit.base_range()),
-            begin(ecp.code_units)));
-        // Decode and advance.
-        auto tvcp = *tvit++;
-        // Validate the decoded character.
-        assert(tvcp == ecp.character);
+            begin(ecs.code_units),
+            end(ecs.code_units),
+            cuit));
+
+        if (ecs.character.empty()) {
+            advance(cuit, ecs.code_units.size());
+        } else for (auto ec : ecs.character) {
+            // Validate base code unit iterators.
+            assert(tvit.base() == cuit);
+            assert(begin(tvit.base_range()) == cuit);
+            advance(cuit, ecs.code_units.size());
+            assert(end(tvit.base_range()) == cuit);
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin(tvit.base_range()),
+                end(tvit.base_range()),
+                begin(ecs.code_units)));
+            // Decode and advance.
+            auto tvcp = *tvit++;
+            // Validate the decoded character.
+            assert(tvcp == ec);
+        }
     }
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
@@ -766,7 +806,7 @@ void test_forward_decode(
 // to compare against.  'tv' is expected to provide bidirectional or random
 // access iterators for this test.
 template<
-    origin::Input_range RT,
+    origin::Bidirectional_range RT,
     Text_view TVT>
 requires origin::Bidirectional_iterator<origin::Iterator_type<TVT>>()
 void test_reverse_decode(
@@ -778,60 +818,86 @@ void test_reverse_decode(
 {
     // Validate pre-decrement.
     auto tvit = detail::advance_to(begin(tv), end(tv));
-    auto cuit = detail::advance_to(begin(code_unit_range), end(code_unit_range));
-    for (auto ecpit = end(encoded_characters);
-         ecpit != begin(encoded_characters);
-         )
+    auto rcuit = detail::rbegin(code_unit_range);
+    for (auto ecsit = detail::rbegin(encoded_characters);
+         ecsit != detail::rend(encoded_characters);
+         ++ecsit)
     {
-        // Decode and decrement.
-        const auto &ecp = *--ecpit;
-        auto tvcp = *--tvit;
-        // Validate base code unit iterators.
-        assert(end(tvit.base_range()) == cuit);
-        advance(cuit, -ecp.code_units.size());
-        assert(begin(tvit.base_range()) == cuit);
-        assert(tvit.base() == cuit);
-        // Validate the underlying code unit sequence.
+        auto& ecs = *ecsit;
+
+        // Validate the code unit sequence.
+        assert(distance(rcuit, detail::rend(code_unit_range))
+               >= (int)ecs.code_units.size());
         assert(equal(
-            begin(tvit.base_range()),
-            end(tvit.base_range()),
-            begin(ecp.code_units)));
-        // Validate the decoded character.
-        assert(tvcp == ecp.character);
+            detail::rbegin(ecs.code_units),
+            detail::rend(ecs.code_units),
+            rcuit));
+
+        if (ecs.character.empty()) {
+            advance(rcuit, ecs.code_units.size());
+        } else for (auto ec : ecs.character) {
+            // Decode and decrement.
+            auto tvcp = *--tvit;
+            // Validate base code unit iterators.
+            assert(end(tvit.base_range()) == rcuit.base());
+            advance(rcuit, ecs.code_units.size());
+            assert(begin(tvit.base_range()) == rcuit.base());
+            assert(tvit.base() == rcuit.base());
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin(tvit.base_range()),
+                end(tvit.base_range()),
+                begin(ecs.code_units)));
+            // Validate the decoded character.
+            assert(tvcp == ec);
+        }
     }
     // Validate base code unit iterators.
-    assert(tvit.base() == cuit);
-    assert(begin(tvit.base_range()) == cuit);
+    assert(tvit.base() == rcuit.base());
+    assert(begin(tvit.base_range()) == rcuit.base());
     assert(begin(tvit.base_range()) == begin(code_unit_range));
     assert(tvit == begin(tv));
 
     // Validate post-decrement.
     tvit = detail::advance_to(begin(tv), end(tv));
-    cuit = detail::advance_to(begin(code_unit_range), end(code_unit_range));
-    for (auto ecpit = end(encoded_characters);
-         ecpit != begin(encoded_characters);
-         )
+    rcuit = detail::rbegin(code_unit_range);
+    for (auto ecsit = detail::rbegin(encoded_characters);
+         ecsit != detail::rend(encoded_characters);
+         ++ecsit)
     {
-        // Decode and decrement.
-        const auto &ecp = *--ecpit;
-        tvit--;
-        auto tvcp = *tvit;
-        // Validate base code unit iterators.
-        assert(end(tvit.base_range()) == cuit);
-        advance(cuit, -ecp.code_units.size());
-        assert(begin(tvit.base_range()) == cuit);
-        assert(tvit.base() == cuit);
-        // Validate the underlying code unit sequence.
+        auto& ecs = *ecsit;
+
+        // Validate the code unit sequence.
+        assert(distance(rcuit, detail::rend(code_unit_range))
+               >= (int)ecs.code_units.size());
         assert(equal(
-            begin(tvit.base_range()),
-            end(tvit.base_range()),
-            begin(ecp.code_units)));
-        // Validate the decoded character.
-        assert(tvcp == ecp.character);
+            detail::rbegin(ecs.code_units),
+            detail::rend(ecs.code_units),
+            rcuit));
+
+        if (ecs.character.empty()) {
+            advance(rcuit, ecs.code_units.size());
+        } else for (auto ec : ecs.character) {
+            // Decode and decrement.
+            tvit--;
+            auto tvcp = *tvit;
+            // Validate base code unit iterators.
+            assert(end(tvit.base_range()) == rcuit.base());
+            advance(rcuit, ecs.code_units.size());
+            assert(begin(tvit.base_range()) == rcuit.base());
+            assert(tvit.base() == rcuit.base());
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin(tvit.base_range()),
+                end(tvit.base_range()),
+                begin(ecs.code_units)));
+            // Validate the decoded character.
+            assert(tvcp == ec);
+        }
     }
     // Validate base code unit iterators.
-    assert(tvit.base() == cuit);
-    assert(begin(tvit.base_range()) == cuit);
+    assert(tvit.base() == rcuit.base());
+    assert(begin(tvit.base_range()) == rcuit.base());
     assert(begin(tvit.base_range()) == begin(code_unit_range));
     assert(tvit == begin(tv));
 }
@@ -842,7 +908,7 @@ void test_reverse_decode(
 // to compare against.  'tv' is expected to provide random access iterators for
 // this test.
 template<
-    origin::Input_range RT,
+    origin::Random_access_range RT,
     Text_view TVT>
 requires origin::Random_access_iterator<origin::Iterator_type<TVT>>()
 void test_random_decode(
@@ -856,19 +922,31 @@ void test_random_decode(
     int i = 0;
     auto tvit = begin(tv);
     auto cuit = begin(code_unit_range);
-    for (const auto &ecp : encoded_characters) {
-        // Validate base code unit iterators.
-        assert((tvit+i).base() == cuit);
-        assert(begin((tvit+i).base_range()) == cuit);
-        advance(cuit, ecp.code_units.size());
-        assert(end((tvit+i).base_range()) == cuit);
+    for (const auto &ecs : encoded_characters) {
         // Validate the underlying code unit sequence.
+        assert(distance(cuit, detail::advance_to(cuit, end(code_unit_range)))
+               >= (int)ecs.code_units.size());
         assert(equal(
-            begin((tvit+i).base_range()),
-            end((tvit+i).base_range()),
-            begin(ecp.code_units)));
-        // Validate the decoded character.
-        assert(tvit[i] == ecp.character);
+            begin(ecs.code_units),
+            end(ecs.code_units),
+            cuit));
+
+        if (ecs.character.empty()) {
+            advance(cuit, ecs.code_units.size());
+        } else for (auto ec : ecs.character) {
+            // Validate base code unit iterators.
+            assert((tvit+i).base() == cuit);
+            assert(begin((tvit+i).base_range()) == cuit);
+            advance(cuit, ecs.code_units.size());
+            assert(end((tvit+i).base_range()) == cuit);
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin((tvit+i).base_range()),
+                end((tvit+i).base_range()),
+                begin(ecs.code_units)));
+            // Validate the decoded character.
+            assert(tvit[i] == ec);
+        }
         // Advance.
         ++i;
     }
@@ -924,8 +1002,8 @@ void test_forward_encoding(
     using code_unit_type = typename codec_type::code_unit_type;
 
     int num_code_units = 0;
-    for (const auto &ecp : encoded_characters) {
-        num_code_units += ecp.code_units.size();
+    for (const auto &ecs : encoded_characters) {
+        num_code_units += ecs.code_units.size();
     }
 
     // Test otext_iterator with an underlying output iterator.
@@ -976,8 +1054,8 @@ void test_forward_encoding(
     {
     forward_list<code_unit_type> container;
     auto insert_it = container.before_begin();
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             insert_it = container.insert_after(insert_it, ecu);
         }
     }
@@ -991,8 +1069,8 @@ void test_forward_encoding(
     {
     forward_list<code_unit_type> container;
     auto insert_it = container.before_begin();
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             insert_it = container.insert_after(insert_it, ecu);
         }
     }
@@ -1003,8 +1081,8 @@ void test_forward_encoding(
     // Test itext_iterator with an underlying bidirectional iterator.
     {
     list<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1015,8 +1093,8 @@ void test_forward_encoding(
     // Test itext_iterator with an underlying random access iterator.
     {
     vector<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1027,8 +1105,8 @@ void test_forward_encoding(
     // Test itext_iterator with an underlying N4128 Iterable.
     {
     vector<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1057,8 +1135,8 @@ void test_bidirectional_encoding(
     using code_unit_type = typename codec_type::code_unit_type;
 
     int num_code_units = 0;
-    for (const auto &ecp : encoded_characters) {
-        num_code_units += ecp.code_units.size();
+    for (const auto &ecs : encoded_characters) {
+        num_code_units += ecs.code_units.size();
     }
 
     // Test rotext_iterator with an underlying output iterator.
@@ -1108,8 +1186,8 @@ void test_bidirectional_encoding(
     // Test itext_iterator with an underlying bidirectional iterator.
     {
     list<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1120,8 +1198,8 @@ void test_bidirectional_encoding(
     // Test itext_iterator with an underlying random access iterator.
     {
     vector<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1132,8 +1210,8 @@ void test_bidirectional_encoding(
     // Test itext_iterator with an underlying N4128 Iterable.
     {
     vector<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1162,8 +1240,8 @@ void test_random_access_encoding(
     // Test itext_iterator with an underlying random access iterator.
     {
     vector<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1174,8 +1252,8 @@ void test_random_access_encoding(
     // Test itext_iterator with an underlying N4128 Iterable.
     {
     vector<code_unit_type> container;
-    for (const auto &ecp : encoded_characters) {
-        for (const auto &ecu : ecp.code_units) {
+    for (const auto &ecs : encoded_characters) {
+        for (const auto &ecu : ecs.code_units) {
             container.push_back(ecu);
         }
     }
@@ -1474,16 +1552,16 @@ void test_ntext_view() {
     using ECV = vector<encoded_character<CT, CUT>>;
 
     ECV characters_with_terminator{
-        { CT{'t'},  { 't'  } },
-        { CT{'e'},  { 'e'  } },
-        { CT{'x'},  { 'x'  } },
-        { CT{'t'},  { 't'  } },
-        { CT{'\0'}, { '\0' } } };
+        { { CT{'t'} },  { 't'  } },
+        { { CT{'e'} },  { 'e'  } },
+        { { CT{'x'} },  { 'x'  } },
+        { { CT{'t'} },  { 't'  } },
+        { { CT{'\0'} }, { '\0' } } };
     ECV characters_without_terminator{
-        { CT{'t'},  { 't'  } },
-        { CT{'e'},  { 'e'  } },
-        { CT{'x'},  { 'x'  } },
-        { CT{'t'},  { 't'  } } };
+        { { CT{'t'} },  { 't'  } },
+        { { CT{'e'} },  { 'e'  } },
+        { { CT{'x'} },  { 'x'  } },
+        { { CT{'t'} },  { 't'  } } };
 
     // Underlying code unit containers.
     static const char cstr[] = "text";
@@ -1516,16 +1594,16 @@ void test_wtext_view() {
     using ECV = vector<encoded_character<CT, CUT>>;
 
     ECV characters_with_terminator{
-        { CT{L't'},  { L't'  } },
-        { CT{L'e'},  { L'e'  } },
-        { CT{L'x'},  { L'x'  } },
-        { CT{L't'},  { L't'  } },
-        { CT{L'\0'}, { L'\0' } } };
+        { { CT{L't'} },  { L't'  } },
+        { { CT{L'e'} },  { L'e'  } },
+        { { CT{L'x'} },  { L'x'  } },
+        { { CT{L't'} },  { L't'  } },
+        { { CT{L'\0'} }, { L'\0' } } };
     ECV characters_without_terminator{
-        { CT{L't'},  { L't'  } },
-        { CT{L'e'},  { L'e'  } },
-        { CT{L'x'},  { L'x'  } },
-        { CT{L't'},  { L't'  } } };
+        { { CT{L't'} },  { L't'  } },
+        { { CT{L'e'} },  { L'e'  } },
+        { { CT{L'x'} },  { L'x'  } },
+        { { CT{L't'} },  { L't'  } } };
 
     // Underlying code unit containers.
     static const wchar_t cstr[] = L"text";
@@ -1560,16 +1638,16 @@ void test_u8text_view() {
     // FIXME: Once N4267 is implemented, replace these character literals with
     // FIXME: u8 prefixed ones.
     ECV characters_with_terminator{
-        { CT{U't'},  { 't'  } },
-        { CT{U'e'},  { 'e'  } },
-        { CT{U'x'},  { 'x'  } },
-        { CT{U't'},  { 't'  } },
-        { CT{U'\0'}, { '\0' } } };
+        { { CT{U't'} },  { 't'  } },
+        { { CT{U'e'} },  { 'e'  } },
+        { { CT{U'x'} },  { 'x'  } },
+        { { CT{U't'} },  { 't'  } },
+        { { CT{U'\0'} }, { '\0' } } };
     ECV characters_without_terminator{
-        { CT{U't'},  { 't'  } },
-        { CT{U'e'},  { 'e'  } },
-        { CT{U'x'},  { 'x'  } },
-        { CT{U't'},  { 't'  } } };
+        { { CT{U't'} },  { 't'  } },
+        { { CT{U'e'} },  { 'e'  } },
+        { { CT{U'x'} },  { 'x'  } },
+        { { CT{U't'} },  { 't'  } } };
 
     // Underlying code unit containers.
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
@@ -1609,16 +1687,16 @@ void test_u16text_view() {
     using ECV = vector<encoded_character<CT, CUT>>;
 
     ECV characters_with_terminator{
-        { CT{U't'},  { u't'  } },
-        { CT{U'e'},  { u'e'  } },
-        { CT{U'x'},  { u'x'  } },
-        { CT{U't'},  { u't'  } },
-        { CT{U'\0'}, { u'\0' } } };
+        { { CT{U't'} },  { u't'  } },
+        { { CT{U'e'} },  { u'e'  } },
+        { { CT{U'x'} },  { u'x'  } },
+        { { CT{U't'} },  { u't'  } },
+        { { CT{U'\0'} }, { u'\0' } } };
     ECV characters_without_terminator{
-        { CT{U't'},  { u't'  } },
-        { CT{U'e'},  { u'e'  } },
-        { CT{U'x'},  { u'x'  } },
-        { CT{U't'},  { u't'  } } };
+        { { CT{U't'} },  { u't'  } },
+        { { CT{U'e'} },  { u'e'  } },
+        { { CT{U'x'} },  { u'x'  } },
+        { { CT{U't'} },  { u't'  } } };
 
     // Underlying code unit containers.
     static const char16_t cstr[] = u"text";
@@ -1651,16 +1729,16 @@ void test_u32text_view() {
     using ECV = vector<encoded_character<CT, CUT>>;
 
     ECV characters_with_terminator{
-        { CT{U't'},  { U't'  } },
-        { CT{U'e'},  { U'e'  } },
-        { CT{U'x'},  { U'x'  } },
-        { CT{U't'},  { U't'  } },
-        { CT{U'\0'}, { U'\0' } } };
+        { { CT{U't'} },  { U't'  } },
+        { { CT{U'e'} },  { U'e'  } },
+        { { CT{U'x'} },  { U'x'  } },
+        { { CT{U't'} },  { U't'  } },
+        { { CT{U'\0'} }, { U'\0' } } };
     ECV characters_without_terminator{
-        { CT{U't'},  { U't'  } },
-        { CT{U'e'},  { U'e'  } },
-        { CT{U'x'},  { U'x'  } },
-        { CT{U't'},  { U't'  } } };
+        { { CT{U't'} },  { U't'  } },
+        { { CT{U'e'} },  { U'e'  } },
+        { { CT{U'x'} },  { U'x'  } },
+        { { CT{U't'} },  { U't'  } } };
 
     // Underlying code unit containers.
     static const char32_t cstr[] = U"text";
@@ -1694,11 +1772,11 @@ void test_utf8_encoding() {
     // FIXME: conversions is used to support implementations with a signed
     // FIXME: 8-bit char.
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { CUT(0x41) } },
-        { CT{U'\U00000141'}, { CUT(0xC5), CUT(0x81) } },
-        { CT{U'\U00001141'}, { CUT(0xE1), CUT(0x85), CUT(0x81) } },
-        { CT{U'\U00011141'}, { CUT(0xF0), CUT(0x91), CUT(0x85), CUT(0x81) } },
-        { CT{U'\0'}        , { CUT(0x00) } } };
+        { { CT{U'\U00000041'} }, { CUT(0x41) } },
+        { { CT{U'\U00000141'} }, { CUT(0xC5), CUT(0x81) } },
+        { { CT{U'\U00001141'} }, { CUT(0xE1), CUT(0x85), CUT(0x81) } },
+        { { CT{U'\U00011141'} }, { CUT(0xF0), CUT(0x91), CUT(0x85), CUT(0x81) } },
+        { { CT{U'\0'} },         { CUT(0x00) } } };
 
     test_bidirectional_encoding<ET>(encoded_characters);
 
@@ -1715,11 +1793,11 @@ void test_utf16_encoding() {
     using CT = ET::codec_type::character_type;
     using CUT = ET::codec_type::code_unit_type;
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { 0x0041 } },
-        { CT{U'\U00000141'}, { 0x0141 } },
-        { CT{U'\U00001141'}, { 0x1141 } },
-        { CT{U'\U00011141'}, { 0xD804, 0xDD41 } },
-        { CT{U'\0'}        , { 0x0000 } } };
+        { { CT{U'\U00000041'} }, { 0x0041 } },
+        { { CT{U'\U00000141'} }, { 0x0141 } },
+        { { CT{U'\U00001141'} }, { 0x1141 } },
+        { { CT{U'\U00011141'} }, { 0xD804, 0xDD41 } },
+        { { CT{U'\0'} },         { 0x0000 } } };
 
     test_bidirectional_encoding<ET>(encoded_characters);
 
@@ -1736,11 +1814,11 @@ void test_utf16be_encoding() {
     using CT = ET::codec_type::character_type;
     using CUT = ET::codec_type::code_unit_type;
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { 0x00, 0x41 } },
-        { CT{U'\U00000141'}, { 0x01, 0x41 } },
-        { CT{U'\U00001141'}, { 0x11, 0x41 } },
-        { CT{U'\U00011141'}, { 0xD8, 0x04, 0xDD, 0x41 } },
-        { CT{U'\0'}        , { 0x00, 0x00 } } };
+        { { CT{U'\U00000041'} }, { 0x00, 0x41 } },
+        { { CT{U'\U00000141'} }, { 0x01, 0x41 } },
+        { { CT{U'\U00001141'} }, { 0x11, 0x41 } },
+        { { CT{U'\U00011141'} }, { 0xD8, 0x04, 0xDD, 0x41 } },
+        { { CT{U'\0'} },         { 0x00, 0x00 } } };
 
     test_bidirectional_encoding<ET>(encoded_characters);
 
@@ -1757,11 +1835,11 @@ void test_utf16le_encoding() {
     using CT = ET::codec_type::character_type;
     using CUT = ET::codec_type::code_unit_type;
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { 0x41, 0x00 } },
-        { CT{U'\U00000141'}, { 0x41, 0x01 } },
-        { CT{U'\U00001141'}, { 0x41, 0x11 } },
-        { CT{U'\U00011141'}, { 0x04, 0xD8, 0x41, 0xDD } },
-        { CT{U'\0'}        , { 0x00, 0x00 } } };
+        { { CT{U'\U00000041'} }, { 0x41, 0x00 } },
+        { { CT{U'\U00000141'} }, { 0x41, 0x01 } },
+        { { CT{U'\U00001141'} }, { 0x41, 0x11 } },
+        { { CT{U'\U00011141'} }, { 0x04, 0xD8, 0x41, 0xDD } },
+        { { CT{U'\0'} },         { 0x00, 0x00 } } };
 
     test_bidirectional_encoding<ET>(encoded_characters);
 
@@ -1778,11 +1856,11 @@ void test_utf32_encoding() {
     using CT = ET::codec_type::character_type;
     using CUT = ET::codec_type::code_unit_type;
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { 0x00000041 } },
-        { CT{U'\U00000141'}, { 0x00000141 } },
-        { CT{U'\U00001141'}, { 0x00001141 } },
-        { CT{U'\U00011141'}, { 0x00011141 } },
-        { CT{U'\0'}        , { 0x00000000 } } };
+        { { CT{U'\U00000041'} }, { 0x00000041 } },
+        { { CT{U'\U00000141'} }, { 0x00000141 } },
+        { { CT{U'\U00001141'} }, { 0x00001141 } },
+        { { CT{U'\U00011141'} }, { 0x00011141 } },
+        { { CT{U'\0'} },         { 0x00000000 } } };
 
     test_random_access_encoding<ET>(encoded_characters);
 
@@ -1799,11 +1877,11 @@ void test_utf32be_encoding() {
     using CT = ET::codec_type::character_type;
     using CUT = ET::codec_type::code_unit_type;
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { 0x00, 0x00, 0x00, 0x41 } },
-        { CT{U'\U00000141'}, { 0x00, 0x00, 0x01, 0x41 } },
-        { CT{U'\U00001141'}, { 0x00, 0x00, 0x11, 0x41 } },
-        { CT{U'\U00011141'}, { 0x00, 0x01, 0x11, 0x41 } },
-        { CT{U'\0'}        , { 0x00, 0x00, 0x00, 0x00 } } };
+        { { CT{U'\U00000041'} }, { 0x00, 0x00, 0x00, 0x41 } },
+        { { CT{U'\U00000141'} }, { 0x00, 0x00, 0x01, 0x41 } },
+        { { CT{U'\U00001141'} }, { 0x00, 0x00, 0x11, 0x41 } },
+        { { CT{U'\U00011141'} }, { 0x00, 0x01, 0x11, 0x41 } },
+        { { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
 
     test_random_access_encoding<ET>(encoded_characters);
 
@@ -1820,11 +1898,11 @@ void test_utf32le_encoding() {
     using CT = ET::codec_type::character_type;
     using CUT = ET::codec_type::code_unit_type;
     vector<encoded_character<CT, CUT>> encoded_characters{
-        { CT{U'\U00000041'}, { 0x41, 0x00, 0x00, 0x00 } },
-        { CT{U'\U00000141'}, { 0x41, 0x01, 0x00, 0x00 } },
-        { CT{U'\U00001141'}, { 0x41, 0x11, 0x00, 0x00 } },
-        { CT{U'\U00011141'}, { 0x41, 0x11, 0x01, 0x00 } },
-        { CT{U'\0'}        , { 0x00, 0x00, 0x00, 0x00 } } };
+        { { CT{U'\U00000041'} }, { 0x41, 0x00, 0x00, 0x00 } },
+        { { CT{U'\U00000141'} }, { 0x41, 0x01, 0x00, 0x00 } },
+        { { CT{U'\U00001141'} }, { 0x41, 0x11, 0x00, 0x00 } },
+        { { CT{U'\U00011141'} }, { 0x41, 0x11, 0x01, 0x00 } },
+        { { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
 
     test_random_access_encoding<ET>(encoded_characters);
 
