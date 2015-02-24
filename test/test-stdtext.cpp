@@ -413,7 +413,6 @@ void test_text_iterator_models() {
     static_assert(Text_iterator<text_iterator_archetype>(), "");
     static_assert(Text_iterator<text_view_archetype::iterator>(), "");
     static_assert(Text_iterator<otext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
-    static_assert(Text_iterator<rotext_iterator<encoding_archetype, code_unit_iterator_archetype>>(), "");
     // std input iterators
     static_assert(Text_iterator<itext_iterator<basic_execution_character_encoding, char(&)[5]>>(), "");
     static_assert(Text_iterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
@@ -440,17 +439,6 @@ void test_text_iterator_models() {
     static_assert(Text_iterator<otext_iterator<utf32_encoding, char32_t*>>(), "");
     static_assert(Text_iterator<otext_iterator<utf32be_encoding, uint_least8_t*>>(), "");
     static_assert(Text_iterator<otext_iterator<utf32le_encoding, uint_least8_t*>>(), "");
-    // std reverse output iterators
-#if defined(__STDC_ISO_10646__)
-    static_assert(Text_iterator<rotext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
-#endif
-    static_assert(Text_iterator<rotext_iterator<utf8_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<rotext_iterator<utf16_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<rotext_iterator<utf16be_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<rotext_iterator<utf16le_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<rotext_iterator<utf32_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<rotext_iterator<utf32be_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<rotext_iterator<utf32le_encoding, char32_t*>>(), "");
 }
 
 void test_text_view_models() {
@@ -562,79 +550,6 @@ void test_forward_encode(
         for (auto ecu : ecs.code_units) {
             auto rcu = *code_unit_it++;
             assert(ecu == rcu);
-        }
-    }
-    assert(code_unit_it == end(code_unit_range));
-}
-
-// Test reverse encoding of the character sequence present in the
-// 'encoded_characters' vector and ensure that the encoded code units match.
-// 'it' is expected to be an output iterator.  Characters are encoded via 'it'
-// which must write the resulting code units to the container reflected by
-// 'code_unit_range'.  Note that the characters are forward encoded, but the
-// code unit sequence for each character is reverse encoded.
-template<
-    Encoding ET,
-    origin::Input_range RT,
-    Text_iterator TIT>
-requires Bidirectional_codec<typename ET::codec_type>()
-      && origin::Output_iterator<TIT, typename ET::codec_type::character_type>()
-void test_reverse_encode(
-    const vector<encoded_character<
-        typename ET::codec_type::character_type,
-        typename ET::codec_type::code_unit_type>> &encoded_characters,
-    const RT &code_unit_range,
-    TIT it)
-{
-    for (const auto &ecs : encoded_characters) {
-        for (auto ec : ecs.character) {
-            *it++ = ec;
-        }
-    }
-    auto code_unit_it = begin(code_unit_range);
-    for (const auto &ecs : encoded_characters) {
-        for (auto ecuit = end(ecs.code_units);
-             ecuit != begin(ecs.code_units);
-             )
-        {
-            assert(*--ecuit == *code_unit_it++);
-        }
-    }
-}
-
-// Test reverse encoding of the character sequence present in the
-// 'encoded_characters' vector and ensure that the encoded code units match.
-// 'it' is expected to be a forward, bidirectional, or random access iterator.
-// Characters are encoded 'it' which must write the resulting code units to the
-// container reflected by 'code_unit_range'.  Note that the characters are
-// forward encoded, but the code unit sequence for each character is reverse
-// encoded.
-template<
-    Encoding ET,
-    origin::Input_range RT,
-    Text_iterator TIT>
-requires Bidirectional_codec<typename ET::codec_type>()
-      && origin::Forward_iterator<TIT>()
-void test_reverse_encode(
-    const vector<encoded_character<
-        typename ET::codec_type::character_type,
-        typename ET::codec_type::code_unit_type>> &encoded_characters,
-    const RT &code_unit_range,
-    TIT it)
-{
-    for (const auto &ecs : encoded_characters) {
-        for (auto ec : ecs.character) {
-            *it++ = ec;
-        }
-    }
-    assert(it.base() == end(code_unit_range));
-    auto code_unit_it = begin(code_unit_range);
-    for (const auto &ecs : encoded_characters) {
-        for (auto ecuit = end(ecs.code_units);
-             ecuit != begin(ecs.code_units);
-             )
-        {
-            assert(*--ecuit == *code_unit_it++);
         }
     }
     assert(code_unit_it == end(code_unit_range));
@@ -1133,55 +1048,6 @@ void test_bidirectional_encoding(
 
     using codec_type = typename ET::codec_type;
     using code_unit_type = typename codec_type::code_unit_type;
-
-    int num_code_units = 0;
-    for (const auto &ecs : encoded_characters) {
-        num_code_units += ecs.code_units.size();
-    }
-
-    // Test rotext_iterator with an underlying output iterator.
-    {
-    forward_list<code_unit_type> container;
-    fill_n(
-        front_insert_iterator<decltype(container)>{container},
-        num_code_units,
-        code_unit_type{});
-    using base_iterator_type =
-        output_iterator<decltype(begin(container)), code_unit_type>;
-    base_iterator_type base_iterator(begin(container));
-    rotext_iterator<ET, base_iterator_type> it(base_iterator);
-    test_reverse_encode<ET>(encoded_characters, container, it);
-    }
-
-    // Test rotext_iterator with an underlying forward iterator.
-    {
-    forward_list<code_unit_type> container;
-    fill_n(
-        front_insert_iterator<decltype(container)>{container},
-        num_code_units,
-        code_unit_type{});
-    rotext_iterator<ET, decltype(begin(container))> it(begin(container));
-    test_reverse_encode<ET>(encoded_characters, container, it);
-    }
-
-    // Test rotext_iterator with an underlying bidirectional iterator.
-    {
-    list<code_unit_type> container;
-    fill_n(
-        front_insert_iterator<decltype(container)>{container},
-        num_code_units,
-        code_unit_type{});
-    rotext_iterator<ET, decltype(begin(container))> it(begin(container));
-    test_reverse_encode<ET>(encoded_characters, container, it);
-    }
-
-    // Test rotext_iterator with an underlying random access iterator.
-    {
-    vector<code_unit_type> container(num_code_units);
-    rotext_iterator<ET, decltype(begin(container))> it(begin(container));
-    test_reverse_encode<ET>(encoded_characters, container, it);
-    }
-
 
     // Test itext_iterator with an underlying bidirectional iterator.
     {

@@ -53,35 +53,6 @@ struct utf16_codec {
         }
     }
 
-    template<Code_unit_iterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
-    static void rencode(
-        state_type &state,
-        CUIT &out,
-        character_type c,
-        int &encoded_code_units)
-    {
-        encoded_code_units = 0;
-
-        using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp{c.get_code_point()};
-
-        if (cp >= 0xD800 && cp <= 0xDFFF) {
-            throw text_encode_error("Invalid Unicode code point");
-        }
-
-        if (cp < 0xFFFF) {
-            *out++ = code_unit_type(cp);
-            ++encoded_code_units;
-        } else {
-            *out++ = code_unit_type(0xDC00 + ((cp - 0x10000) & 0x03FF));
-            ++encoded_code_units;
-            *out++ = code_unit_type(0xD800 + (((cp - 0x10000) >> 10) & 0x03FF));
-            ++encoded_code_units;
-        }
-    }
-
     template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()

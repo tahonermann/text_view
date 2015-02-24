@@ -39,23 +39,6 @@ struct trivial_codec {
         encoded_code_units = 1;
     }
 
-    template<Code_unit_iterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
-    static void rencode(
-        state_type &state,
-        CUIT &out,
-        character_type c,
-        int &encoded_code_units)
-    {
-        using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
-
-        code_point_type cp{c.get_code_point()};
-        code_unit_type cu{cp};
-        *out++ = cu;
-        encoded_code_units = 1;
-    }
-
     template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()

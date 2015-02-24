@@ -71,52 +71,6 @@ struct utf16be_codec {
         }
     }
 
-    template<Code_unit_iterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
-    static void rencode(
-        state_type &state,
-        CUIT &out,
-        character_type c,
-        int &encoded_code_units)
-    {
-        encoded_code_units = 0;
-
-        using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
-        code_point_type cp{c.get_code_point()};
-
-        if (cp >= 0xD800 && cp <= 0xDFFF) {
-            throw text_encode_error("Invalid Unicode code point");
-        }
-
-        if (cp < 0xFFFF) {
-            code_unit_type roctet2 = (cp >> 8) & 0xFF;
-            code_unit_type roctet1 = cp & 0xFF;
-
-            *out++ = roctet1;
-            ++encoded_code_units;
-            *out++ = roctet2;
-            ++encoded_code_units;
-        } else {
-            uint_least16_t cu1 = 0xD800 + (((cp - 0x10000) >> 10) & 0x03FF);
-            uint_least16_t cu2 = 0xDC00 + ((cp - 0x10000) & 0x03FF);
-            
-            code_unit_type roctet4 = (cu1 >> 8) & 0xFF;
-            code_unit_type roctet3 = cu1 & 0xFF;
-            code_unit_type roctet2 = (cu2 >> 8) & 0xFF;
-            code_unit_type roctet1 = cu2 & 0xFF;
-
-            *out++ = roctet1;
-            ++encoded_code_units;
-            *out++ = roctet2;
-            ++encoded_code_units;
-            *out++ = roctet3;
-            ++encoded_code_units;
-            *out++ = roctet4;
-            ++encoded_code_units;
-        }
-    }
-
     template<Code_unit_iterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
