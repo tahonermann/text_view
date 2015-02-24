@@ -655,12 +655,14 @@ void test_forward_decode(
             assert(tvcp == ec);
         }
     }
+    // Validate iteration to the end.
+    assert(tvit == end(tv));
+    assert(cuit == end(code_unit_range));
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
     assert(begin(tvit.base_range()) == cuit);
     assert(end(tvit.base_range()) == cuit);
     assert(begin(tvit.base_range()) == end(code_unit_range));
-    assert(tvit == end(tv));
 
     // Validate post-increment iteration.
     tvit = begin(tv);
@@ -693,12 +695,14 @@ void test_forward_decode(
             assert(tvcp == ec);
         }
     }
+    // Validate iteration to the end.
+    assert(tvit == end(tv));
+    assert(cuit == end(code_unit_range));
     // Validate base code unit iterators.
     assert(tvit.base() == cuit);
     assert(begin(tvit.base_range()) == cuit);
     assert(end(tvit.base_range()) == cuit);
     assert(begin(tvit.base_range()) == end(code_unit_range));
-    assert(tvit == end(tv));
 
     // Validate iterator equality comparison.
     assert(begin(tv) == begin(tv));
@@ -711,7 +715,6 @@ void test_forward_decode(
     }
 
     // Validate underlying iterator access.
-    assert(begin(tv).base() == begin(code_unit_range));
     assert(end(tv).base() == end(code_unit_range));
 }
 
@@ -767,11 +770,9 @@ void test_reverse_decode(
             assert(tvcp == ec);
         }
     }
-    // Validate base code unit iterators.
-    assert(tvit.base() == rcuit.base());
-    assert(begin(tvit.base_range()) == rcuit.base());
-    assert(begin(tvit.base_range()) == begin(code_unit_range));
+    // Validate iteration to the beginning.
     assert(tvit == begin(tv));
+    assert(rcuit == detail::rend(code_unit_range));
 
     // Validate post-decrement.
     tvit = detail::advance_to(begin(tv), end(tv));
@@ -810,11 +811,9 @@ void test_reverse_decode(
             assert(tvcp == ec);
         }
     }
-    // Validate base code unit iterators.
-    assert(tvit.base() == rcuit.base());
-    assert(begin(tvit.base_range()) == rcuit.base());
-    assert(begin(tvit.base_range()) == begin(code_unit_range));
+    // Validate iteration to the beginning.
     assert(tvit == begin(tv));
+    assert(rcuit == detail::rend(code_unit_range));
 }
 
 // Test random access decoding of the code unit sequence present in the
