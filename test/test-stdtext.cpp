@@ -931,7 +931,8 @@ void test_forward_encoding(
     using base_iterator_type =
         output_iterator<decltype(begin(container)), code_unit_type>;
     base_iterator_type base_iterator(begin(container));
-    otext_iterator<ET, base_iterator_type> it(base_iterator);
+    otext_iterator<ET, base_iterator_type>
+        it(ET::initial_state(), base_iterator);
     test_forward_encode<ET>(encoded_characters, container, it);
     }
 
@@ -942,7 +943,8 @@ void test_forward_encoding(
         front_insert_iterator<decltype(container)>{container},
         num_code_units,
         code_unit_type{});
-    otext_iterator<ET, decltype(begin(container))> it(begin(container));
+    otext_iterator<ET, decltype(begin(container))>
+        it(ET::initial_state(), begin(container));
     test_forward_encode<ET>(encoded_characters, container, it);
     }
 
@@ -953,14 +955,16 @@ void test_forward_encoding(
         front_insert_iterator<decltype(container)>{container},
         num_code_units,
         code_unit_type{});
-    otext_iterator<ET, decltype(begin(container))> it(begin(container));
+    otext_iterator<ET, decltype(begin(container))>
+        it(ET::initial_state(), begin(container));
     test_forward_encode<ET>(encoded_characters, container, it);
     }
 
     // Test otext_iterator with an underlying random access iterator.
     {
     vector<code_unit_type> container(num_code_units);
-    otext_iterator<ET, decltype(begin(container))> it(begin(container));
+    otext_iterator<ET, decltype(begin(container))>
+        it(ET::initial_state(), begin(container));
     test_forward_encode<ET>(encoded_characters, container, it);
     }
 

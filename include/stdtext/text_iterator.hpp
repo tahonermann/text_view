@@ -596,15 +596,15 @@ struct otext_iterator<E, CUIT>
     otext_iterator() = default
         requires origin::Default_constructible<state_type>();
 
-    otext_iterator(iterator current)
-        requires origin::Default_constructible<state_type>()
-        : current{current} {}
-
     otext_iterator(
         state_type state,
         iterator current)
     :
-        state_type{state}, current{current}
+        // CWG DR1467.  List-initialization doesn't consider copy constructors
+        // for aggregates.  The state_type base class must be initialized with
+        // an expression-list.
+        state_type(state),
+        current{current}
     {}
 
     const state_type& state() const {
