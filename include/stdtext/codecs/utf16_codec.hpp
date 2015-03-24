@@ -17,12 +17,24 @@ namespace text {
 template<Character CT, Code_unit CUT>
 struct utf16_codec {
     using state_type = trivial_codec_state;
+    using state_transition_type = trivial_codec_state_transition;
     using character_type = CT;
     using code_unit_type = CUT;
     static constexpr int min_code_units = 1;
     static constexpr int max_code_units = 2;
 
     static_assert(sizeof(code_unit_type) * CHAR_BIT >= 16, "");
+
+    template<Code_unit_iterator CUIT>
+    requires origin::Output_iterator<CUIT, code_unit_type>()
+    static void encode_state_transition(
+        state_type &state,
+        CUIT &out,
+        const state_transition_type &stt,
+        int &encoded_code_units)
+    {
+        encoded_code_units = 0;
+    }
 
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()

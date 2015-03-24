@@ -586,6 +586,7 @@ struct otext_iterator<E, CUIT>
 {
     using encoding_type = E;
     using state_type = typename E::codec_type::state_type;
+    using state_transition_type = typename E::codec_type::state_transition_type;
     using iterator = CUIT;
     using iterator_category = typename otext_iterator::iterator_category;
     using value_type = typename otext_iterator::value_type;
@@ -633,6 +634,18 @@ struct otext_iterator<E, CUIT>
         return *this;
     }
     otext_iterator& operator++(int) {
+        return *this;
+    }
+
+    otext_iterator& operator=(
+        const state_transition_type &stt)
+    {
+        using codec_type = typename encoding_type::codec_type;
+        iterator tmp{current};
+        int encoded_code_units = 0;
+        codec_type::encode_state_transition(state(), tmp, stt,
+                                            encoded_code_units);
+        current = tmp;
         return *this;
     }
 

@@ -97,12 +97,24 @@ concept bool Codec_state() {
 
 
 /*
+ * Codec state transition concept
+ */
+template<typename T>
+concept bool Codec_state_transition() {
+    return origin::Default_constructible<T>()
+        && origin::Copy_constructible<T>()
+        && origin::Copy_assignable<T>();
+}
+
+
+/*
  * Codec concept
  */
 template<typename T>
 concept bool Codec() {
     return requires () {
                typename T::state_type;
+               typename T::state_transition_type;
                typename T::code_unit_type;
                typename T::character_type;
                // FIXME: gcc rejects the constexpr requirement.
@@ -110,8 +122,20 @@ concept bool Codec() {
                /* constexpr */ { T::max_code_units } noexcept -> int;
            }
         && Codec_state<typename T::state_type>()
+        && Codec_state_transition<typename T::state_transition_type>()
         && Code_unit<typename T::code_unit_type>()
         && Character<typename T::character_type>()
+        // FIXME: Move the requirement for an encode_state_transition() member
+        // FIXME: function to a different concept that validates a particular
+        // FIXME: iterator type?
+        && requires (
+               typename T::state_type &state,
+               typename T::code_unit_type *&out,
+               typename T::state_transition_type stt,
+               int &encoded_code_units)
+           {
+               T::encode_state_transition(state, out, stt, encoded_code_units);
+           }
         // FIXME: Move the requirement for an encode() member function to a
         // FIXME: different concept that validates a particular iterator type?
         && requires (

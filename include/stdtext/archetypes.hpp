@@ -94,20 +94,36 @@ struct codec_state_archetype {};
 
 
 /*
+ * Codec state transition archetype
+ */
+struct codec_state_transition_archetype {};
+
+
+/*
  * Codec archetype
  */
 template <
     Codec_state CST,
+    Codec_state_transition CSTT,
     Code_unit CUT,
     Character C,
     int MinCodeUnits = 1,
     int MaxCodeUnits = 1>
 struct codec_archetype_template {
     using state_type = CST;
+    using state_transition_type = CSTT;
     using code_unit_type = CUT;
     using character_type = C;
     static constexpr int min_code_units = MinCodeUnits;
     static constexpr int max_code_units = MaxCodeUnits;
+
+    template<Code_unit_iterator CUIT>
+    requires origin::Output_iterator<CUIT, code_unit_type>()
+    static void encode_state_transition(
+        state_type &state,
+        CUIT &out,
+        const state_transition_type &stt,
+        int &encoded_code_units);
 
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
@@ -141,6 +157,7 @@ struct codec_archetype_template {
 };
 using codec_archetype = codec_archetype_template<
                             codec_state_archetype,
+                            codec_state_transition_archetype,
                             code_unit_archetype,
                             character_archetype>;
 
