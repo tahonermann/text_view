@@ -2,7 +2,6 @@
   finding a new way to define the Random_access_codec concept.
 - Add transcoding support.
 - Add UDL (User Defined Literal) suffixes.
-- Some archetypes lack member function definitions.
 - Explore constexpr support.
 - Modify codec encode() and decode() to return std::expected<bool>
   instead of throwing exceptions?

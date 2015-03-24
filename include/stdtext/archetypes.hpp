@@ -53,23 +53,13 @@ struct character_archetype_template
     character_archetype_template() : cp{} {}
     character_archetype_template(code_point_type cp) : cp(cp) {}
 
-    bool operator==(const character_archetype_template& other) const noexcept {
-        return cp == other.cp;
-    }
-    bool operator!=(const character_archetype_template& other) const noexcept {
-        return !(*this == other);
-    }
+    bool operator==(const character_archetype_template& other) const noexcept;
+    bool operator!=(const character_archetype_template& other) const noexcept;
 
-    void set_code_point(code_point_type cp) noexcept {
-        this->cp = cp;
-    }
-    code_point_type get_code_point() const noexcept {
-        return cp;
-    }
+    void set_code_point(code_point_type cp) noexcept;
+    code_point_type get_code_point() const noexcept;
 
-    static character_set_id get_character_set_id() noexcept {
-        return character_set_type::id;
-    }
+    static character_set_id get_character_set_id() noexcept;
 
 private:
     code_point_type cp;
@@ -169,10 +159,7 @@ template<Codec CT>
 struct encoding_archetype_template
 {
     using codec_type = CT;
-    static const typename codec_type::state_type& initial_state() noexcept {
-        static const typename codec_type::state_type state;
-        return state;
-    }
+    static const typename codec_type::state_type& initial_state() noexcept;
 };
 using encoding_archetype = encoding_archetype_template<codec_archetype>;
 
