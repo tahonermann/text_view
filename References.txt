@@ -1,0 +1,24 @@
+N4377: C++ Extensions for Concepts
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4377.pdf
+
+N4128: Ranges for the Standard Library, Revision 1
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html
+
+N3351: A Concept Design for the STL
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3351.pdf
+
+N3325: HTML for C++ Standards Documents
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3325.html
+
+N3572: Unicode Support in the Standard Library
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3572.html
+
+N3336: Adapting Standard Library Strings and I/O to a Unicode World
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3336.html
+
+Gcc removal of __is_convertible_to:
+- https://gcc.gnu.org/viewcvs/gcc?view=revision&revision=215735
+- https://github.com/asutton/origin/issues/1
+
+String view literals:
+https://github.com/fmatthew5876/stdcxx-sv-literal/blob/master/proposal/draft.md
