@@ -1,6 +1,11 @@
-- Add Unicode encodings that support BOMs.
-- Change text_view to support use of range sentinels for end().
+- Remove codec min_code_units and max_code_units.  Doing so will require
+  finding a new way to define the Random_access_codec concept.
 - Add transcoding support.
+- Add UDL (User Defined Literal) suffixes.
+- Some archetypes lack member function definitions.
+- Explore constexpr support.
+- Modify codec encode() and decode() to return std::expected<bool>
+  instead of throwing exceptions?
 - Modify text_view and text iterators to derive from the codec
   state type only if the state type is an empty class and to
   declare a non-static data member otherwise.  This will reduce
