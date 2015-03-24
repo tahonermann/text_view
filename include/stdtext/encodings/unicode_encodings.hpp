@@ -6,11 +6,14 @@
 #include <stdtext/character.hpp>
 #include <stdtext/codecs/trivial_codec.hpp>
 #include <stdtext/codecs/utf8_codec.hpp>
+#include <stdtext/codecs/utf8bom_codec.hpp>
 #include <stdtext/codecs/utf16_codec.hpp>
 #include <stdtext/codecs/utf16be_codec.hpp>
 #include <stdtext/codecs/utf16le_codec.hpp>
+#include <stdtext/codecs/utf16bom_codec.hpp>
 #include <stdtext/codecs/utf32be_codec.hpp>
 #include <stdtext/codecs/utf32le_codec.hpp>
+#include <stdtext/codecs/utf32bom_codec.hpp>
 #include <cstdint>
 
 
@@ -37,7 +40,7 @@ struct iso_10646_wide_character_encoding {
 
 
 /*
- * Unicode UTF-8 character encoding
+ * Unicode UTF-8 character encodings
  */
 template<Character CT, Code_unit CUT>
 struct utf8_encoding_template {
@@ -54,6 +57,24 @@ struct utf8_encoding_template {
 // FIXME: u8 string literals are const arrays of char.  Use of char is also
 // FIXME: problematic for implementations with a signed char.
 using utf8_encoding = utf8_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              char>;
+
+template<Character CT, Code_unit CUT>
+struct utf8bom_encoding_template {
+    using codec_type = utf8bom_codec<CT, CUT>;
+    using state_type = typename codec_type::state_type;
+    static const state_type& initial_state() noexcept {
+        static const state_type state{ false };
+        return state;
+    }
+};
+// FIXME: If N3398 were to be adopted, replace char with char8_t.
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-8
+// FIXME: code units.  char is used anyway since the standard specifies that
+// FIXME: u8 string literals are const arrays of char.  Use of char is also
+// FIXME: problematic for implementations with a signed char.
+using utf8bom_encoding = utf8bom_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               char>;
 
@@ -108,6 +129,23 @@ using utf16le_encoding = utf16le_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               uint_least8_t>;
 
+template<Character CT, Code_unit CUT>
+struct utf16bom_encoding_template {
+    using codec_type = utf16bom_codec<CT, CUT>;
+    using state_type = typename codec_type::state_type;
+    static const state_type& initial_state() noexcept {
+        static const state_type state{ false, state_type::big_endian };
+        return state;
+    }
+};
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-16
+// FIXME: code units.  uint_least8_t is used now, but char would be preferred.
+// FIXME: Use of char would also be problematic for implementations with a
+// FIXME: signed char.
+using utf16bom_encoding = utf16bom_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              uint_least8_t>;
+
 
 /*
  * Unicode UTF-32 character encodings
@@ -156,6 +194,23 @@ struct utf32le_encoding_template {
 // FIXME: Use of char would also be problematic for implementations with a
 // FIXME: signed char.
 using utf32le_encoding = utf32le_encoding_template<
+              character<unicode_character_set_template<char32_t>>,
+              uint_least8_t>;
+
+template<Character CT, Code_unit CUT>
+struct utf32bom_encoding_template {
+    using codec_type = utf32bom_codec<CT, CUT>;
+    using state_type = typename codec_type::state_type;
+    static const state_type& initial_state() noexcept {
+        static const state_type state{ false, state_type::big_endian };
+        return state;
+    }
+};
+// FIXME: If CHAR_BIT is less than 8, then char isn't large enough for UTF-32
+// FIXME: code units.  uint_least8_t is used now, but char would be preferred.
+// FIXME: Use of char would also be problematic for implementations with a
+// FIXME: signed char.
+using utf32bom_encoding = utf32bom_encoding_template<
               character<unicode_character_set_template<char32_t>>,
               uint_least8_t>;
 

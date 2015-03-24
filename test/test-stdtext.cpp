@@ -1681,6 +1681,83 @@ void test_utf8_encoding() {
     assert(end(tvit.base_range()) == begin(encoded_string) + 5);
 }
 
+void test_utf8bom_encoding() {
+    using ET = utf8bom_encoding;
+    using CT = ET::codec_type::character_type;
+    using CUT = ET::codec_type::code_unit_type;
+    using ST = ET::codec_type::state_type;
+    using CUMS = code_unit_map_sequence<ET::codec_type>;
+
+    // FIXME: code_unit_type for UTF-8 is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
+
+    // Test an empty code unit sequence.
+    CUMS code_unit_maps_empty{};
+    test_bidirectional_encoding<ET>(code_unit_maps_empty);
+
+    // Test a code unit sequence containing only a BOM.  This requires an
+    // explicit state transition to force writing of the BOM when encoding.
+    CUMS code_unit_maps_only_bom{
+        { { ST::to_bom_written_state() },
+              {}, { CUT(0xEF), CUT(0xBB), CUT(0xBF) } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_only_bom);
+
+    // Test a code unit sequence not containing a BOM.
+    CUMS code_unit_maps_no_bom{
+        { { ST::to_assume_bom_written_state() },
+              {},                    {} },
+        { {}, { CT{U'\U00000041'} }, { CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0xC5), CUT(0x81) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0xEF), CUT(0xBB), CUT(0xBF) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0xF0), CUT(0x91), CUT(0x85), CUT(0x81) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00) } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_no_bom);
+
+    // Test a code unit sequence containing a BOM.
+    CUMS code_unit_maps_bom{
+        { {}, {},                    { CUT(0xEF), CUT(0xBB), CUT(0xBF) } }, // BOM
+        { {}, { CT{U'\U00000041'} }, { CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0xC5), CUT(0x81) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0xEF), CUT(0xBB), CUT(0xBF) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0xF0), CUT(0x91), CUT(0x85), CUT(0x81) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00) } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_bom);
+
+    {
+    string encoded_string_no_bom(u8"a\U00011141\U0000FEFF");
+    auto tv = make_text_view<ET>(encoded_string_no_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'a'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 1);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 1);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 5);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 5);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 8);
+    }
+
+    {
+    string encoded_string_bom(u8"\U0000FEFFa\U00011141\U0000FEFF");
+    auto tv = make_text_view<ET>(encoded_string_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'a'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 3);
+    assert(end(tvit.base_range()) == begin(encoded_string_bom) + 4);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string_bom) + 8);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 8);
+    assert(end(tvit.base_range()) == begin(encoded_string_bom) + 11);
+    }
+}
+
 void test_utf16_encoding() {
     using ET = utf16_encoding;
     using CT = ET::codec_type::character_type;
@@ -1757,6 +1834,112 @@ void test_utf16le_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
+}
+
+void test_utf16bom_encoding() {
+    using ET = utf16bom_encoding;
+    using CT = ET::codec_type::character_type;
+    using ST = ET::codec_type::state_type;
+    using CUMS = code_unit_map_sequence<ET::codec_type>;
+
+    // Test an empty code unit sequence.
+    CUMS code_unit_maps_empty{};
+    test_bidirectional_encoding<ET>(code_unit_maps_empty);
+
+    // Test a code unit sequence containing only a BE BOM.  This requires an
+    // explicit state transition to force writing of the BOM when encoding.
+    CUMS code_unit_maps_only_be_bom{
+        { { ST::to_bom_written_state() },
+              {}, { 0xFE, 0xFF } } }; // BE BOM
+    test_bidirectional_encoding<ET>(code_unit_maps_only_be_bom);
+
+    // Test a code unit sequence containing only a LE BOM.  This requires an
+    // explicit state transition to force writing of the BOM when encoding.
+    CUMS code_unit_maps_only_le_bom{
+        { { ST::to_le_bom_written_state() },
+              {}, { 0xFF, 0xFE } } }; // LE BOM
+    test_bidirectional_encoding<ET>(code_unit_maps_only_le_bom);
+
+    // Test a code unit sequence not containing a BOM.  Big endian is assumed.
+    CUMS code_unit_maps_no_bom{
+        { { ST::to_assume_bom_written_state() },
+              {},                    {} },
+        { {}, { CT{U'\U00000041'} }, { 0x00, 0x41 } },
+        { {}, { CT{U'\U00000141'} }, { 0x01, 0x41 } },
+        { {}, { CT{U'\U0000FEFF'} }, { 0xFE, 0xFF } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { 0xD8, 0x04, 0xDD, 0x41 } },
+        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_no_bom);
+
+    // Test a code unit sequence containing a BE BOM.
+    CUMS code_unit_maps_be_bom{
+        { {}, {},                    { 0xFE, 0xFF } }, // BE BOM
+        { {}, { CT{U'\U00000041'} }, { 0x00, 0x41 } },
+        { {}, { CT{U'\U00000141'} }, { 0x01, 0x41 } },
+        { {}, { CT{U'\U0000FEFF'} }, { 0xFE, 0xFF } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { 0xD8, 0x04, 0xDD, 0x41 } },
+        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_be_bom);
+
+    // Test a code unit sequence containing a LE BOM.  This requires an explicit
+    // state transition to force writing of a LE BOM.
+    CUMS code_unit_maps_le_bom{
+        { { ST::to_le_bom_written_state() },
+              {},                    { 0xFF, 0xFE } }, // LE BOM
+        { {}, { CT{U'\U00000041'} }, { 0x41, 0x00 } },
+        { {}, { CT{U'\U00000141'} }, { 0x41, 0x01 } },
+        { {}, { CT{U'\U0000FEFF'} }, { 0xFF, 0xFE } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { 0x04, 0xD8, 0x41, 0xDD } },
+        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_le_bom);
+
+    {
+    string encoded_string_no_bom("\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 8);
+    auto tv = make_text_view<ET>(encoded_string_no_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 2);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 2);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 6);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 6);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 8);
+    }
+
+    {
+    string encoded_string_be_bom("\xFE\xFF\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 10);
+    auto tv = make_text_view<ET>(encoded_string_be_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 2);
+    assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 8);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 8);
+    assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 10);
+    }
+
+    {
+    string encoded_string_le_bom("\xFF\xFE\x61\x00\x04\xD8\x41\xDD\xFF\xFE", 10);
+    auto tv = make_text_view<ET>(encoded_string_le_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 2);
+    assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 4);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 8);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 8);
+    assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 10);
+    }
 }
 
 void test_utf32_encoding() {
@@ -1837,6 +2020,112 @@ void test_utf32le_encoding() {
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
 }
 
+void test_utf32bom_encoding() {
+    using ET = utf32bom_encoding;
+    using CT = ET::codec_type::character_type;
+    using ST = ET::codec_type::state_type;
+    using CUMS = code_unit_map_sequence<ET::codec_type>;
+
+    // Test an empty code unit sequence.
+    CUMS code_unit_maps_empty{};
+    test_bidirectional_encoding<ET>(code_unit_maps_empty);
+
+    // Test a code unit sequence containing only a BE BOM.  This requires an
+    // explicit state transition to force writing of the BOM when encoding.
+    CUMS code_unit_maps_only_be_bom{
+        { { ST::to_bom_written_state() },
+              {}, { 0x00, 0x00, 0xFE, 0xFF } } }; // BE BOM
+    test_bidirectional_encoding<ET>(code_unit_maps_only_be_bom);
+
+    // Test a code unit sequence containing only a LE BOM.  This requires an
+    // explicit state transition to force writing of the BOM when encoding.
+    CUMS code_unit_maps_only_le_bom{
+        { { ST::to_le_bom_written_state() },
+              {}, { 0xFF, 0xFE, 0x00, 0x00 } } }; // LE BOM
+    test_bidirectional_encoding<ET>(code_unit_maps_only_le_bom);
+
+    // Test a code unit sequence not containing a BOM.  Big endian is assumed.
+    CUMS code_unit_maps_no_bom{
+        { { ST::to_assume_bom_written_state() },
+              {},                    {} },
+        { {}, { CT{U'\U00000041'} }, { 0x00, 0x00, 0x00, 0x41 } },
+        { {}, { CT{U'\U00000141'} }, { 0x00, 0x00, 0x01, 0x41 } },
+        { {}, { CT{U'\U0000FEFF'} }, { 0x00, 0x00, 0xFE, 0xFF } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { 0x00, 0x01, 0x11, 0x41 } },
+        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_no_bom);
+
+    // Test a code unit sequence containing a BE BOM.
+    CUMS code_unit_maps_be_bom{
+        { {}, {},                    { 0x00, 0x00, 0xFE, 0xFF } }, // BE BOM
+        { {}, { CT{U'\U00000041'} }, { 0x00, 0x00, 0x00, 0x41 } },
+        { {}, { CT{U'\U00000141'} }, { 0x00, 0x00, 0x01, 0x41 } },
+        { {}, { CT{U'\U0000FEFF'} }, { 0x00, 0x00, 0xFE, 0xFF } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { 0x00, 0x01, 0x11, 0x41 } },
+        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_be_bom);
+
+    // Test a code unit sequence containing a LE BOM.  This requires an explicit
+    // state transition to force writing of a LE BOM.
+    CUMS code_unit_maps_le_bom{
+        { { ST::to_le_bom_written_state() },
+              {},                    { 0xFF, 0xFE, 0x00, 0x00 } }, // LE BOM
+        { {}, { CT{U'\U00000041'} }, { 0x41, 0x00, 0x00, 0x00 } },
+        { {}, { CT{U'\U00000141'} }, { 0x41, 0x01, 0x00, 0x00 } },
+        { {}, { CT{U'\U0000FEFF'} }, { 0xFF, 0xFE, 0x00, 0x00 } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { 0x41, 0x11, 0x01, 0x00 } },
+        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+    test_bidirectional_encoding<ET>(code_unit_maps_le_bom);
+
+    {
+    string encoded_string_no_bom("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 12);
+    auto tv = make_text_view<ET>(encoded_string_no_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 4);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 8);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 8);
+    assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 12);
+    }
+
+    {
+    string encoded_string_be_bom("\x00\x00\xFE\xFF\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 16);
+    auto tv = make_text_view<ET>(encoded_string_be_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 8);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 8);
+    assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 12);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 12);
+    assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 16);
+    }
+
+    {
+    string encoded_string_le_bom("\xFF\xFE\x00\x00\x61\x00\x00\x00\x41\x11\x01\x00\xFF\xFE\x00\x00", 16);
+    auto tv = make_text_view<ET>(encoded_string_le_bom);
+    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 4);
+    assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 8);
+    tvit = find(begin(tv), tvend, CT{U'\U00011141'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 8);
+    assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 12);
+    tvit = find(begin(tv), tvend, CT{U'\U0000FEFF'});
+    assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 12);
+    assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 16);
+    }
+}
+
 int main() {
     test_code_unit_models();
     test_code_point_models();
@@ -1858,12 +2147,15 @@ int main() {
     test_u32text_view();
 
     test_utf8_encoding();
+    test_utf8bom_encoding();
     test_utf16_encoding();
     test_utf16be_encoding();
     test_utf16le_encoding();
+    test_utf16bom_encoding();
     test_utf32_encoding();
     test_utf32be_encoding();
     test_utf32le_encoding();
+    test_utf32bom_encoding();
 
     return 0;
 }

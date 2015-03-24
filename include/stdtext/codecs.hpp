@@ -4,11 +4,14 @@
 
 #include <stdtext/codecs/trivial_codec.hpp>
 #include <stdtext/codecs/utf8_codec.hpp>
+#include <stdtext/codecs/utf8bom_codec.hpp>
 #include <stdtext/codecs/utf16_codec.hpp>
 #include <stdtext/codecs/utf16be_codec.hpp>
 #include <stdtext/codecs/utf16le_codec.hpp>
+#include <stdtext/codecs/utf16bom_codec.hpp>
 #include <stdtext/codecs/utf32be_codec.hpp>
 #include <stdtext/codecs/utf32le_codec.hpp>
+#include <stdtext/codecs/utf32bom_codec.hpp>
 
 
 #endif // } STDTEXT_CODECS_HPP
