@@ -20,5 +20,8 @@ Gcc removal of __is_convertible_to:
 - https://gcc.gnu.org/viewcvs/gcc?view=revision&revision=215735
 - https://github.com/asutton/origin/issues/1
 
+Gcc regression in constraint checking for concepts with multiple type requirements:
+- https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65552
+
 String view literals:
 https://github.com/fmatthew5876/stdcxx-sv-literal/blob/master/proposal/draft.md
