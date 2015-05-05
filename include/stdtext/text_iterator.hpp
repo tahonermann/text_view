@@ -64,9 +64,9 @@ struct itext_iterator<ET, RT>
     : public std::iterator<
                  typename detail::text_iterator_category_selector<
                      typename ET::codec_type,
-                     origin::Iterator_type<RT>>::type,
+                     origin::Iterator_type<const RT>>::type,
                  typename ET::codec_type::character_type,
-                 origin::Difference_type<origin::Iterator_type<RT>>,
+                 origin::Difference_type<origin::Iterator_type<const RT>>,
                  const typename ET::codec_type::character_type*,
                  const typename ET::codec_type::character_type&>
     , private ET::codec_type::state_type
@@ -74,7 +74,7 @@ struct itext_iterator<ET, RT>
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
     using state_type = typename encoding_type::codec_type::state_type;
-    using iterator = origin::Iterator_type<RT>;
+    using iterator = origin::Iterator_type<const RT>;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
     using reference = typename itext_iterator::reference;
@@ -166,9 +166,9 @@ struct itext_iterator<ET, RT>
     : public std::iterator<
                  typename detail::text_iterator_category_selector<
                      typename ET::codec_type,
-                     origin::Iterator_type<RT>>::type,
+                     origin::Iterator_type<const RT>>::type,
                  typename ET::codec_type::character_type,
-                 origin::Difference_type<origin::Iterator_type<RT>>,
+                 origin::Difference_type<origin::Iterator_type<const RT>>,
                  const typename ET::codec_type::character_type*,
                  const typename ET::codec_type::character_type&>
     , private ET::codec_type::state_type
@@ -176,7 +176,7 @@ struct itext_iterator<ET, RT>
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
     using state_type = typename ET::codec_type::state_type;
-    using iterator = origin::Iterator_type<RT>;
+    using iterator = origin::Iterator_type<const RT>;
     using iterator_category = typename itext_iterator::iterator_category;
     using value_type = typename itext_iterator::value_type;
     using reference = typename itext_iterator::reference;
