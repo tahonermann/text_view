@@ -10,7 +10,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 /*
@@ -227,7 +227,7 @@ struct utf8bom_codec {
 };
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

@@ -17,7 +17,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 // FIXME: In the language of N4128, types that model the Iterable concept may
@@ -403,7 +403,7 @@ auto make_cstr_range(const CUT (&cstr)[N]) {
 }
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

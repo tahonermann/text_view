@@ -17,7 +17,7 @@
 
 
 using namespace std;
-using namespace std::experimental::text;
+using namespace std::experimental::text_view;
 
 
 // code_unit_map specifies the relationship between a state transition or a

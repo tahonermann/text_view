@@ -8,7 +8,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 template<Character_set CST>
@@ -36,7 +36,7 @@ struct character {
     }
 
     static character_set_id get_character_set_id() noexcept {
-        return std::experimental::text::get_character_set_id<CST>();
+        return std::experimental::text_view::get_character_set_id<CST>();
     }
 
 private:
@@ -53,9 +53,9 @@ struct character<any_character_set> {
     using code_point_type = typename character_set_type::code_point_type;
 
     character() noexcept
-        : cs_id{std::experimental::text::get_character_set_id<any_character_set>()}, code_point{} {}
+        : cs_id{std::experimental::text_view::get_character_set_id<any_character_set>()}, code_point{} {}
     explicit character(code_point_type code_point) noexcept
-        : cs_id{std::experimental::text::get_character_set_id<any_character_set>()}, code_point{code_point} {}
+        : cs_id{std::experimental::text_view::get_character_set_id<any_character_set>()}, code_point{code_point} {}
     character(character_set_id cs_id, code_point_type code_point) noexcept
         : cs_id{cs_id}, code_point{code_point} {}
 
@@ -121,7 +121,7 @@ bool operator!=(
 }
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

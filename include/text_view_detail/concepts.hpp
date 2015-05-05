@@ -10,7 +10,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 namespace detail {
@@ -269,7 +269,7 @@ concept bool Text_view() {
 }
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

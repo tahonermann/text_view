@@ -10,7 +10,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 namespace detail {
 
 template<>
@@ -34,7 +34,7 @@ struct get_encoding_type_of<char32_t*> {
 };
 
 } // namespace detail
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

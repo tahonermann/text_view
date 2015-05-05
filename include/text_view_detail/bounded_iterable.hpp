@@ -7,7 +7,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 namespace detail {
 
 template<origin::Iterator IT, origin::Sentinel<IT> ST>
@@ -27,7 +27,7 @@ private:
 };
 
 } // namespace detail
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

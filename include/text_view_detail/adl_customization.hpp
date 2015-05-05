@@ -8,7 +8,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 namespace detail {
 
 using std::begin;
@@ -25,7 +25,7 @@ auto adl_end(C &&c) -> decltype(end(std::forward<C>(c))) {
 }
 
 } // namespace detail
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

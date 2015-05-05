@@ -9,7 +9,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 /*
@@ -176,7 +176,7 @@ template<typename T>
 using encoding_type_of = detail::encoding_type_of<T>;
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

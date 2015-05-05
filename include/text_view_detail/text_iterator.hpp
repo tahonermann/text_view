@@ -10,7 +10,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 namespace detail {
@@ -666,7 +666,7 @@ protected:
 };
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

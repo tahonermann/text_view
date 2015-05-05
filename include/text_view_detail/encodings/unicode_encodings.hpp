@@ -19,7 +19,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 #if defined(__STDC_ISO_10646__)
@@ -215,7 +215,7 @@ using utf32bom_encoding = utf32bom_encoding_template<
               uint_least8_t>;
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

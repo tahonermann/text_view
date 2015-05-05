@@ -7,7 +7,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 namespace detail {
 
 template<origin::Iterator IT>
@@ -24,7 +24,7 @@ IT advance_to(IT i, ST s) {
 }
 
 } // namespace detail
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 

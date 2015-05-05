@@ -12,7 +12,7 @@
 
 namespace std {
 namespace experimental {
-namespace text {
+namespace text_view {
 
 
 template<Character CT, Code_unit CUT>
@@ -258,7 +258,7 @@ struct utf8_codec {
 };
 
 
-} // namespace text
+} // namespace text_view
 } // namespace experimental
 } // namespace std
 
