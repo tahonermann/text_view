@@ -1,6 +1,6 @@
 #!/bin/sh
 
-alias cdst="cd $PWD"
+alias cdtv="cd $PWD"
 
 GCC_INSTALL_PATH="$HOME/products/gcc-c++-concepts"
 export GCC_INSTALL_PATH
@@ -8,8 +8,8 @@ export GCC_INSTALL_PATH
 ORIGIN_INSTALL_PATH="$HOME/src/origin"
 export ORIGIN_INSTALL_PATH
 
-BOOST_INSTALL_PATH="$HOME/products/gcc-4.8.0-boost-1.53.0"
-export BOOST_INSTALL_PATH
-
 PATH="$GCC_INSTALL_PATH/bin:$PATH"
 export PATH
+LD_LIBRARY_PATH="$GCC_INSTALL_PATH/lib32:$LD_LIBRARY_PATH"
+LD_LIBRARY_PATH="$GCC_INSTALL_PATH/lib64:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH

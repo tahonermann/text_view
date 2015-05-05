@@ -594,8 +594,9 @@ struct otext_iterator<E, CUIT>
     using pointer = typename otext_iterator::pointer;
     using difference_type = typename otext_iterator::difference_type;
 
-    otext_iterator() = default
-        requires origin::Default_constructible<state_type>();
+    otext_iterator()
+        requires origin::Default_constructible<state_type>()
+        = default;
 
     otext_iterator(
         state_type state,
