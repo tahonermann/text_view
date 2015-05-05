@@ -1,5 +1,5 @@
-#ifndef STDTEXT_BOUNDED_ITERABLE_HPP // {
-#define STDTEXT_BOUNDED_ITERABLE_HPP
+#ifndef TEXT_VIEW_BOUNDED_ITERABLE_HPP // {
+#define TEXT_VIEW_BOUNDED_ITERABLE_HPP
 
 
 #include <origin/sequence/concepts.hpp>
@@ -32,4 +32,4 @@ private:
 } // namespace std
 
 
-#endif // } STDTEXT_BOUNDED_ITERABLE_HPP
+#endif // } TEXT_VIEW_BOUNDED_ITERABLE_HPP

@@ -1,11 +1,11 @@
-#ifndef STDTEXT_CONCEPTS_HPP // {
-#define STDTEXT_CONCEPTS_HPP
+#ifndef TEXT_VIEW_CONCEPTS_HPP // {
+#define TEXT_VIEW_CONCEPTS_HPP
 
 
 #include <origin/core/traits.hpp>
 #include <origin/sequence/concepts.hpp>
 #include <origin/sequence/range.hpp>
-#include <stdtext/traits.hpp>
+#include <text_view_detail/traits.hpp>
 
 
 namespace std {
@@ -274,4 +274,4 @@ concept bool Text_view() {
 } // namespace std
 
 
-#endif // } STDTEXT_CONCEPTS_HPP
+#endif // } TEXT_VIEW_CONCEPTS_HPP

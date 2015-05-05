@@ -1,6 +1,6 @@
-#include <stdtext/adl_customization.hpp>
-#include <stdtext/advance_to.hpp>
-#include <stdtext/riterator.hpp>
+#include <text_view_detail/adl_customization.hpp>
+#include <text_view_detail/advance_to.hpp>
+#include <text_view_detail/riterator.hpp>
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -13,7 +13,7 @@
 #include <vector>
 #include <utility>
 #include <string>
-#include <text>
+#include <text_view>
 
 
 using namespace std;

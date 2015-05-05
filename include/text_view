@@ -1,15 +1,15 @@
-#ifndef STDTEXT_TEXT // {
-#define STDTEXT_TEXT
+#ifndef TEXT_VIEW_TEXT // {
+#define TEXT_VIEW_TEXT
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/archetypes.hpp>
-#include <stdtext/character.hpp>
-#include <stdtext/charsets.hpp>
-#include <stdtext/codecs.hpp>
-#include <stdtext/encodings.hpp>
-#include <stdtext/text_iterator.hpp>
-#include <stdtext/text_view.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/archetypes.hpp>
+#include <text_view_detail/character.hpp>
+#include <text_view_detail/charsets.hpp>
+#include <text_view_detail/codecs.hpp>
+#include <text_view_detail/encodings.hpp>
+#include <text_view_detail/text_iterator.hpp>
+#include <text_view_detail/text_view.hpp>
 
 
-#endif // } STDTEXT_TEXT
+#endif // } TEXT_VIEW_TEXT

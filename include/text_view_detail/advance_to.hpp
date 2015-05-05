@@ -1,5 +1,5 @@
-#ifndef STDTEXT_ADVANCE_TO_HPP // {
-#define STDTEXT_ADVANCE_TO_HPP
+#ifndef TEXT_VIEW_ADVANCE_TO_HPP // {
+#define TEXT_VIEW_ADVANCE_TO_HPP
 
 
 #include <origin/sequence/concepts.hpp>
@@ -29,4 +29,4 @@ IT advance_to(IT i, ST s) {
 } // namespace std
 
 
-#endif // } STDTEXT_ADVANCE_TO_HPP
+#endif // } TEXT_VIEW_ADVANCE_TO_HPP

@@ -1,5 +1,5 @@
-#if !defined(STDTEXT_EXCEPTIONS_HPP) // {
-#define STDTEXT_EXCEPTIONS_HPP
+#if !defined(TEXT_VIEW_EXCEPTIONS_HPP) // {
+#define TEXT_VIEW_EXCEPTIONS_HPP
 
 
 #include <stdexcept>
@@ -80,4 +80,4 @@ struct text_decode_underflow_error
 } // namespace std
 
 
-#endif // } STDTEXT_EXCEPTIONS_HPP
+#endif // } TEXT_VIEW_EXCEPTIONS_HPP

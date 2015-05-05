@@ -1,10 +1,10 @@
-#ifndef STDTEXT_BASIC_ENCODINGS_HPP // {
-#define STDTEXT_BASIC_ENCODINGS_HPP
+#ifndef TEXT_VIEW_BASIC_ENCODINGS_HPP // {
+#define TEXT_VIEW_BASIC_ENCODINGS_HPP
 
 
-#include <stdtext/charsets/basic_charsets.hpp>
-#include <stdtext/character.hpp>
-#include <stdtext/codecs/trivial_codec.hpp>
+#include <text_view_detail/charsets/basic_charsets.hpp>
+#include <text_view_detail/character.hpp>
+#include <text_view_detail/codecs/trivial_codec.hpp>
 
 
 namespace std {
@@ -47,4 +47,4 @@ struct basic_execution_wide_character_encoding {
 } // namespace std
 
 
-#endif // } STDTEXT_BASIC_ENCODINGS_HPP
+#endif // } TEXT_VIEW_BASIC_ENCODINGS_HPP

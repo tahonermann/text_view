@@ -1,5 +1,5 @@
-#ifndef STDTEXT_ADL_CUSTOMIZATION_HPP // {
-#define STDTEXT_ADL_CUSTOMIZATION_HPP
+#ifndef TEXT_VIEW_ADL_CUSTOMIZATION_HPP // {
+#define TEXT_VIEW_ADL_CUSTOMIZATION_HPP
 
 
 #include <iterator>
@@ -30,4 +30,4 @@ auto adl_end(C &&c) -> decltype(end(std::forward<C>(c))) {
 } // namespace std
 
 
-#endif // } STDTEXT_ADL_CUSTOMIZATION_HPP
+#endif // } TEXT_VIEW_ADL_CUSTOMIZATION_HPP

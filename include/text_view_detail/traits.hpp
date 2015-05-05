@@ -1,5 +1,5 @@
-#ifndef STDTEXT_TRAITS_HPP // {
-#define STDTEXT_TRAITS_HPP
+#ifndef TEXT_VIEW_TRAITS_HPP // {
+#define TEXT_VIEW_TRAITS_HPP
 
 
 #include <origin/core/traits.hpp>
@@ -181,4 +181,4 @@ using encoding_type_of = detail::encoding_type_of<T>;
 } // namespace std
 
 
-#endif // } STDTEXT_TRAITS_HPP
+#endif // } TEXT_VIEW_TRAITS_HPP

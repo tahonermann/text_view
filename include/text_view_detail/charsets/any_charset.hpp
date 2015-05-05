@@ -1,5 +1,5 @@
-#ifndef STDTEXT_ANY_CHARSET_HPP // {
-#define STDTEXT_ANY_CHARSET_HPP
+#ifndef TEXT_VIEW_ANY_CHARSET_HPP // {
+#define TEXT_VIEW_ANY_CHARSET_HPP
 
 
 #include <cstdint>
@@ -25,4 +25,4 @@ struct any_character_set {
 } // namespace std
 
 
-#endif // } STDTEXT_ANY_CHARSET_HPP
+#endif // } TEXT_VIEW_ANY_CHARSET_HPP

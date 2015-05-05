@@ -1,10 +1,10 @@
-#ifndef STDTEXT_CODECS_TRIVIAL_CODEC_HPP // {
-#define STDTEXT_CODECS_TRIVIAL_CODEC_HPP
+#ifndef TEXT_VIEW_CODECS_TRIVIAL_CODEC_HPP // {
+#define TEXT_VIEW_CODECS_TRIVIAL_CODEC_HPP
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/exceptions.hpp>
-#include <stdtext/character.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/exceptions.hpp>
+#include <text_view_detail/character.hpp>
 
 
 namespace std {
@@ -110,4 +110,4 @@ struct trivial_codec {
 } // namespace std
 
 
-#endif // } STDTEXT_CODECS_TRIVIAL_CODEC_HPP
+#endif // } TEXT_VIEW_CODECS_TRIVIAL_CODEC_HPP

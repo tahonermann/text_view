@@ -1,11 +1,11 @@
-#if !defined(STDTEXT_CODECS_UTF32BE_CODEC_HPP) // {
-#define STDTEXT_CODECS_UTF32BE_CODEC_HPP
+#if !defined(TEXT_VIEW_CODECS_UTF32BE_CODEC_HPP) // {
+#define TEXT_VIEW_CODECS_UTF32BE_CODEC_HPP
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/exceptions.hpp>
-#include <stdtext/character.hpp>
-#include <stdtext/codecs/trivial_codec.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/exceptions.hpp>
+#include <text_view_detail/character.hpp>
+#include <text_view_detail/codecs/trivial_codec.hpp>
 #include <climits>
 #include <cstdint>
 
@@ -157,4 +157,4 @@ struct utf32be_codec {
 } // namespace std
 
 
-#endif // } STDTEXT_CODECS_UTF32BE_CODEC_HPP
+#endif // } TEXT_VIEW_CODECS_UTF32BE_CODEC_HPP

@@ -1,9 +1,9 @@
-#ifndef STDTEXT_TEXT_ITERATOR_HPP // {
-#define STDTEXT_TEXT_ITERATOR_HPP
+#ifndef TEXT_VIEW_TEXT_ITERATOR_HPP // {
+#define TEXT_VIEW_TEXT_ITERATOR_HPP
 
 
-#include <stdtext/adl_customization.hpp>
-#include <stdtext/concepts.hpp>
+#include <text_view_detail/adl_customization.hpp>
+#include <text_view_detail/concepts.hpp>
 #include <iterator>
 #include <origin/core/traits.hpp>
 
@@ -671,4 +671,4 @@ protected:
 } // namespace std
 
 
-#endif // } STDTEXT_TEXT_ITERATOR_HPP
+#endif // } TEXT_VIEW_TEXT_ITERATOR_HPP

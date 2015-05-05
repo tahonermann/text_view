@@ -1,9 +1,9 @@
-#ifndef STDTEXT_CHARACTER_HPP // {
-#define STDTEXT_CHARACTER_HPP
+#ifndef TEXT_VIEW_CHARACTER_HPP // {
+#define TEXT_VIEW_CHARACTER_HPP
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/charsets/any_charset.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/charsets/any_charset.hpp>
 
 
 namespace std {
@@ -126,4 +126,4 @@ bool operator!=(
 } // namespace std
 
 
-#endif // } STDTEXT_CHARACTER_HPP
+#endif // } TEXT_VIEW_CHARACTER_HPP

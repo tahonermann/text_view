@@ -1,8 +1,8 @@
-#ifndef STDTEXT_ARCHETYPES_HPP // {
-#define STDTEXT_ARCHETYPES_HPP
+#ifndef TEXT_VIEW_ARCHETYPES_HPP // {
+#define TEXT_VIEW_ARCHETYPES_HPP
 
 
-#include <stdtext/concepts.hpp>
+#include <text_view_detail/concepts.hpp>
 #include <origin/core/concepts.hpp>
 #include <origin/sequence/concepts.hpp>
 #include <origin/sequence/range.hpp>
@@ -243,4 +243,4 @@ using text_view_archetype = text_view_archetype_template<
 } // namespace std
 
 
-#endif // } STDTEXT_ARCHETYPES_HPP
+#endif // } TEXT_VIEW_ARCHETYPES_HPP

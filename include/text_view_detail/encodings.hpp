@@ -1,11 +1,11 @@
-#ifndef STDTEXT_ENCODINGS_HPP // {
-#define STDTEXT_ENCODINGS_HPP
+#ifndef TEXT_VIEW_ENCODINGS_HPP // {
+#define TEXT_VIEW_ENCODINGS_HPP
 
 
-#include <stdtext/traits.hpp>
-#include <stdtext/encodings/basic_encodings.hpp>
-#include <stdtext/encodings/unicode_encodings.hpp>
-#include <stdtext/encodings/std_encodings.hpp>
+#include <text_view_detail/traits.hpp>
+#include <text_view_detail/encodings/basic_encodings.hpp>
+#include <text_view_detail/encodings/unicode_encodings.hpp>
+#include <text_view_detail/encodings/std_encodings.hpp>
 
 
 namespace std {
@@ -39,4 +39,4 @@ struct get_encoding_type_of<char32_t*> {
 } // namespace std
 
 
-#endif // } STDTEXT_ENCODINGS_HPP
+#endif // } TEXT_VIEW_ENCODINGS_HPP

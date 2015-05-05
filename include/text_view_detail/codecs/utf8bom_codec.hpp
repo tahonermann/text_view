@@ -1,9 +1,9 @@
-#if !defined(STDTEXT_CODECS_UTF8BOM_CODEC_HPP) // {
-#define STDTEXT_CODECS_UTF8BOM_CODEC_HPP
+#if !defined(TEXT_VIEW_CODECS_UTF8BOM_CODEC_HPP) // {
+#define TEXT_VIEW_CODECS_UTF8BOM_CODEC_HPP
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/codecs/utf8_codec.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/codecs/utf8_codec.hpp>
 #include <origin/core/traits.hpp>
 #include <climits>
 
@@ -232,4 +232,4 @@ struct utf8bom_codec {
 } // namespace std
 
 
-#endif // } STDTEXT_CODECS_UTF8BOM_CODEC_HPP
+#endif // } TEXT_VIEW_CODECS_UTF8BOM_CODEC_HPP

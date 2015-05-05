@@ -1,8 +1,8 @@
-#ifndef STDTEXT_RITERATOR_HPP // {
-#define STDTEXT_RITERATOR_HPP
+#ifndef TEXT_VIEW_RITERATOR_HPP // {
+#define TEXT_VIEW_RITERATOR_HPP
 
 
-#include <stdtext/advance_to.hpp>
+#include <text_view_detail/advance_to.hpp>
 #include <iterator>
 #include <utility>
 
@@ -43,4 +43,4 @@ auto rend(C &&c)
 } // namespace std
 
 
-#endif // } STDTEXT_RITERATOR_HPP
+#endif // } TEXT_VIEW_RITERATOR_HPP

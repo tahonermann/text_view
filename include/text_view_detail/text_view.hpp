@@ -1,12 +1,12 @@
-#ifndef STDTEXT_TEXT_VIEW_HPP // {
-#define STDTEXT_TEXT_VIEW_HPP
+#ifndef TEXT_VIEW_TEXT_VIEW_HPP // {
+#define TEXT_VIEW_TEXT_VIEW_HPP
 
 
-#include <stdtext/adl_customization.hpp>
-#include <stdtext/advance_to.hpp>
-#include <stdtext/bounded_iterable.hpp>
-#include <stdtext/concepts.hpp>
-#include <stdtext/text_iterator.hpp>
+#include <text_view_detail/adl_customization.hpp>
+#include <text_view_detail/advance_to.hpp>
+#include <text_view_detail/bounded_iterable.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/text_iterator.hpp>
 #include <iterator>
 #include <string>
 #include <utility>
@@ -408,4 +408,4 @@ auto make_cstr_range(const CUT (&cstr)[N]) {
 } // namespace std
 
 
-#endif // } STDTEXT_TEXT_VIEW_HPP
+#endif // } TEXT_VIEW_TEXT_VIEW_HPP

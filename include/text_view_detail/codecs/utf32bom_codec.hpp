@@ -1,10 +1,10 @@
-#if !defined(STDTEXT_CODECS_UTF32BOM_CODEC_HPP) // {
-#define STDTEXT_CODECS_UTF32BOM_CODEC_HPP
+#if !defined(TEXT_VIEW_CODECS_UTF32BOM_CODEC_HPP) // {
+#define TEXT_VIEW_CODECS_UTF32BOM_CODEC_HPP
 
 
-#include <stdtext/concepts.hpp>
-#include <stdtext/codecs/utf32be_codec.hpp>
-#include <stdtext/codecs/utf32le_codec.hpp>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/codecs/utf32be_codec.hpp>
+#include <text_view_detail/codecs/utf32le_codec.hpp>
 #include <climits>
 
 
@@ -376,4 +376,4 @@ struct utf32bom_codec {
 } // namespace std
 
 
-#endif // } STDTEXT_CODECS_UTF32BOM_CODEC_HPP
+#endif // } TEXT_VIEW_CODECS_UTF32BOM_CODEC_HPP
