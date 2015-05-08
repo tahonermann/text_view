@@ -1,6 +1,9 @@
 N4377: C++ Extensions for Concepts
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4377.pdf
 
+N4382: Working Draft, C++ extensions for Ranges
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf
+
 N4128: Ranges for the Standard Library, Revision 1
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html
 
@@ -28,3 +31,11 @@ Gcc parse error for requires clause specified on functions that return a referen
 
 String view literals:
 https://github.com/fmatthew5876/stdcxx-sv-literal/blob/master/proposal/draft.md
+
+Related projects/APIs:
+- GNU libunistring
+  http://www.gnu.org/software/libunistring
+- GNU libiconv
+  https://www.gnu.org/software/libiconv
+- glibc iconv
+  http://www.gnu.org/software/libc/manual/html_node/glibc-iconv-Implementation.html

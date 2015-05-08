@@ -170,9 +170,9 @@ private:
 
 
 // Iterable model.  The standard doesn't provide a container type that has
-// different return types for begin() and end() as permitted by the N4128
+// different return types for begin() and end() as permitted by the N4382
 // Iterable concept.  This template class is used to wrap a type that models
-// the N4128 Range concept to produce a type that merely models the N4128
+// the N4382 Range concept to produce a type that merely models the N4382
 // Iterable concept.
 template<origin::Range RT>
 struct iterable_view {
@@ -1049,7 +1049,7 @@ void test_forward_encoding(
     test_forward_decode(code_unit_maps, container, tv);
     }
 
-    // Test itext_iterator with an underlying N4128 Iterable.
+    // Test itext_iterator with an underlying N4382 Iterable.
     {
     vector<code_unit_type> container;
     for (const auto &cum : code_unit_maps) {
@@ -1103,7 +1103,7 @@ void test_bidirectional_encoding(
     test_reverse_decode(code_unit_maps, container, tv);
     }
 
-    // Test itext_iterator with an underlying N4128 Iterable.
+    // Test itext_iterator with an underlying N4382 Iterable.
     {
     vector<code_unit_type> container;
     for (const auto &cum : code_unit_maps) {
@@ -1143,7 +1143,7 @@ void test_random_access_encoding(
     test_random_decode(code_unit_maps, container, tv);
     }
 
-    // Test itext_iterator with an underlying N4128 Iterable.
+    // Test itext_iterator with an underlying N4382 Iterable.
     {
     vector<code_unit_type> container;
     for (const auto &cum : code_unit_maps) {

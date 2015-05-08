@@ -432,9 +432,9 @@ struct itext_sentinel {
 
     // This constructor is provided in lieu of a specialization of
     // std::common_type in order to satisfy the common type requirement for
-    // cross-type equality comparison.  See N4128, 10 "Appendix 2: Sentinels,
-    // Iterators, and the Cross-Type EqualityComparable Concept" and N3351,
-    // 3.3 "Foundational Concepts".
+    // cross-type equality comparison.  See N4382 19.2.5 "Concept Common",
+    // N4382 19.3.2 "Concept EqualityComparable", and N3351 3.3
+    // "Foundational Concepts".
     itext_sentinel(const itext_iterator<ET, RT> &ti)
         : s{ti.base()} {}
 
