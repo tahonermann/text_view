@@ -33,34 +33,35 @@ namespace text_view {
 // FIXME: N4128 Iterable concept.  However, its Range concept closely matches.
 // FIXME: Origin does not declare a concept that matches N4128's Range concept.
 // FIXME: 
-// FIXME: text_view is expected to be instantiated with a type that models the
-// FIXME: N4128 Range concept as described above.  In particular, this means
+// FIXME: basic_text_view is expected to be instantiated with a type that models
+// FIXME: the N4128 Range concept as described above.  In particular, this means
 // FIXME: that the underlying range type should be one that does not own its
 // FIXME: elements.  This is not currently enforced since Origin lacks the
 // FIXME: concepts required to enforce it.  It is assumed that the range type
-// FIXME: for which text_view is instantiated models the N4128 Range concept.
+// FIXME: for which basic_text_view is instantiated models the N4128 Range
+// FIXME: concept.
 // FIXME: 
 // FIXME: For convenience, make_text_view() will assume that provided range
 // FIXME: objects model the N4128 Iterable concept and may therefore own their
 // FIXME: elements and will therefore construct a type that models the N4128
-// FIXME: Range concept for which to instantiate text_view.  This allows
+// FIXME: Range concept for which to instantiate basic_text_view.  This allows
 // FIXME: make_text_view() to be safely passed references to standard containers
 // FIXME: (array, string, vector, etc...) that model N4128 Iterable as well as
 // FIXME: types that model N4128 Range (such types will be "unwrapped" and their
 // FIXME: iterator types wrapped by another type that models Range).  Note that
-// FIXME: this means the range type for which text_view is instantiated may not
-// FIXME: match the range type that was passed to make_text_view().
+// FIXME: this means the range type for which basic_text_view is instantiated
+// FIXME: may not match the range type that was passed to make_text_view().
 // FIXME: 
 // FIXME: Each text view object holds a codec state subobject.  For stateful
 // FIXME: encodings, copying text view objects could carry non-negligible cost.
 // FIXME: 
 // FIXME: N4128 specifies a range_base class that is used as a base class to
 // FIXME: explicitly specify that a class models the N4128 Range concept.
-// FIXME: text_view models the N4128 Range concept, and so could (should?)
+// FIXME: basic_text_view models the N4128 Range concept, and so could (should?)
 // FIXME: derive from range_base to make this explicit.  Origin does define a
 // FIXME: range_base template class that differs from what N4128 specifies.
 template<Encoding ET, origin::Input_range RT>
-struct text_view
+struct basic_text_view
     : private ET::codec_type::state_type
 {
     using encoding_type = ET;
@@ -74,12 +75,12 @@ struct text_view
     // Overload to initialize a text view with an empty range.  Note that this
     // constructor will be defined as deleted if either state_type or range_type
     // is not default constructible.
-    text_view() = default;
+    basic_text_view() = default;
 
     // Overload to initialize a text view from an N4128 Range and an explicitly
     // specified initial codec state.  This overload requires that range_type
     // be copy constructible.
-    text_view(
+    basic_text_view(
         state_type state,
         range_type r)
     requires origin::Copy_constructible<range_type>()
@@ -95,15 +96,15 @@ struct text_view
     // Overload to initialize a text view from an N4128 Range and an implicit
     // initial codec state.  This overload requires that range_type be copy
     // constructible.
-    text_view(
+    basic_text_view(
         range_type r)
     requires origin::Copy_constructible<range_type>()
-    : text_view{encoding_type::initial_state(), r} {}
+    : basic_text_view{encoding_type::initial_state(), r} {}
 
     // Overload to initialize a text view from an N4128 IteratorRange and an
     // explicitly specified initial codec state.  This overload requires that
     // range_type be constructible from a code_unit_iterator pair.
-    text_view(
+    basic_text_view(
         state_type state,
         code_unit_iterator first,
         code_unit_sentinel last)
@@ -120,33 +121,33 @@ struct text_view
     // Overload to initialize a text view from an N4128 IteratorRange and an
     // implicit initial codec state.  This overload requires that range_type be
     // constructible from a code_unit_iterator pair.
-    text_view(
+    basic_text_view(
         code_unit_iterator first,
         code_unit_sentinel last)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view{encoding_type::initial_state(), first, last} {}
+    : basic_text_view{encoding_type::initial_state(), first, last} {}
 
     // Overload to initialize a text view from an N4128 SizedIteratorRange and
     // an explicitly specified initial codec state.  This overload requires that
     // range_type be constructible from a code_unit_iterator pair.
-    text_view(
+    basic_text_view(
         state_type state,
         code_unit_iterator first,
         origin::Make_unsigned<origin::Difference_type<code_unit_iterator>> n)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view{state, first, std::next(first, n)} {}
+    : basic_text_view{state, first, std::next(first, n)} {}
 
     // Overload to initialize a text view from an N4128 SizedIteratorRange and
     // an implicit initial codec state.  This overload requires that range_type
     // be constructible from a code_unit_iterator pair.
-    text_view(
+    basic_text_view(
         code_unit_iterator first,
         origin::Make_unsigned<origin::Difference_type<code_unit_iterator>> n)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view{first, std::next(first, n)} {}
+    : basic_text_view{first, std::next(first, n)} {}
 
     // Overload to initialize a text view with an explicitly specified initial
     // codec state and a basic_string specialization.  This overload requires
@@ -155,7 +156,7 @@ struct text_view
     // that the difference type (likely ptrdiff_t) for code_unit_iterator be
     // constructible from the basic_string size_type.  This overload enables
     // construction with basic_string specializations when range_type requires
-    // pointers to contiguous memory (as is the case for ntext_view, wtext_view,
+    // pointers to contiguous memory (as is the case for text_view, wtext_view,
     // etc...).  When this overload is not enabled, construction with a
     // basic_string specialization will be handled by the constructor below
     // and the basic_string specialization will be treated as any other type
@@ -165,7 +166,7 @@ struct text_view
     // basic_string reference must reference an object with a lifetime that
     // exceeds the text_view object being constructed.
     template<typename charT, typename traits, typename Allocator>
-    text_view(
+    basic_text_view(
         state_type state,
         const basic_string<charT, traits, Allocator> &str)
     requires origin::Constructible<code_unit_iterator, const charT *>()
@@ -174,14 +175,14 @@ struct text_view
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view{state, str.c_str(), str.size()} {}
+    : basic_text_view{state, str.c_str(), str.size()} {}
 
     // Overload to initialize a text view with an implicitly specified initial
     // codec state and a basic_string specialization.  See the above comments
     // for the similar overload that accepts an explicitly specified initial
     // state.
     template<typename charT, typename traits, typename Allocator>
-    text_view(
+    basic_text_view(
         const basic_string<charT, traits, Allocator> &str)
     requires origin::Constructible<code_unit_iterator, const charT *>()
           && origin::Constructible<
@@ -189,43 +190,46 @@ struct text_view
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view{str.c_str(), str.size()} {}
+    : basic_text_view{str.c_str(), str.size()} {}
 
     // Overload to initialize a text view with an explicitly specified initial
     // codec state and an N4128 IteratorRange extracted from a supplied N4128
     // Iterable.  The underlying range type must be constructible from the
     // iterator type of the Iterable type.  This overload may be used to
-    // initialize a text_view (that holds a range modeling the N4128 Range
+    // initialize a basic_text_view (that holds a range modeling the N4128 Range
     // concept) with a type that models the N4128 Iterable concept.  Since
     // iterators into the provided Iterable object will be held, the specified
     // range must be a reference to an object with a lifetime that exceeds the
-    // text_view object being constructed.
+    // basic_text_view object being constructed.
     template<origin::Input_range Iterable>
-    text_view(
+    basic_text_view(
         state_type state,
         const Iterable &iterable)
     requires origin::Constructible<
                  code_unit_iterator, origin::Iterator_type<const Iterable>>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view(state, detail::adl_begin(iterable), detail::adl_end(iterable)) {}
+    : basic_text_view(state,
+                      detail::adl_begin(iterable),
+                      detail::adl_end(iterable))
+    {}
 
     // Overload to initialize a text view with an implicitly specified initial
     // codec state and an N4128 IteratorRange extracted from a supplied N4128
     // Iterable.  See the above comments for the similar overload that accepts
     // an explicitly specified initial state.
     template<origin::Input_range Iterable>
-    text_view(
+    basic_text_view(
         const Iterable &iterable)
     requires origin::Constructible<
                  code_unit_iterator, origin::Iterator_type<const Iterable>>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view(detail::adl_begin(iterable), detail::adl_end(iterable)) {}
+    : basic_text_view(detail::adl_begin(iterable), detail::adl_end(iterable)) {}
 
     // Overload to initialize a text view from a text iterator pair.  The
     // initial codec state is inferred from the first iterator.
-    text_view(
+    basic_text_view(
         iterator first,
         sentinel last)
     requires origin::Constructible<
@@ -233,7 +237,7 @@ struct text_view
                  decltype(std::declval<iterator>().base())>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : text_view{first.state(), first.base(), last.base()} {}
+    : basic_text_view{first.state(), first.base(), last.base()} {}
 
     const range_type& base() const {
         return r;
@@ -271,19 +275,19 @@ private:
 };
 
 
-using ntext_view = text_view<
+using text_view = basic_text_view<
           execution_character_encoding,
           origin::bounded_range<const char*>>;
-using wtext_view = text_view<
+using wtext_view = basic_text_view<
           execution_wide_character_encoding,
           origin::bounded_range<const wchar_t*>>;
-using u8text_view = text_view<
+using u8text_view = basic_text_view<
           char8_character_encoding,
           origin::bounded_range<const char*>>;
-using u16text_view = text_view<
+using u16text_view = basic_text_view<
           char16_character_encoding,
           origin::bounded_range<const char16_t*>>;
-using u32text_view = text_view<
+using u32text_view = basic_text_view<
           char32_character_encoding,
           origin::bounded_range<const char32_t*>>;
 
@@ -300,7 +304,7 @@ auto make_text_view(
     ST last)
 {
     using range_type = detail::bounded_iterable<IT, ST>;
-    return text_view<ET, range_type>{state, first, last};
+    return basic_text_view<ET, range_type>{state, first, last};
 }
 
 // Overload to construct a text view from an N4128 IteratorRange and an

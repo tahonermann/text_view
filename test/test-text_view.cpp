@@ -469,27 +469,27 @@ void test_text_view_models() {
     // Archetypes
     static_assert(Text_view<text_view_archetype>(), "");
     // std
-    static_assert(Text_view<ntext_view>(), "");
+    static_assert(Text_view<text_view>(), "");
     static_assert(Text_view<wtext_view>(), "");
     static_assert(Text_view<u8text_view>(), "");
     static_assert(Text_view<u16text_view>(), "");
     static_assert(Text_view<u32text_view>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, char(&)[5]>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, const char(&)[5]>>(), "");
-    static_assert(Text_view<text_view<execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
-    static_assert(Text_view<text_view<char8_character_encoding, uint_least8_t(&)[5]>>(), "");
-    static_assert(Text_view<text_view<char16_character_encoding, char16_t(&)[5]>>(), "");
-    static_assert(Text_view<text_view<char32_character_encoding, char32_t(&)[5]>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, string&>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, array<char, 5>&>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, vector<char>&>>(), "");
-    // FIXME: The following text_view instantiations should be rejected since
-    // FIXME: the range type they are instantiated with owns the underlying
-    // FIXME: storage.
-    static_assert(Text_view<text_view<execution_character_encoding, char[5]>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, string>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, array<char, 5>>>(), "");
-    static_assert(Text_view<text_view<execution_character_encoding, vector<char>>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, char(&)[5]>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, const char(&)[5]>>(), "");
+    static_assert(Text_view<basic_text_view<execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
+    static_assert(Text_view<basic_text_view<char8_character_encoding, uint_least8_t(&)[5]>>(), "");
+    static_assert(Text_view<basic_text_view<char16_character_encoding, char16_t(&)[5]>>(), "");
+    static_assert(Text_view<basic_text_view<char32_character_encoding, char32_t(&)[5]>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, string&>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, array<char, 5>&>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, vector<char>&>>(), "");
+    // FIXME: The following basic_text_view instantiations should be rejected
+    // FIXME: since the range type they are instantiated with owns the
+    // FIXME: underlying storage.
+    static_assert(Text_view<basic_text_view<execution_character_encoding, char[5]>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, string>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, array<char, 5>>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, vector<char>>>(), "");
 }
 
 // Test any_character_set.
@@ -1435,8 +1435,8 @@ void test_make_text_view(
                    make_text_view(begin(tv1), end(tv1)));
 }
 
-void test_ntext_view() {
-    using TVT = ntext_view;
+void test_text_view() {
+    using TVT = text_view;
     using ET = encoding_type_of<TVT>;
     using CT = ET::codec_type::character_type;
     using CUMS = code_unit_map_sequence<ET::codec_type>;
@@ -2140,7 +2140,7 @@ int main() {
 
     test_any_character_set();
 
-    test_ntext_view();
+    test_text_view();
     test_wtext_view();
     test_u8text_view();
     test_u16text_view();
