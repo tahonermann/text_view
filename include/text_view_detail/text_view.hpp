@@ -299,7 +299,7 @@ using u32text_view = basic_text_view<
  */
 // Overload to construct a text view from an N4382 InputIterator, Sentinel,
 // and an explicitly specified initial codec state.
-template<Encoding ET, origin::InputIterator IT, origin::Sentinel<IT> ST>
+template<Encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
 auto make_text_view(
     typename ET::codec_type::state_type state,
     IT first,
@@ -311,7 +311,7 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4382 InputIterator, Sentinel,
 // and an implicit initial codec state.
-template<Encoding ET, origin::InputIterator IT, origin::Sentinel<IT> ST>
+template<Encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
 auto make_text_view(
     IT first,
     ST last)
