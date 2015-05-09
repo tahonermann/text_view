@@ -117,9 +117,8 @@ concept bool Codec() {
                typename T::state_transition_type;
                typename T::code_unit_type;
                typename T::character_type;
-               // FIXME: gcc rejects the constexpr requirement.
-               /* constexpr */ { T::min_code_units } noexcept -> int;
-               /* constexpr */ { T::max_code_units } noexcept -> int;
+               { T::min_code_units } noexcept -> int;
+               { T::max_code_units } noexcept -> int;
            }
         && Codec_state<typename T::state_type>()
         && Codec_state_transition<typename T::state_transition_type>()
