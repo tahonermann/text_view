@@ -15,41 +15,39 @@ namespace text_view {
 
 namespace detail {
 /*
- * Codec concept       Code unit iterator concept Text iterator category
- * ------------------- -------------------------- ---------------------------
- * Codec               Output_iterator            output_iterator_tag
- * Codec               Input_iterator             input_iterator_tag
- * Codec               Forward_iterator           forward_iterator_tag
- * Codec               Bidirectional_iterator     forward_iterator_tag
- * Codec               Random_access_iterator     forward_iterator_tag
- * Bidirectional_codec Output_iterator            output_iterator_tag
- * Bidirectional_codec Input_iterator             input_iterator_tag
- * Bidirectional_codec Forward_iterator           forward_iterator_tag
- * Bidirectional_codec Bidirectional_iterator     bidirectional_iterator_tag
- * Bidirectional_codec Random_access_iterator     bidirectional_iterator_tag
- * Random_access_codec Output_iterator            output_iterator_tag
- * Random_access_codec Input_iterator             input_iterator_tag
- * Random_access_codec Forward_iterator           forward_iterator_tag
- * Random_access_codec Bidirectional_iterator     bidirectional_iterator_tag
- * Random_access_codec Random_access_iterator     random_access_iterator_tag
+ * Decoder concep        Code unit iterator concept Text iterator category
+ * -------------------   -------------------------- ---------------------------
+ * Decoder               Input_iterator             input_iterator_tag
+ * Decoder               Forward_iterator           forward_iterator_tag
+ * Decoder               Bidirectional_iterator     forward_iterator_tag
+ * Decoder               Random_access_iterator     forward_iterator_tag
+ * Bidirectional_decoder Input_iterator             input_iterator_tag
+ * Bidirectional_decoder Forward_iterator           forward_iterator_tag
+ * Bidirectional_decoder Bidirectional_iterator     bidirectional_iterator_tag
+ * Bidirectional_decoder Random_access_iterator     bidirectional_iterator_tag
+ * Random_access_decoder Input_iterator             input_iterator_tag
+ * Random_access_decoder Forward_iterator           forward_iterator_tag
+ * Random_access_decoder Bidirectional_iterator     bidirectional_iterator_tag
+ * Random_access_decoder Random_access_iterator     random_access_iterator_tag
  */
 template<typename Codec, typename Iterator>
-struct text_iterator_category_selector;
+struct itext_iterator_category_selector;
 
 template<Codec C, Code_unit_iterator CUIT>
-struct text_iterator_category_selector<C, CUIT> {
+struct itext_iterator_category_selector<C, CUIT> {
     using type = origin::Iterator_category<CUIT>;
 };
 template<Codec C, Code_unit_iterator CUIT>
 requires origin::Bidirectional_iterator<CUIT>() // or Random_access_iterator
-      && ! Bidirectional_codec<C>()             // and ! Random_access_codec
-struct text_iterator_category_selector<C, CUIT> {
+      && ! Bidirectional_decoder<C, CUIT>()     // and ! Random_access_decoder
+struct itext_iterator_category_selector<C, CUIT> {
     using type = std::forward_iterator_tag;
 };
-template<Bidirectional_codec C, Code_unit_iterator CUIT>
+template<Codec C, Code_unit_iterator CUIT>
 requires origin::Random_access_iterator<CUIT>()
-      && ! Random_access_codec<C>()
-struct text_iterator_category_selector<C, CUIT> {
+      && Bidirectional_decoder<C, CUIT>()
+      && ! Random_access_decoder<C, CUIT>()
+struct itext_iterator_category_selector<C, CUIT> {
     using type = std::bidirectional_iterator_tag;
 };
 } // namespace detail
@@ -59,27 +57,23 @@ template<typename ET, typename RT>
 struct itext_iterator;
 
 template<Encoding ET, origin::Input_range RT>
-requires origin::Input_iterator<origin::Iterator_type<RT>>()
+requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+      && origin::Input_iterator<origin::Iterator_type<const RT>>()
 struct itext_iterator<ET, RT>
-    : public std::iterator<
-                 typename detail::text_iterator_category_selector<
-                     typename ET::codec_type,
-                     origin::Iterator_type<const RT>>::type,
-                 typename ET::codec_type::character_type,
-                 origin::Difference_type<origin::Iterator_type<const RT>>,
-                 const typename ET::codec_type::character_type*,
-                 const typename ET::codec_type::character_type&>
-    , private ET::codec_type::state_type
+    : private ET::codec_type::state_type
 {
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
     using state_type = typename encoding_type::codec_type::state_type;
-    using iterator = origin::Iterator_type<const RT>;
-    using iterator_category = typename itext_iterator::iterator_category;
-    using value_type = typename itext_iterator::value_type;
-    using reference = typename itext_iterator::reference;
-    using pointer = typename itext_iterator::pointer;
-    using difference_type = typename itext_iterator::difference_type;
+    using iterator = origin::Iterator_type<const range_type>;
+    using iterator_category =
+              typename detail::itext_iterator_category_selector<
+                  typename encoding_type::codec_type,
+                  iterator>::type;
+    using value_type = typename encoding_type::codec_type::character_type;
+    using reference = const value_type&;
+    using pointer = const value_type*;
+    using difference_type = origin::Difference_type<iterator>;
 
     itext_iterator()
         requires origin::Default_constructible<state_type>()
@@ -161,27 +155,23 @@ private:
 };
 
 template<Encoding ET, origin::Input_range RT>
-requires origin::Forward_iterator<origin::Iterator_type<RT>>()
+requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+      && origin::Forward_iterator<origin::Iterator_type<const RT>>()
 struct itext_iterator<ET, RT>
-    : public std::iterator<
-                 typename detail::text_iterator_category_selector<
-                     typename ET::codec_type,
-                     origin::Iterator_type<const RT>>::type,
-                 typename ET::codec_type::character_type,
-                 origin::Difference_type<origin::Iterator_type<const RT>>,
-                 const typename ET::codec_type::character_type*,
-                 const typename ET::codec_type::character_type&>
-    , private ET::codec_type::state_type
+    : private ET::codec_type::state_type
 {
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
-    using state_type = typename ET::codec_type::state_type;
-    using iterator = origin::Iterator_type<const RT>;
-    using iterator_category = typename itext_iterator::iterator_category;
-    using value_type = typename itext_iterator::value_type;
-    using reference = typename itext_iterator::reference;
-    using pointer = typename itext_iterator::pointer;
-    using difference_type = typename itext_iterator::difference_type;
+    using state_type = typename encoding_type::codec_type::state_type;
+    using iterator = origin::Iterator_type<const range_type>;
+    using iterator_category =
+              typename detail::itext_iterator_category_selector<
+                  typename encoding_type::codec_type,
+                  iterator>::type;
+    using value_type = typename encoding_type::codec_type::character_type;
+    using reference = const value_type&;
+    using pointer = const value_type*;
+    using difference_type = origin::Difference_type<iterator>;
 
     struct current_range_type {
         current_range_type()
@@ -305,9 +295,8 @@ struct itext_iterator<ET, RT>
     }
 
     itext_iterator& operator--()
-        requires origin::Derived<
-                     iterator_category,
-                     std::bidirectional_iterator_tag>()
+        requires Bidirectional_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         using codec_type = typename encoding_type::codec_type;
 
@@ -333,9 +322,8 @@ struct itext_iterator<ET, RT>
         return *this;
     }
     itext_iterator operator--(int)
-        requires origin::Derived<
-                     iterator_category,
-                     std::bidirectional_iterator_tag>()
+        requires Bidirectional_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         itext_iterator it{*this};
         --*this;
@@ -343,9 +331,8 @@ struct itext_iterator<ET, RT>
     }
 
     itext_iterator& operator+=(difference_type n)
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         if (n < 0) {
             current_range.first +=
@@ -360,35 +347,31 @@ struct itext_iterator<ET, RT>
     }
 
     itext_iterator operator+(difference_type n) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         itext_iterator it{*this};
         return it += n;
     }
 
     itext_iterator& operator-=(difference_type n)
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return *this += -n;
     }
 
     itext_iterator operator-(difference_type n) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         itext_iterator it{*this};
         return it -= n;
     }
 
     difference_type operator-(itext_iterator it) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return (current_range.first - it.current_range.first) /
                encoding_type::codec_type::max_code_units;
@@ -399,9 +382,8 @@ struct itext_iterator<ET, RT>
     // a value stored in an object (The itext_iterator instance produced for
     // '*this + n') that is destroyed before the function returns.
     value_type operator[](difference_type n) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return *(*this + n);
     }
@@ -413,9 +395,10 @@ private:
 };
 
 template<Encoding ET, origin::Input_range RT>
-requires origin::Random_access_iterator<origin::Iterator_type<RT>>()
+requires Random_access_decoder<typename ET::codec_type,
+                               origin::Iterator_type<const RT>>()
 itext_iterator<ET, RT> operator+(
-    origin::Difference_type<origin::Iterator_type<RT>> n,
+    origin::Difference_type<origin::Iterator_type<const RT>> n,
     itext_iterator<ET, RT> it)
 {
     return it += n;
@@ -576,23 +559,17 @@ struct otext_iterator;
 template<Encoding E, Code_unit_iterator CUIT>
 requires origin::Output_iterator<CUIT, typename E::codec_type::code_unit_type>()
 struct otext_iterator<E, CUIT>
-    : public std::iterator<
-                 std::output_iterator_tag,
-                 typename E::codec_type::character_type,
-                 origin::Difference_type<CUIT>,
-                 typename E::codec_type::character_type*,
-                 typename E::codec_type::character_type&>
-    , private E::codec_type::state_type
+    : private E::codec_type::state_type
 {
     using encoding_type = E;
     using state_type = typename E::codec_type::state_type;
     using state_transition_type = typename E::codec_type::state_transition_type;
     using iterator = CUIT;
-    using iterator_category = typename otext_iterator::iterator_category;
-    using value_type = typename otext_iterator::value_type;
-    using reference = typename otext_iterator::reference;
-    using pointer = typename otext_iterator::pointer;
-    using difference_type = typename otext_iterator::difference_type;
+    using iterator_category = std::output_iterator_tag;
+    using value_type = typename encoding_type::codec_type::character_type;
+    using reference = value_type&;
+    using pointer = value_type*;
+    using difference_type = origin::Difference_type<iterator>;
 
     otext_iterator()
         requires origin::Default_constructible<state_type>()

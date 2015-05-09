@@ -123,34 +123,49 @@ concept bool Codec() {
         && Codec_state<typename T::state_type>()
         && Codec_state_transition<typename T::state_transition_type>()
         && Code_unit<typename T::code_unit_type>()
-        && Character<typename T::character_type>()
-        // FIXME: Move the requirement for an encode_state_transition() member
-        // FIXME: function to a different concept that validates a particular
-        // FIXME: iterator type?
+        && Character<typename T::character_type>();
+}
+
+
+/*
+ * Encoder concept
+ */
+template<typename T, typename CUIT>
+concept bool Encoder() {
+    return Codec<T>()
+        && origin::Output_iterator<CUIT, typename T::code_unit_type>()
         && requires (
                typename T::state_type &state,
-               typename T::code_unit_type *&out,
+               CUIT &out,
                typename T::state_transition_type stt,
                int &encoded_code_units)
            {
                T::encode_state_transition(state, out, stt, encoded_code_units);
            }
-        // FIXME: Move the requirement for an encode() member function to a
-        // FIXME: different concept that validates a particular iterator type?
         && requires (
                typename T::state_type &state,
-               typename T::code_unit_type *&out,
+               CUIT &out,
                typename T::character_type c,
                int &encoded_code_units)
            {
                T::encode(state, out, c, encoded_code_units);
-           }
-        // FIXME: Move the requirement for a decode() member function to a
-        // FIXME: different concept that validates a particular iterator type?
+           };
+}
+
+
+/*
+ * Decoder concept
+ */
+template<typename T, typename CUIT>
+concept bool Decoder() {
+    return Codec<T>()
+        && origin::Input_iterator<CUIT>()
+        && origin::Convertible<origin::Value_type<CUIT>,
+                               typename T::code_unit_type>()
         && requires (
                typename T::state_type &state,
-               typename T::code_unit_type *&in_next,
-               typename T::code_unit_type *in_end,
+               CUIT &in_next,
+               CUIT in_end,
                typename T::character_type &c,
                int &decoded_code_units)
            {
@@ -160,17 +175,16 @@ concept bool Codec() {
 
 
 /*
- * Bidirectional codec concept
+ * Bidirectional decoder concept
  */
-template<typename T>
-concept bool Bidirectional_codec() {
-    return Codec<T>()
-        // FIXME: Move the requirement for a rdecode() member function to a
-        // FIXME: different concept that validates a particular iterator type?
+template<typename T, typename CUIT>
+concept bool Bidirectional_decoder() {
+    return Decoder<T, CUIT>()
+        && origin::Bidirectional_iterator<CUIT>()
         && requires (
                typename T::state_type &state,
-               typename T::code_unit_type *&in_next,
-               typename T::code_unit_type *in_end,
+               CUIT &in_next,
+               CUIT in_end,
                typename T::character_type &c,
                int &decoded_code_units)
            {
@@ -180,13 +194,45 @@ concept bool Bidirectional_codec() {
 
 
 /*
- * Random access codec concept
+ * Random access decoder concept
  */
-template<typename T>
-concept bool Random_access_codec() {
-    return Bidirectional_codec<T>()
+template<typename T, typename CUIT>
+concept bool Random_access_decoder() {
+    return Bidirectional_decoder<T, CUIT>()
+        && origin::Random_access_iterator<CUIT>()
         && detail::Same_value<int, T::min_code_units, T::max_code_units>()
         && origin::Empty_type<typename T::state_type>();
+}
+
+
+/*
+ * Forward codec concept
+ */
+template<typename T, typename CUIT>
+concept bool Forward_codec() {
+    return origin::Forward_iterator<CUIT>()
+        && Encoder<T, CUIT>()
+        && Decoder<T, CUIT>();
+}
+
+
+/*
+ * Bidirectional codec concept
+ */
+template<typename T, typename CUIT>
+concept bool Bidirectional_codec() {
+    return Encoder<T, CUIT>()
+        && Bidirectional_decoder<T, CUIT>();
+}
+
+
+/*
+ * Random access codec concept
+ */
+template<typename T, typename CUIT>
+concept bool Random_access_codec() {
+    return Encoder<T, CUIT>()
+        && Random_access_decoder<T, CUIT>();
 }
 
 

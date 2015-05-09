@@ -373,27 +373,63 @@ void test_codec_state_models() {
 
 void test_codec_models() {
     // Archetypes
-    static_assert(Codec<codec_archetype>(), "");
-    static_assert(Bidirectional_codec<codec_archetype>(), "");
+    static_assert(Forward_codec<
+                      codec_archetype,
+                      code_unit_iterator_archetype>(), "");
+    static_assert(Bidirectional_codec<
+                      codec_archetype,
+                      code_unit_iterator_archetype>(), "");
     // std
-    static_assert(Bidirectional_codec<trivial_codec<character_archetype, code_unit_archetype>>(), "");
-    static_assert(Bidirectional_codec<utf8_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<utf16_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<utf16be_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<utf16le_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<utf32_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<utf32be_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<utf32le_encoding::codec_type>(), "");
-    static_assert(Codec<basic_execution_character_encoding::codec_type>(), "");
-    static_assert(Codec<basic_execution_wide_character_encoding::codec_type>(), "");
+    static_assert(Bidirectional_codec<
+                      trivial_codec<character_archetype, code_unit_archetype>,
+                      code_unit_iterator_archetype>(), "");
+    static_assert(Bidirectional_codec<
+                      utf8_encoding::codec_type,
+                      char*>(), "");
+    static_assert(Bidirectional_codec<
+                      utf16_encoding::codec_type,
+                      char16_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      utf16be_encoding::codec_type,
+                      uint_least8_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      utf16le_encoding::codec_type,
+                      uint_least8_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      utf32_encoding::codec_type,
+                      char32_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      utf32be_encoding::codec_type,
+                      uint_least8_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      utf32le_encoding::codec_type,
+                      uint_least8_t*>(), "");
+    static_assert(Forward_codec<
+                      basic_execution_character_encoding::codec_type,
+                      char*>(), "");
+    static_assert(Forward_codec<
+                      basic_execution_wide_character_encoding::codec_type,
+                      wchar_t*>(), "");
 #if defined(__STDC_ISO_10646__)
-    static_assert(Bidirectional_codec<iso_10646_wide_character_encoding::codec_type>(), "");
+    static_assert(Bidirectional_codec<
+                      iso_10646_wide_character_encoding::codec_type,
+                      wchar_t*>(), "");
 #endif // __STDC_ISO_10646__
-    static_assert(Codec<execution_character_encoding::codec_type>(), "");
-    static_assert(Codec<execution_wide_character_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<char8_character_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<char16_character_encoding::codec_type>(), "");
-    static_assert(Bidirectional_codec<char32_character_encoding::codec_type>(), "");
+    static_assert(Forward_codec<
+                      execution_character_encoding::codec_type,
+                      char*>(), "");
+    static_assert(Forward_codec<
+                      execution_wide_character_encoding::codec_type,
+                      wchar_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      char8_character_encoding::codec_type,
+                      char*>(), "");
+    static_assert(Bidirectional_codec<
+                      char16_character_encoding::codec_type,
+                      char16_t*>(), "");
+    static_assert(Bidirectional_codec<
+                      char32_character_encoding::codec_type,
+                      char32_t*>(), "");
 }
 
 void test_encoding_models() {
@@ -1070,7 +1106,6 @@ void test_forward_encoding(
 // random access iterators and reverse output text iterators with underlying
 // output, forward, bidirectional, and random access iterators.
 template<Encoding ET>
-requires Bidirectional_codec<typename ET::codec_type>()
 void test_bidirectional_encoding(
     const code_unit_map_sequence<typename ET::codec_type> &code_unit_maps)
 {
@@ -1122,7 +1157,6 @@ void test_bidirectional_encoding(
 // for the character encoding specified by 'ET'.  This test exercises decoding
 // using input text iterators with underlying random access iterators.
 template<Encoding ET>
-requires Random_access_codec<typename ET::codec_type>()
 void test_random_access_encoding(
     const code_unit_map_sequence<typename ET::codec_type> &code_unit_maps)
 {
