@@ -10,7 +10,7 @@ bin:
 	mkdir bin
 
 bin/test-text_view: test/test-text_view.cpp | bin
-	g++ -Wall -Wpedantic -g -MMD -MF test/test-text_view.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH) -o $@
+	g++ -Wall -Werror -Wpedantic -g -MMD -MF test/test-text_view.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH) -o $@
 
 clean:
 	rm -f bin/test-text_view

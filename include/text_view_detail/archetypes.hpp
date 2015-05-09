@@ -26,7 +26,7 @@ using code_unit_archetype = code_unit_archetype_template<char>;
  */
 template<Code_point CPT>
 using code_point_archetype_template = CPT;
-using code_point_archetype = code_point_archetype_template<unsigned long>;
+using code_point_archetype = code_point_archetype_template<char>;
 
 
 /*
