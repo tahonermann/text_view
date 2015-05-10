@@ -175,11 +175,21 @@ concept bool Decoder() {
 
 
 /*
+ * Forward decoder concept
+ */
+template<typename T, typename CUIT>
+concept bool Forward_decoder() {
+    return Decoder<T, CUIT>()
+        && origin::Forward_iterator<CUIT>();
+}
+
+
+/*
  * Bidirectional decoder concept
  */
 template<typename T, typename CUIT>
 concept bool Bidirectional_decoder() {
-    return Decoder<T, CUIT>()
+    return Forward_decoder<T, CUIT>()
         && origin::Bidirectional_iterator<CUIT>()
         && requires (
                typename T::state_type &state,

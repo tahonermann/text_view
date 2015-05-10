@@ -50,17 +50,11 @@ requires origin::Random_access_iterator<CUIT>()
 struct itext_iterator_category_selector<C, CUIT> {
     using type = std::bidirectional_iterator_tag;
 };
-} // namespace detail
 
-
-template<typename ET, typename RT>
-struct itext_iterator;
 
 template<Encoding ET, origin::Input_range RT>
-requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
-      && origin::Input_iterator<origin::Iterator_type<const RT>>()
-struct itext_iterator<ET, RT>
-    : private ET::codec_type::state_type
+struct itext_iterator_base
+    : protected ET::codec_type::state_type
 {
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
@@ -75,103 +69,90 @@ struct itext_iterator<ET, RT>
     using pointer = const value_type*;
     using difference_type = origin::Difference_type<iterator>;
 
-    itext_iterator()
+protected:
+    itext_iterator_base()
         requires origin::Default_constructible<state_type>()
-              && origin::Default_constructible<iterator>()
-        : range{}, current{}, value{} {}
+        = default;
 
-    itext_iterator(
-        const state_type &state,
-        const range_type *range,
-        iterator current)
-    :
+    itext_iterator_base(const state_type &state)
         // CWG DR1467.  List-initialization doesn't consider copy constructors
         // for aggregates.  The state_type base class must be initialized with
         // an expression-list.
-        state_type(state),
-        range{range},
-        current{current}
-    {
-        ++*this;
-    }
+        : state_type(state) {}
 
+public:
     const state_type& state() const {
         return *this;
     }
     state_type& state() {
         return *this;
     }
+};
 
-    iterator base() const {
-        return current;
-    }
+template<Encoding ET, origin::Input_range RT>
+requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+      && origin::Input_iterator<origin::Iterator_type<const RT>>()
+struct itext_iterator_data
+    : public itext_iterator_base<ET, RT>
+{
+    using state_type = typename itext_iterator_base<ET, RT>::state_type;
+    using range_type = typename itext_iterator_base<ET, RT>::range_type;
+    using iterator = typename itext_iterator_base<ET, RT>::iterator;
+    using value_type = typename itext_iterator_base<ET, RT>::value_type;
 
-    reference operator*() const {
-        return value;
-    }
-    pointer operator->() const {
-        return &value;
-    }
+protected:
+    itext_iterator_data()
+        requires origin::Default_constructible<state_type>()
+              && origin::Default_constructible<iterator>()
+        : range{}, current{}, value{} {}
 
-    bool operator==(const itext_iterator& other) const {
-        return current == other.current;
-    }
-    bool operator!=(const itext_iterator& other) const {
-        return !(*this == other);
-    }
+    itext_iterator_data(
+        const state_type &state,
+        const range_type *range,
+        iterator current)
+    :
+        itext_iterator_base<ET, RT>{state},
+        range{range},
+        current{current}
+    {}
 
-    itext_iterator& operator++() {
-        using codec_type = typename encoding_type::codec_type;
-
-        iterator tmp_iterator{current};
-        auto end(detail::adl_end(*range));
-        while (tmp_iterator != end) {
-            value_type tmp_value;
-            int decoded_code_units = 0;
-            bool decoded_code_point = codec_type::decode(
-                state(),
-                tmp_iterator,
-                end,
-                tmp_value,
-                decoded_code_units);
-            current = tmp_iterator;
-            if (decoded_code_point) {
-                value = tmp_value;
-                break;
-            }
-        }
-        return *this;
-    }
-    itext_iterator operator++(int) {
-        itext_iterator it{*this};
-        ++*this;
-        return it;
-    }
-
-private:
     const range_type *range;
     iterator current;
     value_type value;
+
+public:
+    iterator base() const {
+        return current;
+    }
 };
 
 template<Encoding ET, origin::Input_range RT>
 requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
       && origin::Forward_iterator<origin::Iterator_type<const RT>>()
-struct itext_iterator<ET, RT>
-    : private ET::codec_type::state_type
+struct itext_iterator_data<ET, RT>
+    : public itext_iterator_base<ET, RT>
 {
-    using encoding_type = ET;
-    using range_type = origin::Remove_reference<RT>;
-    using state_type = typename encoding_type::codec_type::state_type;
-    using iterator = origin::Iterator_type<const range_type>;
-    using iterator_category =
-              typename detail::itext_iterator_category_selector<
-                  typename encoding_type::codec_type,
-                  iterator>::type;
-    using value_type = typename encoding_type::codec_type::character_type;
-    using reference = const value_type&;
-    using pointer = const value_type*;
-    using difference_type = origin::Difference_type<iterator>;
+    using state_type = typename itext_iterator_base<ET, RT>::state_type;
+    using range_type = typename itext_iterator_base<ET, RT>::range_type;
+    using iterator = typename itext_iterator_base<ET, RT>::iterator;
+    using value_type = typename itext_iterator_base<ET, RT>::value_type;
+
+protected:
+    itext_iterator_data()
+        requires origin::Default_constructible<state_type>()
+              && origin::Default_constructible<iterator>()
+        = default;
+
+    itext_iterator_data(
+        const state_type &state,
+        const range_type *range,
+        iterator first)
+    :
+        itext_iterator_base<ET, RT>{state},
+        range{range},
+        current_range{first, first}
+    {
+    }
 
     struct current_range_type {
         current_range_type()
@@ -186,33 +167,11 @@ struct itext_iterator<ET, RT>
         iterator last;
     };
 
-    itext_iterator()
-        requires origin::Default_constructible<state_type>()
-              && origin::Default_constructible<iterator>()
-        : range{}, current_range{}, value{} {}
+    const range_type *range;
+    current_range_type current_range;
+    value_type value;
 
-    itext_iterator(
-        const state_type &state,
-        const range_type *range,
-        iterator first)
-    :
-        // CWG DR1467.  List-initialization doesn't consider copy constructors
-        // for aggregates.  The state_type base class must be initialized with
-        // an expression-list.
-        state_type(state),
-        range{range},
-        current_range{first, first}
-    {
-        ++*this;
-    }
-
-    const state_type& state() const {
-        return *this;
-    }
-    state_type& state() {
-        return *this;
-    }
-
+public:
     iterator base() const {
         return current_range.first;
     }
@@ -220,73 +179,137 @@ struct itext_iterator<ET, RT>
     const current_range_type& base_range() const {
         return current_range;
     }
+};
+
+} // namespace detail
+
+
+template<Encoding ET, origin::Input_range RT>
+requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+struct itext_iterator
+    : public detail::itext_iterator_data<ET, RT>
+{
+    using encoding_type = typename detail::itext_iterator_data<ET, RT>::encoding_type;
+    using range_type = typename detail::itext_iterator_data<ET, RT>::range_type;
+    using state_type = typename detail::itext_iterator_data<ET, RT>::state_type;
+    using value_type = typename detail::itext_iterator_data<ET, RT>::value_type;
+    using iterator_category = typename detail::itext_iterator_data<ET, RT>::iterator_category;
+    using iterator = typename detail::itext_iterator_data<ET, RT>::iterator;
+    using pointer = typename detail::itext_iterator_data<ET, RT>::pointer;
+    using reference = typename detail::itext_iterator_data<ET, RT>::reference;
+    using difference_type = typename detail::itext_iterator_data<ET, RT>::difference_type;
+
+    itext_iterator()
+        requires origin::Default_constructible<state_type>()
+              && origin::Default_constructible<iterator>()
+        = default;
+
+    itext_iterator(
+        const state_type &state,
+        const range_type *range,
+        iterator first)
+    :
+        detail::itext_iterator_data<ET, RT>{state, range, first}
+    {
+        ++*this;
+    }
 
     reference operator*() const {
-        return value;
+        return this->value;
     }
     pointer operator->() const {
-        return &value;
+        return &this->value;
     }
 
     bool operator==(const itext_iterator& other) const {
-        return current_range.first == other.current_range.first;
+        return this->base() == other.base();
     }
     bool operator!=(const itext_iterator& other) const {
         return !(*this == other);
     }
 
     bool operator<(const itext_iterator& other) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return (other - *this) > 0;
     }
     bool operator>(const itext_iterator& other) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return other < *this;
     }
     bool operator<=(const itext_iterator& other) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return !(*this > other);
     }
     bool operator>=(const itext_iterator& other) const
-        requires origin::Derived<
-                     iterator_category,
-                     std::random_access_iterator_tag>()
+        requires Random_access_decoder<typename encoding_type::codec_type,
+                                       iterator>()
     {
         return !(*this < other);
     }
 
-    itext_iterator& operator++() {
+    // FIXME: Overloading of member operators based on constraints is currently
+    // FIXME: rejected by r222769 of the gcc c++-concepts branch, so the
+    // FIXME: operator++() definition below dispatches to next().
+    // FIXME:   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66091
+    itext_iterator& next(std::input_iterator_tag) {
         using codec_type = typename encoding_type::codec_type;
 
-        current_range.first = current_range.last;
-        iterator tmp_iterator{current_range.first};
-        auto end(detail::adl_end(*range));
+        iterator tmp_iterator{this->current};
+        auto end(detail::adl_end(*this->range));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
             bool decoded_code_point = codec_type::decode(
-                state(),
+                this->state(),
                 tmp_iterator,
                 end,
                 tmp_value,
                 decoded_code_units);
-            current_range.last = tmp_iterator;
+            this->current = tmp_iterator;
             if (decoded_code_point) {
-                value = tmp_value;
+                this->value = tmp_value;
                 break;
             }
-            current_range.first = current_range.last;
         }
         return *this;
+    }
+
+    itext_iterator& next(std::forward_iterator_tag)
+        requires Forward_decoder<typename encoding_type::codec_type,
+                                 iterator>()
+    {
+        using codec_type = typename encoding_type::codec_type;
+
+        this->current_range.first = this->current_range.last;
+        iterator tmp_iterator{this->current_range.first};
+        auto end(detail::adl_end(*this->range));
+        while (tmp_iterator != end) {
+            value_type tmp_value;
+            int decoded_code_units = 0;
+            bool decoded_code_point = codec_type::decode(
+                this->state(),
+                tmp_iterator,
+                end,
+                tmp_value,
+                decoded_code_units);
+            this->current_range.last = tmp_iterator;
+            if (decoded_code_point) {
+                this->value = tmp_value;
+                break;
+            }
+            this->current_range.first = this->current_range.last;
+        }
+        return *this;
+    }
+
+    itext_iterator& operator++() {
+        return next(iterator_category());
     }
     itext_iterator operator++(int) {
         itext_iterator it{*this};
@@ -300,24 +323,24 @@ struct itext_iterator<ET, RT>
     {
         using codec_type = typename encoding_type::codec_type;
 
-        current_range.last = current_range.first;
-        std::reverse_iterator<iterator> rcurrent{current_range.last};
-        std::reverse_iterator<iterator> rend{detail::adl_begin(*range)};
+        this->current_range.last = this->current_range.first;
+        std::reverse_iterator<iterator> rcurrent{this->current_range.last};
+        std::reverse_iterator<iterator> rend{detail::adl_begin(*this->range)};
         while (rcurrent != rend) {
             value_type tmp_value;
             int decoded_code_units = 0;
             bool decoded_code_point = codec_type::rdecode(
-                state(),
+                this->state(),
                 rcurrent,
                 rend,
                 tmp_value,
                 decoded_code_units);
-            current_range.first = rcurrent.base();
+            this->current_range.first = rcurrent.base();
             if (decoded_code_point) {
-                value = tmp_value;
+                this->value = tmp_value;
                 break;
             }
-            current_range.last = current_range.first;
+            this->current_range.last = this->current_range.first;
         }
         return *this;
     }
@@ -335,11 +358,11 @@ struct itext_iterator<ET, RT>
                                        iterator>()
     {
         if (n < 0) {
-            current_range.first +=
+            this->current_range.first +=
                 ((n+1) * encoding_type::codec_type::max_code_units);
             --*this;
         } else if (n > 0) {
-            current_range.last +=
+            this->current_range.last +=
                 ((n-1) * encoding_type::codec_type::max_code_units);
             ++*this;
         }
@@ -373,7 +396,7 @@ struct itext_iterator<ET, RT>
         requires Random_access_decoder<typename encoding_type::codec_type,
                                        iterator>()
     {
-        return (current_range.first - it.current_range.first) /
+        return (this->current_range.first - it.current_range.first) /
                encoding_type::codec_type::max_code_units;
     }
 
@@ -387,11 +410,6 @@ struct itext_iterator<ET, RT>
     {
         return *(*this + n);
     }
-
-private:
-    const range_type *range;
-    current_range_type current_range;
-    value_type value;
 };
 
 template<Encoding ET, origin::Input_range RT>
@@ -553,12 +571,9 @@ private:
 };
 
 
-template<typename E, typename CUIT>
-struct otext_iterator;
-
 template<Encoding E, Code_unit_iterator CUIT>
 requires origin::Output_iterator<CUIT, typename E::codec_type::code_unit_type>()
-struct otext_iterator<E, CUIT>
+struct otext_iterator
     : private E::codec_type::state_type
 {
     using encoding_type = E;
