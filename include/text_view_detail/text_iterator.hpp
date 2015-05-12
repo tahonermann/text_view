@@ -253,11 +253,7 @@ struct itext_iterator
         return !(*this < other);
     }
 
-    // FIXME: Overloading of member operators based on constraints is currently
-    // FIXME: rejected by r222769 of the gcc c++-concepts branch, so the
-    // FIXME: operator++() definition below dispatches to next().
-    // FIXME:   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66091
-    itext_iterator& next(std::input_iterator_tag) {
+    itext_iterator& operator++() {
         using codec_type = typename encoding_type::codec_type;
 
         iterator tmp_iterator{this->current};
@@ -280,7 +276,7 @@ struct itext_iterator
         return *this;
     }
 
-    itext_iterator& next(std::forward_iterator_tag)
+    itext_iterator& operator++()
         requires Forward_decoder<typename encoding_type::codec_type,
                                  iterator>()
     {
@@ -308,9 +304,6 @@ struct itext_iterator
         return *this;
     }
 
-    itext_iterator& operator++() {
-        return next(iterator_category());
-    }
     itext_iterator operator++(int) {
         itext_iterator it{*this};
         ++*this;
@@ -344,6 +337,7 @@ struct itext_iterator
         }
         return *this;
     }
+
     itext_iterator operator--(int)
         requires Bidirectional_decoder<typename encoding_type::codec_type,
                                        iterator>()
