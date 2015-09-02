@@ -39,3 +39,7 @@ Related projects/APIs:
   https://www.gnu.org/software/libiconv
 - glibc iconv
   http://www.gnu.org/software/libc/manual/html_node/glibc-iconv-Implementation.html
+
+Unicode related:
+- ftp://ftp.unicode.org/Public/UCD/latest/ucd/SpecialCasing.txt
+- ftp://ftp.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
