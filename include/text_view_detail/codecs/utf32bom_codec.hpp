@@ -5,6 +5,7 @@
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/codecs/utf32be_codec.hpp>
 #include <text_view_detail/codecs/utf32le_codec.hpp>
+#include <cassert>
 #include <climits>
 
 

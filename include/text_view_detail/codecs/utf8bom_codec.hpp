@@ -5,6 +5,7 @@
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/codecs/utf8_codec.hpp>
 #include <origin/core/traits.hpp>
+#include <cassert>
 #include <climits>
 
 
