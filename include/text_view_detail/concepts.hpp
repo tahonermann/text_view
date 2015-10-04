@@ -10,15 +10,15 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
-namespace detail {
+namespace text_detail {
 template<typename T, T t1, T t2>
 concept bool Same_value() {
     return t1 == t2;
 }
-} // detail namespace
+} // text_detail namespace
 
 
 /*
@@ -210,7 +210,7 @@ template<typename T, typename CUIT>
 concept bool Random_access_decoder() {
     return Bidirectional_decoder<T, CUIT>()
         && origin::Random_access_iterator<CUIT>()
-        && detail::Same_value<int, T::min_code_units, T::max_code_units>()
+        && text_detail::Same_value<int, T::min_code_units, T::max_code_units>()
         && origin::Empty_type<typename T::state_type>();
 }
 
@@ -324,7 +324,7 @@ concept bool Text_view() {
 }
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

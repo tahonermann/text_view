@@ -8,21 +8,21 @@
 
 #if !defined(TEXT_VIEW_EXECUTION_CHARACTER_SET)
 #define TEXT_VIEW_EXECUTION_CHARACTER_SET \
-        ::std::experimental::text_view::basic_execution_character_set
+        ::std::experimental::basic_execution_character_set
 #endif
 #if !defined(TEXT_VIEW_EXECUTION_WIDE_CHARACTER_SET)
 #define TEXT_VIEW_EXECUTION_WIDE_CHARACTER_SET \
-        ::std::experimental::text_view::basic_execution_wide_character_set
+        ::std::experimental::basic_execution_wide_character_set
 #endif
 #if !defined(TEXT_VIEW_UNIVERAL_CHARACTER_SET)
 #define TEXT_VIEW_UNIVERAL_CHARACTER_SET \
-        ::std::experimental::text_view::unicode_character_set
+        ::std::experimental::unicode_character_set
 #endif
 
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -44,7 +44,7 @@ using execution_wide_character_set = TEXT_VIEW_EXECUTION_WIDE_CHARACTER_SET;
 using universal_character_set = TEXT_VIEW_UNIVERAL_CHARACTER_SET;
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

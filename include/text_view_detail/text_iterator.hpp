@@ -10,10 +10,10 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
-namespace detail {
+namespace text_detail {
 /*
  * Decoder concep        Code unit iterator concept Text iterator category
  * -------------------   -------------------------- ---------------------------
@@ -61,7 +61,7 @@ struct itext_iterator_base
     using state_type = typename encoding_type::codec_type::state_type;
     using iterator = origin::Iterator_type<const range_type>;
     using iterator_category =
-              typename detail::itext_iterator_category_selector<
+              typename text_detail::itext_iterator_category_selector<
                   typename encoding_type::codec_type,
                   iterator>::type;
     using value_type = typename encoding_type::codec_type::character_type;
@@ -178,30 +178,30 @@ protected:
     current_range_type current_range;
 };
 
-} // namespace detail
+} // namespace text_detail
 
 
 template<Encoding ET, origin::Input_range RT>
 requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
 struct itext_iterator
-    : public detail::itext_iterator_data<ET, RT>
+    : public text_detail::itext_iterator_data<ET, RT>
 {
-    using encoding_type = typename detail::itext_iterator_data<ET, RT>::encoding_type;
-    using range_type = typename detail::itext_iterator_data<ET, RT>::range_type;
-    using state_type = typename detail::itext_iterator_data<ET, RT>::state_type;
-    using value_type = typename detail::itext_iterator_data<ET, RT>::value_type;
-    using iterator_category = typename detail::itext_iterator_data<ET, RT>::iterator_category;
-    using iterator = typename detail::itext_iterator_data<ET, RT>::iterator;
-    using pointer = typename detail::itext_iterator_data<ET, RT>::pointer;
-    using reference = typename detail::itext_iterator_data<ET, RT>::reference;
-    using difference_type = typename detail::itext_iterator_data<ET, RT>::difference_type;
+    using encoding_type = typename text_detail::itext_iterator_data<ET, RT>::encoding_type;
+    using range_type = typename text_detail::itext_iterator_data<ET, RT>::range_type;
+    using state_type = typename text_detail::itext_iterator_data<ET, RT>::state_type;
+    using value_type = typename text_detail::itext_iterator_data<ET, RT>::value_type;
+    using iterator_category = typename text_detail::itext_iterator_data<ET, RT>::iterator_category;
+    using iterator = typename text_detail::itext_iterator_data<ET, RT>::iterator;
+    using pointer = typename text_detail::itext_iterator_data<ET, RT>::pointer;
+    using reference = typename text_detail::itext_iterator_data<ET, RT>::reference;
+    using difference_type = typename text_detail::itext_iterator_data<ET, RT>::difference_type;
 
 public:
     itext_iterator()
         requires origin::Default_constructible<state_type>()
               && origin::Default_constructible<iterator>()
     :
-        detail::itext_iterator_data<ET, RT>{},
+        text_detail::itext_iterator_data<ET, RT>{},
         value{},
         ok{false}
     {}
@@ -211,7 +211,7 @@ public:
         const range_type *range,
         iterator first)
     :
-        detail::itext_iterator_data<ET, RT>{state, range, first},
+        text_detail::itext_iterator_data<ET, RT>{state, range, first},
         value{},
         ok{false}
     {
@@ -271,7 +271,7 @@ public:
 
         ok = false;
         iterator tmp_iterator{this->current};
-        auto end(detail::adl_end(*this->range));
+        auto end(text_detail::adl_end(*this->range));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -300,7 +300,7 @@ public:
         ok = false;
         this->current_range.first = this->current_range.last;
         iterator tmp_iterator{this->current_range.first};
-        auto end(detail::adl_end(*this->range));
+        auto end(text_detail::adl_end(*this->range));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -336,7 +336,7 @@ public:
         ok = false;
         this->current_range.last = this->current_range.first;
         std::reverse_iterator<iterator> rcurrent{this->current_range.last};
-        std::reverse_iterator<iterator> rend{detail::adl_begin(*this->range)};
+        std::reverse_iterator<iterator> rend{text_detail::adl_begin(*this->range)};
         while (rcurrent != rend) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -713,7 +713,7 @@ protected:
 };
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

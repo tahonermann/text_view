@@ -4,7 +4,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -18,7 +18,7 @@ struct unicode_character_set_template {
 using unicode_character_set = unicode_character_set_template<char32_t>;
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

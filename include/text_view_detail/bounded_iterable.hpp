@@ -7,8 +7,8 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
-namespace detail {
+inline namespace text {
+namespace text_detail {
 
 template<origin::Iterator IT, origin::Sentinel<IT> ST>
 struct bounded_iterable {
@@ -26,8 +26,8 @@ private:
     ST last;
 };
 
-} // namespace detail
-} // namespace text_view
+} // namespace text_detail
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

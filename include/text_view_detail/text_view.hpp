@@ -17,7 +17,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 // FIXME: In the language of N4382, types that model the Iterable concept
@@ -212,8 +212,8 @@ struct basic_text_view
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
     : basic_text_view(state,
-                      detail::adl_begin(iterable),
-                      detail::adl_end(iterable))
+                      text_detail::adl_begin(iterable),
+                      text_detail::adl_end(iterable))
     {}
 
     // Overload to initialize a text view with an implicitly specified initial
@@ -227,7 +227,7 @@ struct basic_text_view
                  code_unit_iterator, origin::Iterator_type<const Iterable>>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view(detail::adl_begin(iterable), detail::adl_end(iterable)) {}
+    : basic_text_view(text_detail::adl_begin(iterable), text_detail::adl_end(iterable)) {}
 
     // Overload to initialize a text view from a text iterator pair.  The
     // initial codec state is inferred from the first iterator.
@@ -256,20 +256,20 @@ struct basic_text_view
     }
 
     iterator begin() const {
-        return iterator{initial_state(), &r, detail::adl_begin(r)};
+        return iterator{initial_state(), &r, text_detail::adl_begin(r)};
     }
     iterator end() const
     requires origin::Empty_type<state_type>()
           && origin::Iterator<code_unit_sentinel>()
     {
         // Use the (empty) initial state to construct the end iterator.
-        return iterator{ET::initial_state(), &r, detail::adl_end(r)};
+        return iterator{ET::initial_state(), &r, text_detail::adl_end(r)};
     }
     sentinel end() const
     requires !origin::Empty_type<state_type>()
           || !origin::Iterator<code_unit_sentinel>()
     {
-        return sentinel{detail::adl_end(r)};
+        return sentinel{text_detail::adl_end(r)};
     }
 
 private:
@@ -305,7 +305,7 @@ auto make_text_view(
     IT first,
     ST last)
 {
-    using range_type = detail::bounded_iterable<IT, ST>;
+    using range_type = text_detail::bounded_iterable<IT, ST>;
     return basic_text_view<ET, range_type>{state, first, last};
 }
 
@@ -357,8 +357,8 @@ auto make_text_view(
 {
     return make_text_view<ET>(
                state,
-               detail::adl_begin(iterable),
-               detail::adl_end(iterable));
+               text_detail::adl_begin(iterable),
+               text_detail::adl_end(iterable));
 }
 
 // Overload to construct a text view from an N4382 Iterable const reference
@@ -368,8 +368,8 @@ auto make_text_view(
     const Iterable &iterable)
 {
     return make_text_view<ET>(
-               detail::adl_begin(iterable),
-               detail::adl_end(iterable));
+               text_detail::adl_begin(iterable),
+               text_detail::adl_end(iterable));
 }
 
 // Overload to construct a text view from a text iterator/sentinel pair.  The
@@ -409,7 +409,7 @@ auto make_cstr_range(const CUT (&cstr)[N]) {
 }
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

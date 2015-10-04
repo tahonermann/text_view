@@ -8,29 +8,29 @@
 
 #if !defined(TEXT_VIEW_EXECUTION_CHARACTER_ENCODING)
 #define TEXT_VIEW_EXECUTION_CHARACTER_ENCODING \
-        ::std::experimental::text_view::basic_execution_character_encoding
+        ::std::experimental::basic_execution_character_encoding
 #endif
 #if !defined(TEXT_VIEW_EXECUTION_WIDE_CHARACTER_ENCODING)
 #define TEXT_VIEW_EXECUTION_WIDE_CHARACTER_ENCODING \
-        ::std::experimental::text_view::basic_execution_wide_character_encoding
+        ::std::experimental::basic_execution_wide_character_encoding
 #endif
 #if !defined(TEXT_VIEW_CHAR8_CHARACTER_ENCODING)
 #define TEXT_VIEW_CHAR8_CHARACTER_ENCODING \
-        ::std::experimental::text_view::utf8_encoding
+        ::std::experimental::utf8_encoding
 #endif
 #if !defined(TEXT_VIEW_CHAR16_CHARACTER_ENCODING)
 #define TEXT_VIEW_CHAR16_CHARACTER_ENCODING \
-        ::std::experimental::text_view::utf16_encoding
+        ::std::experimental::utf16_encoding
 #endif
 #if !defined(TEXT_VIEW_CHAR32_CHARACTER_ENCODING)
 #define TEXT_VIEW_CHAR32_CHARACTER_ENCODING \
-        ::std::experimental::text_view::utf32_encoding
+        ::std::experimental::utf32_encoding
 #endif
 
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -68,7 +68,7 @@ using char16_character_encoding = TEXT_VIEW_CHAR16_CHARACTER_ENCODING;
 using char32_character_encoding = TEXT_VIEW_CHAR32_CHARACTER_ENCODING;
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

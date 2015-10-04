@@ -10,7 +10,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -238,7 +238,7 @@ using text_view_archetype = text_view_archetype_template<
                                 origin::bounded_range<code_unit_iterator_archetype>>;
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

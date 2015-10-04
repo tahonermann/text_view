@@ -17,7 +17,7 @@
 
 
 using namespace std;
-using namespace std::experimental::text_view;
+using namespace std::experimental;
 
 
 // code_unit_map specifies the relationship between a state transition or a
@@ -152,16 +152,16 @@ struct input_range_view {
     input_range_view(RT &r) : r(r) {}
 
     auto begin() const
-        -> input_iterator<decltype(detail::adl_begin(declval<const RT>()))>
+        -> input_iterator<decltype(text_detail::adl_begin(declval<const RT>()))>
     {
         return input_iterator<
-            decltype(detail::adl_begin(declval<const RT>()))>{detail::adl_begin(r)};
+            decltype(text_detail::adl_begin(declval<const RT>()))>{text_detail::adl_begin(r)};
     }
     auto end() const
-        -> input_iterator<decltype(detail::adl_end(declval<const RT>()))>
+        -> input_iterator<decltype(text_detail::adl_end(declval<const RT>()))>
     {
         return input_iterator<
-            decltype(detail::adl_end(declval<const RT>()))>{detail::adl_end(r)};
+            decltype(text_detail::adl_end(declval<const RT>()))>{text_detail::adl_end(r)};
     }
 
 private:
@@ -292,10 +292,10 @@ struct iterable_view {
     iterable_view(range_type &r) : r{r} {}
 
     iterator begin() const {
-        return detail::adl_begin(r);
+        return text_detail::adl_begin(r);
     }
     sentinel end() const {
-        return sentinel(detail::adl_end(r));
+        return sentinel(text_detail::adl_end(r));
     }
 
 private:
@@ -694,7 +694,7 @@ void test_forward_decode(
     auto cuit = begin(code_unit_range);
     for (const auto &cum : code_unit_maps) {
         // Validate the code unit sequence.
-        assert(distance(cuit, detail::advance_to(cuit, end(code_unit_range)))
+        assert(distance(cuit, text_detail::advance_to(cuit, end(code_unit_range)))
                >= (int)cum.code_units.size());
         assert(equal(
             begin(cum.code_units),
@@ -736,7 +736,7 @@ void test_forward_decode(
     cuit = begin(code_unit_range);
     for (const auto &cum : code_unit_maps) {
         // Validate the underlying code unit sequence.
-        assert(distance(cuit, detail::advance_to(cuit, end(code_unit_range)))
+        assert(distance(cuit, text_detail::advance_to(cuit, end(code_unit_range)))
                >= (int)cum.code_units.size());
         assert(equal(
             begin(cum.code_units),
@@ -800,20 +800,20 @@ void test_reverse_decode(
     TVT tv)
 {
     // Validate pre-decrement.
-    auto tvit = detail::advance_to(begin(tv), end(tv));
-    auto rcuit = detail::rbegin(code_unit_range);
-    for (auto cumit = detail::rbegin(code_unit_maps);
-         cumit != detail::rend(code_unit_maps);
+    auto tvit = text_detail::advance_to(begin(tv), end(tv));
+    auto rcuit = text_detail::rbegin(code_unit_range);
+    for (auto cumit = text_detail::rbegin(code_unit_maps);
+         cumit != text_detail::rend(code_unit_maps);
          ++cumit)
     {
         auto& cum = *cumit;
 
         // Validate the code unit sequence.
-        assert(distance(rcuit, detail::rend(code_unit_range))
+        assert(distance(rcuit, text_detail::rend(code_unit_range))
                >= (int)cum.code_units.size());
         assert(equal(
-            detail::rbegin(cum.code_units),
-            detail::rend(cum.code_units),
+            text_detail::rbegin(cum.code_units),
+            text_detail::rend(cum.code_units),
             rcuit));
 
         if (cum.characters.empty()) {
@@ -838,23 +838,23 @@ void test_reverse_decode(
     }
     // Validate iteration to the beginning.
     assert(tvit == begin(tv));
-    assert(rcuit == detail::rend(code_unit_range));
+    assert(rcuit == text_detail::rend(code_unit_range));
 
     // Validate post-decrement.
-    tvit = detail::advance_to(begin(tv), end(tv));
-    rcuit = detail::rbegin(code_unit_range);
-    for (auto cumit = detail::rbegin(code_unit_maps);
-         cumit != detail::rend(code_unit_maps);
+    tvit = text_detail::advance_to(begin(tv), end(tv));
+    rcuit = text_detail::rbegin(code_unit_range);
+    for (auto cumit = text_detail::rbegin(code_unit_maps);
+         cumit != text_detail::rend(code_unit_maps);
          ++cumit)
     {
         auto& cum = *cumit;
 
         // Validate the code unit sequence.
-        assert(distance(rcuit, detail::rend(code_unit_range))
+        assert(distance(rcuit, text_detail::rend(code_unit_range))
                >= (int)cum.code_units.size());
         assert(equal(
-            detail::rbegin(cum.code_units),
-            detail::rend(cum.code_units),
+            text_detail::rbegin(cum.code_units),
+            text_detail::rend(cum.code_units),
             rcuit));
 
         if (cum.characters.empty()) {
@@ -880,7 +880,7 @@ void test_reverse_decode(
     }
     // Validate iteration to the beginning.
     assert(tvit == begin(tv));
-    assert(rcuit == detail::rend(code_unit_range));
+    assert(rcuit == text_detail::rend(code_unit_range));
 }
 
 // Test reverse decoding of the code unit sequence present in the
@@ -910,7 +910,7 @@ void test_random_decode(
     auto cuit = begin(code_unit_range);
     for (const auto &cum : code_unit_maps) {
         // Validate the underlying code unit sequence.
-        assert(distance(cuit, detail::advance_to(cuit, end(code_unit_range)))
+        assert(distance(cuit, text_detail::advance_to(cuit, end(code_unit_range)))
                >= (int)cum.code_units.size());
         assert(equal(
             begin(cum.code_units),
@@ -938,8 +938,8 @@ void test_random_decode(
     }
     // Validate base code unit iterators.
     assert(end(tv).base() == cuit);
-    assert(begin(detail::advance_to(begin(tv), end(tv)).base_range()) == cuit);
-    assert(end(detail::advance_to(begin(tv), end(tv)).base_range()) == cuit);
+    assert(begin(text_detail::advance_to(begin(tv), end(tv)).base_range()) == cuit);
+    assert(end(text_detail::advance_to(begin(tv), end(tv)).base_range()) == cuit);
 
     // Validate random access iterator requirements.
     int num_characters = character_count(code_unit_maps);
@@ -950,23 +950,23 @@ void test_random_decode(
     assert(begin(tv) <= end(tv));
     assert(end(tv)   >= begin(tv));
     assert(static_cast<decltype(num_characters)>(
-                   detail::advance_to(begin(tv), end(tv)) - begin(tv))
+                   text_detail::advance_to(begin(tv), end(tv)) - begin(tv))
                == num_characters);
     assert(begin(tv) + num_characters == end(tv));
     assert(num_characters + begin(tv) == end(tv));
-    assert(detail::advance_to(begin(tv), end(tv)) - num_characters
+    assert(text_detail::advance_to(begin(tv), end(tv)) - num_characters
            == begin(tv));
-    assert(-num_characters + detail::advance_to(begin(tv), end(tv))
+    assert(-num_characters + text_detail::advance_to(begin(tv), end(tv))
            == begin(tv));
-    assert(detail::advance_to(begin(tv), end(tv))[-num_characters]
+    assert(text_detail::advance_to(begin(tv), end(tv))[-num_characters]
            == *begin(tv));
     tvit = begin(tv);
     tvit += num_characters;
     assert(tvit == end(tv));
-    tvit = detail::advance_to(begin(tv), end(tv));
+    tvit = text_detail::advance_to(begin(tv), end(tv));
     tvit -= num_characters;
     assert(tvit == begin(tv));
-    tvit = detail::advance_to(begin(tv), end(tv));
+    tvit = text_detail::advance_to(begin(tv), end(tv));
     tvit += -num_characters;
     assert(tvit == begin(tv));
     tvit = begin(tv);
@@ -1769,7 +1769,7 @@ void test_utf8bom_encoding() {
     string encoded_string_no_bom(u8"a\U00011141\U0000FEFF");
     auto tv = make_text_view<ET>(encoded_string_no_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'a'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
     assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 1);
@@ -1785,7 +1785,7 @@ void test_utf8bom_encoding() {
     string encoded_string_bom(u8"\U0000FEFFa\U00011141\U0000FEFF");
     auto tv = make_text_view<ET>(encoded_string_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'a'});
     assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 3);
     assert(end(tvit.base_range()) == begin(encoded_string_bom) + 4);
@@ -1937,7 +1937,7 @@ void test_utf16bom_encoding() {
     string encoded_string_no_bom("\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 8);
     auto tv = make_text_view<ET>(encoded_string_no_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
     assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 2);
@@ -1953,7 +1953,7 @@ void test_utf16bom_encoding() {
     string encoded_string_be_bom("\xFE\xFF\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 10);
     auto tv = make_text_view<ET>(encoded_string_be_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
@@ -1969,7 +1969,7 @@ void test_utf16bom_encoding() {
     string encoded_string_le_bom("\xFF\xFE\x61\x00\x04\xD8\x41\xDD\xFF\xFE", 10);
     auto tv = make_text_view<ET>(encoded_string_le_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 4);
@@ -2121,7 +2121,7 @@ void test_utf32bom_encoding() {
     string encoded_string_no_bom("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 12);
     auto tv = make_text_view<ET>(encoded_string_no_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
     assert(end(tvit.base_range()) == begin(encoded_string_no_bom) + 4);
@@ -2137,7 +2137,7 @@ void test_utf32bom_encoding() {
     string encoded_string_be_bom("\x00\x00\xFE\xFF\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 16);
     auto tv = make_text_view<ET>(encoded_string_be_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string_be_bom) + 8);
@@ -2153,7 +2153,7 @@ void test_utf32bom_encoding() {
     string encoded_string_le_bom("\xFF\xFE\x00\x00\x61\x00\x00\x00\x41\x11\x01\x00\xFF\xFE\x00\x00", 16);
     auto tv = make_text_view<ET>(encoded_string_le_bom);
     static_assert(! origin::Iterator<decltype(end(tv))>(), "");
-    auto tvend = detail::advance_to(begin(tv), end(tv));
+    auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 8);

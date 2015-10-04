@@ -7,7 +7,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -75,7 +75,7 @@ struct text_decode_underflow_error
 };
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

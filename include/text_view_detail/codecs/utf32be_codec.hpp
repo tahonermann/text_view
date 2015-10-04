@@ -12,7 +12,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 template<Character CT, Code_unit CUT>
@@ -152,7 +152,7 @@ struct utf32be_codec {
 };
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

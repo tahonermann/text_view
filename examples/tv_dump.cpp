@@ -7,7 +7,7 @@
 #include <text_view>
 
 using namespace std;
-using namespace std::experimental::text_view;
+using namespace std::experimental;
 
 static const int exit_success = 0;
 static const int exit_failure = 1;

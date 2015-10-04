@@ -9,7 +9,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -42,7 +42,7 @@ struct basic_execution_wide_character_encoding {
 };
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

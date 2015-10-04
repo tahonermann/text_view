@@ -10,8 +10,8 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
-namespace detail {
+inline namespace text {
+namespace text_detail {
 
 template<>
 struct get_encoding_type_of<char*> {
@@ -33,8 +33,8 @@ struct get_encoding_type_of<char32_t*> {
     using type = char32_character_encoding;
 };
 
-} // namespace detail
-} // namespace text_view
+} // namespace text_detail
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

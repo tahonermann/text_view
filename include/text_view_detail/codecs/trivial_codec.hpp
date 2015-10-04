@@ -9,7 +9,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 struct trivial_codec_state {};
@@ -105,7 +105,7 @@ struct trivial_codec {
 };
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

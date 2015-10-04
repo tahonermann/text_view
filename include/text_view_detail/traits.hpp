@@ -9,7 +9,7 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
+inline namespace text {
 
 
 /*
@@ -53,23 +53,23 @@ private:
     int id;
 };
 
-namespace detail {
+namespace text_detail {
 inline int get_next_character_set_id() noexcept {
     static int next_id = 0;
     return ++next_id;
 }
-} // namespace detail
+} // namespace text_detail
 
 template<typename CST>
 character_set_id get_character_set_id() noexcept {
-    static int id = detail::get_next_character_set_id();
+    static int id = text_detail::get_next_character_set_id();
     return character_set_id{id};
 }
 
 /*
  * Associated code point type helper
  */
-namespace detail {
+namespace text_detail {
 template<typename T>
 struct get_code_point_type_of;
 
@@ -82,16 +82,16 @@ struct get_code_point_type_of<T> {
 template<typename T>
 using code_point_type_of =
           typename get_code_point_type_of<origin::Strip<T>>::type;
-} // namespace detail
+} // namespace text_detail
 
 template<typename T>
-using code_point_type_of = detail::code_point_type_of<T>;
+using code_point_type_of = text_detail::code_point_type_of<T>;
 
 
 /*
  * Associated character set type helper
  */
-namespace detail {
+namespace text_detail {
 template<typename T>
 struct get_character_set_type_of;
 
@@ -104,16 +104,16 @@ struct get_character_set_type_of<T> {
 template<typename T>
 using character_set_type_of =
           typename get_character_set_type_of<origin::Strip<T>>::type;
-} // namespace detail
+} // namespace text_detail
 
 template<typename T>
-using character_set_type_of = detail::character_set_type_of<T>;
+using character_set_type_of = text_detail::character_set_type_of<T>;
 
 
 /*
  * Associated encoding type helper
  */
-namespace detail {
+namespace text_detail {
 template<typename T>
 struct get_encoding_type_of;
 
@@ -170,13 +170,13 @@ struct get_encoding_type_of<T> {
 
 template<typename T>
 using encoding_type_of = typename get_encoding_type_of<origin::Strip<T>>::type;
-} // namespace detail
+} // namespace text_detail
 
 template<typename T>
-using encoding_type_of = detail::encoding_type_of<T>;
+using encoding_type_of = text_detail::encoding_type_of<T>;
 
 
-} // namespace text_view
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 

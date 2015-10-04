@@ -9,8 +9,8 @@
 
 namespace std {
 namespace experimental {
-namespace text_view {
-namespace detail {
+inline namespace text {
+namespace text_detail {
 
 using std::begin;
 using std::end;
@@ -37,8 +37,8 @@ auto rend(C &&c)
     return return_type{begin(std::forward<C>(c))};
 }
 
-} // namespace detail
-} // namespace text_view
+} // namespace text_detail
+} // inline namespace text
 } // namespace experimental
 } // namespace std
 
