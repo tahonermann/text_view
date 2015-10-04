@@ -51,8 +51,8 @@ public:
     using character_set_type = CST;
     using code_point_type = typename CST::code_point_type;
 
-    character_archetype_template() : cp{} {}
-    character_archetype_template(code_point_type cp) : cp(cp) {}
+    character_archetype_template();
+    character_archetype_template(code_point_type cp);
 
     bool operator==(const character_archetype_template& other) const noexcept;
     bool operator!=(const character_archetype_template& other) const noexcept;
@@ -61,9 +61,6 @@ public:
     code_point_type get_code_point() const noexcept;
 
     static character_set_id get_character_set_id() noexcept;
-
-private:
-    code_point_type cp;
 };
 using character_archetype =
           character_archetype_template<character_set_archetype>;

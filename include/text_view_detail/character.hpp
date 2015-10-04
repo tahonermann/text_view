@@ -17,8 +17,7 @@ public:
     using character_set_type = CST;
     using code_point_type = typename character_set_type::code_point_type;
 
-    character() noexcept
-        : code_point{} {}
+    character() noexcept = default;
     explicit character(code_point_type code_point) noexcept
         : code_point{code_point} {}
 
@@ -41,7 +40,7 @@ public:
     }
 
 private:
-    code_point_type code_point;
+    code_point_type code_point = {};
 };
 
 
@@ -54,8 +53,7 @@ public:
     using character_set_type = any_character_set;
     using code_point_type = typename character_set_type::code_point_type;
 
-    character() noexcept
-        : cs_id{std::experimental::text::get_character_set_id<any_character_set>()}, code_point{} {}
+    character() noexcept = default;
     explicit character(code_point_type code_point) noexcept
         : cs_id{std::experimental::text::get_character_set_id<any_character_set>()}, code_point{code_point} {}
     character(character_set_id cs_id, code_point_type code_point) noexcept
@@ -84,8 +82,8 @@ public:
     }
 
 private:
-    character_set_id cs_id;
-    code_point_type code_point;
+    character_set_id cs_id = std::experimental::text::get_character_set_id<any_character_set>();
+    code_point_type code_point = {};
 };
 
 template<Character_set CST>

@@ -13,9 +13,7 @@ namespace text_detail {
 template<origin::Iterator IT, origin::Sentinel<IT> ST>
 class bounded_iterable {
 public:
-    bounded_iterable()
-        : first{}, last{first} {}
-
+    bounded_iterable() = default;
     bounded_iterable(IT first, ST last)
         : first{first}, last{last} {}
 
@@ -23,8 +21,8 @@ public:
     ST end() const { return last; }
 
 private:
-    IT first;
-    ST last;
+    IT first = {};
+    ST last = {};
 };
 
 } // namespace text_detail

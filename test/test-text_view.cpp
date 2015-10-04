@@ -60,7 +60,7 @@ int character_count(const code_unit_map_sequence<CT> &code_unit_maps) {
 // requirements.  istream_iterator, for example, requires a char_traits
 // specialization for its character type.
 template<origin::Input_iterator IT>
-struct input_iterator
+class input_iterator
     : public iterator<
                  input_iterator_tag,
                  typename iterator_traits<IT>::value_type,
@@ -68,6 +68,7 @@ struct input_iterator
                  typename iterator_traits<IT>::pointer,
                  typename iterator_traits<IT>::reference>
 {
+public:
     input_iterator(IT it) : it(it) {}
 
     auto operator==(const input_iterator& o) const -> bool {
@@ -104,7 +105,7 @@ template<
     typename IT,
     typename T>
 requires origin::Output_iterator<IT, T>()
-struct output_iterator
+class output_iterator
     : public iterator<
                  output_iterator_tag,
                  typename iterator_traits<IT>::value_type,
@@ -112,6 +113,7 @@ struct output_iterator
                  typename iterator_traits<IT>::pointer,
                  typename iterator_traits<IT>::reference>
 {
+public:
     output_iterator(IT it) : it(it) {}
 
     auto operator==(const output_iterator& o) const -> bool {
@@ -148,7 +150,8 @@ private:
 // iterators.  input_range_view is used to provide wrapped input iterators
 // for another container type.
 template<origin::Range RT>
-struct input_range_view {
+class input_range_view {
+public:
     input_range_view(RT &r) : r(r) {}
 
     auto begin() const
@@ -175,11 +178,13 @@ private:
 // the N4382 Range concept to produce a type that merely models the N4382
 // Iterable concept.
 template<origin::Range RT>
-struct iterable_view {
+class iterable_view {
+public:
     using range_type = origin::Remove_reference<RT>;
     using iterator = origin::Iterator_type<RT>;
 
-    struct sentinel {
+    class sentinel {
+    public:
         sentinel(iterator i) : i{i} {}
 
         bool operator==(const sentinel& other) const {

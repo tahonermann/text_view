@@ -71,9 +71,7 @@ public:
     using difference_type = origin::Difference_type<iterator>;
 
 protected:
-    itext_iterator_base()
-        requires origin::Default_constructible<state_type>()
-        = default;
+    itext_iterator_base() = default;
 
     itext_iterator_base(const state_type &state)
         // CWG DR1467.  List-initialization doesn't consider copy constructors
@@ -102,10 +100,7 @@ public:
     using iterator = typename itext_iterator_base<ET, RT>::iterator;
 
 protected:
-    itext_iterator_data()
-        requires origin::Default_constructible<state_type>()
-              && origin::Default_constructible<iterator>()
-        = default;
+    itext_iterator_data() = default;
 
     itext_iterator_data(
         const state_type &state,
@@ -139,10 +134,7 @@ public:
     using iterator = typename itext_iterator_base<ET, RT>::iterator;
 
 protected:
-    itext_iterator_data()
-        requires origin::Default_constructible<state_type>()
-              && origin::Default_constructible<iterator>()
-        = default;
+    itext_iterator_data() = default;
 
     itext_iterator_data(
         const state_type &state,
@@ -201,23 +193,14 @@ public:
     using difference_type = typename text_detail::itext_iterator_data<ET, RT>::difference_type;
 
 public:
-    itext_iterator()
-        requires origin::Default_constructible<state_type>()
-              && origin::Default_constructible<iterator>()
-    :
-        text_detail::itext_iterator_data<ET, RT>{},
-        value{},
-        ok{false}
-    {}
+    itext_iterator() = default;
 
     itext_iterator(
         const state_type &state,
         const range_type *range,
         iterator first)
     :
-        text_detail::itext_iterator_data<ET, RT>{state, range, first},
-        value{},
-        ok{false}
+        text_detail::itext_iterator_data<ET, RT>{state, range, first}
     {
         ++*this;
     }
@@ -448,8 +431,8 @@ private:
     }
 
 private:
-    value_type value;
-    bool ok;
+    value_type value = {};
+    bool ok = false;
 };
 
 template<Encoding ET, origin::Input_range RT>
@@ -647,9 +630,7 @@ public:
     using pointer = value_type*;
     using difference_type = origin::Difference_type<iterator>;
 
-    otext_iterator()
-        requires origin::Default_constructible<state_type>()
-        = default;
+    otext_iterator() = default;
 
     otext_iterator(
         state_type state,

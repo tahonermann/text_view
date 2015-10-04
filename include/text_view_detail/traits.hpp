@@ -20,10 +20,6 @@ inline namespace text {
 class character_set_id {
 public:
     character_set_id() = delete;
-    character_set_id(const character_set_id&) = default;
-    character_set_id(character_set_id&&) = default;
-    character_set_id& operator=(const character_set_id&) = default;
-    character_set_id& operator=(character_set_id&&) = default;
 
     bool operator==(const character_set_id& other) const noexcept {
         return id == other.id;

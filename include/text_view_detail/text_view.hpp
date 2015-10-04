@@ -76,9 +76,10 @@ public:
     using iterator = itext_iterator<ET, RT>;
     using sentinel = itext_sentinel<ET, RT>;
 
-    // Overload to initialize a text view with an empty range.  Note that this
-    // constructor will be defined as deleted if either state_type or range_type
-    // is not default constructible.
+    // The default constructor produces a text view with a singular range.  An
+    // object produced with this constructor may only be assigned to or
+    // destroyed.  Note that the default constructor will be defined as deleted
+    // if either state_type or range_type is not default constructible.
     basic_text_view() = default;
 
     // Overload to initialize a text view from an N4382 Range and an explicitly

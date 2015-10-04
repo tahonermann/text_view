@@ -17,10 +17,7 @@ class text_runtime_error
     : public std::runtime_error
 {
 public:
-    explicit text_runtime_error(const std::string& what_arg)
-        : std::runtime_error(what_arg) {}
-    explicit text_runtime_error(const char* what_arg)
-        : std::runtime_error(what_arg) {}
+    using std::runtime_error::runtime_error;
 };
 
 
@@ -31,10 +28,7 @@ class text_encode_error
     : public text_runtime_error
 {
 public:
-    explicit text_encode_error(const std::string& what_arg)
-        : text_runtime_error(what_arg) {}
-    explicit text_encode_error(const char* what_arg)
-        : text_runtime_error(what_arg) {}
+    using text_runtime_error::text_runtime_error;
 };
 
 
@@ -45,10 +39,7 @@ class text_decode_error
     : public text_runtime_error
 {
 public:
-    explicit text_decode_error(const std::string& what_arg)
-        : text_runtime_error(what_arg) {}
-    explicit text_decode_error(const char* what_arg)
-        : text_runtime_error(what_arg) {}
+    using text_runtime_error::text_runtime_error;
 };
 
 
@@ -59,10 +50,7 @@ class text_encode_overflow_error
     : public text_runtime_error
 {
 public:
-    explicit text_encode_overflow_error(const std::string& what_arg)
-        : text_runtime_error(what_arg) {}
-    explicit text_encode_overflow_error(const char* what_arg)
-        : text_runtime_error(what_arg) {}
+    using text_runtime_error::text_runtime_error;
 };
 
 
@@ -73,10 +61,7 @@ class text_decode_underflow_error
     : public text_runtime_error
 {
 public:
-    explicit text_decode_underflow_error(const std::string& what_arg)
-        : text_runtime_error(what_arg) {}
-    explicit text_decode_underflow_error(const char* what_arg)
-        : text_runtime_error(what_arg) {}
+    using text_runtime_error::text_runtime_error;
 };
 
 
