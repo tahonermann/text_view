@@ -98,13 +98,12 @@ struct itext_iterator_data
     using state_type = typename itext_iterator_base<ET, RT>::state_type;
     using range_type = typename itext_iterator_base<ET, RT>::range_type;
     using iterator = typename itext_iterator_base<ET, RT>::iterator;
-    using value_type = typename itext_iterator_base<ET, RT>::value_type;
 
 protected:
     itext_iterator_data()
         requires origin::Default_constructible<state_type>()
               && origin::Default_constructible<iterator>()
-        : range{}, current{}, value{} {}
+        = default;
 
     itext_iterator_data(
         const state_type &state,
@@ -116,14 +115,14 @@ protected:
         current{current}
     {}
 
-    const range_type *range;
-    iterator current;
-    value_type value;
-
 public:
     iterator base() const {
         return current;
     }
+
+protected:
+    const range_type *range;
+    iterator current;
 };
 
 template<Encoding ET, origin::Input_range RT>
@@ -135,7 +134,6 @@ struct itext_iterator_data<ET, RT>
     using state_type = typename itext_iterator_base<ET, RT>::state_type;
     using range_type = typename itext_iterator_base<ET, RT>::range_type;
     using iterator = typename itext_iterator_base<ET, RT>::iterator;
-    using value_type = typename itext_iterator_base<ET, RT>::value_type;
 
 protected:
     itext_iterator_data()
@@ -151,8 +149,7 @@ protected:
         itext_iterator_base<ET, RT>{state},
         range{range},
         current_range{first, first}
-    {
-    }
+    {}
 
     struct current_range_type {
         current_range_type()
@@ -167,10 +164,6 @@ protected:
         iterator last;
     };
 
-    const range_type *range;
-    current_range_type current_range;
-    value_type value;
-
 public:
     iterator base() const {
         return current_range.first;
@@ -179,6 +172,10 @@ public:
     const current_range_type& base_range() const {
         return current_range;
     }
+
+protected:
+    const range_type *range;
+    current_range_type current_range;
 };
 
 } // namespace detail
@@ -199,30 +196,46 @@ struct itext_iterator
     using reference = typename detail::itext_iterator_data<ET, RT>::reference;
     using difference_type = typename detail::itext_iterator_data<ET, RT>::difference_type;
 
+public:
     itext_iterator()
         requires origin::Default_constructible<state_type>()
               && origin::Default_constructible<iterator>()
-        = default;
+    :
+        detail::itext_iterator_data<ET, RT>{},
+        value{},
+        ok{false}
+    {}
 
     itext_iterator(
         const state_type &state,
         const range_type *range,
         iterator first)
     :
-        detail::itext_iterator_data<ET, RT>{state, range, first}
+        detail::itext_iterator_data<ET, RT>{state, range, first},
+        value{},
+        ok{false}
     {
         ++*this;
     }
 
+    // Iterators that are not ok include:
+    // - Singular iterators.
+    // - Past the end iterators.
+    // - Iterators for which a decoding error occurred during increment or
+    //   decrement operations.
+    bool is_ok() const {
+        return ok;
+    }
+
     reference operator*() const {
-        return this->value;
+        return value;
     }
     pointer operator->() const {
-        return &this->value;
+        return value;
     }
 
     bool operator==(const itext_iterator& other) const {
-        return this->base() == other.base();
+        return equal(other);
     }
     bool operator!=(const itext_iterator& other) const {
         return !(*this == other);
@@ -256,6 +269,7 @@ struct itext_iterator
     itext_iterator& operator++() {
         using codec_type = typename encoding_type::codec_type;
 
+        ok = false;
         iterator tmp_iterator{this->current};
         auto end(detail::adl_end(*this->range));
         while (tmp_iterator != end) {
@@ -269,7 +283,8 @@ struct itext_iterator
                 decoded_code_units);
             this->current = tmp_iterator;
             if (decoded_code_point) {
-                this->value = tmp_value;
+                value = tmp_value;
+                ok = true;
                 break;
             }
         }
@@ -282,6 +297,7 @@ struct itext_iterator
     {
         using codec_type = typename encoding_type::codec_type;
 
+        ok = false;
         this->current_range.first = this->current_range.last;
         iterator tmp_iterator{this->current_range.first};
         auto end(detail::adl_end(*this->range));
@@ -296,7 +312,8 @@ struct itext_iterator
                 decoded_code_units);
             this->current_range.last = tmp_iterator;
             if (decoded_code_point) {
-                this->value = tmp_value;
+                value = tmp_value;
+                ok = true;
                 break;
             }
             this->current_range.first = this->current_range.last;
@@ -316,6 +333,7 @@ struct itext_iterator
     {
         using codec_type = typename encoding_type::codec_type;
 
+        ok = false;
         this->current_range.last = this->current_range.first;
         std::reverse_iterator<iterator> rcurrent{this->current_range.last};
         std::reverse_iterator<iterator> rend{detail::adl_begin(*this->range)};
@@ -330,7 +348,8 @@ struct itext_iterator
                 decoded_code_units);
             this->current_range.first = rcurrent.base();
             if (decoded_code_point) {
-                this->value = tmp_value;
+                value = tmp_value;
+                ok = true;
                 break;
             }
             this->current_range.last = this->current_range.first;
@@ -404,6 +423,29 @@ struct itext_iterator
     {
         return *(*this + n);
     }
+
+private:
+    bool equal(const itext_iterator &other) const {
+        // For input iterators, the base iterator corresponds to the next input
+        // to be decoded.  Naively checking for base comparison only therefore
+        // results in premature matches when the last code point in the input
+        // is consumed.  For this reason, base equality is only considered a
+        // match if the iterator is not ok.  It is assumed that the reason the
+        // base iterator is not ok is that an attempt was made to decode a
+        // code point after the last one in the input.  This heuristic can be
+        // defeated when an iterator is not ok for other reasons.
+        return ok == other.ok
+            && (!ok || this->base() == other.base());
+    }
+    bool equal(const itext_iterator &other) const
+        requires origin::Forward_iterator<origin::Iterator_type<const RT>>()
+    {
+        return this->base() == other.base();
+    }
+
+private:
+    value_type value;
+    bool ok;
 };
 
 template<Encoding ET, origin::Input_range RT>
@@ -446,7 +488,7 @@ struct itext_sentinel {
         const itext_iterator<ET, RT> &ti,
         const itext_sentinel &ts)
     {
-        return ti.base() == ts.base();
+        return ts.equal(ti);
     }
     friend bool operator!=(
         const itext_iterator<ET, RT> &ti,
@@ -558,6 +600,25 @@ struct itext_sentinel {
 
     sentinel base() const {
         return s;
+    }
+
+private:
+    bool equal(const itext_iterator<ET, RT> &ti) const {
+        // For input iterators, the base iterator corresponds to the next input
+        // to be decoded.  Naively checking for base comparison only therefore
+        // results in premature matches when the last code point in the input
+        // is consumed.  For this reason, base equality is only considered a
+        // sentinel match if the iterator is not ok.  It is assumed that the
+        // reason the base iterator is not ok is that an attempt was made to
+        // decode a code point after the last one in the input.  This heuristic
+        // can be defeated when an iterator is not ok for other reasons.
+        return ti.base() == base()
+            && ! ti.is_ok();
+    }
+    bool equal(const itext_iterator<ET, RT> &ti) const
+        requires origin::Forward_iterator<origin::Iterator_type<const RT>>()
+    {
+        return ti.base() == base();
     }
 
 private:
