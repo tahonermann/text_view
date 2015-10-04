@@ -17,7 +17,8 @@ struct trivial_codec_state {};
 struct trivial_codec_state_transition {};
 
 template<Character CT, Code_unit CUT>
-struct trivial_codec {
+class trivial_codec {
+public:
     using state_type = trivial_codec_state;
     using state_transition_type = trivial_codec_state_transition;
     using character_type = CT;

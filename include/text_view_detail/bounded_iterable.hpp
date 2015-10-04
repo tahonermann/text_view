@@ -11,7 +11,8 @@ inline namespace text {
 namespace text_detail {
 
 template<origin::Iterator IT, origin::Sentinel<IT> ST>
-struct bounded_iterable {
+class bounded_iterable {
+public:
     bounded_iterable()
         : first{}, last{first} {}
 

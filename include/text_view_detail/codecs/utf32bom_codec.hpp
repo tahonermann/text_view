@@ -108,7 +108,8 @@ struct utf32bom_codec_state {
 };
 
 template<Character CT, Code_unit CUT>
-struct utf32bom_codec {
+class utf32bom_codec {
+public:
     using state_type = utf32bom_codec_state;
     using state_transition_type = utf32bom_codec_state_transition;
     using character_type = CT;

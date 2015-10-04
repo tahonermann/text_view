@@ -12,7 +12,8 @@ inline namespace text {
 
 
 template<Character_set CST>
-struct character {
+class character {
+public:
     using character_set_type = CST;
     using code_point_type = typename character_set_type::code_point_type;
 
@@ -48,7 +49,8 @@ private:
  * character specialization for the any_character_set character set.
  */
 template<>
-struct character<any_character_set> {
+class character<any_character_set> {
+public:
     using character_set_type = any_character_set;
     using code_point_type = typename character_set_type::code_point_type;
 

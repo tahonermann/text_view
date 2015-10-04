@@ -16,7 +16,8 @@ inline namespace text {
 
 
 template<Character CT, Code_unit CUT>
-struct utf32le_codec {
+class utf32le_codec {
+public:
     using state_type = trivial_codec_state;
     using state_transition_type = trivial_codec_state_transition;
     using character_type = CT;

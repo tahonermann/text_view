@@ -17,7 +17,8 @@ inline namespace text {
  * character_set_id is modeled after std::locale::id.  Instances of this class
  * must only be declared with static storage duration.
  */
-struct character_set_id {
+class character_set_id {
+public:
     character_set_id() = delete;
     character_set_id(const character_set_id&) = default;
     character_set_id(character_set_id&&) = default;

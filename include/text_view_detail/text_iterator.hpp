@@ -53,9 +53,10 @@ struct itext_iterator_category_selector<C, CUIT> {
 
 
 template<Encoding ET, origin::Input_range RT>
-struct itext_iterator_base
+class itext_iterator_base
     : protected ET::codec_type::state_type
 {
+public:
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
     using state_type = typename encoding_type::codec_type::state_type;
@@ -92,9 +93,10 @@ public:
 template<Encoding ET, origin::Input_range RT>
 requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
       && origin::Input_iterator<origin::Iterator_type<const RT>>()
-struct itext_iterator_data
+class itext_iterator_data
     : public itext_iterator_base<ET, RT>
 {
+public:
     using state_type = typename itext_iterator_base<ET, RT>::state_type;
     using range_type = typename itext_iterator_base<ET, RT>::range_type;
     using iterator = typename itext_iterator_base<ET, RT>::iterator;
@@ -128,9 +130,10 @@ protected:
 template<Encoding ET, origin::Input_range RT>
 requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
       && origin::Forward_iterator<origin::Iterator_type<const RT>>()
-struct itext_iterator_data<ET, RT>
+class itext_iterator_data<ET, RT>
     : public itext_iterator_base<ET, RT>
 {
+public:
     using state_type = typename itext_iterator_base<ET, RT>::state_type;
     using range_type = typename itext_iterator_base<ET, RT>::range_type;
     using iterator = typename itext_iterator_base<ET, RT>::iterator;
@@ -183,9 +186,10 @@ protected:
 
 template<Encoding ET, origin::Input_range RT>
 requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
-struct itext_iterator
+class itext_iterator
     : public text_detail::itext_iterator_data<ET, RT>
 {
+public:
     using encoding_type = typename text_detail::itext_iterator_data<ET, RT>::encoding_type;
     using range_type = typename text_detail::itext_iterator_data<ET, RT>::range_type;
     using state_type = typename text_detail::itext_iterator_data<ET, RT>::state_type;
@@ -460,7 +464,8 @@ itext_iterator<ET, RT> operator+(
 
 
 template<Encoding ET, origin::Input_range RT>
-struct itext_sentinel {
+class itext_sentinel {
+public:
     using range_type = origin::Remove_reference<RT>;
     using sentinel = origin::Sentinel_type<RT>;
 
@@ -628,9 +633,10 @@ private:
 
 template<Encoding E, Code_unit_iterator CUIT>
 requires origin::Output_iterator<CUIT, typename E::codec_type::code_unit_type>()
-struct otext_iterator
+class otext_iterator
     : private E::codec_type::state_type
 {
+public:
     using encoding_type = E;
     using state_type = typename E::codec_type::state_type;
     using state_transition_type = typename E::codec_type::state_transition_type;

@@ -108,7 +108,8 @@ struct utf16bom_codec_state {
 };
 
 template<Character CT, Code_unit CUT>
-struct utf16bom_codec {
+class utf16bom_codec {
+public:
     using state_type = utf16bom_codec_state;
     using state_transition_type = utf16bom_codec_state_transition;
     using character_type = CT;

@@ -64,9 +64,10 @@ inline namespace text {
 // FIXME: currently defines a range_base template class that differs from what
 // FIXME: N4382 specifies.
 template<Encoding ET, origin::Input_range RT>
-struct basic_text_view
+class basic_text_view
     : private ET::codec_type::state_type
 {
+public:
     using encoding_type = ET;
     using range_type = RT;
     using state_type = typename ET::codec_type::state_type;

@@ -45,8 +45,9 @@ using character_set_archetype =
  * Character archetype
  */
 template<Character_set CST>
-struct character_archetype_template
+class character_archetype_template
 {
+public:
     using character_set_type = CST;
     using code_point_type = typename CST::code_point_type;
 
@@ -99,7 +100,8 @@ template <
     Character C,
     int MinCodeUnits = 1,
     int MaxCodeUnits = 1>
-struct codec_archetype_template {
+class codec_archetype_template {
+public:
     using state_type = CST;
     using state_transition_type = CSTT;
     using code_unit_type = CUT;
@@ -168,7 +170,8 @@ using encoding_archetype = encoding_archetype_template<codec_archetype>;
  * Text iterator archetype
  */
 template<Encoding ET, Code_unit_iterator CUIT>
-struct text_iterator_archetype_template {
+class text_iterator_archetype_template {
+public:
     using encoding_type = ET;
     using state_type = typename ET::codec_type::state_type;
     using iterator = CUIT;
@@ -218,7 +221,8 @@ using text_iterator_archetype = text_iterator_archetype_template<
  * Text view archetype
  */
 template<Encoding ET, origin::Input_range RT>
-struct text_view_archetype_template {
+class text_view_archetype_template {
+public:
     using range_type = RT;
     using encoding_type = ET;
     using state_type = typename ET::codec_type::state_type;
