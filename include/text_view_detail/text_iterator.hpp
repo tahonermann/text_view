@@ -221,36 +221,54 @@ public:
         return value;
     }
 
-    bool operator==(const itext_iterator& other) const {
-        return equal(other);
+    friend bool operator==(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    {
+        return l.equal(r);
     }
-    bool operator!=(const itext_iterator& other) const {
-        return !(*this == other);
+    friend bool operator!=(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    {
+        return !(l == r);
     }
 
-    bool operator<(const itext_iterator& other) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend bool operator<(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        return (other - *this) > 0;
+        return (r - l) > 0;
     }
-    bool operator>(const itext_iterator& other) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend bool operator>(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        return other < *this;
+        return r < l;
     }
-    bool operator<=(const itext_iterator& other) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend bool operator<=(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        return !(*this > other);
+        return !(r < l);
     }
-    bool operator>=(const itext_iterator& other) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend bool operator>=(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        return !(*this < other);
+        return !(l < r);
     }
 
     itext_iterator& operator++() {
@@ -369,12 +387,24 @@ public:
         return *this;
     }
 
-    itext_iterator operator+(difference_type n) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend itext_iterator operator+(
+        itext_iterator l,
+        difference_type n)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        itext_iterator it{*this};
-        return it += n;
+        return l += n;
+    }
+
+    friend itext_iterator operator+(
+        difference_type n,
+        itext_iterator r)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
+    {
+        return r += n;
     }
 
     itext_iterator& operator-=(difference_type n)
@@ -384,19 +414,24 @@ public:
         return *this += -n;
     }
 
-    itext_iterator operator-(difference_type n) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend itext_iterator operator-(
+        itext_iterator l,
+        difference_type n)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        itext_iterator it{*this};
-        return it -= n;
+        return l -= n;
     }
 
-    difference_type operator-(itext_iterator it) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    friend difference_type operator-(
+        const itext_iterator &l,
+        const itext_iterator &r)
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
-        return (this->current_range.first - it.current_range.first) /
+        return (l.current_range.first - r.current_range.first) /
                encoding_type::codec_type::max_code_units;
     }
 
@@ -404,9 +439,11 @@ public:
     // a reference.  That isn't possible here since the reference would be to
     // a value stored in an object (The itext_iterator instance produced for
     // '*this + n') that is destroyed before the function returns.
-    value_type operator[](difference_type n) const
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+    value_type operator[](
+        difference_type n) const
+    requires Random_access_decoder<
+        typename encoding_type::codec_type,
+        iterator>()
     {
         return *(*this + n);
     }
@@ -435,16 +472,6 @@ private:
     bool ok = false;
 };
 
-template<Encoding ET, origin::Input_range RT>
-requires Random_access_decoder<typename ET::codec_type,
-                               origin::Iterator_type<const RT>>()
-itext_iterator<ET, RT> operator+(
-    origin::Difference_type<origin::Iterator_type<const RT>> n,
-    itext_iterator<ET, RT> it)
-{
-    return it += n;
-}
-
 
 template<Encoding ET, origin::Input_range RT>
 class itext_sentinel {
@@ -463,13 +490,19 @@ public:
     itext_sentinel(const itext_iterator<ET, RT> &ti)
         : s{ti.base()} {}
 
-    bool operator==(const itext_sentinel& other) const {
+    friend bool operator==(
+        const itext_sentinel &l,
+        const itext_sentinel &r)
+    {
         // Sentinels always compare equal regardless of any internal state.
         // See N4128, 10.1 "Sentinel Equality".
         return true;
     }
-    bool operator!=(const itext_sentinel& other) const {
-        return !(*this == other);
+    friend bool operator!=(
+        const itext_sentinel &l,
+        const itext_sentinel &r)
+    {
+        return !(l == r);
     }
 
     friend bool operator==(
@@ -497,19 +530,31 @@ public:
         return !(ts == ti);
     }
 
-    bool operator<(const itext_sentinel& other) const {
+    friend bool operator<(
+        const itext_sentinel &l,
+        const itext_sentinel &r)
+    {
         // Sentinels always compare equal regardless of any internal state.
         // See N4128, 10.1 "Sentinel Equality".
         return false;
     }
-    bool operator>(const itext_sentinel& other) const {
-        return other < *this;
+    friend bool operator>(
+        const itext_sentinel &l,
+        const itext_sentinel &r)
+    {
+        return r < l;
     }
-    bool operator<=(const itext_sentinel& other) const {
-        return !(*this > other);
+    friend bool operator<=(
+        const itext_sentinel &l,
+        const itext_sentinel &r)
+    {
+        return !(r < l);
     }
-    bool operator>=(const itext_sentinel& other) const {
-        return !(*this < other);
+    friend bool operator>=(
+        const itext_sentinel &l,
+        const itext_sentinel &r)
+    {
+        return !(l < r);
     }
 
     friend bool operator<(
@@ -658,11 +703,17 @@ public:
         return *this;
     }
 
-    bool operator==(const otext_iterator& other) const {
-        return current == other.current;
+    friend bool operator==(
+        const otext_iterator &l,
+        const otext_iterator &r)
+    {
+        return l.current == r.current;
     }
-    bool operator!=(const otext_iterator& other) const {
-        return current != other.current;
+    friend bool operator!=(
+        const otext_iterator &l,
+        const otext_iterator &r)
+    {
+        return !(l == r);
     }
 
     otext_iterator& operator++() {

@@ -54,8 +54,18 @@ public:
     character_archetype_template();
     character_archetype_template(code_point_type cp);
 
-    bool operator==(const character_archetype_template& other) const noexcept;
-    bool operator!=(const character_archetype_template& other) const noexcept;
+    friend bool operator==(
+        const character_archetype_template &l,
+        const character_archetype_template &r) noexcept
+    {
+        return true;
+    }
+    friend bool operator!=(
+        const character_archetype_template &l,
+        const character_archetype_template &r) noexcept
+    {
+        return !(l == r);
+    }
 
     void set_code_point(code_point_type cp) noexcept;
     code_point_type get_code_point() const noexcept;
@@ -188,27 +198,74 @@ public:
     iterator end() const;
     reference operator*() const;
     pointer operator->() const;
-    bool operator==(const text_iterator_archetype_template& other) const;
-    bool operator!=(const text_iterator_archetype_template& other) const;
-    bool operator<(const text_iterator_archetype_template& other) const;
-    bool operator>(const text_iterator_archetype_template& other) const;
-    bool operator<=(const text_iterator_archetype_template& other) const;
-    bool operator>=(const text_iterator_archetype_template& other) const;
+    friend bool operator==(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return true;
+    }
+    friend bool operator!=(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return !(l == r);
+    }
+    friend bool operator<(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return true;
+    }
+    friend bool operator>(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return r < l;
+    }
+    friend bool operator<=(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return !(r < l);
+    }
+    friend bool operator>=(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return !(l < r);
+    }
     text_iterator_archetype_template& operator++();
     text_iterator_archetype_template operator++(int);
     text_iterator_archetype_template& operator--();
     text_iterator_archetype_template operator--(int);
     text_iterator_archetype_template& operator+=(difference_type n);
-    text_iterator_archetype_template operator+(difference_type n) const;
+    friend text_iterator_archetype_template operator+(
+        text_iterator_archetype_template l,
+        difference_type n)
+    {
+        return l += n;
+    }
+    friend text_iterator_archetype_template operator+(
+        difference_type n,
+        text_iterator_archetype_template r)
+    {
+        return r += n;
+    }
     text_iterator_archetype_template& operator-=(difference_type n);
-    text_iterator_archetype_template operator-(difference_type n) const;
-    difference_type operator-(text_iterator_archetype_template it) const;
+    friend text_iterator_archetype_template operator-(
+        text_iterator_archetype_template l,
+        difference_type n)
+    {
+        return l -= n;
+    }
+    friend difference_type operator-(
+        const text_iterator_archetype_template &l,
+        const text_iterator_archetype_template &r)
+    {
+        return 0;
+    }
     value_type operator[](difference_type n) const;
 };
-template<Encoding ET, Code_unit_iterator CUIT>
-text_iterator_archetype_template<ET, CUIT> operator+(
-    origin::Difference_type<CUIT> n,
-    text_iterator_archetype_template<ET, CUIT> it);
 using text_iterator_archetype = text_iterator_archetype_template<
                                     encoding_archetype,
                                     code_unit_iterator_archetype>;

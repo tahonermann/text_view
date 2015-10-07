@@ -21,24 +21,42 @@ class character_set_id {
 public:
     character_set_id() = delete;
 
-    bool operator==(const character_set_id& other) const noexcept {
-        return id == other.id;
+    friend bool operator==(
+        character_set_id l,
+        character_set_id r) noexcept
+    {
+        return l.id == r.id;
     }
-    bool operator!=(const character_set_id& other) const noexcept {
-        return !(*this == other);
+    friend bool operator!=(
+        character_set_id l,
+        character_set_id r) noexcept
+    {
+        return !(l == r);
     }
 
-    bool operator<(const character_set_id &other) const noexcept {
-        return id < other.id;
+    friend bool operator<(
+        character_set_id l,
+        character_set_id r) noexcept
+    {
+        return l.id < r.id;
     }
-    bool operator>(const character_set_id &other) const noexcept {
-        return other < *this;
+    friend bool operator>(
+        character_set_id l,
+        character_set_id r) noexcept
+    {
+        return r < l;
     }
-    bool operator<=(const character_set_id &other) const noexcept {
-        return !(other < *this);
+    friend bool operator<=(
+        character_set_id l,
+        character_set_id r) noexcept
+    {
+        return !(r < l);
     }
-    bool operator>=(const character_set_id &other) const noexcept {
-        return !(*this < other);
+    friend bool operator>=(
+        character_set_id l,
+        character_set_id r) noexcept
+    {
+        return !(l < r);
     }
 
 private:

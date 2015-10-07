@@ -71,11 +71,17 @@ class input_iterator
 public:
     input_iterator(IT it) : it(it) {}
 
-    auto operator==(const input_iterator& o) const -> bool {
-        return it == o.it;
+    friend bool operator==(
+        const input_iterator &l,
+        const input_iterator &r)
+    {
+        return l.it == r.it;
     }
-    auto operator!=(const input_iterator& o) const -> bool {
-        return it != o.it;
+    friend bool operator!=(
+        const input_iterator &l,
+        const input_iterator &r)
+    {
+        return !(l == r);
     }
 
     auto operator*() const -> typename iterator_traits<IT>::reference {
@@ -116,11 +122,17 @@ class output_iterator
 public:
     output_iterator(IT it) : it(it) {}
 
-    auto operator==(const output_iterator& o) const -> bool {
-        return it == o.it;
+    friend bool operator==(
+        const output_iterator &l,
+        const output_iterator &r)
+    {
+        return l.it == r.it;
     }
-    auto operator!=(const output_iterator& o) const -> bool {
-        return it != o.it;
+    friend bool operator!=(
+        const output_iterator &l,
+        const output_iterator &r)
+    {
+        return !(l == r);
     }
 
     auto operator*() -> output_iterator& {
@@ -187,13 +199,19 @@ public:
     public:
         sentinel(iterator i) : i{i} {}
 
-        bool operator==(const sentinel& other) const {
+        friend bool operator==(
+            const sentinel &l,
+            const sentinel &r)
+        {
             // Sentinels always compare equal regardless of any internal state.
             // See N4128, 10.1 "Sentinel Equality".
             return true;
         }
-        bool operator!=(const sentinel& other) const {
-            return !(*this == other);
+        friend bool operator!=(
+            const sentinel &l,
+            const sentinel &r)
+        {
+            return !(l == r);
         }
 
         friend bool operator==(
@@ -221,19 +239,31 @@ public:
             return !(s == i);
         }
 
-        bool operator<(const sentinel& other) const {
+        friend bool operator<(
+            const sentinel &l,
+            const sentinel &r)
+        {
             // Sentinels always compare equal regardless of any internal state.
             // See N4128, 10.1 "Sentinel Equality".
             return false;
         }   
-        bool operator>(const sentinel& other) const {
-            return other < *this;
+        friend bool operator>(
+            const sentinel &l,
+            const sentinel &r)
+        {
+            return r < l;
         }   
-        bool operator<=(const sentinel& other) const {
-            return !(*this > other);
+        friend bool operator<=(
+            const sentinel &l,
+            const sentinel &r)
+        {
+            return !(r < l);
         }   
-        bool operator>=(const sentinel& other) const {
-            return !(*this < other);
+        friend bool operator>=(
+            const sentinel &l,
+            const sentinel &r)
+        {
+            return !(l < r);
         }   
 
         friend bool operator<(

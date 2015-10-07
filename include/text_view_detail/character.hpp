@@ -21,11 +21,17 @@ public:
     explicit character(code_point_type code_point) noexcept
         : code_point{code_point} {}
 
-    bool operator==(const character& other) const noexcept {
-        return code_point == other.code_point;
+    friend bool operator==(
+        const character &l,
+        const character &r) noexcept
+    {
+        return l.code_point == r.code_point;
     }
-    bool operator!=(const character& other) const noexcept {
-        return !(*this == other);
+    friend bool operator!=(
+        const character &l,
+        const character &r) noexcept
+    {
+        return !(l == r);
     }
 
     void set_code_point(code_point_type code_point) noexcept {
@@ -59,12 +65,18 @@ public:
     character(character_set_id cs_id, code_point_type code_point) noexcept
         : cs_id{cs_id}, code_point{code_point} {}
 
-    bool operator==(const character& other) const noexcept {
-        return cs_id == other.cs_id
-            && code_point == other.code_point;
+    friend bool operator==(
+        const character &l,
+        const character &r) noexcept
+    {
+        return l.cs_id == r.cs_id
+            && l.code_point == r.code_point;
     }
-    bool operator!=(const character& other) const noexcept {
-        return !(*this == other);
+    friend bool operator!=(
+        const character &l,
+        const character &r) noexcept
+    {
+        return !(l == r);
     }
 
     void set_code_point(code_point_type code_point) noexcept {
