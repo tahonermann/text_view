@@ -6,7 +6,7 @@
 
 # Ignore all generated make dependency files.
 *.d
-# Ignore the generated 'test-stdtext' executable.
-bin/test-stdtext
-# Ignore GNU idutils ID file.
+# Ignore generated binaries.
+bin/
+# Ignore the GNU idutils ID file.
 ID
