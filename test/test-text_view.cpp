@@ -1,3 +1,9 @@
+// Copyright (c) 2015, Tom Honermann
+//
+// This file is distributed under the MIT License. See the accompanying file
+// LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
+// and conditions.
+
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/advance_to.hpp>
 #include <text_view_detail/riterator.hpp>

@@ -1,3 +1,9 @@
+// Copyright (c) 2015, Tom Honermann
+//
+// This file is distributed under the MIT License. See the accompanying file
+// LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
+// and conditions.
+
 #ifndef TEXT_VIEW_ARCHETYPES_HPP // {
 #define TEXT_VIEW_ARCHETYPES_HPP
 
