@@ -8,6 +8,7 @@
 #define TEXT_VIEW_TRAITS_HPP
 
 
+#include <unordered_map>
 #include <origin/core/traits.hpp>
 #include <origin/sequence/concepts.hpp>
 #include <origin/sequence/range.hpp>
@@ -18,10 +19,12 @@ namespace experimental {
 inline namespace text {
 
 
+class character_set_info;
+
 /*
  * Character set ID
- * character_set_id is modeled after std::locale::id.  Instances of this class
- * must only be declared with static storage duration.
+ * character_set_id is modeled after std::locale::id.  All values of this class
+ * type are constructed by get_character_set_info().
  */
 class character_set_id {
 public:
@@ -67,7 +70,11 @@ public:
 
 private:
     template<typename T>
-    friend character_set_id get_character_set_id() noexcept;
+    friend const character_set_info&
+    get_character_set_info() noexcept;
+
+    friend const character_set_info&
+    get_character_set_info(character_set_id id);
 
     character_set_id(int id) noexcept : id{id} {}
 
@@ -75,17 +82,89 @@ private:
 };
 
 namespace text_detail {
-inline int get_next_character_set_id() noexcept {
+inline int
+get_next_character_set_id() noexcept {
     static int next_id = 0;
     return ++next_id;
 }
 } // namespace text_detail
 
-template<typename CST>
-character_set_id get_character_set_id() noexcept {
-    static int id = text_detail::get_next_character_set_id();
-    return character_set_id{id};
+
+/*
+ * Character set info
+ * character_set_info is modeled after std::locale::id.  All values of this class
+ * type are constructed by get_character_set_info().
+ */
+class character_set_info {
+public:
+    character_set_info() = delete;
+
+    character_set_id get_id() const noexcept {
+        return id;
+    }
+
+    const char* get_name() const noexcept {
+        return name;
+    }
+
+private:
+    template<typename T>
+    friend const character_set_info& get_character_set_info() noexcept;
+
+    character_set_info(
+        character_set_id id,
+        const char *name) noexcept
+    :
+        id(id),
+        name(name)
+    {}
+
+    character_set_id id;
+    const char *name;
+};
+
+namespace text_detail {
+inline character_set_info*&
+get_emplaced_character_set_info(
+    int id)
+{
+    static std::unordered_map<int, character_set_info*> csi_map;
+    return csi_map.emplace(id, nullptr).first->second;
 }
+} // namespace text_detail
+
+
+/*
+ * Character set info retrieval functions.
+ */
+template<typename CST>
+inline
+const character_set_info&
+get_character_set_info() noexcept {
+    static int id = text_detail::get_next_character_set_id();
+    static character_set_info csi{
+               character_set_id{id},
+               CST::get_name()};
+    static character_set_info *&csi_ptr_ref =
+            text_detail::get_emplaced_character_set_info(id);
+    static character_set_info *csi_ptr = csi_ptr_ref = &csi;
+    return *csi_ptr;
+}
+
+const character_set_info&
+get_character_set_info(
+    character_set_id id)
+{
+    return *text_detail::get_emplaced_character_set_info(id.id);
+}
+
+template<typename CST>
+inline
+character_set_id
+get_character_set_id() {
+    return get_character_set_info<CST>().get_id();
+}
+
 
 /*
  * Associated code point type helper

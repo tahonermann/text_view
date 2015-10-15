@@ -17,8 +17,13 @@ inline namespace text {
  * C++ basic execution character set
  * ISO/IEC 14882:2011(E) 2.3
  */
-struct basic_execution_character_set {
+class basic_execution_character_set {
+public:
     using code_point_type = char;
+
+    static const char* get_name() noexcept {
+        return "basic_execution_character_set";
+    }
 };
 
 
@@ -26,8 +31,13 @@ struct basic_execution_character_set {
  * C++ basic execution wide character set
  * ISO/IEC 14882:2011(E) 2.3
  */
-struct basic_execution_wide_character_set {
+class basic_execution_wide_character_set {
+public:
     using code_point_type = wchar_t;
+
+    static const char* get_name() noexcept {
+        return "basic_execution_wide_character_set";
+    }
 };
 
 

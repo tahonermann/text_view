@@ -21,8 +21,13 @@ inline namespace text {
  * This character set is associated with characters that do not have a
  * statically known character set.
  */
-struct any_character_set {
+class any_character_set {
+public:
     using code_point_type = uint_least32_t;
+
+    static const char* get_name() noexcept {
+        return "any_character_set";
+    }
 };
 
 

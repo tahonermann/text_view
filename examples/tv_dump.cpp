@@ -61,11 +61,12 @@ dump_code_points(
     auto tv_begin = begin(tv);
     auto tv_end = end(tv);
     for (auto tv_it = tv_begin; tv_it != tv_end; ++tv_it) {
-        const auto &cp = *tv_it;
-        // FIXME: Print the character set name.
-        // const auto &csid = cp.get_character_set_id();
+        const auto &ch = *tv_it;
+        auto csid = ch.get_character_set_id();
         cout << "0x" << hex << setw(8) << setfill('0')
-             << (uint_least32_t)cp.get_code_point() << endl;
+             << (uint_least32_t)ch.get_code_point()
+             << " (" << get_character_set_info(csid).get_name() << ")"
+             << endl;
     }
 }
 

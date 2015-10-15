@@ -18,8 +18,13 @@ inline namespace text {
  * ISO/IEC 14882:2011(E) 2.3
  */
 template<Code_point CPT>
-struct unicode_character_set_template {
+class unicode_character_set_template {
+public:
     using code_point_type = CPT;
+
+    static const char* get_name() noexcept {
+        return "unicode_character_set";
+    }
 };
 using unicode_character_set = unicode_character_set_template<char32_t>;
 

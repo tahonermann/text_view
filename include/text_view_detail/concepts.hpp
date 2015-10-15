@@ -58,6 +58,7 @@ template<typename T>
 concept bool Character_set() {
     return requires () {
                typename T::code_point_type;
+               { T::get_name() } -> const char *;
            }
         && Code_point<typename T::code_point_type>();
 }

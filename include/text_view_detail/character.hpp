@@ -65,8 +65,8 @@ public:
     using character_set_type = any_character_set;
     using code_point_type = typename character_set_type::code_point_type;
 
-    character() noexcept = default;
-    explicit character(code_point_type code_point) noexcept
+    character() = default;
+    explicit character(code_point_type code_point)
         : cs_id{std::experimental::text::get_character_set_id<any_character_set>()}, code_point{code_point} {}
     character(character_set_id cs_id, code_point_type code_point) noexcept
         : cs_id{cs_id}, code_point{code_point} {}

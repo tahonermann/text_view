@@ -42,6 +42,7 @@ template<Code_point CPT>
 struct character_set_archetype_template
 {
     using code_point_type = CPT;
+    static const char* get_name() noexcept;
 };
 using character_set_archetype =
           character_set_archetype_template<code_point_archetype>;
