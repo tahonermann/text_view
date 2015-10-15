@@ -37,7 +37,7 @@ struct iso_10646_wide_character_encoding {
               character<unicode_character_set_template<wchar_t>>,
               wchar_t>;
     using state_type = codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -52,7 +52,7 @@ template<Character CT, Code_unit CUT>
 struct utf8_encoding_template {
     using codec_type = utf8_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -70,7 +70,7 @@ template<Character CT, Code_unit CUT>
 struct utf8bom_encoding_template {
     using codec_type = utf8bom_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state{ false };
         return state;
     }
@@ -92,7 +92,7 @@ template<Character CT, Code_unit CUT>
 struct utf16_encoding_template {
     using codec_type = utf16_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -105,7 +105,7 @@ template<Character CT, Code_unit CUT>
 struct utf16be_encoding_template {
     using codec_type = utf16be_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -122,7 +122,7 @@ template<Character CT, Code_unit CUT>
 struct utf16le_encoding_template {
     using codec_type = utf16le_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -139,7 +139,7 @@ template<Character CT, Code_unit CUT>
 struct utf16bom_encoding_template {
     using codec_type = utf16bom_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state{ false, state_type::big_endian };
         return state;
     }
@@ -160,7 +160,7 @@ template<Character CT, Code_unit CUT>
 struct utf32_encoding_template {
     using codec_type = trivial_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -173,7 +173,7 @@ template<Character CT, Code_unit CUT>
 struct utf32be_encoding_template {
     using codec_type = utf32be_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -190,7 +190,7 @@ template<Character CT, Code_unit CUT>
 struct utf32le_encoding_template {
     using codec_type = utf32le_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -207,7 +207,7 @@ template<Character CT, Code_unit CUT>
 struct utf32bom_encoding_template {
     using codec_type = utf32bom_codec<CT, CUT>;
     using state_type = typename codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state{ false, state_type::big_endian };
         return state;
     }

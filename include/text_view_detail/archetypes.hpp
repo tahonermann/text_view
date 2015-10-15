@@ -63,21 +63,21 @@ public:
 
     friend bool operator==(
         const character_archetype_template &l,
-        const character_archetype_template &r) noexcept
+        const character_archetype_template &r)
     {
         return true;
     }
     friend bool operator!=(
         const character_archetype_template &l,
-        const character_archetype_template &r) noexcept
+        const character_archetype_template &r)
     {
         return !(l == r);
     }
 
-    void set_code_point(code_point_type cp) noexcept;
-    code_point_type get_code_point() const noexcept;
+    void set_code_point(code_point_type cp);
+    code_point_type get_code_point() const;
 
-    static character_set_id get_character_set_id() noexcept;
+    static character_set_id get_character_set_id();
 };
 using character_archetype =
           character_archetype_template<character_set_archetype>;
@@ -175,7 +175,7 @@ template<Codec CT>
 struct encoding_archetype_template
 {
     using codec_type = CT;
-    static const typename codec_type::state_type& initial_state() noexcept;
+    static const typename codec_type::state_type& initial_state();
 };
 using encoding_archetype = encoding_archetype_template<codec_archetype>;
 
@@ -198,13 +198,13 @@ public:
     text_iterator_archetype_template();
     text_iterator_archetype_template(iterator, iterator);
     text_iterator_archetype_template(state_type, iterator, iterator);
-    const state_type& state() const;
-    state_type& state();
+    const state_type& state() const noexcept;
+    state_type& state() noexcept;
     iterator base() const;
     iterator begin() const;
     iterator end() const;
-    reference operator*() const;
-    pointer operator->() const;
+    reference operator*() const noexcept;
+    pointer operator->() const noexcept;
     friend bool operator==(
         const text_iterator_archetype_template &l,
         const text_iterator_archetype_template &r)
@@ -291,10 +291,10 @@ public:
     using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;
 
     text_view_archetype_template(const state_type &initial_state, RT r);
-    const RT& base() const;
-    RT& base();
-    const state_type& initial_state() const;
-    state_type& initial_state();
+    const RT& base() const noexcept;
+    RT& base() noexcept;
+    const state_type& initial_state() const noexcept;
+    state_type& initial_state() noexcept;
     iterator begin() const;
     iterator end() const;
 };

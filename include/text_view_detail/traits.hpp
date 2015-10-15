@@ -32,38 +32,38 @@ public:
 
     friend bool operator==(
         character_set_id l,
-        character_set_id r) noexcept
+        character_set_id r)
     {
         return l.id == r.id;
     }
     friend bool operator!=(
         character_set_id l,
-        character_set_id r) noexcept
+        character_set_id r)
     {
         return !(l == r);
     }
 
     friend bool operator<(
         character_set_id l,
-        character_set_id r) noexcept
+        character_set_id r)
     {
         return l.id < r.id;
     }
     friend bool operator>(
         character_set_id l,
-        character_set_id r) noexcept
+        character_set_id r)
     {
         return r < l;
     }
     friend bool operator<=(
         character_set_id l,
-        character_set_id r) noexcept
+        character_set_id r)
     {
         return !(r < l);
     }
     friend bool operator>=(
         character_set_id l,
-        character_set_id r) noexcept
+        character_set_id r)
     {
         return !(l < r);
     }
@@ -71,12 +71,12 @@ public:
 private:
     template<typename T>
     friend const character_set_info&
-    get_character_set_info() noexcept;
+    get_character_set_info();
 
     friend const character_set_info&
     get_character_set_info(character_set_id id);
 
-    character_set_id(int id) noexcept : id{id} {}
+    character_set_id(int id) : id{id} {}
 
     int id;
 };
@@ -109,11 +109,11 @@ public:
 
 private:
     template<typename T>
-    friend const character_set_info& get_character_set_info() noexcept;
+    friend const character_set_info& get_character_set_info();
 
     character_set_info(
         character_set_id id,
-        const char *name) noexcept
+        const char *name)
     :
         id(id),
         name(name)
@@ -140,14 +140,13 @@ get_emplaced_character_set_info(
 template<typename CST>
 inline
 const character_set_info&
-get_character_set_info() noexcept {
-    static int id = text_detail::get_next_character_set_id();
+get_character_set_info() {
     static character_set_info csi{
-               character_set_id{id},
+               character_set_id{text_detail::get_next_character_set_id()},
                CST::get_name()};
-    static character_set_info *&csi_ptr_ref =
-            text_detail::get_emplaced_character_set_info(id);
-    static character_set_info *csi_ptr = csi_ptr_ref = &csi;
+    static character_set_info *csi_ptr =
+           text_detail::get_emplaced_character_set_info(csi.id.id) =
+               &csi;
     return *csi_ptr;
 }
 

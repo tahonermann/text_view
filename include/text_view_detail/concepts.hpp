@@ -58,7 +58,7 @@ template<typename T>
 concept bool Character_set() {
     return requires () {
                typename T::code_point_type;
-               { T::get_name() } -> const char *;
+               { T::get_name() } noexcept -> const char *;
            }
         && Code_point<typename T::code_point_type>();
 }
@@ -263,7 +263,7 @@ concept bool Encoding() {
            }
         && Codec<typename T::codec_type>()
         && requires () {
-               { T::initial_state() } noexcept
+               { T::initial_state() }
                    -> const typename T::codec_type::state_type&;
            };
 }
@@ -283,9 +283,9 @@ concept bool Text_iterator() {
         && origin::Iterator<T>()
         && Character<origin::Value_type<T>>()
         && requires (T t, const T ct) {
-               { t.state() }
+               { t.state() } noexcept
                    -> typename T::encoding_type::codec_type::state_type&;
-               { ct.state() }
+               { ct.state() } noexcept
                    -> const typename T::encoding_type::codec_type::state_type&;
            };
 }
@@ -319,13 +319,13 @@ concept bool Text_view() {
         && origin::Input_range<T>()
         && Text_iterator<origin::Iterator_type<T>>()
         && requires (T t, const T ct) {
-               { t.base() }
+               { t.base() } noexcept
                    -> typename T::range_type&;
-               { ct.base() }
+               { ct.base() } noexcept
                    -> const typename T::range_type&;
-               { t.initial_state() }
+               { t.initial_state() } noexcept
                    -> typename T::state_type&;
-               { ct.initial_state() }
+               { ct.initial_state() } noexcept
                    -> const typename T::state_type&;
            };
 }

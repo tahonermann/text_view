@@ -26,7 +26,7 @@ struct basic_execution_character_encoding {
               character<basic_execution_character_set>,
               char>;
     using state_type = codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }
@@ -41,7 +41,7 @@ struct basic_execution_wide_character_encoding {
               character<basic_execution_wide_character_set>,
               wchar_t>;
     using state_type = codec_type::state_type;
-    static const state_type& initial_state() noexcept {
+    static const state_type& initial_state() {
         static const state_type state;
         return state;
     }

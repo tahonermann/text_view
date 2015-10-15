@@ -249,17 +249,17 @@ public:
                  range_type, code_unit_iterator, code_unit_sentinel>()
     : basic_text_view{first.state(), first.base(), last.base()} {}
 
-    const range_type& base() const {
+    const range_type& base() const noexcept {
         return r;
     }
-    range_type& base() {
+    range_type& base() noexcept {
         return r;
     }
 
-    const state_type& initial_state() const {
+    const state_type& initial_state() const noexcept {
         return *this;
     }
-    state_type& initial_state() {
+    state_type& initial_state() noexcept {
         return *this;
     }
 

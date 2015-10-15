@@ -86,10 +86,10 @@ protected:
         : state_type(state) {}
 
 public:
-    const state_type& state() const {
+    const state_type& state() const noexcept {
         return *this;
     }
-    state_type& state() {
+    state_type& state() noexcept {
         return *this;
     }
 };
@@ -216,14 +216,14 @@ public:
     // - Past the end iterators.
     // - Iterators for which a decoding error occurred during increment or
     //   decrement operations.
-    bool is_ok() const {
+    bool is_ok() const noexcept {
         return ok;
     }
 
-    reference operator*() const {
+    reference operator*() const noexcept {
         return value;
     }
-    pointer operator->() const {
+    pointer operator->() const noexcept {
         return value;
     }
 
@@ -694,10 +694,10 @@ public:
         current{current}
     {}
 
-    const state_type& state() const {
+    const state_type& state() const noexcept {
         return *this;
     }
-    state_type& state() {
+    state_type& state() noexcept {
         return *this;
     }
 
