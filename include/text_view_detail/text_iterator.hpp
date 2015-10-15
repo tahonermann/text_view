@@ -224,7 +224,7 @@ public:
         return value;
     }
     pointer operator->() const noexcept {
-        return value;
+        return &value;
     }
 
     friend bool operator==(
