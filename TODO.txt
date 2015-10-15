@@ -1,6 +1,7 @@
 - Remove codec min_code_units and max_code_units.  Doing so will require
   finding a new way to define the Random_access_codec concept.
 - Add transcoding support.
+- Add optimized character property predicates based on character set type.
 - Add UDL (User Defined Literal) suffixes.
 - Explore constexpr support.
 - Modify codec encode() and decode() to return std::expected<bool>
