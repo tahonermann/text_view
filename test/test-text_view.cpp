@@ -477,19 +477,6 @@ void test_encoding_models() {
     // Archetypes
     static_assert(Encoding<encoding_archetype>(), "");
     // std
-    static_assert(Encoding<encoding_type_of<char*>>(), "");
-    static_assert(Encoding<encoding_type_of<const char*>>(), "");
-    static_assert(Encoding<encoding_type_of<char* const>>(), "");
-    static_assert(Encoding<encoding_type_of<const char* const>>(), "");
-    static_assert(Encoding<encoding_type_of<char[]>>(), "");
-    static_assert(Encoding<encoding_type_of<const char[]>>(), "");
-    static_assert(Encoding<encoding_type_of<char[5]>>(), "");
-    static_assert(Encoding<encoding_type_of<const char[5]>>(), "");
-    static_assert(Encoding<encoding_type_of<char(&)[5]>>(), "");
-    static_assert(Encoding<encoding_type_of<const char(&)[5]>>(), "");
-    static_assert(Encoding<encoding_type_of<wchar_t*>>(), "");
-    static_assert(Encoding<encoding_type_of<char16_t*>>(), "");
-    static_assert(Encoding<encoding_type_of<char32_t*>>(), "");
     static_assert(Encoding<utf8_encoding>(), "");
     static_assert(Encoding<utf16_encoding>(), "");
     static_assert(Encoding<utf16be_encoding>(), "");

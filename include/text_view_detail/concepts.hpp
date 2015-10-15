@@ -284,9 +284,9 @@ concept bool Text_iterator() {
         && Character<origin::Value_type<T>>()
         && requires (T t, const T ct) {
                { t.state() }
-                   -> typename encoding_type_of<T>::codec_type::state_type&;
+                   -> typename T::encoding_type::codec_type::state_type&;
                { ct.state() }
-                   -> const typename encoding_type_of<T>::codec_type::state_type&;
+                   -> const typename T::encoding_type::codec_type::state_type&;
            };
 }
 
