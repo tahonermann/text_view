@@ -6,7 +6,7 @@
 
 alias cdtv="cd $PWD"
 
-GCC_INSTALL_PATH="$HOME/products/gcc-c++-concepts"
+GCC_INSTALL_PATH="$HOME/products/gcc-trunk"
 export GCC_INSTALL_PATH
 
 ORIGIN_INSTALL_PATH="$HOME/src/origin"
