@@ -7,6 +7,9 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf
 N4203: Fast ASCII Character Manipulation
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4203.html
 
+N4197: Adding u8 character literals
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4197.html
+
 N4128: Ranges for the Standard Library, Revision 1
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html
 
