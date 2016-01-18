@@ -9,8 +9,8 @@
 
 
 #include <origin/core/traits.hpp>
-#include <origin/sequence/concepts.hpp>
-#include <origin/sequence/range.hpp>
+#include <origin/algorithm/concepts.hpp>
+#include <origin/range/range.hpp>
 #include <text_view_detail/traits.hpp>
 
 

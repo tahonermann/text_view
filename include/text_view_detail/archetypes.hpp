@@ -10,8 +10,8 @@
 
 #include <text_view_detail/concepts.hpp>
 #include <origin/core/concepts.hpp>
-#include <origin/sequence/concepts.hpp>
-#include <origin/sequence/range.hpp>
+#include <origin/algorithm/concepts.hpp>
+#include <origin/range/range.hpp>
 
 
 namespace std {

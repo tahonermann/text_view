@@ -9,7 +9,7 @@ alias cdtv="cd $PWD"
 GCC_INSTALL_PATH="$HOME/products/gcc-trunk"
 export GCC_INSTALL_PATH
 
-ORIGIN_INSTALL_PATH="$HOME/src/origin"
+ORIGIN_INSTALL_PATH="$HOME/products/origin-text_view"
 export ORIGIN_INSTALL_PATH
 
 PATH="$GCC_INSTALL_PATH/bin:$PATH"

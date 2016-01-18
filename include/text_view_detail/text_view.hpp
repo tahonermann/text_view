@@ -17,8 +17,8 @@
 #include <string>
 #include <utility>
 #include <origin/core/traits.hpp>
-#include <origin/sequence/concepts.hpp>
-#include <origin/sequence/range.hpp>
+#include <origin/algorithm/concepts.hpp>
+#include <origin/range/range.hpp>
 
 
 namespace std {

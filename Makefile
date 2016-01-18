@@ -40,16 +40,16 @@ bin:
 	mkdir bin
 
 bin/test-text_view: test/test-text_view.cpp | bin
-	g++ -Wall -Werror -Wpedantic -g -MMD -MF test/test-text_view.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH) -o $@
+	g++ -Wall -Werror -Wpedantic -g -MMD -MF test/test-text_view.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH)/include -o $@
 
 bin/tv_dump: examples/tv_dump.cpp | bin
-	g++ -Wall -Werror -Wpedantic -g -MMD -MF examples/tv_dump.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH) -o $@
+	g++ -Wall -Werror -Wpedantic -g -MMD -MF examples/tv_dump.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH)/include -o $@
 
 bin/tv_enumerate_utf8_code_points: examples/tv_enumerate_utf8_code_points.cpp | bin
-	g++ -Wall -Werror -Wpedantic -g -MMD -MF examples/tv_enumerate_utf8_code_points.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH) -o $@
+	g++ -Wall -Werror -Wpedantic -g -MMD -MF examples/tv_enumerate_utf8_code_points.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH)/include -o $@
 
 bin/tv_find_utf8_multi_code_unit_code_point: examples/tv_find_utf8_multi_code_unit_code_point.cpp | bin
-	g++ -Wall -Werror -Wpedantic -g -MMD -MF examples/tv_find_utf8_multi_code_unit_code_point.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH) -o $@
+	g++ -Wall -Werror -Wpedantic -g -MMD -MF examples/tv_find_utf8_multi_code_unit_code_point.d -std=c++1z $< -Iinclude -I$(ORIGIN_INSTALL_PATH)/include -o $@
 
 clean: clean-test
 clean: clean-examples

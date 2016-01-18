@@ -51,9 +51,11 @@ utf32bom_encoding | Unicode UTF-32 with a byte order mark | stateful, variable w
 (http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031).
 As of 2015-12-31, this specification is only supported by the current in-development
 release of [gcc](https://gcc.gnu.org) that currently self-identifies itself as gcc
-version 6.0.0.  Additionally, `text_view` depends on
+version 6.0.0.  Additionally, `text_view` depends on the
+[origin-text_view](https://github.com/tahonermann/origin) fork of
 [Andrew Sutton](https://github.com/asutton)'s [Origin](http://asutton.github.io/origin/)
-library for concept definitions.
+library for concept definitions.  The fork is necessary to work around a few
+gcc defects and Origin issues that are surfaced by `text_view`.
 
 ## Building and installing [gcc](https://gcc.gnu.org)
 `text_view` is known to build successfully with gcc svn revision 232017; the top of
@@ -92,32 +94,32 @@ $ cd ..
 
 When complete, the new gcc build will be present in the `gcc-trunk-install` directory.
 
-## Building and installing [Origin](http://asutton.github.io/origin/)
+## Building and installing [origin-text_view](https://github.com/tahonermann/origin)
 `text_view` does not currently build successfully with the top of trunk version of the
-[Origin](http://asutton.github.io/origin/) library for two reasons:
+[Origin](http://asutton.github.io/origin/) library due to the following Origin and
+gcc issues:
 
-1. Changes to `text_view` are needed to accommodate header file reorganization.  These
-  changes are simple, but...
-2. Compiling `text_view` with the current top of trunk version of the
-   [Origin](http://asutton.github.io/origin/) library (with changes needed for the above
-   mentioned header file reorganization) results in gcc entering a seemingly infinite
-   loop that eventually crashes the process when memory is exhausted.  This issue has
-   not yet been investigated or reported.
+1. https://github.com/asutton/origin/issues/5
+2. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69235
+3. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67565
 
-As of 2015-12-31, `text_view` is known to build successfully with commit
-asutton/origin@4066c128becb83a9eb40eff0562d7dadd16e5ba9.  The following commands can be
-used to perform a suitable build of Origin on Linux that is known to successfully work
-with `text_view`.
+The [origin-text_view](https://github.com/tahonermann/origin) fork of
+[Origin](http://asutton.github.io/origin) was created to work around the above
+issues.  The following commands can be used to perform a suitable build of Origin
+on Linux that will work with `text_view`.  Note that these commands assume that
+an appropriate build of gcc was performed and installed as per the previous
+section.
 
 ```sh
-$ git clone https://github.com/asutton/origin.git origin-trunk-src
-$ cd origin-trunk-src
-$ git reset --hard 4066c128becb83a9eb40eff0562d7dadd16e5ba9
+$ PATH=$(pwd)/gcc-trunk-install/bin; export PATH
+$ git clone https://github.com/tahonermann/origin.git origin-text_view-src
+$ mkdir origin-text_view-build
+$ cd origin-text_view-build
+$ cmake ../origin-text_view-src \
+  -DCMAKE_INSTALL_PREFIX:PATH=$(pwd)/../origin-text_view-install
+$ make install
+$ cd ..
 ```
-
-With this version of the [Origin](http://asutton.github.io/origin/) library, it is not
-necessary to perform a build or installation of it.  `text_view` only needs the header
-files.
 
 # Building and installing `text_view`
 `text_view` is currently a header-only library, so no build or installation is required.

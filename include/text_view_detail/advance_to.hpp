@@ -8,7 +8,7 @@
 #define TEXT_VIEW_ADVANCE_TO_HPP
 
 
-#include <origin/sequence/concepts.hpp>
+#include <origin/algorithm/concepts.hpp>
 
 
 namespace std {
