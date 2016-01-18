@@ -494,7 +494,12 @@ public:
     // N4382 19.3.2 "Concept EqualityComparable", and N3351 3.3
     // "Foundational Concepts".
     itext_sentinel(const itext_iterator<ET, RT> &ti)
-        : s{ti.base()} {}
+    requires origin::Convertible<
+                 decltype(ti.base()),
+                 sentinel>()
+    :
+        s{ti.base()}
+    {}
 
     friend bool operator==(
         const itext_sentinel &l,
