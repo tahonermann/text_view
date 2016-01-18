@@ -21,7 +21,7 @@ inline namespace text {
 
 namespace text_detail {
 /*
- * Decoder concep        Code unit iterator concept Text iterator category
+ * Decoder concept       Code unit iterator concept Text iterator category
  * -------------------   -------------------------- ---------------------------
  * Decoder               Input_iterator             input_iterator_tag
  * Decoder               Forward_iterator           forward_iterator_tag
