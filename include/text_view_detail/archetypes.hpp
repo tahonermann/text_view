@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -93,35 +93,38 @@ using code_unit_iterator_archetype =
 
 
 /*
- * Codec state archetype
+ * Text encoding state archetype
  */
-struct codec_state_archetype {};
+struct text_encoding_state_archetype {};
 
 
 /*
- * Codec state transition archetype
+ * Text encoding state transition archetype
  */
-struct codec_state_transition_archetype {};
+struct text_encoding_state_transition_archetype {};
 
 
 /*
- * Codec archetype
+ * Text encoding archetype
  */
-template <
-    Codec_state CST,
-    Codec_state_transition CSTT,
+template<
+    Text_encoding_state CST,
+    Text_encoding_state_transition CSTT,
     Code_unit CUT,
     Character C,
     int MinCodeUnits = 1,
     int MaxCodeUnits = 1>
-class codec_archetype_template {
-public:
+struct text_encoding_archetype_template
+{
     using state_type = CST;
     using state_transition_type = CSTT;
     using code_unit_type = CUT;
     using character_type = C;
+
     static constexpr int min_code_units = MinCodeUnits;
     static constexpr int max_code_units = MaxCodeUnits;
+
+    static const state_type& initial_state();
 
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
@@ -161,38 +164,26 @@ public:
         character_type &c,
         int &decoded_code_units);
 };
-using codec_archetype = codec_archetype_template<
-                            codec_state_archetype,
-                            codec_state_transition_archetype,
-                            code_unit_archetype,
-                            character_archetype>;
-
-
-/*
- * Encoding archetype
- */
-template<Codec CT>
-struct encoding_archetype_template
-{
-    using codec_type = CT;
-    static const typename codec_type::state_type& initial_state();
-};
-using encoding_archetype = encoding_archetype_template<codec_archetype>;
+using text_encoding_archetype = text_encoding_archetype_template<
+                                    text_encoding_state_archetype,
+                                    text_encoding_state_transition_archetype,
+                                    code_unit_archetype,
+                                    character_archetype>;
 
 
 /*
  * Text iterator archetype
  */
-template<Encoding ET, Code_unit_iterator CUIT>
+template<Text_encoding ET, Code_unit_iterator CUIT>
 class text_iterator_archetype_template {
 public:
     using encoding_type = ET;
-    using state_type = typename ET::codec_type::state_type;
+    using state_type = typename ET::state_type;
     using iterator = CUIT;
     using iterator_category = origin::Iterator_category<iterator>;
-    using value_type = typename ET::codec_type::character_type;
-    using reference = typename ET::codec_type::character_type&;
-    using pointer = typename ET::codec_type::character_type*;
+    using value_type = typename ET::character_type;
+    using reference = typename ET::character_type&;
+    using pointer = typename ET::character_type*;
     using difference_type = origin::Difference_type<iterator>;
 
     text_iterator_archetype_template();
@@ -274,19 +265,19 @@ public:
     value_type operator[](difference_type n) const;
 };
 using text_iterator_archetype = text_iterator_archetype_template<
-                                    encoding_archetype,
+                                    text_encoding_archetype,
                                     code_unit_iterator_archetype>;
 
 
 /*
  * Text view archetype
  */
-template<Encoding ET, origin::Input_range RT>
+template<Text_encoding ET, origin::Input_range RT>
 class text_view_archetype_template {
 public:
     using range_type = RT;
     using encoding_type = ET;
-    using state_type = typename ET::codec_type::state_type;
+    using state_type = typename ET::state_type;
     using code_unit_iterator = origin::Iterator_type<RT>;
     using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;
 
@@ -299,7 +290,7 @@ public:
     iterator end() const;
 };
 using text_view_archetype = text_view_archetype_template<
-                                encoding_archetype,
+                                text_encoding_archetype,
                                 origin::bounded_range<code_unit_iterator_archetype>>;
 
 

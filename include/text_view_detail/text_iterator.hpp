@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -36,42 +36,42 @@ namespace text_detail {
  * Random_access_decoder Bidirectional_iterator     bidirectional_iterator_tag
  * Random_access_decoder Random_access_iterator     random_access_iterator_tag
  */
-template<typename Codec, typename Iterator>
+template<typename Text_encoding, typename Iterator>
 struct itext_iterator_category_selector;
 
-template<Codec C, Code_unit_iterator CUIT>
-struct itext_iterator_category_selector<C, CUIT> {
+template<Text_encoding ET, Code_unit_iterator CUIT>
+struct itext_iterator_category_selector<ET, CUIT> {
     using type = origin::Iterator_category<CUIT>;
 };
-template<Codec C, Code_unit_iterator CUIT>
-requires origin::Bidirectional_iterator<CUIT>() // or Random_access_iterator
-      && ! Bidirectional_decoder<C, CUIT>()     // and ! Random_access_decoder
-struct itext_iterator_category_selector<C, CUIT> {
+template<Text_encoding ET, Code_unit_iterator CUIT>
+requires origin::Bidirectional_iterator<CUIT>()   // or Random_access_iterator
+      && ! Text_bidirectional_decoder<ET, CUIT>() // and ! Text_random_access_decoder
+struct itext_iterator_category_selector<ET, CUIT> {
     using type = std::forward_iterator_tag;
 };
-template<Codec C, Code_unit_iterator CUIT>
+template<Text_encoding ET, Code_unit_iterator CUIT>
 requires origin::Random_access_iterator<CUIT>()
-      && Bidirectional_decoder<C, CUIT>()
-      && ! Random_access_decoder<C, CUIT>()
-struct itext_iterator_category_selector<C, CUIT> {
+      && Text_bidirectional_decoder<ET, CUIT>()
+      && ! Text_random_access_decoder<ET, CUIT>()
+struct itext_iterator_category_selector<ET, CUIT> {
     using type = std::bidirectional_iterator_tag;
 };
 
 
-template<Encoding ET, origin::Input_range RT>
+template<Text_encoding ET, origin::Input_range RT>
 class itext_iterator_base
-    : protected ET::codec_type::state_type
+    : protected ET::state_type
 {
 public:
     using encoding_type = ET;
     using range_type = origin::Remove_reference<RT>;
-    using state_type = typename encoding_type::codec_type::state_type;
+    using state_type = typename encoding_type::state_type;
     using iterator = origin::Iterator_type<const range_type>;
     using iterator_category =
               typename text_detail::itext_iterator_category_selector<
-                  typename encoding_type::codec_type,
+                  encoding_type,
                   iterator>::type;
-    using value_type = typename encoding_type::codec_type::character_type;
+    using value_type = typename encoding_type::character_type;
     using reference = const value_type&;
     using pointer = const value_type*;
     using difference_type = origin::Difference_type<iterator>;
@@ -94,8 +94,8 @@ public:
     }
 };
 
-template<Encoding ET, origin::Input_range RT>
-requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+template<Text_encoding ET, origin::Input_range RT>
+requires Text_decoder<ET, origin::Iterator_type<const RT>>()
       && origin::Input_iterator<origin::Iterator_type<const RT>>()
 class itext_iterator_data
     : public itext_iterator_base<ET, RT>
@@ -128,8 +128,8 @@ protected:
     iterator current;
 };
 
-template<Encoding ET, origin::Input_range RT>
-requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+template<Text_encoding ET, origin::Input_range RT>
+requires Text_decoder<ET, origin::Iterator_type<const RT>>()
       && origin::Forward_iterator<origin::Iterator_type<const RT>>()
 class itext_iterator_data<ET, RT>
     : public itext_iterator_base<ET, RT>
@@ -182,8 +182,8 @@ protected:
 } // namespace text_detail
 
 
-template<Encoding ET, origin::Input_range RT>
-requires Decoder<typename ET::codec_type, origin::Iterator_type<const RT>>()
+template<Text_encoding ET, origin::Input_range RT>
+requires Text_decoder<ET, origin::Iterator_type<const RT>>()
 class itext_iterator
     : public text_detail::itext_iterator_data<ET, RT>
 {
@@ -243,8 +243,8 @@ public:
     friend bool operator<(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
+    requires Text_random_access_decoder<
+        encoding_type,
         iterator>()
     {
         return (r - l) > 0;
@@ -252,8 +252,8 @@ public:
     friend bool operator>(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
+    requires Text_random_access_decoder<
+        encoding_type,
         iterator>()
     {
         return r < l;
@@ -261,8 +261,8 @@ public:
     friend bool operator<=(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
+    requires Text_random_access_decoder<
+        encoding_type,
         iterator>()
     {
         return !(r < l);
@@ -270,23 +270,21 @@ public:
     friend bool operator>=(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
+    requires Text_random_access_decoder<
+        encoding_type,
         iterator>()
     {
         return !(l < r);
     }
 
     itext_iterator& operator++() {
-        using codec_type = typename encoding_type::codec_type;
-
         ok = false;
         iterator tmp_iterator{this->current};
         auto end(text_detail::adl_end(*this->range));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
-            bool decoded_code_point = codec_type::decode(
+            bool decoded_code_point = encoding_type::decode(
                 this->state(),
                 tmp_iterator,
                 end,
@@ -303,11 +301,8 @@ public:
     }
 
     itext_iterator& operator++()
-        requires Forward_decoder<typename encoding_type::codec_type,
-                                 iterator>()
+        requires Text_forward_decoder<encoding_type, iterator>()
     {
-        using codec_type = typename encoding_type::codec_type;
-
         ok = false;
         this->current_range.first = this->current_range.last;
         iterator tmp_iterator{this->current_range.first};
@@ -315,7 +310,7 @@ public:
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
-            bool decoded_code_point = codec_type::decode(
+            bool decoded_code_point = encoding_type::decode(
                 this->state(),
                 tmp_iterator,
                 end,
@@ -339,11 +334,8 @@ public:
     }
 
     itext_iterator& operator--()
-        requires Bidirectional_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+        requires Text_bidirectional_decoder<encoding_type, iterator>()
     {
-        using codec_type = typename encoding_type::codec_type;
-
         ok = false;
         this->current_range.last = this->current_range.first;
         std::reverse_iterator<iterator> rcurrent{this->current_range.last};
@@ -351,7 +343,7 @@ public:
         while (rcurrent != rend) {
             value_type tmp_value;
             int decoded_code_units = 0;
-            bool decoded_code_point = codec_type::rdecode(
+            bool decoded_code_point = encoding_type::rdecode(
                 this->state(),
                 rcurrent,
                 rend,
@@ -369,8 +361,7 @@ public:
     }
 
     itext_iterator operator--(int)
-        requires Bidirectional_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+        requires Text_bidirectional_decoder<encoding_type, iterator>()
     {
         itext_iterator it{*this};
         --*this;
@@ -378,16 +369,15 @@ public:
     }
 
     itext_iterator& operator+=(difference_type n)
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+        requires Text_random_access_decoder<encoding_type, iterator>()
     {
         if (n < 0) {
             this->current_range.first +=
-                ((n+1) * encoding_type::codec_type::max_code_units);
+                ((n+1) * encoding_type::max_code_units);
             --*this;
         } else if (n > 0) {
             this->current_range.last +=
-                ((n-1) * encoding_type::codec_type::max_code_units);
+                ((n-1) * encoding_type::max_code_units);
             ++*this;
         }
         return *this;
@@ -396,9 +386,7 @@ public:
     friend itext_iterator operator+(
         itext_iterator l,
         difference_type n)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
-        iterator>()
+    requires Text_random_access_decoder<encoding_type, iterator>()
     {
         return l += n;
     }
@@ -406,16 +394,13 @@ public:
     friend itext_iterator operator+(
         difference_type n,
         itext_iterator r)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
-        iterator>()
+    requires Text_random_access_decoder<encoding_type, iterator>()
     {
         return r += n;
     }
 
     itext_iterator& operator-=(difference_type n)
-        requires Random_access_decoder<typename encoding_type::codec_type,
-                                       iterator>()
+        requires Text_random_access_decoder<encoding_type, iterator>()
     {
         return *this += -n;
     }
@@ -423,9 +408,7 @@ public:
     friend itext_iterator operator-(
         itext_iterator l,
         difference_type n)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
-        iterator>()
+    requires Text_random_access_decoder<encoding_type, iterator>()
     {
         return l -= n;
     }
@@ -433,12 +416,10 @@ public:
     friend difference_type operator-(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
-        iterator>()
+    requires Text_random_access_decoder<encoding_type, iterator>()
     {
         return (l.current_range.first - r.current_range.first) /
-               encoding_type::codec_type::max_code_units;
+               encoding_type::max_code_units;
     }
 
     // Random access iterator requirements state that operator[] must return
@@ -447,9 +428,7 @@ public:
     // '*this + n') that is destroyed before the function returns.
     value_type operator[](
         difference_type n) const
-    requires Random_access_decoder<
-        typename encoding_type::codec_type,
-        iterator>()
+    requires Text_random_access_decoder<encoding_type, iterator>()
     {
         return *(*this + n);
     }
@@ -479,7 +458,7 @@ private:
 };
 
 
-template<Encoding ET, origin::Input_range RT>
+template<Text_encoding ET, origin::Input_range RT>
 class itext_sentinel {
 public:
     using range_type = origin::Remove_reference<RT>;
@@ -670,18 +649,18 @@ private:
 };
 
 
-template<Encoding E, Code_unit_iterator CUIT>
-requires origin::Output_iterator<CUIT, typename E::codec_type::code_unit_type>()
+template<Text_encoding E, Code_unit_iterator CUIT>
+requires origin::Output_iterator<CUIT, typename E::code_unit_type>()
 class otext_iterator
-    : private E::codec_type::state_type
+    : private E::state_type
 {
 public:
     using encoding_type = E;
-    using state_type = typename E::codec_type::state_type;
-    using state_transition_type = typename E::codec_type::state_transition_type;
+    using state_type = typename E::state_type;
+    using state_transition_type = typename E::state_transition_type;
     using iterator = CUIT;
     using iterator_category = std::output_iterator_tag;
-    using value_type = typename encoding_type::codec_type::character_type;
+    using value_type = typename encoding_type::character_type;
     using reference = value_type&;
     using pointer = value_type*;
     using difference_type = origin::Difference_type<iterator>;
@@ -737,22 +716,20 @@ public:
     otext_iterator& operator=(
         const state_transition_type &stt)
     {
-        using codec_type = typename encoding_type::codec_type;
         iterator tmp{current};
         int encoded_code_units = 0;
-        codec_type::encode_state_transition(state(), tmp, stt,
-                                            encoded_code_units);
+        encoding_type::encode_state_transition(state(), tmp, stt,
+                                               encoded_code_units);
         current = tmp;
         return *this;
     }
 
     otext_iterator& operator=(
-        const typename encoding_type::codec_type::character_type &value)
+        const typename encoding_type::character_type &value)
     {
-        using codec_type = typename encoding_type::codec_type;
         iterator tmp{current};
         int encoded_code_units = 0;
-        codec_type::encode(state(), tmp, value, encoded_code_units);
+        encoding_type::encode(state(), tmp, value, encoded_code_units);
         current = tmp;
         return *this;
     }

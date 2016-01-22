@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -19,6 +19,7 @@
 namespace std {
 namespace experimental {
 inline namespace text {
+namespace text_detail {
 
 
 template<Character CT, Code_unit CUT>
@@ -192,6 +193,7 @@ public:
 };
 
 
+} // namespace text_detail
 } // inline namespace text
 } // namespace experimental
 } // namespace std

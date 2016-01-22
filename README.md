@@ -13,7 +13,7 @@ is encoded using two code units (`\xC3\xB8`), but iterator based enumeration see
 just the single code point.
 
 ```C++
-using CT = utf8_encoding::codec_type::character_type;
+using CT = utf8_encoding::character_type;
 auto tv = make_text_view<utf8_encoding>(u8"J\u00F8erg is my friend");
 auto it = tv.begin();
 assert(*it++ == CT{0x004A}); // 'J'

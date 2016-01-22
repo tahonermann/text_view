@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -23,7 +23,7 @@ int main() {
     auto a_utf8_tv = make_text_view<utf8_encoding>(a_utf8_string);
 
     // Declare a type alias for the UTF-8 character type for convenience.
-    using CT = utf8_encoding::codec_type::character_type;
+    using CT = utf8_encoding::character_type;
 
     // Declare an array of the expected code points encountered during
     // enumeration for validation purposes.

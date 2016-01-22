@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -21,11 +21,11 @@ inline namespace text {
 /*
  * C++ basic execution character encoding
  */
-struct basic_execution_character_encoding {
-    using codec_type = trivial_codec<
-              character<basic_execution_character_set>,
-              char>;
-    using state_type = codec_type::state_type;
+struct basic_execution_character_encoding
+    : public text_detail::trivial_codec<
+                 character<basic_execution_character_set>,
+                 char>
+{
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -36,11 +36,11 @@ struct basic_execution_character_encoding {
 /*
  * C++ basic execution wide character encoding
  */
-struct basic_execution_wide_character_encoding {
-    using codec_type = trivial_codec<
-              character<basic_execution_wide_character_set>,
-              wchar_t>;
-    using state_type = codec_type::state_type;
+struct basic_execution_wide_character_encoding
+    : public text_detail::trivial_codec<
+                 character<basic_execution_wide_character_set>,
+                 wchar_t>
+{
     static const state_type& initial_state() {
         static const state_type state;
         return state;

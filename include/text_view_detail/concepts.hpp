@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -91,12 +91,12 @@ concept bool Code_unit_iterator() {
 
 
 /*
- * Codec state concept
+ * Text encoding state concept
  * These requirements are intended to match the char_traits<T>::state_type
  * requirements described in C++11 [char.traits.typedefs] 21.2.2p4.
  */
 template<typename T>
-concept bool Codec_state() {
+concept bool Text_encoding_state() {
     return origin::Default_constructible<T>()
         && origin::Copy_constructible<T>()
         && origin::Copy_assignable<T>();
@@ -104,10 +104,10 @@ concept bool Codec_state() {
 
 
 /*
- * Codec state transition concept
+ * Text encoding state transition concept
  */
 template<typename T>
-concept bool Codec_state_transition() {
+concept bool Text_encoding_state_transition() {
     return origin::Default_constructible<T>()
         && origin::Copy_constructible<T>()
         && origin::Copy_assignable<T>();
@@ -115,10 +115,10 @@ concept bool Codec_state_transition() {
 
 
 /*
- * Codec concept
+ * Text encoding concept
  */
 template<typename T>
-concept bool Codec() {
+concept bool Text_encoding() {
     return requires () {
                typename T::state_type;
                typename T::state_transition_type;
@@ -127,19 +127,23 @@ concept bool Codec() {
                { T::min_code_units } noexcept -> int;
                { T::max_code_units } noexcept -> int;
            }
-        && Codec_state<typename T::state_type>()
-        && Codec_state_transition<typename T::state_transition_type>()
+        && Text_encoding_state<typename T::state_type>()
+        && Text_encoding_state_transition<typename T::state_transition_type>()
         && Code_unit<typename T::code_unit_type>()
-        && Character<typename T::character_type>();
+        && Character<typename T::character_type>()
+        && requires () {
+               { T::initial_state() }
+                   -> const typename T::state_type&;
+           };
 }
 
 
 /*
- * Encoder concept
+ * Text encoder concept
  */
 template<typename T, typename CUIT>
-concept bool Encoder() {
-    return Codec<T>()
+concept bool Text_encoder() {
+    return Text_encoding<T>()
         && origin::Output_iterator<CUIT, typename T::code_unit_type>()
         && requires (
                typename T::state_type &state,
@@ -161,11 +165,11 @@ concept bool Encoder() {
 
 
 /*
- * Decoder concept
+ * Text decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Decoder() {
-    return Codec<T>()
+concept bool Text_decoder() {
+    return Text_encoding<T>()
         && origin::Input_iterator<CUIT>()
         && origin::Convertible<origin::Value_type<CUIT>,
                                typename T::code_unit_type>()
@@ -182,21 +186,21 @@ concept bool Decoder() {
 
 
 /*
- * Forward decoder concept
+ * Text forward decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Forward_decoder() {
-    return Decoder<T, CUIT>()
+concept bool Text_forward_decoder() {
+    return Text_decoder<T, CUIT>()
         && origin::Forward_iterator<CUIT>();
 }
 
 
 /*
- * Bidirectional decoder concept
+ * Text bidirectional decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Bidirectional_decoder() {
-    return Forward_decoder<T, CUIT>()
+concept bool Text_bidirectional_decoder() {
+    return Text_forward_decoder<T, CUIT>()
         && origin::Bidirectional_iterator<CUIT>()
         && requires (
                typename T::state_type &state,
@@ -211,61 +215,14 @@ concept bool Bidirectional_decoder() {
 
 
 /*
- * Random access decoder concept
+ * Text random access decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Random_access_decoder() {
-    return Bidirectional_decoder<T, CUIT>()
+concept bool Text_random_access_decoder() {
+    return Text_bidirectional_decoder<T, CUIT>()
         && origin::Random_access_iterator<CUIT>()
         && text_detail::Same_value<int, T::min_code_units, T::max_code_units>()
         && origin::Empty_type<typename T::state_type>();
-}
-
-
-/*
- * Forward codec concept
- */
-template<typename T, typename CUIT>
-concept bool Forward_codec() {
-    return origin::Forward_iterator<CUIT>()
-        && Encoder<T, CUIT>()
-        && Decoder<T, CUIT>();
-}
-
-
-/*
- * Bidirectional codec concept
- */
-template<typename T, typename CUIT>
-concept bool Bidirectional_codec() {
-    return Encoder<T, CUIT>()
-        && Bidirectional_decoder<T, CUIT>();
-}
-
-
-/*
- * Random access codec concept
- */
-template<typename T, typename CUIT>
-concept bool Random_access_codec() {
-    return Encoder<T, CUIT>()
-        && Random_access_decoder<T, CUIT>();
-}
-
-
-/*
- * Encoding concept
- */
-template<typename T>
-concept bool Encoding() {
-    return requires () {
-               typename T::codec_type;
-           }
-        && Codec<typename T::codec_type>()
-        && requires () {
-               { T::initial_state() }
-                   -> const typename T::codec_type::state_type&;
-           };
 }
 
 
@@ -278,15 +235,15 @@ concept bool Text_iterator() {
                typename T::encoding_type;
                typename T::state_type;
            }
-        && Encoding<typename T::encoding_type>()
-        && Codec_state<typename T::state_type>()
+        && Text_encoding<typename T::encoding_type>()
+        && Text_encoding_state<typename T::state_type>()
         && origin::Iterator<T>()
         && Character<origin::Value_type<T>>()
         && requires (T t, const T ct) {
                { t.state() } noexcept
-                   -> typename T::encoding_type::codec_type::state_type&;
+                   -> typename T::encoding_type::state_type&;
                { ct.state() } noexcept
-                   -> const typename T::encoding_type::codec_type::state_type&;
+                   -> const typename T::encoding_type::state_type&;
            };
 }
 
@@ -312,9 +269,9 @@ concept bool Text_view() {
                typename T::state_type;
                typename T::code_unit_iterator;
            }
-        && Encoding<typename T::encoding_type>()
+        && Text_encoding<typename T::encoding_type>()
         && origin::Input_range<typename T::range_type>()
-        && Codec_state<typename T::state_type>()
+        && Text_encoding_state<typename T::state_type>()
         && origin::Iterator<typename T::code_unit_iterator>()
         && origin::Input_range<T>()
         && Text_iterator<origin::Iterator_type<T>>()

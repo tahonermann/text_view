@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -32,11 +32,11 @@ inline namespace text {
 /*
  * C++ ISO-10646 wide character encoding
  */
-struct iso_10646_wide_character_encoding {
-    using codec_type = trivial_codec<
-              character<unicode_character_set_template<wchar_t>>,
-              wchar_t>;
-    using state_type = codec_type::state_type;
+struct iso_10646_wide_character_encoding
+    : public text_detail::trivial_codec<
+                 character<unicode_character_set_template<wchar_t>>,
+                 wchar_t>
+{
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -49,9 +49,11 @@ struct iso_10646_wide_character_encoding {
  * Unicode UTF-8 character encodings
  */
 template<Character CT, Code_unit CUT>
-struct utf8_encoding_template {
-    using codec_type = utf8_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf8_encoding_template
+    : public text_detail::utf8_codec<CT, CUT>
+{
+    using state_type = typename utf8_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -67,9 +69,11 @@ using utf8_encoding = utf8_encoding_template<
               char>;
 
 template<Character CT, Code_unit CUT>
-struct utf8bom_encoding_template {
-    using codec_type = utf8bom_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf8bom_encoding_template
+    : public text_detail::utf8bom_codec<CT, CUT>
+{
+    using state_type = typename utf8bom_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state{ false };
         return state;
@@ -89,9 +93,11 @@ using utf8bom_encoding = utf8bom_encoding_template<
  * Unicode UTF-16 character encodings
  */
 template<Character CT, Code_unit CUT>
-struct utf16_encoding_template {
-    using codec_type = utf16_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf16_encoding_template
+    : public text_detail::utf16_codec<CT, CUT>
+{
+    using state_type = typename utf16_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -102,9 +108,11 @@ using utf16_encoding = utf16_encoding_template<
               char16_t>;
 
 template<Character CT, Code_unit CUT>
-struct utf16be_encoding_template {
-    using codec_type = utf16be_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf16be_encoding_template
+    : public text_detail::utf16be_codec<CT, CUT>
+{
+    using state_type = typename utf16be_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -119,9 +127,11 @@ using utf16be_encoding = utf16be_encoding_template<
               uint_least8_t>;
 
 template<Character CT, Code_unit CUT>
-struct utf16le_encoding_template {
-    using codec_type = utf16le_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf16le_encoding_template
+    : public text_detail::utf16le_codec<CT, CUT>
+{
+    using state_type = typename utf16le_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -136,9 +146,11 @@ using utf16le_encoding = utf16le_encoding_template<
               uint_least8_t>;
 
 template<Character CT, Code_unit CUT>
-struct utf16bom_encoding_template {
-    using codec_type = utf16bom_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf16bom_encoding_template
+    : public text_detail::utf16bom_codec<CT, CUT>
+{
+    using state_type = typename utf16bom_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state{ false, state_type::big_endian };
         return state;
@@ -157,9 +169,11 @@ using utf16bom_encoding = utf16bom_encoding_template<
  * Unicode UTF-32 character encodings
  */
 template<Character CT, Code_unit CUT>
-struct utf32_encoding_template {
-    using codec_type = trivial_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf32_encoding_template
+    : public text_detail::trivial_codec<CT, CUT>
+{
+    using state_type = typename utf32_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -170,9 +184,11 @@ using utf32_encoding = utf32_encoding_template<
               char32_t>;
 
 template<Character CT, Code_unit CUT>
-struct utf32be_encoding_template {
-    using codec_type = utf32be_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf32be_encoding_template
+    : public text_detail::utf32be_codec<CT, CUT>
+{
+    using state_type = typename utf32be_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -187,9 +203,11 @@ using utf32be_encoding = utf32be_encoding_template<
               uint_least8_t>;
 
 template<Character CT, Code_unit CUT>
-struct utf32le_encoding_template {
-    using codec_type = utf32le_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf32le_encoding_template
+    : public text_detail::utf32le_codec<CT, CUT>
+{
+    using state_type = typename utf32le_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state;
         return state;
@@ -204,9 +222,11 @@ using utf32le_encoding = utf32le_encoding_template<
               uint_least8_t>;
 
 template<Character CT, Code_unit CUT>
-struct utf32bom_encoding_template {
-    using codec_type = utf32bom_codec<CT, CUT>;
-    using state_type = typename codec_type::state_type;
+struct utf32bom_encoding_template
+    : public text_detail::utf32bom_codec<CT, CUT>
+{
+    using state_type = typename utf32bom_encoding_template::state_type;
+
     static const state_type& initial_state() {
         static const state_type state{ false, state_type::big_endian };
         return state;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -60,7 +60,7 @@ inline namespace text {
 // FIXME: instantiated may not match the range type that was passed to
 // FIXME: make_text_view().
 // FIXME: 
-// FIXME: Each text view object holds a codec state subobject.  For stateful
+// FIXME: Each text view object holds an encoding state subobject.  For stateful
 // FIXME: encodings, copying text view objects could carry non-negligible cost.
 // FIXME: 
 // FIXME: N4382 specifies a range_base class that is used as a base class to
@@ -69,14 +69,14 @@ inline namespace text {
 // FIXME: derive from range_base to make this explicit.  However, Origin
 // FIXME: currently defines a range_base template class that differs from what
 // FIXME: N4382 specifies.
-template<Encoding ET, origin::Input_range RT>
+template<Text_encoding ET, origin::Input_range RT>
 class basic_text_view
-    : private ET::codec_type::state_type
+    : private ET::state_type
 {
 public:
     using encoding_type = ET;
     using range_type = RT;
-    using state_type = typename ET::codec_type::state_type;
+    using state_type = typename ET::state_type;
     using code_unit_iterator = origin::Iterator_type<const range_type>;
     using code_unit_sentinel = origin::Sentinel_type<const range_type>;
     using iterator = itext_iterator<ET, RT>;
@@ -89,7 +89,7 @@ public:
     basic_text_view() = default;
 
     // Overload to initialize a text view from an N4382 Range and an explicitly
-    // specified initial codec state.  This overload requires that range_type
+    // specified initial encoding state.  This overload requires that range_type
     // be copy constructible.
     basic_text_view(
         state_type state,
@@ -104,7 +104,7 @@ public:
     {}
 
     // Overload to initialize a text view from an N4382 Range and an implicit
-    // initial codec state.  This overload requires that range_type be copy
+    // initial encoding state.  This overload requires that range_type be copy
     // constructible.
     basic_text_view(
         range_type r)
@@ -112,8 +112,8 @@ public:
     : basic_text_view{encoding_type::initial_state(), r} {}
 
     // Overload to initialize a text view from an N4382 InputIterator, Sentinel,
-    // and an explicitly specified initial codec state.  This overload requires
-    // that range_type be constructible from a code_unit_iterator pair.
+    // and an explicitly specified initial encoding state.  This overload
+    // requires that range_type be constructible from a code_unit_iterator pair.
     basic_text_view(
         state_type state,
         code_unit_iterator first,
@@ -129,7 +129,7 @@ public:
     {}
 
     // Overload to initialize a text view from an N4382 InputIterator, Sentinel,
-    // and an implicit initial codec state.  This overload requires that
+    // and an implicit initial encoding state.  This overload requires that
     // range_type be constructible from a code_unit_iterator pair.
     basic_text_view(
         code_unit_iterator first,
@@ -139,8 +139,8 @@ public:
     : basic_text_view{encoding_type::initial_state(), first, last} {}
 
     // Overload to initialize a text view from an N4382 InputIterator, a count,
-    // and an explicitly specified initial codec state.  This overload requires
-    // that range_type be constructible from a code_unit_iterator pair.
+    // and an explicitly specified initial encoding state.  This overload
+    // requires that range_type be constructible from a code_unit_iterator pair.
     basic_text_view(
         state_type state,
         code_unit_iterator first,
@@ -150,7 +150,7 @@ public:
     : basic_text_view{state, first, std::next(first, n)} {}
 
     // Overload to initialize a text view from an N4382 InputIterator, a count,
-    // and an implicit initial codec state.  This overload requires that
+    // and an implicit initial encoding state.  This overload requires that
     // range_type be constructible from a code_unit_iterator pair.
     basic_text_view(
         code_unit_iterator first,
@@ -160,7 +160,7 @@ public:
     : basic_text_view{first, std::next(first, n)} {}
 
     // Overload to initialize a text view with an explicitly specified initial
-    // codec state and a basic_string specialization.  This overload requires
+    // encoding state and a basic_string specialization.  This overload requires
     // that range_type be constructible from a code_unit_iterator pair, that
     // code_unit_iterator be constructible from a const code unit pointer, and
     // that the difference type (likely ptrdiff_t) for code_unit_iterator be
@@ -188,7 +188,7 @@ public:
     : basic_text_view{state, str.c_str(), str.size()} {}
 
     // Overload to initialize a text view with an implicitly specified initial
-    // codec state and a basic_string specialization.  See the above comments
+    // encoding state and a basic_string specialization.  See the above comments
     // for the similar overload that accepts an explicitly specified initial
     // state.
     template<typename charT, typename traits, typename Allocator>
@@ -203,7 +203,7 @@ public:
     : basic_text_view{str.c_str(), str.size()} {}
 
     // Overload to initialize a text view with an explicitly specified initial
-    // codec state and an N4382 InputIterator and Sentinel extracted from a
+    // encoding state and an N4382 InputIterator and Sentinel extracted from a
     // supplied N4382 Iterable.  The underlying range type must be constructible
     // from the iterator type of the Iterable type.  This overload may be used
     // to initialize a basic_text_view (that holds a range modeling the N4382
@@ -225,7 +225,7 @@ public:
     {}
 
     // Overload to initialize a text view with an implicitly specified initial
-    // codec state and an N4382 InputIterator and Sentinel extracted from a
+    // encoding state and an N4382 InputIterator and Sentinel extracted from a
     // supplied N4382 Iterable.  See the above comments for the similar overload
     // that accepts an explicitly specified initial state.
     template<origin::Input_range Iterable>
@@ -238,7 +238,7 @@ public:
     : basic_text_view(text_detail::adl_begin(iterable), text_detail::adl_end(iterable)) {}
 
     // Overload to initialize a text view from a text iterator pair.  The
-    // initial codec state is inferred from the first iterator.
+    // initial encoding state is inferred from the first iterator.
     basic_text_view(
         iterator first,
         sentinel last)
@@ -306,10 +306,10 @@ using u32text_view = basic_text_view<
  * make_text_view
  */
 // Overload to construct a text view from an N4382 InputIterator, Sentinel,
-// and an explicitly specified initial codec state.
-template<Encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+// and an explicitly specified initial encoding state.
+template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
 auto make_text_view(
-    typename ET::codec_type::state_type state,
+    typename ET::state_type state,
     IT first,
     ST last)
 {
@@ -318,8 +318,8 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from an N4382 InputIterator, Sentinel,
-// and an implicit initial codec state.
-template<Encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+// and an implicit initial encoding state.
+template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
 auto make_text_view(
     IT first,
     ST last)
@@ -331,10 +331,10 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from an N4382 ForwardIterator, a count, and
-// an explicitly specified initial codec state.
-template<Encoding ET, origin::Forward_iterator IT>
+// an explicitly specified initial encoding state.
+template<Text_encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
-    typename ET::codec_type::state_type state,
+    typename ET::state_type state,
     IT first,
     origin::Make_unsigned<origin::Difference_type<IT>> n)
 {
@@ -345,8 +345,8 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from an N4382 ForwardIterator, a count, and
-// an implicit initial codec state.
-template<Encoding ET, origin::Forward_iterator IT>
+// an implicit initial encoding state.
+template<Text_encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     IT first,
     origin::Make_unsigned<origin::Difference_type<IT>> n)
@@ -357,10 +357,10 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from an N4382 Iterable const reference
-// and an explicitly specified initial codec state.
-template<Encoding ET, origin::Input_range Iterable>
+// and an explicitly specified initial encoding state.
+template<Text_encoding ET, origin::Input_range Iterable>
 auto make_text_view(
-    typename ET::codec_type::state_type state,
+    typename ET::state_type state,
     const Iterable &iterable)
 {
     return make_text_view<ET>(
@@ -370,8 +370,8 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from an N4382 Iterable const reference
-// and an implicit initial codec state.
-template<Encoding ET, origin::Input_range Iterable>
+// and an implicit initial encoding state.
+template<Text_encoding ET, origin::Input_range Iterable>
 auto make_text_view(
     const Iterable &iterable)
 {
@@ -381,7 +381,7 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from a text iterator/sentinel pair.  The
-// initial codec state is inferred from the first iterator.
+// initial encoding state is inferred from the first iterator.
 template<Text_iterator TIT, Text_sentinel<TIT> TST>
 auto make_text_view(
     TIT first,

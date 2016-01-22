@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -48,12 +48,12 @@ usage(
     os << "            utf-32-le" << endl;
 }
 
-template<Encoding E>
+template<Text_encoding E>
 void
 dump_code_points(
     ifstream &ifs)
 {
-    using CUT = typename E::codec_type::code_unit_type;
+    using CUT = typename E::code_unit_type;
     istream_iterator<CUT> ifs_in(ifs), ifs_end;
 
     // FIXME: The C++11 range-based-for requires that the begin and end types

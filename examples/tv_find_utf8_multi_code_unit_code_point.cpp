@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -26,7 +26,7 @@ int main() {
     // Declare a character corresponding to the LATIN SMALL LETTER O WITH STROKE
     // in the Unicode character set.
     auto latin_small_letter_o_with_stroke =
-        utf8_encoding::codec_type::character_type{0x00F8};
+        utf8_encoding::character_type{0x00F8};
 
     // Search for the code point.  This returns a text iterator.
     auto ti = find(
