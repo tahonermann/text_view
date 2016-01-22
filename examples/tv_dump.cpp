@@ -20,8 +20,7 @@ static const int exit_success = 0;
 static const int exit_failure = 1;
 static const int exit_user_error = 2;
 
-void
-usage(
+void usage(
     ostream &os,
     const char *progpath)
 {
@@ -48,12 +47,11 @@ usage(
     os << "            utf-32-le" << endl;
 }
 
-template<Text_encoding E>
-void
-dump_code_points(
+template<Text_encoding ET>
+void dump_code_points(
     ifstream &ifs)
 {
-    using CUT = typename E::code_unit_type;
+    using CUT = typename ET::code_unit_type;
     istream_iterator<CUT> ifs_in(ifs), ifs_end;
 
     // FIXME: The C++11 range-based-for requires that the begin and end types
@@ -69,8 +67,7 @@ dump_code_points(
     }
 }
 
-int
-main(
+int main(
     int argc,
     char *argv[])
 {
