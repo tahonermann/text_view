@@ -57,7 +57,7 @@ void dump_code_points(
     // FIXME: The C++11 range-based-for requires that the begin and end types
     // FIXME: be identical.  The RANGE_BASED_FOR macro is used to work around
     // FIXME: this limitation.
-    auto tv = make_text_view<E>(ifs_in, ifs_end);
+    auto tv = make_text_view<ET>(ifs_in, ifs_end);
     RANGE_BASED_FOR (const auto &ch, tv) {
         auto csid = ch.get_character_set_id();
         cout << "0x" << hex << setw(8) << setfill('0')
