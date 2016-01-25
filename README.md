@@ -3,7 +3,6 @@ A [C++ Concepts][ISO/IEC 19217:2015]
 based character encoding and code point enumeration library.
 
 - [Overview](#overview)
-- [Supported Encodings](#supported-encodings)
 - [Requirements](#requirements)
 - [Build and installation](#build-and-installation)
   - [Building and installing gcc]
@@ -13,6 +12,7 @@ based character encoding and code point enumeration library.
   - [Building and installing Text_view]
     (#building-and-installing-text_view)
 - [Usage](#usage)
+- [Supported Encodings](#supported-encodings)
 - [References](#references)
 
 # Overview
@@ -33,30 +33,6 @@ assert(*it++ == CT{0x004A}); // 'J'
 assert(*it++ == CT{0x00F8}); // 'ø'
 assert(*it++ == CT{0x0065}); // 'e'
 ```
-
-# Supported Encodings
-As of 2015-12-31, supported encodings include:
-
-Encoding name | Description | Encoding type
-------------- | ----------- | -------------
-execution_character_encoding | Type alias for the encoding of ordinary string literals (C++11 2.3p3) | implementation defined
-execution_wide_character_encoding | Type alias for the encoding of wide string literals (C++11 2.3p3) | implementation defined
-char8_character_encoding | Type alias for the encoding of UTF-8 string literals (C++11 2.14.5p7) | implementation defined
-char16_character_encoding | Type alias for the encoding of char16_t string literals (C++11 2.14.5p9) | implementation defined
-char32_character_encoding | Type alias for the encoding of char32_t string literals (C++11 2.14.5p10) | implementation defined
-basic_execution_character_encoding | An encoding that meets the minimum requirements of C++11 2.3p3 | trivial
-basic_execution_wide_character_encoding | An encoding that meets the minimum requirements of C++11 2.3p3 | trivial
-iso_10646_wide_character_encoding | An ISO 10646 encoding.  Only defined if __STDC_ISO_10646__ is defined | trivial
-utf8_encoding | Unicode UTF-8 | stateless, variable width
-utf8bom_encoding | Unicode UTF-8 with a byte order mark | stateful, variable width
-utf16_encoding | Unicode UTF-16, native endian | stateless, variable width
-utf16be_encoding | Unicode UTF-16, big endian | stateless, variable width
-utf16le_encoding | Unicode UTF-16, little endian | stateless, variable width
-utf16bom_encoding | Unicode UTF-16 with a byte order mark | stateful, variable width
-utf32_encoding | Unicode UTF-32, native endian | stateless, fixed width
-utf32be_encoding | Unicode UTF-16, big endian | stateless, fixed width
-utf32le_encoding | Unicode UTF-16, little endian | stateless, fixed width
-utf32bom_encoding | Unicode UTF-32 with a byte order mark | stateful, variable width
 
 # Requirements
 [Text_view] requires a C++ compiler that implements [ISO/IEC technical
@@ -169,6 +145,30 @@ All interfaces intended for public use are declared in the
 `std::experimental::text` namespace.  The `text` namespace is an inline
 namespace, so all entities are available from the `std::experimental` namespace
 itself.
+
+# Supported Encodings
+As of 2015-12-31, supported encodings include:
+
+Encoding name | Description | Encoding type
+------------- | ----------- | -------------
+execution_character_encoding | Type alias for the encoding of ordinary string literals (C++11 2.3p3) | implementation defined
+execution_wide_character_encoding | Type alias for the encoding of wide string literals (C++11 2.3p3) | implementation defined
+char8_character_encoding | Type alias for the encoding of UTF-8 string literals (C++11 2.14.5p7) | implementation defined
+char16_character_encoding | Type alias for the encoding of char16_t string literals (C++11 2.14.5p9) | implementation defined
+char32_character_encoding | Type alias for the encoding of char32_t string literals (C++11 2.14.5p10) | implementation defined
+basic_execution_character_encoding | An encoding that meets the minimum requirements of C++11 2.3p3 | trivial
+basic_execution_wide_character_encoding | An encoding that meets the minimum requirements of C++11 2.3p3 | trivial
+iso_10646_wide_character_encoding | An ISO 10646 encoding.  Only defined if __STDC_ISO_10646__ is defined | trivial
+utf8_encoding | Unicode UTF-8 | stateless, variable width
+utf8bom_encoding | Unicode UTF-8 with a byte order mark | stateful, variable width
+utf16_encoding | Unicode UTF-16, native endian | stateless, variable width
+utf16be_encoding | Unicode UTF-16, big endian | stateless, variable width
+utf16le_encoding | Unicode UTF-16, little endian | stateless, variable width
+utf16bom_encoding | Unicode UTF-16 with a byte order mark | stateful, variable width
+utf32_encoding | Unicode UTF-32, native endian | stateless, fixed width
+utf32be_encoding | Unicode UTF-16, big endian | stateless, fixed width
+utf32le_encoding | Unicode UTF-16, little endian | stateless, fixed width
+utf32bom_encoding | Unicode UTF-32 with a byte order mark | stateful, variable width
 
 # References
 - [Text_view]  
