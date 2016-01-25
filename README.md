@@ -5,11 +5,13 @@ based character encoding and code point enumeration library.
 - [Overview](#overview)
 - [Supported Encodings](#supported-encodings)
 - [Requirements](#requirements)
+- [Build and installation](#build-and-installation)
   - [Building and installing gcc]
     (#building-and-installing-gcc)
   - [Building and installing Origin-text_view]
     (#building-and-installing-origin-text_view)
-- [Building and installing Text_view](#building-and-installing-text_view)
+  - [Building and installing Text_view]
+    (#building-and-installing-text_view)
 - [Usage](#usage)
 - [References](#references)
 
@@ -63,14 +65,21 @@ As of 2015-12-31, this specification is only supported by the current
 in-development release of [gcc] that currently self-identifies itself as [gcc]
 version 6.0.0.  Additionally, [Text_view] depends on the [Origin-text_view] fork
 of [Andrew Sutton]'s [Origin] library for concept definitions.  The fork is
-necessary to work around a few [gcc] defects and [Origin] issues that are
-surfaced by [Text_view].
+necessary to work around the following [gcc] defects and [Origin] issues that
+are surfaced by [Text_view].
+
+1. https://github.com/asutton/origin/issues/5
+2. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69235
+3. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67565
+
+# Build and installation
+This section provides instructions for building [Text_view] and suitable
+versions of its dependencies.
 
 ## Building and installing [gcc]
 [Text_view] is known to build successfully with [gcc] svn revision 232017; the
 top of trunk as of 2015-12-31.  The following commands can be used to perform a
-suitable build of [gcc] on Linux that is known to successfully compile
-[Text_view].
+suitable build of that [gcc] revision on Linux.
 
 ```sh
 $ svn co svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk-src
@@ -107,17 +116,11 @@ directory.
 
 ## Building and installing [Origin-text_view]
 [Text_view] does not currently build successfully with the top of trunk version
-of the [Origin] library due to the following [Origin] and [gcc] issues:
-
-1. https://github.com/asutton/origin/issues/5
-2. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69235
-3. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67565
-
-The [Origin-text_view] fork of [Origin] was created to work around the above
-issues.  The following commands can be used to perform a suitable build of
-[Origin] on Linux that will work with [Text_view].  Note that these commands
-assume that an appropriate build of [gcc] was performed and installed as per
-the previous section.
+of the [Origin] library.  The [Origin-text_view] fork of [Origin] was created
+to work around the issues.  The following commands can be used to perform a
+suitable build of [Origin] on Linux that will work with [Text_view].  Note that
+these commands assume that an appropriate build of [gcc] was performed and
+installed as per the previous section.
 
 ```sh
 $ PATH=$(pwd)/gcc-trunk-install/bin; export PATH
@@ -130,18 +133,19 @@ $ make install
 $ cd ..
 ```
 
-# Building and installing [Text_view]
+## Building and installing [Text_view]
 [Text_view] is currently a header-only library, so no build or installation is
-required.  It is unlikely that [Text_view] will remain a header-only library in
-the future, so at some point, a build and installation step will be required.
+currently required to use it.  It is unlikely that [Text_view] will remain a
+header-only library in the future, so at some point, a build and installation
+step will be required.
 
-[Text_view] currently has an exceedingly simple build system that is hard-coded
-to look for [gcc] and [Origin] at specific locations.  This will change at some
-point in the future, but given the present [gcc] and [Origin] requirements,
-hasn't been a burden.  The build system is currently used to build and run a
-few test programs.
+[Text_view] currently has a simple build system that is hard-coded to look for
+[gcc] and [Origin] at specific locations.  This will change at some point in
+the future, but given the present [gcc] and [Origin] requirements, hasn't been
+a burden.  The build system is only used to build and run a few test programs.
 
-The following commands suffice to build and run the test programs:
+The following commands suffice to build and run the test programs.  Note that it
+may take several minutes to build the test-text_view program.
 
 ```sh
 $ vi setenv-gcc-trunk.sh  # Update GCC_INSTALL_PATH and ORIGIN_INSTALL_PATH.
