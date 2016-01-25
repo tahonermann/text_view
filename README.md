@@ -1,9 +1,9 @@
-# Text view
-A [C++ Concepts](http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031)
+# [Text_view]
+A [C++ Concepts][ISO/IEC 19217:2015]
 based character encoding and code point enumeration library.
 
 # Overview
-`text_view` provides iterator and range based interfaces for encoding and decoding
+[Text_view] provides iterator and range based interfaces for encoding and decoding
 strings in a variety of character encodings.  The interface is intended to support
 all modern and legacy character encodings, though implementations are not yet
 available for legacy encodings.
@@ -46,21 +46,20 @@ utf32le_encoding | Unicode UTF-16, little endian | stateless, fixed width
 utf32bom_encoding | Unicode UTF-32 with a byte order mark | stateful, variable width
 
 # Requirements
-`text_view` requires a C++ compiler that implements [ISO/IEC technical specification
-19217:2015, **C++ Extensions for concepts**]
-(http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031).
+[Text_view] requires a C++ compiler that implements [ISO/IEC technical specification
+19217:2015, **C++ Extensions for concepts**][ISO/IEC 19217:2015]
 As of 2015-12-31, this specification is only supported by the current in-development
-release of [gcc](https://gcc.gnu.org) that currently self-identifies itself as gcc
-version 6.0.0.  Additionally, `text_view` depends on the
-[origin-text_view](https://github.com/tahonermann/origin) fork of
-[Andrew Sutton](https://github.com/asutton)'s [Origin](http://asutton.github.io/origin/)
+release of [gcc] that currently self-identifies itself as [gcc]
+version 6.0.0.  Additionally, [Text_view] depends on the
+[Origin-text_view] fork of
+[Andrew Sutton]'s [Origin]
 library for concept definitions.  The fork is necessary to work around a few
-gcc defects and Origin issues that are surfaced by `text_view`.
+[gcc] defects and [Origin] issues that are surfaced by [Text_view].
 
-## Building and installing [gcc](https://gcc.gnu.org)
-`text_view` is known to build successfully with gcc svn revision 232017; the top of
+## Building and installing [gcc]
+[Text_view] is known to build successfully with [gcc] svn revision 232017; the top of
 trunk as of 2015-12-31.  The following commands can be used to perform a suitable build
-of gcc on Linux that is known to successfully compile `text_view`.
+of [gcc] on Linux that is known to successfully compile [Text_view].
 
 ```sh
 $ svn co svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk-src
@@ -92,22 +91,22 @@ $ make install
 $ cd ..
 ```
 
-When complete, the new gcc build will be present in the `gcc-trunk-install` directory.
+When complete, the new [gcc] build will be present in the `gcc-trunk-install` directory.
 
-## Building and installing [origin-text_view](https://github.com/tahonermann/origin)
-`text_view` does not currently build successfully with the top of trunk version of the
-[Origin](http://asutton.github.io/origin/) library due to the following Origin and
-gcc issues:
+## Building and installing [Origin-text_view]
+[Text_view] does not currently build successfully with the top of trunk version of the
+[Origin] library due to the following [Origin] and
+[gcc] issues:
 
 1. https://github.com/asutton/origin/issues/5
 2. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69235
 3. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67565
 
-The [origin-text_view](https://github.com/tahonermann/origin) fork of
-[Origin](http://asutton.github.io/origin) was created to work around the above
-issues.  The following commands can be used to perform a suitable build of Origin
-on Linux that will work with `text_view`.  Note that these commands assume that
-an appropriate build of gcc was performed and installed as per the previous
+The [Origin-text_view] fork of
+[Origin] was created to work around the above
+issues.  The following commands can be used to perform a suitable build of [Origin]
+on Linux that will work with [Text_view].  Note that these commands assume that
+an appropriate build of [gcc] was performed and installed as per the previous
 section.
 
 ```sh
@@ -121,14 +120,14 @@ $ make install
 $ cd ..
 ```
 
-# Building and installing `text_view`
-`text_view` is currently a header-only library, so no build or installation is required.
-It is unlikely that `text_view` will remain a header-only library in the future, so at
+# Building and installing [Text_view]
+[Text_view] is currently a header-only library, so no build or installation is required.
+It is unlikely that [Text_view] will remain a header-only library in the future, so at
 some point, a build and installation step will be required.
 
-`text_view` currently has an exceedingly simple build system that is hard-coded to look
-for gcc and Origin at specific locations.  This will change at some point in the future,
-but given the present gcc and Origin requirements, hasn't been a burden.  The build
+[Text_view] currently has an exceedingly simple build system that is hard-coded to look
+for [gcc] and [Origin] at specific locations.  This will change at some point in the future,
+but given the present [gcc] and [Origin] requirements, hasn't been a burden.  The build
 system is currently used to build and run a few test programs.
 
 The following commands suffice to build and run the test programs:
@@ -143,8 +142,8 @@ If the build succeeds, a few test and utility programs will be present in the `b
 directory.
 
 # Usage
-`text_view` is currently a header-only library.  To use it in your own code, add include
-paths for the `text_view/include` and Origin installation locations, and include the
+[Text_view] is currently a header-only library.  To use it in your own code, add include
+paths for the `text_view/include` and [Origin] installation locations, and include the
 `text_view` header file:
 
 ```C++
@@ -154,3 +153,32 @@ paths for the `text_view/include` and Origin installation locations, and include
 All interfaces intended for public use are declared in the `std::experimental::text`
 namespace.  The `text` namespace is an inline namespace, so all entities are available
 from the `std::experimental` namespace itself.
+
+# References
+- [Text_view]  
+  https://github.com/tahonermann/text_view
+- [Origin]  
+  http://asutton.github.io/origin
+- [Origin-text_view]  
+  https://github.com/tahonermann/origin
+- [ISO/IEC technical specification 19217:2015, C++ Extensions for concepts][ISO/IEC 19217:2015]  
+  http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031
+
+[Text_view]:
+https://github.com/tahonermann/text_view
+(Text_view library)
+[Andrew Sutton]:
+https://github.com/asutton
+(Andrew Sutton)
+[Origin]:
+http://asutton.github.io/origin
+(Origin libraries)
+[Origin-text_view]:
+https://github.com/tahonermann/origin
+(Origin libraries for text_view)
+[ISO/IEC 19217:2015]:
+http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031
+(ISO/IEC technical specification 19217:2015, C++ Extensions for concepts)
+[gcc]:
+https://gcc.gnu.org
+(GCC, the GNU Compiler Collection)
