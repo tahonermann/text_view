@@ -13,6 +13,24 @@ based character encoding and code point enumeration library.
     (#building-and-installing-text_view)
 - [Usage](#usage)
   - [Header &lt;text_view&gt; synopsis](#header-text_view-synopsis)
+  - [Concept definitions](#concept-definitions)
+    - [Concept Code_unit](#concept-code_unit)
+    - [Concept Code_point](#concept-code_point)
+    - [Concept Character_set](#concept-character_set)
+    - [Concept Character](#concept-character)
+    - [Concept Code_unit_iterator](#concept-code_unit_iterator)
+    - [Concept Text_encoding_state](#concept-text_encoding_state)
+    - [Concept Text_encoding_state_transition]
+      (#concept-text_encoding_state_transition)
+    - [Concept Text_encoding](#concept-text_encoding)
+    - [Concept Text_encoder](#concept-text_encoder)
+    - [Concept Text_decoder](#concept-text_decoder)
+    - [Concept Text_forward_decoder](#concept-text_forward_decoder)
+    - [Concept Text_bidirectional_decoder](#concept-text_bidirectional_decoder)
+    - [Concept Text_random_access_decoder](#concept-text_random_access_decoder)
+    - [Concept Text_iterator](#concept-text_iterator)
+    - [Concept Text_sentinel](#concept-text_sentinel)
+    - [Concept Text_view](#concept-text_view)
 - [Supported Encodings](#supported-encodings)
 - [References](#references)
 
@@ -297,6 +315,151 @@ template<Code_unit CUT, std::size_t N>
 } // inline namespace text
 } // namespace experimental
 } // namespace std
+```
+
+## Concept definitions
+
+### Concept Code_unit
+The `Code_unit` concept specifies requirements for a type usable as the code
+unit type of a string type.
+
+```C++
+template<typename T> concept bool Code_unit() {
+    return /* implementation-defined */ ;
+}
+```
+
+`Code_unit<T>()` is satisfied if and only if
+`std::is_integral<T>::value` is true and at least one of
+`std::is_unsigned<T>::value` is true,
+`std::is_same<std::remove_cv<T>::type, char>::value` is true, or
+`std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
+
+### Concept Code_point
+The `Code_point` concept specifies requirements for a type usable as the code
+point type of a character set type.
+
+```C++
+template<typename T> concept bool Code_point() {
+    return /* implementation-defined */ ;
+}
+```
+
+`Code_point<T>()` is satisfied if and only if
+`std::is_integral<T>::value` is true and at least one of
+`std::is_unsigned<T>::value` is true,
+`std::is_same<std::remove_cv<T>::type, char>::value` is true, or
+`std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
+
+### Concept Character_set
+The `Character_set` concept specifies requirements for a type that describes
+a character set.  Such a type has a member typedef-name declaration for a type
+that satisfies `Code_point` and a static member function that returns a name
+for the character set.
+
+```C++
+template<typename T> concept bool Character_set() {
+  return Code_point<typename T::code_point_type>()
+      && requires () {
+           { T::get_name() } noexcept -> const char *;
+         };
+}
+```
+
+### Concept Character
+The `Character` concept specifies requirements for a type that describes a
+character as defined by an associated character set.  Non-static member
+functions provide access to the code point value of the described character.
+Types that satisfy `Character` are regular and copy assignable.
+
+```C++
+template<typename T> concept bool Character() {
+  return origin::Regular<T>()
+      && origin::Copy_assignable<T>()
+      && Character_set<typename T::character_set_type>()
+      && requires (T t, typename T::character_set_type::code_point_type cp) {
+           t.set_code_point(cp);
+           { t.get_code_point() } -> typename T::character_set_type::code_point_type;
+           { t.get_character_set_id() } -> character_set_id;
+         };
+}
+```
+
+### Concept Code_unit_iterator
+The `Code_unit_iterator` concept specifies requirements of an iterator that
+has a value type that satisfies `Code_unit`.
+
+```C++
+template<typename T> concept bool Code_unit_iterator() {
+  return origin::Iterator<T>()
+      && Code_unit<origin::Value_type<T>>();
+}
+```
+
+### Concept Text_encoding_state
+
+```C++
+template<typename T> concept bool Text_encoding_state();
+```
+
+### Concept Text_encoding_state_transition
+
+```C++
+template<typename T> concept bool Text_encoding_state_transition();
+```
+
+### Concept Text_encoding
+
+```C++
+template<typename T> concept bool Text_encoding();
+```
+
+### Concept Text_encoder
+
+```C++
+template<typename T, typename I> concept bool Text_encoder();
+```
+
+### Concept Text_decoder
+
+```C++
+template<typename T, typename I> concept bool Text_decoder();
+```
+
+### Concept Text_forward_decoder
+
+```C++
+template<typename T, typename I> concept bool Text_forward_decoder();
+```
+
+### Concept Text_bidirectional_decoder
+
+```C++
+template<typename T, typename I> concept bool Text_bidirectional_decoder();
+```
+
+### Concept Text_random_access_decoder
+
+```C++
+template<typename T, typename I> concept bool Text_random_access_decoder();
+```
+
+### Concept Text_iterator
+
+```C++
+template<typename T> concept bool Text_iterator();
+```
+
+### Concept Text_sentinel
+
+```C++
+template<typename T, typename I> concept bool Text_sentinel();
+```
+
+### Concept Text_view
+
+```C++
+template<typename T> concept bool Text_view();
 ```
 
 # Supported Encodings
