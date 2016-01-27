@@ -12,6 +12,7 @@ based character encoding and code point enumeration library.
   - [Building and installing Text_view]
     (#building-and-installing-text_view)
 - [Usage](#usage)
+  - [Header &lt;text_view&gt; synopsis](#header-text_view-synopsis)
 - [Supported Encodings](#supported-encodings)
 - [References](#references)
 
@@ -145,6 +146,158 @@ All interfaces intended for public use are declared in the
 `std::experimental::text` namespace.  The `text` namespace is an inline
 namespace, so all entities are available from the `std::experimental` namespace
 itself.
+
+## Header &lt;text_view&gt; synopsis
+
+```C++
+namespace std {
+namespace experimental {
+inline namespace text {
+
+// concepts:
+template<typename T> concept bool Code_unit();
+template<typename T> concept bool Code_point();
+template<typename T> concept bool Character_set();
+template<typename T> concept bool Character();
+template<typename T> concept bool Code_unit_iterator();
+template<typename T> concept bool Text_encoding_state();
+template<typename T> concept bool Text_encoding_state_transition();
+template<typename T> concept bool Text_encoding();
+template<typename T, typename I> concept bool Text_encoder();
+template<typename T, typename I> concept bool Text_decoder();
+template<typename T, typename I> concept bool Text_forward_decoder();
+template<typename T, typename I> concept bool Text_bidirectional_decoder();
+template<typename T, typename I> concept bool Text_random_access_decoder();
+template<typename T> concept bool Text_iterator();
+template<typename T, typename I> concept bool Text_sentinel();
+template<typename T> concept bool Text_view();
+
+// character sets:
+class any_character_set;
+class basic_execution_character_set;
+class basic_execution_wide_character_set;
+class unicode_character_set;
+
+using execution_character_set = /* implementation-defined */ ;
+using execution_wide_character_set = /* implementation-defined */ ;
+using universal_character_set = /* implementation-defined */ ;
+
+class character_set_info;
+class character_set_id;
+
+template<typename CST>
+  inline const character_set_info& get_character_set_info();
+const character_set_info& get_character_set_info(character_set_id id);
+template<typename CST>
+  inline character_set_id get_character_set_id();
+
+template<typename T>
+  using code_point_type_of = /* implementation-defined */ ;
+template<typename T>
+  using character_set_type_of = /* implementation-defined */ ;
+template<typename T>
+  using encoding_type_of = /* implementation-defined */ ;
+
+// characters:
+template<Character_set CST> class character;
+template <> class character<any_character_set>;
+
+template<Character_set CST>
+  bool operator==(const character<any_character_set> &c1,
+                  const character<CST> &c2);
+template<Character_set CST>
+  bool operator==(const character<CST> &c1,
+                  const character<any_character_set> &c2);
+template<Character_set CST>
+  bool operator!=(const character<any_character_set> &c1,
+                  const character<CST> &c2);
+template<Character_set CST>
+  bool operator!=(const character<CST> &c1,
+                  const character<any_character_set> &c2);
+
+// encodings:
+class basic_execution_character_encoding;
+class basic_execution_wide_character_encoding;
+#if defined(__STDC_ISO_10646__)
+class iso_10646_wide_character_encoding;
+#endif // __STDC_ISO_10646__
+class utf8_encoding;
+class utf8bom_encoding;
+class utf16_encoding;
+class utf16be_encoding;
+class utf16le_encoding;
+class utf16bom_encoding;
+class utf32_encoding;
+class utf32be_encoding;
+class utf32le_encoding;
+class utf32bom_encoding;
+
+using execution_character_encoding = /* implementation-defined */ ;
+using execution_wide_character_encoding = /* implementation-defined */ ;
+using char8_character_encoding = /* implementation-defined */ ;
+using char16_character_encoding = /* implementation-defined */ ;
+using char32_character_encoding = /* implementation-defined */ ;
+
+// itext_iterator:
+template<Text_encoding ET, origin::Input_range RT>
+  requires Text_decoder<ET, origin::Iterator_type<const RT>>()
+    class itext_iterator;
+
+// itext_sentinel:
+template<Text_encoding ET, origin::Input_range RT>
+  class itext_sentinel;
+
+// otext_iterator:
+template<Text_encoding E, Code_unit_iterator CUIT>
+  requires origin::Output_iterator<CUIT, typename E::code_unit_type>()
+    class otext_iterator;
+
+// basic_text_view:
+template<Text_encoding ET, origin::Input_range RT>
+  class basic_text_view;
+
+// basic_text_view synonyms:
+using text_view = basic_text_view<execution_character_encoding,
+                                  /* implementation-defined */ >;
+using wtext_view = basic_text_view<execution_wide_character_encoding,
+                                   /* implementation-defined */ >;
+using u8text_view = basic_text_view<char8_character_encoding,
+                                    /* implementation-defined */ >;
+using u16text_view = basic_text_view<char16_character_encoding,
+                                     /* implementation-defined */ >;
+using u32text_view = basic_text_view<char32_character_encoding,
+                                     /* implementation-defined */ >;
+
+// basic_text_view factory functions:
+template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+  auto make_text_view(typename ET::state_type state, IT first, ST last);
+template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+  auto make_text_view(IT first, ST last);
+template<Text_encoding ET, origin::Forward_iterator IT>
+  auto make_text_view(typename ET::state_type state,
+                      IT first,
+                      origin::Make_unsigned<origin::Difference_type<IT>> n);
+template<Text_encoding ET, origin::Forward_iterator IT>
+  auto make_text_view(IT first,
+                      origin::Make_unsigned<origin::Difference_type<IT>> n);
+template<Text_encoding ET, origin::Input_range Iterable>
+  auto make_text_view(typename ET::state_type state,
+                      const Iterable &iterable);
+template<Text_encoding ET, origin::Input_range Iterable>
+  auto make_text_view(const Iterable &iterable);
+template<Text_iterator TIT, Text_sentinel<TIT> TST>
+  auto make_text_view(TIT first, TST last);
+template<Text_view TVT>
+auto make_text_view(TVT tv);
+
+// make_cstr_range:
+template<Code_unit CUT, std::size_t N>
+  auto make_cstr_range(const CUT (&cstr)[N]);
+
+} // inline namespace text
+} // namespace experimental
+} // namespace std
+```
 
 # Supported Encodings
 As of 2015-12-31, supported encodings include:
