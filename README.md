@@ -35,14 +35,23 @@ based character encoding and code point enumeration library.
 - [References](#references)
 
 # Overview
+[C++11][ISO/IEC 14882:2011] added support for new character types ([N2249]) and
+Unicode string literals ([N2442]), but neither [C++11][ISO/IEC 14882:2011], nor
+more recent standards have provided means of efficiently and conveniently
+enumerating code points in Unicode or legacy encodings.  While it is possible
+to implement such enumeration using interfaces provided in the standard
+`<codecvt>` library, doing to is awkward, requires that text be provided as
+pointers to contiguous memory, and ineffient due to virtual function call
+overhead (__examples and data required to back up these assertions__).
+
 [Text_view] provides iterator and range based interfaces for encoding and
 decoding strings in a variety of character encodings.  The interface is
-intended to support all modern and legacy character encodings, though
-implementations are not yet available for legacy encodings.
+intended to support all modern and legacy character encodings, though this
+library does not yet provide implementations for legacy encodings.
 
 An example usage follows.  Note that `\u00F8` (LATIN SMALL LETTER O WITH STROKE)
-is encoded using two code units (`\xC3\xB8`), but iterator based enumeration
-sees just the single code point.
+is encoded as UTF-8 using two code units (`\xC3\xB8`), but iterator based
+enumeration sees just the single code point.
 
 ```C++
 using CT = utf8_encoding::character_type;
@@ -51,6 +60,33 @@ auto it = tv.begin();
 assert(*it++ == CT{0x004A}); // 'J'
 assert(*it++ == CT{0x00F8}); // 'ø'
 assert(*it++ == CT{0x0065}); // 'e'
+```
+
+The iterators and ranges that [Text_view] provides are compatible with the
+non-modifying sequence utilities provided by the standard C++ `<algorithm>`
+library.  This enables use of standard algorithms to search encoded text.
+
+```C++
+it = std::find(tv.begin(), tv.end(), CT{0x00F8});
+assert(it != tv.end());
+```
+
+The iterators provided by [Text_view] also provide access to the underlying
+code unit sequence.
+
+```C++
+auto base_it = it.base_range().begin();
+assert(*base_it++ == '\xC3');
+assert(*base_it++ == '\xB8');
+```
+
+[Text_view] ranges satisfy the requirements for use in range-based for
+statements.
+
+```C++
+for (const auto &ch : tv) {
+  ...
+}
 ```
 
 # Requirements
@@ -508,9 +544,18 @@ http://asutton.github.io/origin
 [Origin-text_view]:
 https://github.com/tahonermann/origin
 (Origin libraries for text_view)
+[ISO/IEC 14882:2011]:
+http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372
+(ISO/IEC 14882:2011 Information technology -- Programming languages -- C++)
 [ISO/IEC 19217:2015]:
 http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031
 (ISO/IEC technical specification 19217:2015, C++ Extensions for concepts)
+[N2249]:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html
+(N2249: New Character Types in C++)
+[N2442]:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm
+(N2442: Raw and Unicode String Literals; Unified Proposal (Rev. 2))
 [gcc]:
 https://gcc.gnu.org
 (GCC, the GNU Compiler Collection)
