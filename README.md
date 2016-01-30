@@ -679,7 +679,7 @@ https://msdn.microsoft.com/en-us/library/cc195054.aspx
 (Code Page 1252 Windows Latin 1)
 [ISO/IEC 8859-1]:
 http://webstore.ansi.org/RecordDetail.aspx?sku=ISO%2fIEC+8859-1%3a1998
-(ISO/IEC 8859-1:1998Information technology - 8-bit single-byte coded graphic character sets - Part 1: Latin alphabet No. 1)
+(ISO/IEC 8859-1:1998 Information technology - 8-bit single-byte coded graphic character sets - Part 1: Latin alphabet No. 1)
 [ISO/IEC 14882:2011]:
 http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372
 (ISO/IEC 14882:2011 Information technology -- Programming languages -- C++)
