@@ -32,26 +32,33 @@ based character encoding and code point enumeration library.
     - [Concept Text_sentinel](#concept-text_sentinel)
     - [Concept Text_view](#concept-text_view)
 - [Supported Encodings](#supported-encodings)
+- [Terminology](#terminology)
+  - [Code Unit](#code-unit)
+  - [Code Point](#code-point)
+  - [Character Set](#character-set)
+  - [Character](#character)
+  - [Encoding](#encoding)
 - [References](#references)
 
 # Overview
 [C++11][ISO/IEC 14882:2011] added support for new character types ([N2249]) and
-Unicode string literals ([N2442]), but neither [C++11][ISO/IEC 14882:2011], nor
-more recent standards have provided means of efficiently and conveniently
-enumerating code points in Unicode or legacy encodings.  While it is possible
-to implement such enumeration using interfaces provided in the standard
-`<codecvt>` library, doing to is awkward, requires that text be provided as
-pointers to contiguous memory, and ineffient due to virtual function call
-overhead (__examples and data required to back up these assertions__).
+[Unicode] string literals ([N2442]), but neither [C++11][ISO/IEC 14882:2011],
+nor more recent standards have provided means of efficiently and conveniently
+enumerating [code points](#code-point) in [Unicode] or legacy encodings.  While
+it is possible to implement such enumeration using interfaces provided in the
+standard `<codecvt>` library, doing to is awkward, requires that text be
+provided as pointers to contiguous memory, and ineffient due to virtual function
+call overhead (__examples and data required to back up these assertions__).
 
 [Text_view] provides iterator and range based interfaces for encoding and
-decoding strings in a variety of character encodings.  The interface is
-intended to support all modern and legacy character encodings, though this
-library does not yet provide implementations for legacy encodings.
+decoding strings in a variety of [character encodings](#encoding).  The
+interface is intended to support all modern and legacy
+[character encodings](#encoding), though this library does not yet provide
+implementations for legacy [encodings](#encoding).
 
 An example usage follows.  Note that `\u00F8` (LATIN SMALL LETTER O WITH STROKE)
-is encoded as UTF-8 using two code units (`\xC3\xB8`), but iterator based
-enumeration sees just the single code point.
+is encoded as UTF-8 using two [code units](#code-unit) (`\xC3\xB8`), but
+iterator based enumeration sees just the single [code point](#code-point).
 
 ```C++
 using CT = utf8_encoding::character_type;
@@ -72,7 +79,7 @@ assert(it != tv.end());
 ```
 
 The iterators provided by [Text_view] also provide access to the underlying
-code unit sequence.
+[code unit](#code-unit) sequence.
 
 ```C++
 auto base_it = it.base_range().begin();
@@ -356,8 +363,8 @@ template<Code_unit CUT, std::size_t N>
 ## Concept definitions
 
 ### Concept Code_unit
-The `Code_unit` concept specifies requirements for a type usable as the code
-unit type of a string type.
+The `Code_unit` concept specifies requirements for a type usable as the
+[code unit](#code-unit) type of a string type.
 
 ```C++
 template<typename T> concept bool Code_unit() {
@@ -372,8 +379,8 @@ template<typename T> concept bool Code_unit() {
 `std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
 
 ### Concept Code_point
-The `Code_point` concept specifies requirements for a type usable as the code
-point type of a character set type.
+The `Code_point` concept specifies requirements for a type usable as the
+[code point](#code-point) type of a [character set](#character-set) type.
 
 ```C++
 template<typename T> concept bool Code_point() {
@@ -389,9 +396,9 @@ template<typename T> concept bool Code_point() {
 
 ### Concept Character_set
 The `Character_set` concept specifies requirements for a type that describes
-a character set.  Such a type has a member typedef-name declaration for a type
-that satisfies `Code_point` and a static member function that returns a name
-for the character set.
+a [character set](#character-set).  Such a type has a member typedef-name
+declaration for a type that satisfies `Code_point` and a static member function
+that returns a name for the [character set](#character-set).
 
 ```C++
 template<typename T> concept bool Character_set() {
@@ -404,8 +411,9 @@ template<typename T> concept bool Character_set() {
 
 ### Concept Character
 The `Character` concept specifies requirements for a type that describes a
-character as defined by an associated character set.  Non-static member
-functions provide access to the code point value of the described character.
+[character](#character) as defined by an associated
+[character set](#character-set).  Non-static member functions provide access to
+the [code point](#code-point) value of the described [character](#character).
 Types that satisfy `Character` are regular and copy assignable.
 
 ```C++
@@ -499,7 +507,7 @@ template<typename T> concept bool Text_view();
 ```
 
 # Supported Encodings
-As of 2015-12-31, supported encodings include:
+As of 2015-12-31, supported [encodings](#encoding) include:
 
 Encoding name | Description | Encoding type
 ------------- | ----------- | -------------
@@ -511,16 +519,126 @@ char32_character_encoding | Type alias for the encoding of char32_t string liter
 basic_execution_character_encoding | An encoding that meets the minimum requirements of C++11 2.3p3 | trivial
 basic_execution_wide_character_encoding | An encoding that meets the minimum requirements of C++11 2.3p3 | trivial
 iso_10646_wide_character_encoding | An ISO 10646 encoding.  Only defined if __STDC_ISO_10646__ is defined | trivial
-utf8_encoding | Unicode UTF-8 | stateless, variable width
-utf8bom_encoding | Unicode UTF-8 with a byte order mark | stateful, variable width
-utf16_encoding | Unicode UTF-16, native endian | stateless, variable width
-utf16be_encoding | Unicode UTF-16, big endian | stateless, variable width
-utf16le_encoding | Unicode UTF-16, little endian | stateless, variable width
-utf16bom_encoding | Unicode UTF-16 with a byte order mark | stateful, variable width
-utf32_encoding | Unicode UTF-32, native endian | stateless, fixed width
-utf32be_encoding | Unicode UTF-16, big endian | stateless, fixed width
-utf32le_encoding | Unicode UTF-16, little endian | stateless, fixed width
-utf32bom_encoding | Unicode UTF-32 with a byte order mark | stateful, variable width
+utf8_encoding | [Unicode] UTF-8 | stateless, variable width
+utf8bom_encoding | [Unicode] UTF-8 with a byte order mark | stateful, variable width
+utf16_encoding | [Unicode] UTF-16, native endian | stateless, variable width
+utf16be_encoding | [Unicode] UTF-16, big endian | stateless, variable width
+utf16le_encoding | [Unicode] UTF-16, little endian | stateless, variable width
+utf16bom_encoding | [Unicode] UTF-16 with a byte order mark | stateful, variable width
+utf32_encoding | [Unicode] UTF-32, native endian | stateless, fixed width
+utf32be_encoding | [Unicode] UTF-16, big endian | stateless, fixed width
+utf32le_encoding | [Unicode] UTF-16, little endian | stateless, fixed width
+utf32bom_encoding | [Unicode] UTF-32 with a byte order mark | stateful, variable width
+
+# Terminology
+The terminology used in this document and in the [Text_view] library has been
+chosen to be consistent with industry standards and, in particular, the
+[Unicode standard].  Any inconsistencies in the use of this terminology and that
+in the [Unicode standard] is unintentional.  The terms described in this
+document and used within the [Text_view] library comprise a subset of the
+terminology used within the [Unicode standard]; only those terms necessary to
+specify functionality exhibited by this library are included here.  Those who
+would like to learn more about general text processing terminology in computer
+systems are encouraged to read chatper 2, "General Structure" of the
+[Unicode standard].
+
+## Code Unit
+A single, indivisible, integral element of an encoded sequence of characters.  A
+sequence of one or more code units specifies a code point or encoding state
+transition as defined by a character encoding.  A code unit does not, by itself,
+identify any particular character or code point; the meaning ascribed to a
+particular code unit value is derived from a character encoding definition.
+
+The [C++11][ISO/IEC 14882:2011] `char`, `wchar_t`, `char16_t`, and `char32_t`
+types are most commonly used as code unit types.
+
+The string literal `u8"J\u00F8erg"` contains 7 code units and 6 code unit
+sequences; "\u00F8" is encoded using two code units and string literals contain
+a trailing NUL code unit.
+
+The string literal `"J\u00F8erg"` contains an implementation defined number of
+code units.  The standard does not specify the encoding of ordinary and wide
+string literals, so the number of code units encoded by "\u00F8" depends on the
+implementation defined encoding used for ordinary string literals.
+
+## Code Point
+An integral value denoting an abstract character as defined by a character set.
+A code point does not, by itself, identify any particular character; the
+meaning ascribed to a particular code point value is derived from a character
+set definition.
+
+The [C++11][ISO/IEC 14882:2011] `char`, `wchar_t`, `char16_t`, and `char32_t`
+types are most commonly used as code point types.
+
+The string literal `u8"J\u00F8erg"` describes a sequence of 6 code point values;
+string literals implicitly specify a trailing NUL code point.
+
+The string literal `"J\u00F8erg"` describes a sequence of an implementation
+defined number of code point values.  The standard does not specify the encoding
+of ordinary and wide string literals, so the number of code points encoded by
+"\u00F8" depends on the implementation defined encoding used for ordinary string
+literals.  Implementations are permitted to translate a single code point in the
+source or Unicode character sets to multiple code points in the execution
+encoding.
+
+## Character Set
+A mapping of code point values to abstract characters.  A character set need not
+provide a mapping for every possible code point value representable by the code
+point type.
+
+[C++11][ISO/IEC 14882:2011] does not specify the use of any particular character
+set or encoding for ordinary and wide character and string literals, though it
+does place some restrictions on them.  Unicode character and string literals are
+governed by the [Unicode] standard.
+
+Common character sets include [ASCII], [Unicode][Unicode code charts], and
+[Windows code page 1252].
+
+## Character
+An element of written language, for example, a letter, number, or symbol.  A
+character is identified by the combination of a character set and a code point
+value.
+
+## Encoding
+A method of representing a sequence of characters as a sequence of code unit
+sequences.
+
+An encoding may be stateless or stateful.  In stateless encodings, characters
+may be encoded or decoded starting from the beginning of any code unit sequence.
+In stateful encodings, it may be necessary to record certain affects of
+previously encoded characters in order to correctly encode additional
+characters, or to decode preceding code unit sequences in order to correctly
+decode following code unit sequences.
+
+An encoding may be fixed width or variable width.  In fixed width encodings,
+all characters are encoded using a single code unit sequence and all code unit
+sequences have the same length.  In variable width encodings, different
+characters may require multiple code unit sequences, or code unit sequences of
+varying length.
+
+An encoding may support bidirectional or random access decoding of code unit
+sequences.  In bidirectional encodings, characters may be decoded by traversing
+code unit sequences in reverse order.  Such encodings must support a method to
+identify the start of a preceding code unit sequence.  In random access
+encodings, characters may be decoded from any code unit sequence within the
+sequence of code unit sequences, in constant time, without having to decode any
+other code unit sequence.  Random access encodings are necessarily stateless
+and fixed length.  An encoding that is neither bidirectional, nor random
+access, may only be decoded by traversing code unit sequences in forward order.
+
+An encoding may support encoding characters from multiple character sets.  Such
+an encoding is either stateful and defines code unit sequences that switch the
+active character set, or defines code unit sequences that implicitly identify
+a character set, or both.
+
+A trivial encoding is one in which all encoded characters correspond to a single
+character set and where each code unit encodes exactly one character using the
+same value as the code point for that character.  Such an encoding is stateless,
+fixed width, and supports random access decoding.
+
+Common encodings include the [Unicode] UTF-8, UTF-16, and UTF-32 encodings, the
+ISO/IEC 8859 series of encodings including [ISO/IEC 8859-1], and many trivial
+encodings such as [Windows code page 1252].
 
 # References
 - [Text_view]  
@@ -544,6 +662,24 @@ http://asutton.github.io/origin
 [Origin-text_view]:
 https://github.com/tahonermann/origin
 (Origin libraries for text_view)
+[Unicode]:
+http://unicode.org
+(The Unicode Consortium)
+[Unicode standard]:
+http://www.unicode.org/standard/standard.html
+(The Unicode Standard)
+[Unicode code charts]:
+http://www.unicode.org/charts
+(Unicode Character Code Charts)
+[ASCII]:
+http://webstore.ansi.org/RecordDetail.aspx?sku=INCITS+4-1986[R2012]
+(INCITS 4-1986[R2012])
+[Windows code page 1252]:
+https://msdn.microsoft.com/en-us/library/cc195054.aspx
+(Code Page 1252 Windows Latin 1)
+[ISO/IEC 8859-1]:
+http://webstore.ansi.org/RecordDetail.aspx?sku=ISO%2fIEC+8859-1%3a1998
+(ISO/IEC 8859-1:1998Information technology - 8-bit single-byte coded graphic character sets - Part 1: Latin alphabet No. 1)
 [ISO/IEC 14882:2011]:
 http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372
 (ISO/IEC 14882:2011 Information technology -- Programming languages -- C++)
