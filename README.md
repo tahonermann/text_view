@@ -3,6 +3,7 @@ A [C++ Concepts][ISO/IEC 19217:2015]
 based character encoding and code point enumeration library.
 
 - [Overview](#overview)
+- [Current features and limitations](#current-features-and-limitations)
 - [Requirements](#requirements)
 - [Build and installation](#build-and-installation)
   - [Building and installing gcc]
@@ -95,6 +96,28 @@ for (const auto &ch : tv) {
   ...
 }
 ```
+
+# Current features and limitations
+[Text_view] provides interfaces for the following:
+- Encoding and decoding of text for the [encodings](#encoding) listed in
+  [supported encodings](#supported-encodings).
+- Encoding text using [C++11][ISO/IEC 14882:2011] compliant output iterators.
+- Decoding text using mostly [C++11][ISO/IEC 14882:2011] compliant input,
+  forward, bidirectional, and random access iterators.  These iterators lack
+  full compliance for the forward, bidirectional, and random access iterator
+  requirements for issues that are addressed by [P0022R1].
+- Constructing view adapters for encoded text stored in arrays, containers,
+  or std::basic_string, or referenced by another range or view.  These view
+  adapters meet the requirements for views in the [ranges proposal][n4560].
+
+[Text_view] does **not** currently provide interfaces for the following:
+- Transcoding of code points from one [character set](#character-set) to
+  another.
+- Collation.
+- Localization.
+- Internationalization.
+- [Unicode] code point properties.
+- [Unicode] normalization.
 
 # Requirements
 [Text_view] requires a C++ compiler that implements [ISO/IEC technical
@@ -692,6 +715,12 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html
 [N2442]:
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm
 (N2442: Raw and Unicode String Literals; Unified Proposal (Rev. 2))
+[N4560]:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf
+(N4560: Working Draft, C++ Extensions for Ranges)
+[P0022R1]:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html
+(P0022R1: Proxy Iterators for the Ranges Extensions)
 [gcc]:
 https://gcc.gnu.org
 (GCC, the GNU Compiler Collection)
