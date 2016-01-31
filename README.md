@@ -108,7 +108,7 @@ for (const auto &ch : tv) {
   requirements for issues that are addressed by [P0022R1].
 - Constructing view adapters for encoded text stored in arrays, containers,
   or std::basic_string, or referenced by another range or view.  These view
-  adapters meet the requirements for views in the [ranges proposal][n4560].
+  adapters meet the requirements for views in the [ranges proposal][N4560].
 
 [Text_view] does **not** currently provide interfaces for the following:
 - Transcoding of code points from one [character set](#character-set) to
@@ -231,6 +231,20 @@ All interfaces intended for public use are declared in the
 namespace, so all entities are available from the `std::experimental` namespace
 itself.
 
+The interface descriptions in the sections that follow use the concept names
+from the [ranges proposal][N4560].  However, the actual [Text_view]
+implementation uses the [Origin] library for concept definitions and those
+definitions do not currently match those in the [ranges proposal][N4560].  As a
+result, the definitions that follow do not exactly match the code in the
+[Text_view] library.  The following definitions are intended to be used as
+specification and should be considereed authoritative.  Any differences in
+behavior as defined by these definitions as compared to the [Text_view]
+implementation is unintentional and should be considered indicatative of a
+defect.
+
+Once an implementation of the [ranges proposal][N4560] becomes available, it is
+expected that [Text_view] will be ported to it.
+
 ## Header &lt;text_view&gt; synopsis
 
 ```C++
@@ -323,21 +337,21 @@ using char16_character_encoding = /* implementation-defined */ ;
 using char32_character_encoding = /* implementation-defined */ ;
 
 // itext_iterator:
-template<Text_encoding ET, origin::Input_range RT>
-  requires Text_decoder<ET, origin::Iterator_type<const RT>>()
+template<Text_encoding ET, ranges::InputRange RT>
+  requires Text_decoder<ET, ranges::iterator_t<const RT>>()
     class itext_iterator;
 
 // itext_sentinel:
-template<Text_encoding ET, origin::Input_range RT>
+template<Text_encoding ET, ranges::InputRange RT>
   class itext_sentinel;
 
 // otext_iterator:
 template<Text_encoding E, Code_unit_iterator CUIT>
-  requires origin::Output_iterator<CUIT, typename E::code_unit_type>()
+  requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
     class otext_iterator;
 
 // basic_text_view:
-template<Text_encoding ET, origin::Input_range RT>
+template<Text_encoding ET, ranges::InputRange RT>
   class basic_text_view;
 
 // basic_text_view synonyms:
@@ -353,21 +367,21 @@ using u32text_view = basic_text_view<char32_character_encoding,
                                      /* implementation-defined */ >;
 
 // basic_text_view factory functions:
-template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
   auto make_text_view(typename ET::state_type state, IT first, ST last);
-template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
   auto make_text_view(IT first, ST last);
-template<Text_encoding ET, origin::Forward_iterator IT>
+template<Text_encoding ET, ranges::ForwardIterator IT>
   auto make_text_view(typename ET::state_type state,
                       IT first,
-                      origin::Make_unsigned<origin::Difference_type<IT>> n);
-template<Text_encoding ET, origin::Forward_iterator IT>
+                      typename std::make_unsigned<ranges::difference_type_t<IT>>::type n);
+template<Text_encoding ET, ranges::ForwardIterator IT>
   auto make_text_view(IT first,
-                      origin::Make_unsigned<origin::Difference_type<IT>> n);
-template<Text_encoding ET, origin::Input_range Iterable>
+                      typename std::make_unsigned<ranges::difference_type_t<IT>>::type n);
+template<Text_encoding ET, ranges::InputRange Iterable>
   auto make_text_view(typename ET::state_type state,
                       const Iterable &iterable);
-template<Text_encoding ET, origin::Input_range Iterable>
+template<Text_encoding ET, ranges::InputRange Iterable>
   auto make_text_view(const Iterable &iterable);
 template<Text_iterator TIT, Text_sentinel<TIT> TST>
   auto make_text_view(TIT first, TST last);
@@ -441,8 +455,8 @@ Types that satisfy `Character` are regular and copy assignable.
 
 ```C++
 template<typename T> concept bool Character() {
-  return origin::Regular<T>()
-      && origin::Copy_assignable<T>()
+  return ranges::Regular<T>()
+      && ranges::Copyable<T>()
       && Character_set<typename T::character_set_type>()
       && requires (T t, typename T::character_set_type::code_point_type cp) {
            t.set_code_point(cp);
@@ -458,8 +472,8 @@ has a value type that satisfies `Code_unit`.
 
 ```C++
 template<typename T> concept bool Code_unit_iterator() {
-  return origin::Iterator<T>()
-      && Code_unit<origin::Value_type<T>>();
+  return ranges::Iterator<T>()
+      && Code_unit<ranges::value_type_t<T>>();
 }
 ```
 
