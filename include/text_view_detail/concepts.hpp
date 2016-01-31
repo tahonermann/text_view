@@ -71,7 +71,7 @@ template<typename T>
 concept bool Character() {
     return Character_set<character_set_type_of<T>>()
         && origin::Regular<T>()
-        && origin::Copy_assignable<T>()
+        && origin::Copyable<T>()
         && requires (T t, code_point_type_of<character_set_type_of<T>> cp) {
                t.set_code_point(cp);
                { t.get_code_point() } -> code_point_type_of<character_set_type_of<T>>;
@@ -98,8 +98,7 @@ concept bool Code_unit_iterator() {
 template<typename T>
 concept bool Text_encoding_state() {
     return origin::Default_constructible<T>()
-        && origin::Copy_constructible<T>()
-        && origin::Copy_assignable<T>();
+        && origin::Copyable<T>();
 }
 
 
@@ -109,8 +108,7 @@ concept bool Text_encoding_state() {
 template<typename T>
 concept bool Text_encoding_state_transition() {
     return origin::Default_constructible<T>()
-        && origin::Copy_constructible<T>()
-        && origin::Copy_assignable<T>();
+        && origin::Copyable<T>();
 }
 
 
