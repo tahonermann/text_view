@@ -330,6 +330,7 @@ class utf32be_encoding;
 class utf32le_encoding;
 class utf32bom_encoding;
 
+// implementation defined encoding synonyms:
 using execution_character_encoding = /* implementation-defined */ ;
 using execution_wide_character_encoding = /* implementation-defined */ ;
 using char8_character_encoding = /* implementation-defined */ ;
