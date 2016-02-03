@@ -57,7 +57,6 @@ concept bool Code_point() {
 template<typename T>
 concept bool Character_set() {
     return requires () {
-               typename T::code_point_type;
                { T::get_name() } noexcept -> const char *;
            }
         && Code_point<typename T::code_point_type>();
@@ -118,10 +117,6 @@ concept bool Text_encoding_state_transition() {
 template<typename T>
 concept bool Text_encoding() {
     return requires () {
-               typename T::state_type;
-               typename T::state_transition_type;
-               typename T::code_unit_type;
-               typename T::character_type;
                { T::min_code_units } noexcept -> int;
                { T::max_code_units } noexcept -> int;
            }
@@ -229,14 +224,10 @@ concept bool Text_random_access_decoder() {
  */
 template<typename T>
 concept bool Text_iterator() {
-    return requires () {
-               typename T::encoding_type;
-               typename T::state_type;
-           }
+    return origin::Iterator<T>()
+        && Character<origin::Value_type<T>>()
         && Text_encoding<typename T::encoding_type>()
         && Text_encoding_state<typename T::state_type>()
-        && origin::Iterator<T>()
-        && Character<origin::Value_type<T>>()
         && requires (T t, const T ct) {
                { t.state() } noexcept
                    -> typename T::encoding_type::state_type&;
@@ -261,18 +252,12 @@ concept bool Text_sentinel() {
  */
 template<typename T>
 concept bool Text_view() {
-    return requires () {
-               typename T::encoding_type;
-               typename T::range_type;
-               typename T::state_type;
-               typename T::code_unit_iterator;
-           }
+    return origin::Input_range<T>()
+        && Text_iterator<origin::Iterator_type<T>>()
         && Text_encoding<typename T::encoding_type>()
         && origin::Input_range<typename T::range_type>()
         && Text_encoding_state<typename T::state_type>()
-        && origin::Iterator<typename T::code_unit_iterator>()
-        && origin::Input_range<T>()
-        && Text_iterator<origin::Iterator_type<T>>()
+        && Code_unit_iterator<typename T::code_unit_iterator>()
         && requires (T t, const T ct) {
                { t.base() } noexcept
                    -> typename T::range_type&;
