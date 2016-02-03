@@ -451,7 +451,7 @@ The `Character` concept specifies requirements for a type that describes a
 [character](#character) as defined by an associated
 [character set](#character-set).  Non-static member functions provide access to
 the [code point](#code-point) value of the described [character](#character).
-Types that satisfy `Character` are regular and copy assignable.
+Types that satisfy `Character` are regular and copyable.
 
 ```C++
 template<typename T> concept bool Character() {
@@ -478,69 +478,232 @@ template<typename T> concept bool Code_unit_iterator() {
 ```
 
 ### Concept Text_encoding_state
+The `Text_encoding_state` concept specifies requirements of types that hold
+[encoding](#encoding) state.  Such types are default constructible and copyable.
 
 ```C++
-template<typename T> concept bool Text_encoding_state();
+template<typename T> concept bool Text_encoding_state() {
+  return ranges::DefaultConstructible<T>()
+      && ranges::Copyable<T>();
+}
 ```
 
 ### Concept Text_encoding_state_transition
+The `Text_encoding_state_transition` concept specifies requirements of types
+that hold [encoding](#encoding) state transitions.  Such types are default
+constructible and copyable.
 
 ```C++
-template<typename T> concept bool Text_encoding_state_transition();
+template<typename T> concept bool Text_encoding_state_transition() {
+  return ranges::DefaultConstructible<T>()
+      && ranges::Copyable<T>();
+}
 ```
 
 ### Concept Text_encoding
+The `Text_encoding` concept specifies requirements of types that define an
+[encoding](#encoding).  Such types define member types that identify the
+[code unit](#code-unit), [character](#character), encoding state, and encoding
+state transition types, a static member function that returns an initial
+encoding state object that defines the encoding state at the beginning of a
+sequence of encoded characters, and static data members that specify the
+minimum and maximum number of [code units](#code-units) used to encode any
+single character.
 
 ```C++
-template<typename T> concept bool Text_encoding();
+template<typename T> concept bool Text_encoding() {
+  return requires () {
+           { T::min_code_units } noexcept -> int;
+           { T::max_code_units } noexcept -> int;
+         }
+      && Text_encoding_state<typename T::state_type>()
+      && Text_encoding_state_transition<typename T::state_transition_type>()
+      && Code_unit<typename T::code_unit_type>()
+      && Character<typename T::character_type>()
+      && requires () {
+           { T::initial_state() }
+               -> const typename T::state_type&;
+         };
+}
 ```
 
 ### Concept Text_encoder
+The `Text_encoder` concept specifies requirements of types that are used to
+encode [characters](#character) using a particular [code unit](#code-unit)
+iterator that satisfies `OutputIterator`.  Such a type satisifies
+`Text_encoding` and defines static member functions used to encode state
+transitions and [characters](#character).
 
 ```C++
-template<typename T, typename I> concept bool Text_encoder();
+template<typename T, typename I> concept bool Text_encoder() {
+  return Text_encoding<T>()
+      && ranges::OutputIterator<CUIT, typename T::code_unit_type>()
+      && requires (
+           typename T::state_type &state,
+           CUIT &out,
+           typename T::state_transition_type stt,
+           int &encoded_code_units)
+         {
+           T::encode_state_transition(state, out, stt, encoded_code_units);
+         }
+      && requires (
+           typename T::state_type &state,
+           CUIT &out,
+           typename T::character_type c,
+           int &encoded_code_units)
+         {
+           T::encode(state, out, c, encoded_code_units);
+         };
+}
 ```
 
 ### Concept Text_decoder
+The `Text_decoder` concept specifies requirements of types that are used to
+decode [characters](#character) using a particular [code unit](#code-unit)
+iterator that satisifies `InputIterator`.  Such a type satisfies
+`Text_encoding` and defines a static member function used to decode state
+transitions and [characters](#character).
 
 ```C++
-template<typename T, typename I> concept bool Text_decoder();
+template<typename T, typename I> concept bool Text_decoder() {
+  return Text_encoding<T>()
+      && ranges::InputIterator<CUIT>()
+      && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
+                               typename T::code_unit_type>()
+      && requires (
+           typename T::state_type &state,
+           CUIT &in_next,
+           CUIT in_end,
+           typename T::character_type &c,
+           int &decoded_code_units)
+         {
+           { T::decode(state, in_next, in_end, c, decoded_code_units) } -> bool;
+         };
+}
 ```
 
 ### Concept Text_forward_decoder
+The `Text_forward_decoder` concept specifies requirements of types that are
+used to decode [characters](#character) using a particular
+[code unit](#code-unit) iterator that satisifies `ForwardIterator`.  Such a
+type satisfies `Text_decoder`.
 
 ```C++
-template<typename T, typename I> concept bool Text_forward_decoder();
+template<typename T, typename I> concept bool Text_forward_decoder() {
+  return Text_decoder<T, CUIT>()
+      && ranges::ForwardIterator<CUIT>();
+}
 ```
 
 ### Concept Text_bidirectional_decoder
+The `Text_bidirectional_decoder` concept specifies requirements of types that
+are used to decode [characters](#character) using a particular
+[code unit](#code-unit) iterator that satisifies `BidirectionalIterator`.  Such
+a type satisfies `Text_forward_decoder` and defines a static member function
+used to decode state transitions and [characters](#character) in the reverse
+order of their encoding.
 
 ```C++
-template<typename T, typename I> concept bool Text_bidirectional_decoder();
+template<typename T, typename I> concept bool Text_bidirectional_decoder() {
+  return Text_forward_decoder<T, CUIT>()
+      && ranges::BidirectionalIterator<CUIT>()
+      && requires (
+           typename T::state_type &state,
+           CUIT &in_next,
+           CUIT in_end,
+           typename T::character_type &c,
+           int &decoded_code_units)
+         {
+           { T::rdecode(state, in_next, in_end, c, decoded_code_units) } -> bool;
+         };
+}
 ```
 
 ### Concept Text_random_access_decoder
+The `Text_random_access_decoder` concept specifies requirements of types that
+are used to decode [characters](#character) using a particular
+[code unit](#code-unit) iterator that satisifies `RandomAccessIterator`.  Such a
+type satisfies `Text_bidirectional_decoder`, requires that the minimum and
+maximum number of [code units](#code-unit) used to encode any character have
+the same value, and that the encoding state be an empty type.
 
 ```C++
-template<typename T, typename I> concept bool Text_random_access_decoder();
+template<typename T, typename I> concept bool Text_random_access_decoder() {
+  return Text_bidirectional_decoder<T, CUIT>()
+      && ranges::RandomAccessIterator<CUIT>()
+      && T::min_code_units == T::max_code_units
+      && std::is_empty<typename T::state_type>::value;
+}
 ```
 
 ### Concept Text_iterator
+The `Text_iterator` concept specifies requirements of types that are used to
+iterator over [characters](#character) in an [encoded](#encoding) sequence of
+[code units](#code-unit).  [Encoding](#encoding) state is held in each iterator
+instance as needed to decode the [code unit](#code-unit) sequence and is made
+accessible via non-static member functions.  The value type of a
+`Text_iterator` satisfies `Character`.
 
 ```C++
-template<typename T> concept bool Text_iterator();
+template<typename T> concept bool Text_iterator() {
+  return ranges::Iterator<T>()
+      && Character<ranges::value_type_t<T>>()
+      && Text_encoding<typename T::encoding_type>()
+      && Text_encoding_state<typename T::state_type>()
+      && requires (T t, const T ct) {
+           { t.state() } noexcept
+               -> typename T::encoding_type::state_type&;
+           { ct.state() } noexcept
+               -> const typename T::encoding_type::state_type&;
+         };
+}
 ```
 
 ### Concept Text_sentinel
+The `Text_sentinel` concept specifies requirements of types that are used to
+mark the end of a range of encoded [characters](#character).  A type T that
+satisfies `Text_iterator` also satisfies `Text_sentinel<T>` there by enabling
+`Text_iterator` types to be used as sentinels.
 
 ```C++
-template<typename T, typename I> concept bool Text_sentinel();
+template<typename T, typename I> concept bool Text_sentinel() {
+  return ranges::Sentinel<T, I>()
+      && Text_iterator<I>();
+}
 ```
 
 ### Concept Text_view
+The `Text_view` concept specifies requirements of types that provide view access
+to an underlying [code unit](#code-unit) range.  Such types satisy
+`ranges::View`, provide iterators that satisfy `Text_iterator`, define member
+types that identify the [encoding](#encoding), encoding state, and underlying
+[code unit](#code-unit) range and iterator types.  Non-static member functions
+are provided to access the underlying [code unit](#code-unit) range and initial
+[encoding](#encoding) state.
+
+Types that satisfy `Text_view` do not own the underlying [code unit](#code-unit)
+range and are copyable in constant time.  The lifetime of the underlying range
+must exceed the lifetime of referencing `Text_view` objects.
 
 ```C++
-template<typename T> concept bool Text_view();
+template<typename T> concept bool Text_view() {
+  return ranges::View<T>()
+      R& Text_iterator<ranges::iterator_t<T>>()
+      && Text_encoding<typename T::encoding_type>()
+      && ranges::InputRange<typename T::range_type>()
+      && Text_encoding_state<typename T::state_type>()
+      && Code_unit_iterator<typename T::code_unit_iterator>()
+      R& requires (T t, const T ct) {
+           { t.base() } noexcept
+               -> typename T::range_type&;
+           { ct.base() } noexcept
+               -> const typename T::range_type&;
+           { t.initial_state() } noexcept
+               -> typename T::state_type&;
+           { ct.initial_state() } noexcept
+               -> const typename T::state_type&;
+         };
+}
 ```
 
 # Supported Encodings
