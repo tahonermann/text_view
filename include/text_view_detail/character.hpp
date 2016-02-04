@@ -67,7 +67,7 @@ public:
 
     character() = default;
     explicit character(code_point_type code_point)
-        : cs_id{std::experimental::text::get_character_set_id<any_character_set>()}, code_point{code_point} {}
+        : code_point{code_point} {}
     character(character_set_id cs_id, code_point_type code_point)
         : cs_id{cs_id}, code_point{code_point} {}
 
@@ -100,7 +100,8 @@ public:
     }
 
 private:
-    character_set_id cs_id = std::experimental::text::get_character_set_id<any_character_set>();
+    character_set_id cs_id =
+        std::experimental::text::get_character_set_id<any_character_set>();
     code_point_type code_point = {};
 };
 
