@@ -36,8 +36,9 @@ nor more recent standards have provided means of efficiently and conveniently
 enumerating [code points](#code-point) in [Unicode] or legacy encodings.  While
 it is possible to implement such enumeration using interfaces provided in the
 standard `<codecvt>` library, doing to is awkward, requires that text be
-provided as pointers to contiguous memory, and ineffient due to virtual function
-call overhead (__examples and data required to back up these assertions__).
+provided as pointers to contiguous memory, and inefficent due to virtual
+function call overhead (__examples and data required to back up these
+assertions__).
 
 [Text_view] provides iterator and range based interfaces for encoding and
 decoding strings in a variety of [character encodings](#encoding).  The
