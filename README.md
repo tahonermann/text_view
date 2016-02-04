@@ -15,54 +15,11 @@ based character encoding and code point enumeration library.
 - [Usage](#usage)
   - [Header &lt;text_view&gt; synopsis](#header-text_view-synopsis)
   - [Concepts](#concepts)
-    - [Concept Code_unit](#concept-code_unit)
-    - [Concept Code_point](#concept-code_point)
-    - [Concept Character_set](#concept-character_set)
-    - [Concept Character](#concept-character)
-    - [Concept Code_unit_iterator](#concept-code_unit_iterator)
-    - [Concept Text_encoding_state](#concept-text_encoding_state)
-    - [Concept Text_encoding_state_transition]
-      (#concept-text_encoding_state_transition)
-    - [Concept Text_encoding](#concept-text_encoding)
-    - [Concept Text_encoder](#concept-text_encoder)
-    - [Concept Text_decoder](#concept-text_decoder)
-    - [Concept Text_forward_decoder](#concept-text_forward_decoder)
-    - [Concept Text_bidirectional_decoder](#concept-text_bidirectional_decoder)
-    - [Concept Text_random_access_decoder](#concept-text_random_access_decoder)
-    - [Concept Text_iterator](#concept-text_iterator)
-    - [Concept Text_sentinel](#concept-text_sentinel)
-    - [Concept Text_view](#concept-text_view)
   - [Character sets](#character-sets)
-    - [Class any_character_set](#class-any_character_set)
-    - [Class basic_execution_character_set]
-      (#class-basic_execution_character_set)
-    - [Class basic_execution_wide_character_set]
-      (#class-basic_execution_wide_character_set)
-    - [Class unicode_character_set](#class-unicode_character_set)
-    - [Character set type aliases](#character-set-type-aliases)
   - [Character set identification](#character-set-identification)
-    - [Class character_set_id](#class-character_set_id)
-    - [get_character_set_id](#get_character_set_id)
   - [Character set information](#character-set-information)
-    - [Class character_set_info](#class-character_set_info)
-    - [get_character_set_info](#get_character_set_info)
   - [Characters](#characters)
-    - [Class template character](#class-template-character)
   - [Encodings](#encodings)
-    - [Class basic_execution_character_encoding](#class-basic_execution_character_encoding)
-    - [Class basic_execution_wide_character_encoding](#class-basic_execution_wide_character_encoding)
-    - [Class iso_10646_wide_character_encoding](#class-iso_10646_wide_character_encoding)
-    - [Class utf8_encoding](#class-utf8_encoding)
-    - [Class utf8bom_encoding](#class-utf8bom_encoding)
-    - [Class utf16_encoding](#class-utf16_encoding)
-    - [Class utf16be_encoding](#class-utf16be_encoding)
-    - [Class utf16le_encoding](#class-utf16le_encoding)
-    - [Class utf16bom_encoding](#class-utf16bom_encoding)
-    - [Class utf32_encoding](#class-utf32_encoding)
-    - [Class utf32be_encoding](#class-utf32be_encoding)
-    - [Class utf32le_encoding](#class-utf32le_encoding)
-    - [Class utf32bom_encoding](#class-utf32bom_encoding)
-    - [Encoding type aliases](#encoding-type-aliases)
 - [Supported Encodings](#supported-encodings)
 - [Terminology](#terminology)
   - [Code Unit](#code-unit)
@@ -437,6 +394,24 @@ template<Code_unit CUT, std::size_t N>
 
 ## Concepts
 
+- [Concept Code_unit](#concept-code_unit)
+- [Concept Code_point](#concept-code_point)
+- [Concept Character_set](#concept-character_set)
+- [Concept Character](#concept-character)
+- [Concept Code_unit_iterator](#concept-code_unit_iterator)
+- [Concept Text_encoding_state](#concept-text_encoding_state)
+- [Concept Text_encoding_state_transition]
+  (#concept-text_encoding_state_transition)
+- [Concept Text_encoding](#concept-text_encoding)
+- [Concept Text_encoder](#concept-text_encoder)
+- [Concept Text_decoder](#concept-text_decoder)
+- [Concept Text_forward_decoder](#concept-text_forward_decoder)
+- [Concept Text_bidirectional_decoder](#concept-text_bidirectional_decoder)
+- [Concept Text_random_access_decoder](#concept-text_random_access_decoder)
+- [Concept Text_iterator](#concept-text_iterator)
+- [Concept Text_sentinel](#concept-text_sentinel)
+- [Concept Text_view](#concept-text_view)
+
 ### Concept Code_unit
 The `Code_unit` concept specifies requirements for a type usable as the
 [code unit](#code-unit) type of a string type.
@@ -746,6 +721,14 @@ template<typename T> concept bool Text_view() {
 
 ## Character sets
 
+- [Class any_character_set](#class-any_character_set)
+- [Class basic_execution_character_set]
+  (#class-basic_execution_character_set)
+- [Class basic_execution_wide_character_set]
+  (#class-basic_execution_wide_character_set)
+- [Class unicode_character_set](#class-unicode_character_set)
+- [Character set type aliases](#character-set-type-aliases)
+
 ### Class any_character_set
 
 ```C++
@@ -800,6 +783,9 @@ using universal_character_set = /* implementation-defined */ ;
 
 ## Character set identification
 
+- [Class character_set_id](#class-character_set_id)
+- [get_character_set_id](#get_character_set_id)
+
 ### Class character_set_id
 
 ```C++
@@ -825,6 +811,9 @@ template<typename CST>
 ```
 
 ## Character set information
+
+- [Class character_set_info](#class-character_set_info)
+- [get_character_set_info](#get_character_set_info)
 
 ### Class character_set_info
 
@@ -852,6 +841,8 @@ template<typename CST>
 ```
 
 ## Characters
+
+- [Class template character](#class-template-character)
 
 ### Class template character
 
@@ -916,6 +907,24 @@ template<Character_set CST>
 ```
 
 ## Encodings
+
+- [Class basic_execution_character_encoding]
+  (#class-basic_execution_character_encoding)
+- [Class basic_execution_wide_character_encoding]
+  (#class-basic_execution_wide_character_encoding)
+- [Class iso_10646_wide_character_encoding]
+  (#class-iso_10646_wide_character_encoding)
+- [Class utf8_encoding](#class-utf8_encoding)
+- [Class utf8bom_encoding](#class-utf8bom_encoding)
+- [Class utf16_encoding](#class-utf16_encoding)
+- [Class utf16be_encoding](#class-utf16be_encoding)
+- [Class utf16le_encoding](#class-utf16le_encoding)
+- [Class utf16bom_encoding](#class-utf16bom_encoding)
+- [Class utf32_encoding](#class-utf32_encoding)
+- [Class utf32be_encoding](#class-utf32be_encoding)
+- [Class utf32le_encoding](#class-utf32le_encoding)
+- [Class utf32bom_encoding](#class-utf32bom_encoding)
+- [Encoding type aliases](#encoding-type-aliases)
 
 ### Class basic_execution_character_encoding
 
