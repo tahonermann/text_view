@@ -48,6 +48,21 @@ based character encoding and code point enumeration library.
     - [get_character_set_info](#get_character_set_info)
   - [Characters](#characters)
     - [Class template character](#class-template-character)
+  - [Encodings](#encodings)
+    - [Class basic_execution_character_encoding](#class-basic_execution_character_encoding)
+    - [Class basic_execution_wide_character_encoding](#class-basic_execution_wide_character_encoding)
+    - [Class iso_10646_wide_character_encoding](#class-iso_10646_wide_character_encoding)
+    - [Class utf8_encoding](#class-utf8_encoding)
+    - [Class utf8bom_encoding](#class-utf8bom_encoding)
+    - [Class utf16_encoding](#class-utf16_encoding)
+    - [Class utf16be_encoding](#class-utf16be_encoding)
+    - [Class utf16le_encoding](#class-utf16le_encoding)
+    - [Class utf16bom_encoding](#class-utf16bom_encoding)
+    - [Class utf32_encoding](#class-utf32_encoding)
+    - [Class utf32be_encoding](#class-utf32be_encoding)
+    - [Class utf32le_encoding](#class-utf32le_encoding)
+    - [Class utf32bom_encoding](#class-utf32bom_encoding)
+    - [Encoding type aliases](#encoding-type-aliases)
 - [Supported Encodings](#supported-encodings)
 - [Terminology](#terminology)
   - [Code Unit](#code-unit)
@@ -898,6 +913,670 @@ template<Character_set CST>
 template<Character_set CST>
   bool operator!=(const character<CST> &lhs,
                   const character<any_character_set> &rhs);
+```
+
+## Encodings
+
+### Class basic_execution_character_encoding
+
+```C++
+class basic_execution_character_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<basic_execution_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class basic_execution_wide_character_encoding
+
+```C++
+class basic_execution_wide_character_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<basic_execution_wide_character_set>;
+  using code_unit_type = wchar_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class iso_10646_wide_character_encoding
+
+```C++
+#if defined(__STDC_ISO_10646__)
+class iso_10646_wide_character_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = wchar_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+#endif // __STDC_ISO_10646__
+```
+
+### Class utf8_encoding
+
+```C++
+class utf8_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf8bom_encoding
+
+```C++
+class utf8bom_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf16_encoding
+
+```C++
+class utf16_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char16_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 2;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf16be_encoding
+
+```C++
+class utf16be_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 2;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf16le_encoding
+
+```C++
+class utf16le_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 2;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf16bom_encoding
+
+```C++
+class utf16bom_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 2;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf32_encoding
+
+```C++
+class utf32_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char32_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf32be_encoding
+
+```C++
+class utf32be_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 4;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf32le_encoding
+
+```C++
+class utf32le_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 4;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Class utf32bom_encoding
+
+```C++
+class utf32bom_encoding {
+  using state_type = /* implementation-defined */;
+  using state_transition_type = /* implementation-defined */;
+  using character_type = character<unicode_character_set>;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 4;
+  static constexpr int max_code_units = 4;
+
+  static const state_type& initial_state();
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode_state_transition(state_type &state,
+                                        CUIT &out,
+                                        const state_transition_type &stt,
+                                        int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT>
+    requires ranges::OutputIterator<CUIT, code_unit_type>()
+    static void encode(state_type &state,
+                       CUIT &out,
+                       character_type c,
+                       int &encoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool decode(state_type &state,
+                       CUIT &in_next,
+                       CUST in_end,
+                       character_type &c,
+                       int &decoded_code_units)
+
+  template<Code_unit_iterator CUIT, typename CUST>
+    requires ranges::InputIterator<CUIT>()
+          && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
+    static bool rdecode(state_type &state,
+                        CUIT &in_next,
+                        CUST in_end,
+                        character_type &c,
+                        int &decoded_code_units)
+};
+```
+
+### Encoding type aliases
+
+```C++
+using execution_character_encoding = /* implementation-defined */ ;
+using execution_wide_character_encoding = /* implementation-defined */ ;
+using char8_character_encoding = /* implementation-defined */ ;
+using char16_character_encoding = /* implementation-defined */ ;
+using char32_character_encoding = /* implementation-defined */ ;
 ```
 
 # Supported Encodings
