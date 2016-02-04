@@ -14,7 +14,7 @@ based character encoding and code point enumeration library.
     (#building-and-installing-text_view)
 - [Usage](#usage)
   - [Header &lt;text_view&gt; synopsis](#header-text_view-synopsis)
-  - [Concept definitions](#concept-definitions)
+  - [Concepts](#concepts)
     - [Concept Code_unit](#concept-code_unit)
     - [Concept Code_point](#concept-code_point)
     - [Concept Character_set](#concept-character_set)
@@ -32,6 +32,22 @@ based character encoding and code point enumeration library.
     - [Concept Text_iterator](#concept-text_iterator)
     - [Concept Text_sentinel](#concept-text_sentinel)
     - [Concept Text_view](#concept-text_view)
+  - [Character sets](#character-sets)
+    - [Class any_character_set](#class-any_character_set)
+    - [Class basic_execution_character_set]
+      (#class-basic_execution_character_set)
+    - [Class basic_execution_wide_character_set]
+      (#class-basic_execution_wide_character_set)
+    - [Class unicode_character_set](#class-unicode_character_set)
+    - [Character set type aliases](#character-set-type-aliases)
+  - [Character set identification](#character-set-identification)
+    - [Class character_set_id](#class-character_set_id)
+    - [get_character_set_id](#get_character_set_id)
+  - [Character set information](#character-set-information)
+    - [Class character_set_info](#class-character_set_info)
+    - [get_character_set_info](#get_character_set_info)
+  - [Characters](#characters)
+    - [Class template character](#class-template-character)
 - [Supported Encodings](#supported-encodings)
 - [Terminology](#terminology)
   - [Code Unit](#code-unit)
@@ -276,19 +292,25 @@ class basic_execution_character_set;
 class basic_execution_wide_character_set;
 class unicode_character_set;
 
+// implementation defined character set type aliases:
 using execution_character_set = /* implementation-defined */ ;
 using execution_wide_character_set = /* implementation-defined */ ;
 using universal_character_set = /* implementation-defined */ ;
 
-class character_set_info;
+// character set identification:
 class character_set_id;
+
+template<typename CST>
+  inline character_set_id get_character_set_id();
+
+// character set information:
+class character_set_info;
 
 template<typename CST>
   inline const character_set_info& get_character_set_info();
 const character_set_info& get_character_set_info(character_set_id id);
-template<typename CST>
-  inline character_set_id get_character_set_id();
 
+// character set and encoding traits:
 template<typename T>
   using code_point_type_of = /* implementation-defined */ ;
 template<typename T>
@@ -301,17 +323,17 @@ template<Character_set CST> class character;
 template <> class character<any_character_set>;
 
 template<Character_set CST>
-  bool operator==(const character<any_character_set> &c1,
-                  const character<CST> &c2);
+  bool operator==(const character<any_character_set> &lhs,
+                  const character<CST> &rhs);
 template<Character_set CST>
-  bool operator==(const character<CST> &c1,
-                  const character<any_character_set> &c2);
+  bool operator==(const character<CST> &lhs,
+                  const character<any_character_set> &rhs);
 template<Character_set CST>
-  bool operator!=(const character<any_character_set> &c1,
-                  const character<CST> &c2);
+  bool operator!=(const character<any_character_set> &lhs,
+                  const character<CST> &rhs);
 template<Character_set CST>
-  bool operator!=(const character<CST> &c1,
-                  const character<any_character_set> &c2);
+  bool operator!=(const character<CST> &lhs,
+                  const character<any_character_set> &rhs);
 
 // encodings:
 class basic_execution_character_encoding;
@@ -330,7 +352,7 @@ class utf32be_encoding;
 class utf32le_encoding;
 class utf32bom_encoding;
 
-// implementation defined encoding synonyms:
+// implementation defined encoding type aliases:
 using execution_character_encoding = /* implementation-defined */ ;
 using execution_wide_character_encoding = /* implementation-defined */ ;
 using char8_character_encoding = /* implementation-defined */ ;
@@ -355,7 +377,7 @@ template<Text_encoding E, Code_unit_iterator CUIT>
 template<Text_encoding ET, ranges::InputRange RT>
   class basic_text_view;
 
-// basic_text_view synonyms:
+// basic_text_view type aliases:
 using text_view = basic_text_view<execution_character_encoding,
                                   /* implementation-defined */ >;
 using wtext_view = basic_text_view<execution_wide_character_encoding,
@@ -398,7 +420,7 @@ template<Code_unit CUT, std::size_t N>
 } // namespace std
 ```
 
-## Concept definitions
+## Concepts
 
 ### Concept Code_unit
 The `Code_unit` concept specifies requirements for a type usable as the
@@ -705,6 +727,177 @@ template<typename T> concept bool Text_view() {
                -> const typename T::state_type&;
          };
 }
+```
+
+## Character sets
+
+### Class any_character_set
+
+```C++
+class any_character_set {
+public:
+  using code_point_type = /* implementation-defined */;
+
+  static const char* get_name() noexcept;
+};
+```
+
+### Class basic_execution_character_set
+
+```C++
+class basic_execution_character_set {
+public:
+  using code_point_type = char;
+
+  static const char* get_name() noexcept;
+};
+```
+
+### Class basic_execution_wide_character_set
+
+```C++
+class basic_execution_wide_character_set {
+public:
+  using code_point_type = wchar_t;
+
+  static const char* get_name() noexcept;
+};
+```
+
+### Class unicode_character_set
+
+```C++
+class unicode_character_set {
+public:
+  using code_point_type = char32_t;
+
+  static const char* get_name() noexcept;
+};
+```
+
+### Character set type aliases
+
+```C++
+using execution_character_set = /* implementation-defined */ ;
+using execution_wide_character_set = /* implementation-defined */ ;
+using universal_character_set = /* implementation-defined */ ;
+```
+
+## Character set identification
+
+### Class character_set_id
+
+```C++
+class character_set_id {
+public:
+  character_set_id() = delete;
+
+  friend bool operator==(character_set_id lhs, character_set_id rhs);
+  friend bool operator!=(character_set_id lhs, character_set_id rhs);
+
+  friend bool operator<(character_set_id lhs, character_set_id rhs);
+  friend bool operator>(character_set_id lhs, character_set_id rhs);
+  friend bool operator<=(character_set_id lhs, character_set_id rhs);
+  friend bool operator>=(character_set_id lhs, character_set_id rhs);
+};
+```
+
+### get_character_set_id
+
+```C++
+template<typename CST>
+  inline character_set_id get_character_set_id();
+```
+
+## Character set information
+
+### Class character_set_info
+
+```C++
+class character_set_info {
+public:
+  character_set_info() = delete;
+
+  character_set_id get_id() const noexcept;
+
+  const char* get_name() const noexcept;
+
+private:
+  character_set_id id; // exposition only
+};
+```
+
+### get_character_set_info
+
+```C++
+const character_set_info& get_character_set_info(character_set_id id);
+
+template<typename CST>
+  inline const character_set_info& get_character_set_info();
+```
+
+## Characters
+
+### Class template character
+
+```C++
+template<Character_set CST>
+class character {
+public:
+  using character_set_type = CST;
+  using code_point_type = typename character_set_type::code_point_type;
+
+  character() = default;
+  explicit character(code_point_type code_point);
+
+  friend bool operator==(const character &lhs, const character &rhs);
+  friend bool operator!=(const character &lhs, const character &rhs);
+
+  void set_code_point(code_point_type code_point);
+  code_point_type get_code_point() const;
+
+  static character_set_id get_character_set_id();
+
+private:
+  code_point_type code_point; // exposition only
+};
+
+template<>
+class character<any_character_set> {
+public:
+  using character_set_type = any_character_set;
+  using code_point_type = typename character_set_type::code_point_type;
+
+  character() = default;
+  explicit character(code_point_type code_point);
+  character(character_set_id cs_id, code_point_type code_point);
+
+  friend bool operator==(const character &lhs, const character &rhs);
+  friend bool operator!=(const character &lhs, const character &rhs);
+
+  void set_code_point(code_point_type code_point);
+  code_point_type get_code_point() const;
+
+  void set_character_set_id(character_set_id new_cs_id);
+  character_set_id get_character_set_id() const;
+
+private:
+  character_set_id cs_id;     // exposition only
+  code_point_type code_point; // exposition only
+};
+
+template<Character_set CST>
+  bool operator==(const character<any_character_set> &lhs,
+                  const character<CST> &rhs);
+template<Character_set CST>
+  bool operator==(const character<CST> &lhs,
+                  const character<any_character_set> &rhs);
+template<Character_set CST>
+  bool operator!=(const character<any_character_set> &lhs,
+                  const character<CST> &rhs);
+template<Character_set CST>
+  bool operator!=(const character<CST> &lhs,
+                  const character<any_character_set> &rhs);
 ```
 
 # Supported Encodings
