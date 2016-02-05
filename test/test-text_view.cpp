@@ -1423,16 +1423,16 @@ void test_construct_text_view(
                         il,
                         tv15);
 
-    // Test initialization with an explicit initial state and an iterable (make_cstr_range).
-    TVT tv16 = {ET::initial_state(), make_cstr_range(cstr)};
+    // Test initialization with an explicit initial state and an iterable (make_cstr_view).
+    TVT tv16 = {ET::initial_state(), make_cstr_view(cstr)};
     test_text_view<TVT>(code_unit_maps_without_terminator,
-                        make_cstr_range(cstr),
+                        make_cstr_view(cstr),
                         tv16);
                              
-    // Test initialization with an implicit initial state and an iterable (make_cstr_range).
-    TVT tv17 = {make_cstr_range(cstr)};
+    // Test initialization with an implicit initial state and an iterable (make_cstr_view).
+    TVT tv17 = {make_cstr_view(cstr)};
     test_text_view<TVT>(code_unit_maps_without_terminator,
-                        make_cstr_range(cstr),
+                        make_cstr_view(cstr),
                         tv17);
 
     // Test initialization with a text iterator pair.
@@ -1541,15 +1541,15 @@ void test_make_text_view(
                    il,
                    make_text_view<ET>(il));
 
-    // Test construction with an explicit initial state and an iterable (make_cstr_range).
+    // Test construction with an explicit initial state and an iterable (make_cstr_view).
     test_text_view(code_unit_maps_without_terminator,
-                   make_cstr_range(cstr),
-                   make_text_view<ET>(ET::initial_state(), make_cstr_range(cstr)));
+                   make_cstr_view(cstr),
+                   make_text_view<ET>(ET::initial_state(), make_cstr_view(cstr)));
 
-    // Test construction with an implicit initial state and an iterable (make_cstr_range).
+    // Test construction with an implicit initial state and an iterable (make_cstr_view).
     test_text_view(code_unit_maps_without_terminator,
-                   make_cstr_range(cstr),
-                   make_text_view<ET>(make_cstr_range(cstr)));
+                   make_cstr_view(cstr),
+                   make_text_view<ET>(make_cstr_view(cstr)));
 
     // Test construction via the copy constructor.  Note that an explicit
     // encoding is not specified in the make_text_view call.

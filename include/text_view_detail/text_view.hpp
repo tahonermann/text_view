@@ -404,16 +404,16 @@ auto make_text_view(
 
 
 /*
- * make_cstr_range
+ * make_cstr_view
  */
-// Constructs a range from an array reference (that may correspond to a string
+// Constructs a view from an array reference (that may correspond to a string
 // literal) that holds a C style string with a null character terminator.  The
-// constructed range excludes the string terminator (that is presumed, but not
-// verified to be present).
+// constructed view excludes the string terminator that is presumed, but not
+// verified to be present.
 template<Code_unit CUT, std::size_t N>
-auto make_cstr_range(const CUT (&cstr)[N]) {
-    using range_type = origin::bounded_range<const CUT*>;
-    return range_type{cstr, cstr + (N - 1)};
+auto make_cstr_view(const CUT (&cstr)[N]) {
+    using view_type = origin::bounded_range<const CUT*>;
+    return view_type{cstr, cstr + (N - 1)};
 }
 
 

@@ -384,9 +384,9 @@ template<Text_iterator TIT, Text_sentinel<TIT> TST>
 template<Text_view TVT>
 auto make_text_view(TVT tv);
 
-// make_cstr_range:
+// make_cstr_view:
 template<Code_unit CUT, std::size_t N>
-  auto make_cstr_range(const CUT (&cstr)[N]);
+  auto make_cstr_view(const CUT (&cstr)[N]);
 
 } // inline namespace text
 } // namespace experimental
