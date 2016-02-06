@@ -198,7 +198,7 @@ private:
 template<origin::Range RT>
 class iterable_view {
 public:
-    using range_type = origin::Remove_reference<RT>;
+    using range_type = std::remove_reference_t<RT>;
     using iterator = origin::Iterator_type<RT>;
 
     class sentinel {

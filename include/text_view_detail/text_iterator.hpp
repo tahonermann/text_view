@@ -64,7 +64,7 @@ class itext_iterator_base
 {
 public:
     using encoding_type = ET;
-    using range_type = origin::Remove_reference<RT>;
+    using range_type = std::remove_reference_t<RT>;
     using state_type = typename encoding_type::state_type;
     using iterator = origin::Iterator_type<const range_type>;
     using iterator_category =
@@ -461,7 +461,7 @@ private:
 template<Text_encoding ET, origin::Input_range RT>
 class itext_sentinel {
 public:
-    using range_type = origin::Remove_reference<RT>;
+    using range_type = std::remove_reference_t<RT>;
     using sentinel = origin::Sentinel_type<RT>;
 
     itext_sentinel(sentinel s)
