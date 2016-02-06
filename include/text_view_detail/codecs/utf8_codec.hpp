@@ -48,7 +48,7 @@ public:
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<
                  CUIT,
-                 origin::Make_unsigned<code_unit_type>>()
+                 std::make_unsigned_t<code_unit_type>>()
     static void encode(
         state_type &state,
         CUIT &out,
@@ -58,7 +58,7 @@ public:
         encoded_code_units = 0;
 
         using unsigned_code_unit_type =
-            origin::Make_unsigned<code_unit_type>;
+            std::make_unsigned_t<code_unit_type>;
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp{c.get_code_point()};
@@ -107,7 +107,7 @@ public:
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<
                  origin::Value_type<CUIT>,
-                 origin::Make_unsigned<code_unit_type>>()
+                 std::make_unsigned_t<code_unit_type>>()
           && origin::Sentinel<CUST, CUIT>()
     static bool decode(
         state_type &state,
@@ -119,7 +119,7 @@ public:
         decoded_code_units = 0;
 
         using unsigned_code_unit_type =
-            origin::Make_unsigned<code_unit_type>;
+            std::make_unsigned_t<code_unit_type>;
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp;
@@ -192,7 +192,7 @@ public:
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<
                  origin::Value_type<CUIT>,
-                 origin::Make_unsigned<code_unit_type>>()
+                 std::make_unsigned_t<code_unit_type>>()
           && origin::Sentinel<CUST, CUIT>()
     static bool rdecode(
         state_type &state,
@@ -204,7 +204,7 @@ public:
         decoded_code_units = 0;
 
         using unsigned_code_unit_type =
-            origin::Make_unsigned<code_unit_type>;
+            std::make_unsigned_t<code_unit_type>;
         using code_point_type =
             code_point_type_of<character_set_type_of<character_type>>;
         code_point_type cp;

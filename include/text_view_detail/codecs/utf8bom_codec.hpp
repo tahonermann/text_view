@@ -89,7 +89,7 @@ public:
         encoded_code_units = 0;
 
         using unsigned_code_unit_type =
-            origin::Make_unsigned<code_unit_type>;
+            std::make_unsigned_t<code_unit_type>;
 
         switch (stt.state_transition) {
             case state_transition_type::to_initial_state:
@@ -115,7 +115,7 @@ public:
     template<Code_unit_iterator CUIT>
     requires origin::Output_iterator<
                  CUIT,
-                 origin::Make_unsigned<code_unit_type>>()
+                 std::make_unsigned_t<code_unit_type>>()
     static void encode(
         state_type &state,
         CUIT &out,
@@ -149,7 +149,7 @@ public:
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<
                  origin::Value_type<CUIT>,
-                 origin::Make_unsigned<code_unit_type>>()
+                 std::make_unsigned_t<code_unit_type>>()
           && origin::Sentinel<CUST, CUIT>()
     static bool decode(
         state_type &state,
@@ -194,7 +194,7 @@ public:
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<
                  origin::Value_type<CUIT>,
-                 origin::Make_unsigned<code_unit_type>>()
+                 std::make_unsigned_t<code_unit_type>>()
           && origin::Sentinel<CUST, CUIT>()
     static bool rdecode(
         state_type &state,

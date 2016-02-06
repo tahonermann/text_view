@@ -144,7 +144,7 @@ public:
     basic_text_view(
         state_type state,
         code_unit_iterator first,
-        origin::Make_unsigned<origin::Difference_type<code_unit_iterator>> n)
+        std::make_unsigned_t<origin::Difference_type<code_unit_iterator>> n)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_iterator>()
     : basic_text_view{state, first, std::next(first, n)} {}
@@ -154,7 +154,7 @@ public:
     // range_type be constructible from a code_unit_iterator pair.
     basic_text_view(
         code_unit_iterator first,
-        origin::Make_unsigned<origin::Difference_type<code_unit_iterator>> n)
+        std::make_unsigned_t<origin::Difference_type<code_unit_iterator>> n)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_iterator>()
     : basic_text_view{first, std::next(first, n)} {}
@@ -181,7 +181,7 @@ public:
         const basic_string<charT, traits, Allocator> &str)
     requires origin::Constructible<code_unit_iterator, const charT *>()
           && origin::Constructible<
-                 origin::Make_unsigned<origin::Difference_type<code_unit_iterator>>,
+                 std::make_unsigned_t<origin::Difference_type<code_unit_iterator>>,
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
@@ -196,7 +196,7 @@ public:
         const basic_string<charT, traits, Allocator> &str)
     requires origin::Constructible<code_unit_iterator, const charT *>()
           && origin::Constructible<
-                 origin::Make_unsigned<origin::Difference_type<code_unit_iterator>>,
+                 std::make_unsigned_t<origin::Difference_type<code_unit_iterator>>,
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
@@ -336,7 +336,7 @@ template<Text_encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     typename ET::state_type state,
     IT first,
-    origin::Make_unsigned<origin::Difference_type<IT>> n)
+    std::make_unsigned_t<origin::Difference_type<IT>> n)
 {
     return make_text_view<ET>(
                state,
@@ -349,7 +349,7 @@ auto make_text_view(
 template<Text_encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     IT first,
-    origin::Make_unsigned<origin::Difference_type<IT>> n)
+    std::make_unsigned_t<origin::Difference_type<IT>> n)
 {
     return make_text_view<ET>(
                first,
