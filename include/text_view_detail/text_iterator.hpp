@@ -101,9 +101,9 @@ class itext_iterator_data
     : public itext_iterator_base<ET, RT>
 {
 public:
-    using state_type = typename itext_iterator_base<ET, RT>::state_type;
-    using range_type = typename itext_iterator_base<ET, RT>::range_type;
-    using iterator = typename itext_iterator_base<ET, RT>::iterator;
+    using state_type = typename itext_iterator_data::state_type;
+    using range_type = typename itext_iterator_data::range_type;
+    using iterator = typename itext_iterator_data::iterator;
 
 protected:
     itext_iterator_data() = default;
@@ -135,9 +135,9 @@ class itext_iterator_data<ET, RT>
     : public itext_iterator_base<ET, RT>
 {
 public:
-    using state_type = typename itext_iterator_base<ET, RT>::state_type;
-    using range_type = typename itext_iterator_base<ET, RT>::range_type;
-    using iterator = typename itext_iterator_base<ET, RT>::iterator;
+    using state_type = typename itext_iterator_data::state_type;
+    using range_type = typename itext_iterator_data::range_type;
+    using iterator = typename itext_iterator_data::iterator;
 
 protected:
     itext_iterator_data() = default;
@@ -188,15 +188,15 @@ class itext_iterator
     : public text_detail::itext_iterator_data<ET, RT>
 {
 public:
-    using encoding_type = typename text_detail::itext_iterator_data<ET, RT>::encoding_type;
-    using range_type = typename text_detail::itext_iterator_data<ET, RT>::range_type;
-    using state_type = typename text_detail::itext_iterator_data<ET, RT>::state_type;
-    using value_type = typename text_detail::itext_iterator_data<ET, RT>::value_type;
-    using iterator_category = typename text_detail::itext_iterator_data<ET, RT>::iterator_category;
-    using iterator = typename text_detail::itext_iterator_data<ET, RT>::iterator;
-    using pointer = typename text_detail::itext_iterator_data<ET, RT>::pointer;
-    using reference = typename text_detail::itext_iterator_data<ET, RT>::reference;
-    using difference_type = typename text_detail::itext_iterator_data<ET, RT>::difference_type;
+    using encoding_type = typename itext_iterator::encoding_type;
+    using range_type = typename itext_iterator::range_type;
+    using state_type = typename itext_iterator::state_type;
+    using value_type = typename itext_iterator::value_type;
+    using iterator_category = typename itext_iterator::iterator_category;
+    using iterator = typename itext_iterator::iterator;
+    using pointer = typename itext_iterator::pointer;
+    using reference = typename itext_iterator::reference;
+    using difference_type = typename itext_iterator::difference_type;
 
 public:
     itext_iterator() = default;
