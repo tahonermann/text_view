@@ -346,297 +346,297 @@ private:
 
 void test_code_unit_models() {
     // Archetypes
-    static_assert(Code_unit<code_unit_archetype>(), "");
+    static_assert(Code_unit<code_unit_archetype>());
     // std
-    static_assert(Code_unit<char>(), "");
-    static_assert(Code_unit<wchar_t>(), "");
-    static_assert(Code_unit<char16_t>(), "");
-    static_assert(Code_unit<char32_t>(), "");
-    static_assert(Code_unit<unsigned char>(), "");
-    static_assert(Code_unit<unsigned short>(), "");
-    static_assert(Code_unit<unsigned int>(), "");
-    static_assert(Code_unit<unsigned long>(), "");
-    static_assert(Code_unit<unsigned long long>(), "");
+    static_assert(Code_unit<char>());
+    static_assert(Code_unit<wchar_t>());
+    static_assert(Code_unit<char16_t>());
+    static_assert(Code_unit<char32_t>());
+    static_assert(Code_unit<unsigned char>());
+    static_assert(Code_unit<unsigned short>());
+    static_assert(Code_unit<unsigned int>());
+    static_assert(Code_unit<unsigned long>());
+    static_assert(Code_unit<unsigned long long>());
 }
 
 void test_code_point_models() {
     // Archetypes
-    static_assert(Code_point<code_point_archetype>(), "");
+    static_assert(Code_point<code_point_archetype>());
     // std
-    static_assert(Code_point<char>(), "");
-    static_assert(Code_point<wchar_t>(), "");
-    static_assert(Code_point<char16_t>(), "");
-    static_assert(Code_point<char32_t>(), "");
-    static_assert(Code_point<unsigned char>(), "");
-    static_assert(Code_point<unsigned short>(), "");
-    static_assert(Code_point<unsigned int>(), "");
-    static_assert(Code_point<unsigned long>(), "");
-    static_assert(Code_point<unsigned long long>(), "");
+    static_assert(Code_point<char>());
+    static_assert(Code_point<wchar_t>());
+    static_assert(Code_point<char16_t>());
+    static_assert(Code_point<char32_t>());
+    static_assert(Code_point<unsigned char>());
+    static_assert(Code_point<unsigned short>());
+    static_assert(Code_point<unsigned int>());
+    static_assert(Code_point<unsigned long>());
+    static_assert(Code_point<unsigned long long>());
 }
 
 void test_character_set_models() {
     // Archetypes
-    static_assert(Character_set<character_set_archetype>(), "");
+    static_assert(Character_set<character_set_archetype>());
     // std
-    static_assert(Character_set<execution_character_set>(), "");
-    static_assert(Character_set<execution_wide_character_set>(), "");
-    static_assert(Character_set<universal_character_set>(), "");
-    static_assert(Character_set<any_character_set>(), "");
+    static_assert(Character_set<execution_character_set>());
+    static_assert(Character_set<execution_wide_character_set>());
+    static_assert(Character_set<universal_character_set>());
+    static_assert(Character_set<any_character_set>());
 }
 
 void test_character_models() {
     // Archetypes
-    static_assert(Character<character_archetype>(), "");
+    static_assert(Character<character_archetype>());
     // std
-    static_assert(Character<character<execution_character_set>>(), "");
-    static_assert(Character<character<execution_wide_character_set>>(), "");
-    static_assert(Character<character<universal_character_set>>(), "");
-    static_assert(Character<character<any_character_set>>(), "");
+    static_assert(Character<character<execution_character_set>>());
+    static_assert(Character<character<execution_wide_character_set>>());
+    static_assert(Character<character<universal_character_set>>());
+    static_assert(Character<character<any_character_set>>());
 }
 
 void test_code_unit_iterator_models() {
     // Archetypes
-    static_assert(Code_unit_iterator<code_unit_iterator_archetype>(), "");
+    static_assert(Code_unit_iterator<code_unit_iterator_archetype>());
     // std
-    static_assert(Code_unit_iterator<char*>(), "");
-    static_assert(Code_unit_iterator<const char*>(), "");
-    static_assert(Code_unit_iterator<wchar_t*>(), "");
-    static_assert(Code_unit_iterator<char16_t*>(), "");
-    static_assert(Code_unit_iterator<char32_t*>(), "");
+    static_assert(Code_unit_iterator<char*>());
+    static_assert(Code_unit_iterator<const char*>());
+    static_assert(Code_unit_iterator<wchar_t*>());
+    static_assert(Code_unit_iterator<char16_t*>());
+    static_assert(Code_unit_iterator<char32_t*>());
 }
 
 void test_text_encoding_state_models() {
     // Archetypes
-    static_assert(Text_encoding_state<text_encoding_state_archetype>(), "");
+    static_assert(Text_encoding_state<text_encoding_state_archetype>());
     // std
-    static_assert(Text_encoding_state<text_detail::trivial_codec_state>(), "");
-    static_assert(Text_encoding_state<text_detail::utf8bom_codec_state>(), "");
-    static_assert(Text_encoding_state<text_detail::utf16bom_codec_state>(), "");
-    static_assert(Text_encoding_state<text_detail::utf32bom_codec_state>(), "");
+    static_assert(Text_encoding_state<text_detail::trivial_codec_state>());
+    static_assert(Text_encoding_state<text_detail::utf8bom_codec_state>());
+    static_assert(Text_encoding_state<text_detail::utf16bom_codec_state>());
+    static_assert(Text_encoding_state<text_detail::utf32bom_codec_state>());
 }
 
 void test_text_encoding_state_transition_models() {
     // Archetypes
-    static_assert(Text_encoding_state_transition<text_encoding_state_transition_archetype>(), "");
+    static_assert(Text_encoding_state_transition<text_encoding_state_transition_archetype>());
     // std
-    static_assert(Text_encoding_state_transition<text_detail::trivial_codec_state_transition>(), "");
-    static_assert(Text_encoding_state_transition<text_detail::utf8bom_codec_state_transition>(), "");
-    static_assert(Text_encoding_state_transition<text_detail::utf16bom_codec_state_transition>(), "");
-    static_assert(Text_encoding_state_transition<text_detail::utf32bom_codec_state_transition>(), "");
+    static_assert(Text_encoding_state_transition<text_detail::trivial_codec_state_transition>());
+    static_assert(Text_encoding_state_transition<text_detail::utf8bom_codec_state_transition>());
+    static_assert(Text_encoding_state_transition<text_detail::utf16bom_codec_state_transition>());
+    static_assert(Text_encoding_state_transition<text_detail::utf32bom_codec_state_transition>());
 }
 
 void test_text_encoding_models() {
     // Archetypes
-    static_assert(Text_encoding<text_encoding_archetype>(), "");
+    static_assert(Text_encoding<text_encoding_archetype>());
     // std
-    static_assert(Text_encoding<utf8_encoding>(), "");
-    static_assert(Text_encoding<utf16_encoding>(), "");
-    static_assert(Text_encoding<utf16be_encoding>(), "");
-    static_assert(Text_encoding<utf16le_encoding>(), "");
-    static_assert(Text_encoding<utf32_encoding>(), "");
-    static_assert(Text_encoding<utf32be_encoding>(), "");
-    static_assert(Text_encoding<utf32le_encoding>(), "");
-    static_assert(Text_encoding<basic_execution_character_encoding>(), "");
-    static_assert(Text_encoding<basic_execution_wide_character_encoding>(), "");
+    static_assert(Text_encoding<utf8_encoding>());
+    static_assert(Text_encoding<utf16_encoding>());
+    static_assert(Text_encoding<utf16be_encoding>());
+    static_assert(Text_encoding<utf16le_encoding>());
+    static_assert(Text_encoding<utf32_encoding>());
+    static_assert(Text_encoding<utf32be_encoding>());
+    static_assert(Text_encoding<utf32le_encoding>());
+    static_assert(Text_encoding<basic_execution_character_encoding>());
+    static_assert(Text_encoding<basic_execution_wide_character_encoding>());
 #if defined(__STDC_ISO_10646__)
-    static_assert(Text_encoding<iso_10646_wide_character_encoding>(), "");
+    static_assert(Text_encoding<iso_10646_wide_character_encoding>());
 #endif
-    static_assert(Text_encoding<execution_character_encoding>(), "");
-    static_assert(Text_encoding<execution_wide_character_encoding>(), "");
-    static_assert(Text_encoding<char8_character_encoding>(), "");
-    static_assert(Text_encoding<char16_character_encoding>(), "");
-    static_assert(Text_encoding<char32_character_encoding>(), "");
+    static_assert(Text_encoding<execution_character_encoding>());
+    static_assert(Text_encoding<execution_wide_character_encoding>());
+    static_assert(Text_encoding<char8_character_encoding>());
+    static_assert(Text_encoding<char16_character_encoding>());
+    static_assert(Text_encoding<char32_character_encoding>());
 }
 
 void test_text_encoder_models() {
     // Archetypes
     static_assert(Text_encoder<
                       text_encoding_archetype,
-                      code_unit_iterator_archetype>(), "");
+                      code_unit_iterator_archetype>());
     // std
     static_assert(Text_encoder<
                       execution_character_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       execution_wide_character_encoding,
-                      wchar_t*>(), "");
+                      wchar_t*>());
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
     static_assert(Text_encoder<
                       char8_character_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       char16_character_encoding,
-                      char16_t*>(), "");
+                      char16_t*>());
     static_assert(Text_encoder<
                       char32_character_encoding,
-                      char32_t*>(), "");
+                      char32_t*>());
     static_assert(Text_encoder<
                       basic_execution_character_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       basic_execution_wide_character_encoding,
-                      wchar_t*>(), "");
+                      wchar_t*>());
 #if defined(__STDC_ISO_10646__)
     static_assert(Text_encoder<
                       iso_10646_wide_character_encoding,
-                      wchar_t*>(), "");
+                      wchar_t*>());
 #endif // __STDC_ISO_10646__
     static_assert(Text_encoder<
                       utf8_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf8bom_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf16_encoding,
-                      char16_t*>(), "");
+                      char16_t*>());
     static_assert(Text_encoder<
                       utf16be_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf16le_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf16bom_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf32_encoding,
-                      char32_t*>(), "");
+                      char32_t*>());
     static_assert(Text_encoder<
                       utf32be_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf32le_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_encoder<
                       utf32bom_encoding,
-                      char*>(), "");
+                      char*>());
 }
 
 void test_text_decoder_models() {
     // Archetypes
     static_assert(Text_random_access_decoder<
                       text_encoding_archetype,
-                      code_unit_iterator_archetype>(), "");
+                      code_unit_iterator_archetype>());
     // std
     static_assert(Text_forward_decoder<
                       execution_character_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_forward_decoder<
                       execution_wide_character_encoding,
-                      wchar_t*>(), "");
+                      wchar_t*>());
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
     static_assert(Text_bidirectional_decoder<
                       char8_character_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_bidirectional_decoder<
                       char16_character_encoding,
-                      char16_t*>(), "");
+                      char16_t*>());
     static_assert(Text_bidirectional_decoder<
                       char32_character_encoding,
-                      char32_t*>(), "");
+                      char32_t*>());
     static_assert(Text_forward_decoder<
                       basic_execution_character_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_forward_decoder<
                       basic_execution_wide_character_encoding,
-                      wchar_t*>(), "");
+                      wchar_t*>());
 #if defined(__STDC_ISO_10646__)
     static_assert(Text_bidirectional_decoder<
                       iso_10646_wide_character_encoding,
-                      wchar_t*>(), "");
+                      wchar_t*>());
 #endif // __STDC_ISO_10646__
     static_assert(Text_bidirectional_decoder<
                       utf8_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_bidirectional_decoder<
                       utf8bom_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_bidirectional_decoder<
                       utf16_encoding,
-                      char16_t*>(), "");
+                      char16_t*>());
     static_assert(Text_bidirectional_decoder<
                       utf16be_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_bidirectional_decoder<
                       utf16le_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_bidirectional_decoder<
                       utf16bom_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_random_access_decoder<
                       utf32_encoding,
-                      char32_t*>(), "");
+                      char32_t*>());
     static_assert(Text_random_access_decoder<
                       utf32be_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_random_access_decoder<
                       utf32le_encoding,
-                      char*>(), "");
+                      char*>());
     static_assert(Text_bidirectional_decoder<
                       utf32bom_encoding,
-                      char*>(), "");
+                      char*>());
 }
 
 void test_text_iterator_models() {
     // Archetypes
-    static_assert(Text_iterator<text_iterator_archetype>(), "");
-    static_assert(Text_iterator<text_view_archetype::iterator>(), "");
-    static_assert(Text_iterator<otext_iterator<text_encoding_archetype, code_unit_iterator_archetype>>(), "");
+    static_assert(Text_iterator<text_iterator_archetype>());
+    static_assert(Text_iterator<text_view_archetype::iterator>());
+    static_assert(Text_iterator<otext_iterator<text_encoding_archetype, code_unit_iterator_archetype>>());
     // std input iterators
-    static_assert(Text_iterator<itext_iterator<basic_execution_character_encoding, char(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<basic_execution_character_encoding, char(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t(&)[5]>>());
 #if defined(__STDC_ISO_10646__)
-    static_assert(Text_iterator<itext_iterator<iso_10646_wide_character_encoding, wchar_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<iso_10646_wide_character_encoding, wchar_t(&)[5]>>());
 #endif
-    static_assert(Text_iterator<itext_iterator<utf8_encoding, char(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16_encoding, char16_t(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16be_encoding, char(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16le_encoding, char(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32_encoding, char32_t(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32be_encoding, char(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32le_encoding, char(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf8_encoding, char(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<utf16_encoding, char16_t(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<utf16be_encoding, char(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<utf16le_encoding, char(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<utf32_encoding, char32_t(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<utf32be_encoding, char(&)[5]>>());
+    static_assert(Text_iterator<itext_iterator<utf32le_encoding, char(&)[5]>>());
     // std output iterators
-    static_assert(Text_iterator<otext_iterator<basic_execution_character_encoding, char*>>(), "");
-    static_assert(Text_iterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<basic_execution_character_encoding, char*>>());
+    static_assert(Text_iterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>());
 #if defined(__STDC_ISO_10646__)
-    static_assert(Text_iterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>());
 #endif
-    static_assert(Text_iterator<otext_iterator<utf8_encoding, char*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16be_encoding, char*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16le_encoding, char*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32be_encoding, char*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32le_encoding, char*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf8_encoding, char*>>());
+    static_assert(Text_iterator<otext_iterator<utf16_encoding, char16_t*>>());
+    static_assert(Text_iterator<otext_iterator<utf16be_encoding, char*>>());
+    static_assert(Text_iterator<otext_iterator<utf16le_encoding, char*>>());
+    static_assert(Text_iterator<otext_iterator<utf32_encoding, char32_t*>>());
+    static_assert(Text_iterator<otext_iterator<utf32be_encoding, char*>>());
+    static_assert(Text_iterator<otext_iterator<utf32le_encoding, char*>>());
 }
 
 void test_text_view_models() {
     // Archetypes
-    static_assert(Text_view<text_view_archetype>(), "");
+    static_assert(Text_view<text_view_archetype>());
     // std
-    static_assert(Text_view<text_view>(), "");
-    static_assert(Text_view<wtext_view>(), "");
-    static_assert(Text_view<u8text_view>(), "");
-    static_assert(Text_view<u16text_view>(), "");
-    static_assert(Text_view<u32text_view>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, char(&)[5]>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, const char(&)[5]>>(), "");
-    static_assert(Text_view<basic_text_view<execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
+    static_assert(Text_view<text_view>());
+    static_assert(Text_view<wtext_view>());
+    static_assert(Text_view<u8text_view>());
+    static_assert(Text_view<u16text_view>());
+    static_assert(Text_view<u32text_view>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, char(&)[5]>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, const char(&)[5]>>());
+    static_assert(Text_view<basic_text_view<execution_wide_character_encoding, wchar_t(&)[5]>>());
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
-    static_assert(Text_view<basic_text_view<char8_character_encoding, char(&)[5]>>(), "");
-    static_assert(Text_view<basic_text_view<char16_character_encoding, char16_t(&)[5]>>(), "");
-    static_assert(Text_view<basic_text_view<char32_character_encoding, char32_t(&)[5]>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, string&>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, array<char, 5>&>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, vector<char>&>>(), "");
+    static_assert(Text_view<basic_text_view<char8_character_encoding, char(&)[5]>>());
+    static_assert(Text_view<basic_text_view<char16_character_encoding, char16_t(&)[5]>>());
+    static_assert(Text_view<basic_text_view<char32_character_encoding, char32_t(&)[5]>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, string&>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, array<char, 5>&>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, vector<char>&>>());
     // FIXME: The following basic_text_view instantiations should be rejected
     // FIXME: since the range type they are instantiated with owns the
     // FIXME: underlying storage.
-    static_assert(Text_view<basic_text_view<execution_character_encoding, char[5]>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, string>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, array<char, 5>>>(), "");
-    static_assert(Text_view<basic_text_view<execution_character_encoding, vector<char>>>(), "");
+    static_assert(Text_view<basic_text_view<execution_character_encoding, char[5]>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, string>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, array<char, 5>>>());
+    static_assert(Text_view<basic_text_view<execution_character_encoding, vector<char>>>());
 }
 
 // Test any_character_set.
@@ -1815,7 +1815,7 @@ void test_utf8_encoding() {
 
     string encoded_string(u8"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 5);
@@ -1868,7 +1868,7 @@ void test_utf8bom_encoding() {
     {
     string encoded_string_no_bom(u8"a\U00011141\U0000FEFF");
     auto tv = make_text_view<ET>(encoded_string_no_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'a'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
@@ -1884,7 +1884,7 @@ void test_utf8bom_encoding() {
     {
     string encoded_string_bom(u8"\U0000FEFFa\U00011141\U0000FEFF");
     auto tv = make_text_view<ET>(encoded_string_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'a'});
     assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 3);
@@ -1918,7 +1918,7 @@ void test_utf16_encoding() {
 
     u16string encoded_string(u"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 3);
@@ -1950,7 +1950,7 @@ void test_utf16be_encoding() {
 
     string encoded_string("\x00\x61\xD8\x04\xDD\x41\x00\x7A", 8);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
@@ -1982,7 +1982,7 @@ void test_utf16le_encoding() {
 
     string encoded_string("\x61\x00\x04\xD8\x41\xDD\x7A\x00", 8);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
@@ -2054,7 +2054,7 @@ void test_utf16bom_encoding() {
     {
     string encoded_string_no_bom("\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 8);
     auto tv = make_text_view<ET>(encoded_string_no_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
@@ -2070,7 +2070,7 @@ void test_utf16bom_encoding() {
     {
     string encoded_string_be_bom("\xFE\xFF\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 10);
     auto tv = make_text_view<ET>(encoded_string_be_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 2);
@@ -2086,7 +2086,7 @@ void test_utf16bom_encoding() {
     {
     string encoded_string_le_bom("\xFF\xFE\x61\x00\x04\xD8\x41\xDD\xFF\xFE", 10);
     auto tv = make_text_view<ET>(encoded_string_le_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 2);
@@ -2120,7 +2120,7 @@ void test_utf32_encoding() {
 
     u32string encoded_string(U"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 2);
@@ -2152,7 +2152,7 @@ void test_utf32be_encoding() {
 
     string encoded_string("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\x00\x7A", 12);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
@@ -2184,7 +2184,7 @@ void test_utf32le_encoding() {
 
     string encoded_string("\x61\x00\x00\x00\x41\x11\x01\x00\x7A\x00\x00\x00", 12);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(origin::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
@@ -2256,7 +2256,7 @@ void test_utf32bom_encoding() {
     {
     string encoded_string_no_bom("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 12);
     auto tv = make_text_view<ET>(encoded_string_no_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
@@ -2272,7 +2272,7 @@ void test_utf32bom_encoding() {
     {
     string encoded_string_be_bom("\x00\x00\xFE\xFF\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 16);
     auto tv = make_text_view<ET>(encoded_string_be_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
@@ -2288,7 +2288,7 @@ void test_utf32bom_encoding() {
     {
     string encoded_string_le_bom("\xFF\xFE\x00\x00\x61\x00\x00\x00\x41\x11\x01\x00\xFF\xFE\x00\x00", 16);
     auto tv = make_text_view<ET>(encoded_string_le_bom);
-    static_assert(! origin::Iterator<decltype(end(tv))>(), "");
+    static_assert(! origin::Iterator<decltype(end(tv))>());
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 4);

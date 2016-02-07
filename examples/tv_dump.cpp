@@ -134,7 +134,7 @@ int main(
         }
         else if (strcmp(encoding, "utf-16") == 0) {
             // This endianness detection requires sizeof(char16_t) == 2.
-            static_assert(sizeof(char16_t) == 2, "");
+            static_assert(sizeof(char16_t) == 2);
             if (*((unsigned char*)u"\ufeff") == 0xFF) {
                 dump_code_points<utf16le_encoding>(ifs);
             } else {
@@ -152,7 +152,7 @@ int main(
         }
         else if (strcmp(encoding, "utf-32") == 0) {
             // This endianness detection requires sizeof(char32_t) == 4.
-            static_assert(sizeof(char32_t) == 4, "");
+            static_assert(sizeof(char32_t) == 4);
             if (*((unsigned char*)U"\U0000feff") == 0xFF) {
                 dump_code_points<utf32le_encoding>(ifs);
             } else {
