@@ -2098,7 +2098,7 @@ utf16_encoding | [Unicode] UTF-16, native endian | stateless, variable width
 utf16be_encoding | [Unicode] UTF-16, big endian | stateless, variable width
 utf16le_encoding | [Unicode] UTF-16, little endian | stateless, variable width
 utf16bom_encoding | [Unicode] UTF-16 with a byte order mark | stateful, variable width
-utf32_encoding | [Unicode] UTF-32, native endian | stateless, fixed width
+utf32_encoding | [Unicode] UTF-32, native endian | trivial
 utf32be_encoding | [Unicode] UTF-16, big endian | stateless, fixed width
 utf32le_encoding | [Unicode] UTF-16, little endian | stateless, fixed width
 utf32bom_encoding | [Unicode] UTF-32 with a byte order mark | stateful, variable width
