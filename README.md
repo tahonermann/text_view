@@ -2222,6 +2222,16 @@ encodings such as [Windows code page 1252].
   https://github.com/tahonermann/origin
 - [ISO/IEC technical specification 19217:2015, C++ Extensions for concepts][ISO/IEC 19217:2015]  
   http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031
+- [P0022R1: Proxy Iterators for the Ranges Extensions][P0022R1]  
+  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html
+- [N4560: Working Draft, C++ Extensions for Ranges][N4560]  
+  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf
+- [N2442: Raw and Unicode String Literals; Unified Proposal (Rev. 2)][N2442]  
+  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm
+- [N2249: New Character Types in C++][N2249]  
+  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html
+- [Unicode]  
+  http://unicode.org
 
 [Text_view]:
 https://github.com/tahonermann/text_view
