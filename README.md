@@ -20,6 +20,8 @@ based character encoding and code point enumeration library.
   - [Character set information](#character-set-information)
   - [Characters](#characters)
   - [Encodings](#encodings)
+  - [Text iterators](#text-iterators)
+  - [Text view](#text-view)
 - [Supported Encodings](#supported-encodings)
 - [Terminology](#terminology)
   - [Code Unit](#code-unit)
@@ -335,7 +337,7 @@ using char32_character_encoding = /* implementation-defined */ ;
 // itext_iterator:
 template<Text_encoding ET, ranges::InputRange RT>
   requires Text_decoder<ET, ranges::iterator_t<const RT>>()
-    class itext_iterator;
+  class itext_iterator;
 
 // itext_sentinel:
 template<Text_encoding ET, ranges::InputRange RT>
@@ -344,7 +346,7 @@ template<Text_encoding ET, ranges::InputRange RT>
 // otext_iterator:
 template<Text_encoding E, Code_unit_iterator CUIT>
   requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
-    class otext_iterator;
+  class otext_iterator;
 
 // basic_text_view:
 template<Text_encoding ET, ranges::InputRange RT>
@@ -364,29 +366,37 @@ using u32text_view = basic_text_view<char32_character_encoding,
 
 // basic_text_view factory functions:
 template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
-  auto make_text_view(typename ET::state_type state, IT first, ST last);
+  auto make_text_view(typename ET::state_type state, IT first, ST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
-  auto make_text_view(IT first, ST last);
+  auto make_text_view(IT first, ST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_encoding ET, ranges::ForwardIterator IT>
   auto make_text_view(typename ET::state_type state,
                       IT first,
-                      typename std::make_unsigned<ranges::difference_type_t<IT>>::type n);
+                      typename std::make_unsigned<ranges::difference_type_t<IT>>::type n)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_encoding ET, ranges::ForwardIterator IT>
   auto make_text_view(IT first,
-                      typename std::make_unsigned<ranges::difference_type_t<IT>>::type n);
+                      typename std::make_unsigned<ranges::difference_type_t<IT>>::type n)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_encoding ET, ranges::InputRange Iterable>
   auto make_text_view(typename ET::state_type state,
-                      const Iterable &iterable);
+                      const Iterable &iterable)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_encoding ET, ranges::InputRange Iterable>
-  auto make_text_view(const Iterable &iterable);
+  auto make_text_view(const Iterable &iterable)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_iterator TIT, Text_sentinel<TIT> TST>
-  auto make_text_view(TIT first, TST last);
+  auto make_text_view(TIT first, TST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
 template<Text_view TVT>
-auto make_text_view(TVT tv);
+  TVT make_text_view(TVT tv);
 
 // make_cstr_view:
 template<Code_unit CUT, std::size_t N>
-  auto make_cstr_view(const CUT (&cstr)[N]);
+  auto make_cstr_view(const CUT (&cstr)[N])
+  -> /* implementation-defined */ ;
 
 } // inline namespace text
 } // namespace experimental
@@ -419,7 +429,7 @@ The `Code_unit` concept specifies requirements for a type usable as the
 
 ```C++
 template<typename T> concept bool Code_unit() {
-    return /* implementation-defined */ ;
+  return /* implementation-defined */ ;
 }
 ```
 
@@ -435,7 +445,7 @@ The `Code_point` concept specifies requirements for a type usable as the
 
 ```C++
 template<typename T> concept bool Code_point() {
-    return /* implementation-defined */ ;
+  return /* implementation-defined */ ;
 }
 ```
 
@@ -1587,6 +1597,421 @@ using execution_wide_character_encoding = /* implementation-defined */ ;
 using char8_character_encoding = /* implementation-defined */ ;
 using char16_character_encoding = /* implementation-defined */ ;
 using char32_character_encoding = /* implementation-defined */ ;
+```
+
+## Text iterators
+
+- [Class template itext_iterator](#class-template-itext_iterator)
+- [Class template itext_sentinel](#class-template-itext_sentinel)
+- [Class template otext_iterator](#class-template-otext_iterator)
+
+### Class template itext_iterator
+
+```C++
+template<Text_encoding ET, ranges::InputRange RT>
+  requires Text_decoder<
+             ET,
+             ranges::iterator_t<std::add_const_t<std::remove_reference_t<RT>>>>()
+class itext_iterator {
+public:
+  using encoding_type = ET;
+  using range_type = std::remove_reference_t<RT>;
+  using state_type = typename encoding_type::state_type;
+
+  using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
+  using iterator_category = /* implementation-defined */;
+  using value_type = typename encoding_type::character_type;
+  using reference = std::add_const_t<value_type>&;
+  using pointer = std::add_const_t<value_type>*;
+  using difference_type = ranges::difference_type_t<iterator>;
+
+  itext_iterator();
+
+  itext_iterator(const state_type &state,
+                 const range_type *range,
+                 iterator first);
+
+  reference operator*() const noexcept;
+  pointer operator->() const noexcept;
+
+  friend bool operator==(const itext_iterator &l, const itext_iterator &r);
+  friend bool operator!=(const itext_iterator &l, const itext_iterator &r);
+
+  friend bool operator<(const itext_iterator &l, const itext_iterator &r)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+  friend bool operator>(const itext_iterator &l, const itext_iterator &r)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+  friend bool operator<=(const itext_iterator &l, const itext_iterator &r)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+  friend bool operator>=(const itext_iterator &l, const itext_iterator &r)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+
+  itext_iterator& operator++();
+  itext_iterator& operator++()
+    requires Text_forward_decoder<encoding_type, iterator>();
+  itext_iterator operator++(int);
+
+  itext_iterator& operator--()
+    requires Text_bidirectional_decoder<encoding_type, iterator>();
+  itext_iterator operator--(int)
+    requires Text_bidirectional_decoder<encoding_type, iterator>();
+
+  itext_iterator& operator+=(difference_type n)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+  itext_iterator& operator-=(difference_type n)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+
+  friend itext_iterator operator+(itext_iterator l, difference_type n)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+  friend itext_iterator operator+(difference_type n, itext_iterator r)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+
+  friend itext_iterator operator-(itext_iterator l, difference_type n)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+  friend difference_type operator-(const itext_iterator &l,
+                                   const itext_iterator &r)
+    requires Text_random_access_decoder<encoding_type, iterator>();
+
+  value_type operator[](difference_type n) const
+    requires Text_random_access_decoder<encoding_type, iterator>();
+
+  const state_type& state() const noexcept;
+  state_type& state() noexcept;
+
+  iterator base() const;
+
+  /* implementation-defined */ base_range() const
+    requires Text_decoder<encoding_type, iterator>()
+          && ranges::ForwardIterator<iterator>();
+
+  bool is_ok() const noexcept;
+
+private:
+  state_type base_state;  // exposition only
+  iterator base_iterator; // exposition only
+  bool ok;                // exposition only
+};
+```
+
+### Class template itext_sentinel
+
+```C++
+template<Text_encoding ET, ranges::InputRange RT>
+class itext_sentinel {
+public:
+  using range_type = std::remove_reference_t<RT>;
+  using sentinel = ranges::sentinel_t<std::add_const_t<range_type>>;
+
+  itext_sentinel(sentinel s);
+
+  itext_sentinel(const itext_iterator<ET, RT> &ti)
+    requires ranges::ConvertibleTo<decltype(ti.base()), sentinel>();
+
+  friend bool operator==(const itext_sentinel &l, const itext_sentinel &r);
+  friend bool operator!=(const itext_sentinel &l, const itext_sentinel &r);
+
+  friend bool operator==(const itext_iterator<ET, RT> &ti,
+                         const itext_sentinel &ts);
+  friend bool operator!=(const itext_iterator<ET, RT> &ti,
+                         const itext_sentinel &ts);
+  friend bool operator==(const itext_sentinel &ts,
+                         const itext_iterator<ET, RT> &ti);
+  friend bool operator!=(const itext_sentinel &ts,
+                         const itext_iterator<ET, RT> &ti);
+
+  friend bool operator<(const itext_sentinel &l, const itext_sentinel &r);
+  friend bool operator>(const itext_sentinel &l, const itext_sentinel &r);
+  friend bool operator<=(const itext_sentinel &l, const itext_sentinel &r);
+  friend bool operator>=(const itext_sentinel &l, const itext_sentinel &r);
+
+  friend bool operator<(const itext_iterator<ET, RT> &ti,
+                        const itext_sentinel &ts)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+  friend bool operator>(const itext_iterator<ET, RT> &ti,
+                        const itext_sentinel &ts)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+  friend bool operator<=(const itext_iterator<ET, RT> &ti,
+                         const itext_sentinel &ts)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+  friend bool operator>=(const itext_iterator<ET, RT> &ti,
+                         const itext_sentinel &ts)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+
+  friend bool operator<(const itext_sentinel &ts,
+                        const itext_iterator<ET, RT> &ti)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+  friend bool operator>(const itext_sentinel &ts,
+                        const itext_iterator<ET, RT> &ti)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+  friend bool operator<=(const itext_sentinel &ts,
+                         const itext_iterator<ET, RT> &ti)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+  friend bool operator>=(const itext_sentinel &ts,
+                         const itext_iterator<ET, RT> &ti)
+    requires ranges::StrictWeakOrder<
+                 std::less<>,
+                 typename itext_iterator<ET, RT>::iterator,
+                 sentinel>();
+
+  sentinel base() const;
+
+private:
+  sentinel base_sentinel; // exposition only
+};
+```
+
+### Class template otext_iterator
+
+```C++
+template<Text_encoding E, Code_unit_iterator CUIT>
+  requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
+class otext_iterator {
+public:
+  using encoding_type = E;
+  using state_type = typename E::state_type;
+  using state_transition_type = typename E::state_transition_type;
+
+  using iterator = CUIT;
+  using iterator_category = std::output_iterator_tag;
+  using value_type = typename encoding_type::character_type;
+  using reference = value_type&;
+  using pointer = value_type*;
+  using difference_type = ranges::difference_type_t<iterator>;
+
+  otext_iterator();
+
+  otext_iterator(state_type state, iterator current);
+
+  otext_iterator& operator*();
+
+  friend bool operator==(const otext_iterator &l, const otext_iterator &r);
+  friend bool operator!=(const otext_iterator &l, const otext_iterator &r);
+
+  otext_iterator& operator++();
+  otext_iterator& operator++(int);
+
+  otext_iterator& operator=(const state_transition_type &stt);
+  otext_iterator& operator=(const typename encoding_type::character_type &value);
+
+  const state_type& state() const noexcept;
+  state_type& state() noexcept;
+
+  iterator base() const;
+
+private:
+  state_type base_state;  // exposition only
+  iterator base_iterator; // exposition only
+};
+```
+
+## Text view
+
+- [Class template basic_text_view](#class-template-basic_text_view)
+- [Text view type aliases](#text-view-type-aliases)
+- [make_text_view](#make_text_view)
+- [make_cstr_view](#make_cstr_view)
+
+### Class template basic_text_view
+
+```C++
+template<Text_encoding ET, ranges::InputRange RT>
+class basic_text_view {
+public:
+  using encoding_type = ET;
+  using range_type = RT;
+  using state_type = typename ET::state_type;
+  using code_unit_iterator = ranges::iterator_t<std::add_const_t<range_type>>;
+  using code_unit_sentinel = ranges::sentinel_t<std::add_const_t<range_type>>;
+  using iterator = itext_iterator<ET, RT>;
+  using sentinel = itext_sentinel<ET, RT>;
+
+  basic_text_view();
+
+  basic_text_view(state_type state,
+                  range_type r)
+    requires ranges::CopyConstructible<range_type>();
+
+  basic_text_view(range_type r)
+    requires ranges::CopyConstructible<range_type>();
+
+  basic_text_view(state_type state,
+                  code_unit_iterator first,
+                  code_unit_sentinel last)
+    requires ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  basic_text_view(code_unit_iterator first,
+                  code_unit_sentinel last)
+    requires ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  basic_text_view(state_type state,
+                  code_unit_iterator first,
+                  ranges::difference_type_t<code_unit_iterator> n)
+    requires ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_iterator>();
+
+  basic_text_view(code_unit_iterator first,
+                  ranges::difference_type_t<code_unit_iterator> n)
+    requires ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_iterator>();
+
+  template<typename charT, typename traits, typename Allocator>
+    basic_text_view(state_type state,
+                    const basic_string<charT, traits, Allocator> &str)
+    requires ranges::Constructible<code_unit_iterator, const charT *>()
+          && ranges::Constructible<ranges::difference_type_t<code_unit_iterator>,
+                                   typename basic_string<charT, traits, Allocator>::size_type>()
+          && ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  template<typename charT, typename traits, typename Allocator>
+    basic_text_view(const basic_string<charT, traits, Allocator> &str)
+    requires ranges::Constructible<code_unit_iterator, const charT *>()
+          && ranges::Constructible<ranges::difference_type_t<code_unit_iterator>,
+                                   typename basic_string<charT, traits, Allocator>::size_type>()
+          && ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  template<ranges::InputRange Iterable>
+    basic_text_view(state_type state,
+                    const Iterable &iterable)
+    requires ranges::Constructible<code_unit_iterator,
+                                   ranges::iterator_t<const Iterable>>()
+          && ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  template<ranges::InputRange Iterable>
+    basic_text_view(const Iterable &iterable)
+    requires ranges::Constructible<code_unit_iterator,
+                                   ranges::iterator_t<const Iterable>>()
+          && ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  basic_text_view(iterator first, sentinel last)
+    requires ranges::Constructible<code_unit_iterator,
+                                   decltype(std::declval<iterator>().base())>()
+          && ranges::Constructible<range_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel>();
+
+  const range_type& base() const noexcept;
+  range_type& base() noexcept;
+
+  const state_type& initial_state() const noexcept;
+  state_type& initial_state() noexcept;
+
+  iterator begin() const;
+  iterator end() const
+    requires std::is_empty<state_type>::value
+          && ranges::Iterator<code_unit_sentinel>();
+  sentinel end() const
+    requires !std::is_empty<state_type>::value
+          || !ranges::Iterator<code_unit_sentinel>();
+
+private:
+  state_type base_state; // exposition only
+  range_type base_range; // exposition only
+};
+
+```
+
+### Text view type aliases
+
+```C++
+using text_view = basic_text_view<
+          execution_character_encoding,
+          /* implementation-defined */ >;
+using wtext_view = basic_text_view<
+          execution_wide_character_encoding,
+          /* implementation-defined */ >;
+using u8text_view = basic_text_view<
+          char8_character_encoding,
+          /* implementation-defined */ >;
+using u16text_view = basic_text_view<
+          char16_character_encoding,
+          /* implementation-defined */ >;
+using u32text_view = basic_text_view<
+          char32_character_encoding,
+          /* implementation-defined */ >;
+```
+
+### make_text_view
+
+```C++
+template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+  auto make_text_view(typename ET::state_type state,
+                      IT first, ST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+
+template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+  auto make_text_view(IT first, ST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<Text_encoding ET, ranges::ForwardIterator IT>
+  auto make_text_view(typename ET::state_type state,
+                      IT first,
+                      ranges::difference_type_t<IT> n)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<Text_encoding ET, ranges::ForwardIterator IT>
+  auto make_text_view(IT first,
+                      ranges::difference_type_t<IT> n)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<Text_encoding ET, ranges::InputRange Iterable>
+  auto make_text_view(typename ET::state_type state,
+                      const Iterable &iterable)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<Text_encoding ET, ranges::InputRange Iterable>
+  auto make_text_view(const Iterable &iterable)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<Text_iterator TIT, Text_sentinel<TIT> TST>
+  auto make_text_view(TIT first, TST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<Text_view TVT>
+  TVT make_text_view(TVT tv);
+```
+
+### make_cstr_view
+
+```C++
+template<Code_unit CUT, std::size_t N>
+  auto make_cstr_view(const CUT (&cstr)[N])
+  -> /* implementation-defined */ ;
 ```
 
 # Supported Encodings
