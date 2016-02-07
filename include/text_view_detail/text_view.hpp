@@ -144,7 +144,7 @@ public:
     basic_text_view(
         state_type state,
         code_unit_iterator first,
-        std::make_unsigned_t<origin::Difference_type<code_unit_iterator>> n)
+        origin::Difference_type<code_unit_iterator> n)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_iterator>()
     : basic_text_view{state, first, std::next(first, n)} {}
@@ -154,7 +154,7 @@ public:
     // range_type be constructible from a code_unit_iterator pair.
     basic_text_view(
         code_unit_iterator first,
-        std::make_unsigned_t<origin::Difference_type<code_unit_iterator>> n)
+        origin::Difference_type<code_unit_iterator> n)
     requires origin::Constructible<
                  range_type, code_unit_iterator, code_unit_iterator>()
     : basic_text_view{first, std::next(first, n)} {}
@@ -181,11 +181,13 @@ public:
         const basic_string<charT, traits, Allocator> &str)
     requires origin::Constructible<code_unit_iterator, const charT *>()
           && origin::Constructible<
-                 std::make_unsigned_t<origin::Difference_type<code_unit_iterator>>,
+                 origin::Difference_type<code_unit_iterator>,
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view{state, str.c_str(), str.size()} {}
+    : basic_text_view{state,
+                      str.c_str(),
+                      origin::Difference_type<code_unit_iterator>(str.size())} {}
 
     // Overload to initialize a text view with an implicitly specified initial
     // encoding state and a basic_string specialization.  See the above comments
@@ -196,11 +198,12 @@ public:
         const basic_string<charT, traits, Allocator> &str)
     requires origin::Constructible<code_unit_iterator, const charT *>()
           && origin::Constructible<
-                 std::make_unsigned_t<origin::Difference_type<code_unit_iterator>>,
+                 origin::Difference_type<code_unit_iterator>,
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && origin::Constructible<
                  range_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view{str.c_str(), str.size()} {}
+    : basic_text_view{str.c_str(),
+                      origin::Difference_type<code_unit_iterator>(str.size())} {}
 
     // Overload to initialize a text view with an explicitly specified initial
     // encoding state and an N4382 InputIterator and Sentinel extracted from a
@@ -336,7 +339,7 @@ template<Text_encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     typename ET::state_type state,
     IT first,
-    std::make_unsigned_t<origin::Difference_type<IT>> n)
+    origin::Difference_type<IT> n)
 {
     return make_text_view<ET>(
                state,
@@ -349,7 +352,7 @@ auto make_text_view(
 template<Text_encoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     IT first,
-    std::make_unsigned_t<origin::Difference_type<IT>> n)
+    origin::Difference_type<IT> n)
 {
     return make_text_view<ET>(
                first,
