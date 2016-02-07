@@ -390,7 +390,7 @@ auto make_text_view(
     TIT first,
     TST last)
 {
-    using ET = encoding_type_of<TIT>;
+    using ET = encoding_type_t<TIT>;
     return make_text_view<ET>(
                first.state(),
                first.base(),

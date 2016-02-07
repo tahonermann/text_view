@@ -68,12 +68,12 @@ concept bool CharacterSet() {
  */
 template<typename T>
 concept bool Character() {
-    return CharacterSet<character_set_type_of<T>>()
+    return CharacterSet<character_set_type_t<T>>()
         && origin::Regular<T>()
         && origin::Copyable<T>()
-        && requires (T t, code_point_type_of<character_set_type_of<T>> cp) {
+        && requires (T t, code_point_type_t<character_set_type_t<T>> cp) {
                t.set_code_point(cp);
-               { t.get_code_point() } -> code_point_type_of<character_set_type_of<T>>;
+               { t.get_code_point() } -> code_point_type_t<character_set_type_t<T>>;
                { t.get_character_set_id() } -> character_set_id;
            };
 }

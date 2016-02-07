@@ -53,7 +53,7 @@ public:
         int &encoded_code_units)
     {
         using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
+            code_point_type_t<character_set_type_t<character_type>>;
 
         code_point_type cp{c.get_code_point()};
         code_unit_type cu(cp);
@@ -73,7 +73,7 @@ public:
         int &decoded_code_units)
     {
         using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
+            code_point_type_t<character_set_type_t<character_type>>;
 
         if (in_next == in_end) {
             throw text_decode_underflow_error("text decode underflow error");
@@ -98,7 +98,7 @@ public:
         int &decoded_code_units)
     {
         using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
+            code_point_type_t<character_set_type_t<character_type>>;
 
         if (in_next == in_end) {
             throw text_decode_underflow_error("text decode underflow error");

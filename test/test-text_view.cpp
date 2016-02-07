@@ -751,7 +751,7 @@ template<
     TextView TVT>
 requires origin::Input_iterator<origin::Iterator_type<TVT>>()
 void test_forward_decode(
-    const code_unit_map_sequence<encoding_type_of<TVT>> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
     TVT tv)
 {
@@ -805,7 +805,7 @@ template<
     TextView TVT>
 requires origin::Forward_iterator<origin::Iterator_type<TVT>>()
 void test_forward_decode(
-    const code_unit_map_sequence<encoding_type_of<TVT>> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
     TVT tv)
 {
@@ -914,7 +914,7 @@ template<
     TextView TVT>
 requires origin::Bidirectional_iterator<origin::Iterator_type<TVT>>()
 void test_reverse_decode(
-    const code_unit_map_sequence<encoding_type_of<TVT>> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
     TVT tv)
 {
@@ -1018,7 +1018,7 @@ template<
     TextView TVT>
 requires origin::Random_access_iterator<origin::Iterator_type<TVT>>()
 void test_random_decode(
-    const code_unit_map_sequence<encoding_type_of<TVT>> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
     TVT tv)
 {
@@ -1316,7 +1316,7 @@ template<
     TextView TVT,
     origin::Input_range RT>
 void test_text_view(
-    const code_unit_map_sequence<encoding_type_of<TVT>> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
     TVT tv)
 {
@@ -1329,21 +1329,21 @@ template<
     size_t ary_length,
     typename String>
 void test_construct_text_view(
-    const code_unit_map_sequence<encoding_type_of<TVT>>
+    const code_unit_map_sequence<encoding_type_t<TVT>>
         &code_unit_maps_with_terminator,
-    const code_unit_map_sequence<encoding_type_of<TVT>>
+    const code_unit_map_sequence<encoding_type_t<TVT>>
         &code_unit_maps_without_terminator,
-    const typename encoding_type_of<TVT>::code_unit_type (&cstr)[cstr_length],
+    const typename encoding_type_t<TVT>::code_unit_type (&cstr)[cstr_length],
     const array<
-        typename encoding_type_of<TVT>::code_unit_type,
+        typename encoding_type_t<TVT>::code_unit_type,
         ary_length> &ary,
     const String &str,
     const initializer_list<
-        const typename encoding_type_of<TVT>::code_unit_type> &il)
+        const typename encoding_type_t<TVT>::code_unit_type> &il)
 {
-    using ET = encoding_type_of<TVT>;
+    using ET = encoding_type_t<TVT>;
     using RT = typename TVT::range_type;
-    using CUMS = code_unit_map_sequence<encoding_type_of<TVT>>;
+    using CUMS = code_unit_map_sequence<encoding_type_t<TVT>>;
 
     // Note: copy-initialization is used in these tests to ensure these forms
     // are valid for function arguments.  list-initialization is used to ensure
@@ -1588,7 +1588,7 @@ void test_make_text_view(
 
 void test_text_view() {
     using TVT = text_view;
-    using ET = encoding_type_of<TVT>;
+    using ET = encoding_type_t<TVT>;
     using CT = ET::character_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1629,7 +1629,7 @@ void test_text_view() {
 
 void test_wtext_view() {
     using TVT = wtext_view;
-    using ET = encoding_type_of<TVT>;
+    using ET = encoding_type_t<TVT>;
     using CT = ET::character_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1670,7 +1670,7 @@ void test_wtext_view() {
 
 void test_u8text_view() {
     using TVT = u8text_view;
-    using ET = encoding_type_of<TVT>;
+    using ET = encoding_type_t<TVT>;
     using CT = ET::character_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1720,7 +1720,7 @@ void test_u8text_view() {
 
 void test_u16text_view() {
     using TVT = u16text_view;
-    using ET = encoding_type_of<TVT>;
+    using ET = encoding_type_t<TVT>;
     using CT = ET::character_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1761,7 +1761,7 @@ void test_u16text_view() {
 
 void test_u32text_view() {
     using TVT = u32text_view;
-    using ET = encoding_type_of<TVT>;
+    using ET = encoding_type_t<TVT>;
     using CT = ET::character_type;
     using CUMS = code_unit_map_sequence<ET>;
 

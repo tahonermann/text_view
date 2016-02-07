@@ -287,11 +287,11 @@ const character_set_info& get_character_set_info(character_set_id id);
 
 // character set and encoding traits:
 template<typename T>
-  using code_point_type_of = /* implementation-defined */ ;
+  using code_point_type_t = /* implementation-defined */ ;
 template<typename T>
-  using character_set_type_of = /* implementation-defined */ ;
+  using character_set_type_t = /* implementation-defined */ ;
 template<typename T>
-  using encoding_type_of = /* implementation-defined */ ;
+  ut =sing encoding_type_t /* implementation-defined */ ;
 
 // characters:
 template<CharacterSet CST> class character;

@@ -170,21 +170,21 @@ get_character_set_id() {
  */
 namespace text_detail {
 template<typename T>
-struct get_code_point_type_of;
+struct get_code_point_type_t;
 
 template<typename T>
 requires requires () { typename T::code_point_type; }
-struct get_code_point_type_of<T> {
+struct get_code_point_type_t<T> {
     using type = typename T::code_point_type;
 };
 
 template<typename T>
-using code_point_type_of =
-          typename get_code_point_type_of<origin::Strip<T>>::type;
+using code_point_type_t =
+          typename get_code_point_type_t<origin::Strip<T>>::type;
 } // namespace text_detail
 
 template<typename T>
-using code_point_type_of = text_detail::code_point_type_of<T>;
+using code_point_type_t = text_detail::code_point_type_t<T>;
 
 
 /*
@@ -192,21 +192,21 @@ using code_point_type_of = text_detail::code_point_type_of<T>;
  */
 namespace text_detail {
 template<typename T>
-struct get_character_set_type_of;
+struct get_character_set_type_t;
 
 template<typename T>
 requires requires () { typename T::character_set_type; }
-struct get_character_set_type_of<T> {
+struct get_character_set_type_t<T> {
     using type = typename T::character_set_type;
 };
 
 template<typename T>
-using character_set_type_of =
-          typename get_character_set_type_of<origin::Strip<T>>::type;
+using character_set_type_t =
+          typename get_character_set_type_t<origin::Strip<T>>::type;
 } // namespace text_detail
 
 template<typename T>
-using character_set_type_of = text_detail::character_set_type_of<T>;
+using character_set_type_t = text_detail::character_set_type_t<T>;
 
 
 /*
@@ -214,20 +214,20 @@ using character_set_type_of = text_detail::character_set_type_of<T>;
  */
 namespace text_detail {
 template<typename T>
-struct get_encoding_type_of;
+struct get_encoding_type_t;
 
 template<typename T>
 requires requires () { typename T::encoding_type; }
-struct get_encoding_type_of<T> {
+struct get_encoding_type_t<T> {
     using type = typename T::encoding_type;
 };
 
 template<typename T>
-using encoding_type_of = typename get_encoding_type_of<origin::Strip<T>>::type;
+using encoding_type_t = typename get_encoding_type_t<origin::Strip<T>>::type;
 } // namespace text_detail
 
 template<typename T>
-using encoding_type_of = text_detail::encoding_type_of<T>;
+using encoding_type_t = text_detail::encoding_type_t<T>;
 
 
 } // inline namespace text

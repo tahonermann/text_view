@@ -55,7 +55,7 @@ public:
         encoded_code_units = 0;
 
         using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
+            code_point_type_t<character_set_type_t<character_type>>;
         code_point_type cp{c.get_code_point()};
 
         if (cp >= 0xD800 && cp <= 0xDFFF) {
@@ -87,7 +87,7 @@ public:
         decoded_code_units = 0;
 
         using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
+            code_point_type_t<character_set_type_t<character_type>>;
         code_point_type cp;
 
         if (in_next == in_end)
@@ -127,7 +127,7 @@ public:
         decoded_code_units = 0;
 
         using code_point_type =
-            code_point_type_of<character_set_type_of<character_type>>;
+            code_point_type_t<character_set_type_t<character_type>>;
         code_point_type cp;
 
         if (in_next == in_end)
