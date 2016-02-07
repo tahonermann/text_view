@@ -56,7 +56,7 @@ public:
             code_point_type_of<character_set_type_of<character_type>>;
 
         code_point_type cp{c.get_code_point()};
-        code_unit_type cu{cp};
+        code_unit_type cu(cp);
         *out++ = cu;
         encoded_code_units = 1;
     }
@@ -79,7 +79,7 @@ public:
             throw text_decode_underflow_error("text decode underflow error");
         } else {
             code_unit_type cu{*in_next++};
-            code_point_type cp{cu};
+            code_point_type cp(cu);
             c.set_code_point(cp);
             decoded_code_units = 1;
         }
@@ -104,7 +104,7 @@ public:
             throw text_decode_underflow_error("text decode underflow error");
         } else {
             code_unit_type cu{*in_next++};
-            code_point_type cp{cu};
+            code_point_type cp(cu);
             c.set_code_point(cp);
             decoded_code_units = 1;
         }
