@@ -13,6 +13,9 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4197.html
 N4128: Ranges for the Standard Library, Revision 1
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html
 
+N4121: Compile-Time String: std::string_literal<n>
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4121.pdf
+
 N3572: Unicode Support in the Standard Library
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3572.html
 
