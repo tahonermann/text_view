@@ -136,6 +136,9 @@ public:
     {
         encoded_code_units = 0;
 
+        using unsigned_code_unit_type =
+            std::make_unsigned_t<code_unit_type>;
+
         if (stt.state_transition == state_transition_type::to_initial_state) {
             // Transition to initial state from any state.
             state.bom_read_or_written = false;
@@ -148,24 +151,24 @@ public:
                     break;
                 case state_transition_type::to_bom_written:
                 case state_transition_type::to_be_bom_written:
-                    *out++ = 0x00;
+                    *out++ = unsigned_code_unit_type(0x00);
                     ++encoded_code_units;
-                    *out++ = 0x00;
+                    *out++ = unsigned_code_unit_type(0x00);
                     ++encoded_code_units;
-                    *out++ = 0xFE;
+                    *out++ = unsigned_code_unit_type(0xFE);
                     ++encoded_code_units;
-                    *out++ = 0xFF;
+                    *out++ = unsigned_code_unit_type(0xFF);
                     ++encoded_code_units;
                     state.endian = state_type::big_endian;
                     break;
                 case state_transition_type::to_le_bom_written:
-                    *out++ = 0xFF;
+                    *out++ = unsigned_code_unit_type(0xFF);
                     ++encoded_code_units;
-                    *out++ = 0xFE;
+                    *out++ = unsigned_code_unit_type(0xFE);
                     ++encoded_code_units;
-                    *out++ = 0x00;
+                    *out++ = unsigned_code_unit_type(0x00);
                     ++encoded_code_units;
-                    *out++ = 0x00;
+                    *out++ = unsigned_code_unit_type(0x00);
                     ++encoded_code_units;
                     state.endian = state_type::little_endian;
                     break;

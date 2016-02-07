@@ -460,6 +460,7 @@ void test_text_encoder_models() {
     static_assert(Text_encoder<
                       execution_wide_character_encoding,
                       wchar_t*>(), "");
+    // FIXME: If N3398 were to be adopted, replace char with char8_t.
     static_assert(Text_encoder<
                       char8_character_encoding,
                       char*>(), "");
@@ -491,25 +492,25 @@ void test_text_encoder_models() {
                       char16_t*>(), "");
     static_assert(Text_encoder<
                       utf16be_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_encoder<
                       utf16le_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_encoder<
                       utf16bom_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_encoder<
                       utf32_encoding,
                       char32_t*>(), "");
     static_assert(Text_encoder<
                       utf32be_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_encoder<
                       utf32le_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_encoder<
                       utf32bom_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
 }
 
 void test_text_decoder_models() {
@@ -524,6 +525,7 @@ void test_text_decoder_models() {
     static_assert(Text_forward_decoder<
                       execution_wide_character_encoding,
                       wchar_t*>(), "");
+    // FIXME: If N3398 were to be adopted, replace char with char8_t.
     static_assert(Text_bidirectional_decoder<
                       char8_character_encoding,
                       char*>(), "");
@@ -555,25 +557,25 @@ void test_text_decoder_models() {
                       char16_t*>(), "");
     static_assert(Text_bidirectional_decoder<
                       utf16be_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_bidirectional_decoder<
                       utf16le_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_bidirectional_decoder<
                       utf16bom_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_random_access_decoder<
                       utf32_encoding,
                       char32_t*>(), "");
     static_assert(Text_random_access_decoder<
                       utf32be_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_random_access_decoder<
                       utf32le_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
     static_assert(Text_bidirectional_decoder<
                       utf32bom_encoding,
-                      uint_least8_t*>(), "");
+                      char*>(), "");
 }
 
 void test_text_iterator_models() {
@@ -589,24 +591,24 @@ void test_text_iterator_models() {
 #endif
     static_assert(Text_iterator<itext_iterator<utf8_encoding, char(&)[5]>>(), "");
     static_assert(Text_iterator<itext_iterator<utf16_encoding, char16_t(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16be_encoding, uint_least8_t(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf16le_encoding, uint_least8_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16be_encoding, char(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf16le_encoding, char(&)[5]>>(), "");
     static_assert(Text_iterator<itext_iterator<utf32_encoding, char32_t(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32be_encoding, uint_least8_t(&)[5]>>(), "");
-    static_assert(Text_iterator<itext_iterator<utf32le_encoding, uint_least8_t(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32be_encoding, char(&)[5]>>(), "");
+    static_assert(Text_iterator<itext_iterator<utf32le_encoding, char(&)[5]>>(), "");
     // std output iterators
     static_assert(Text_iterator<otext_iterator<basic_execution_character_encoding, char*>>(), "");
     static_assert(Text_iterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>(), "");
 #if defined(__STDC_ISO_10646__)
     static_assert(Text_iterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>(), "");
 #endif
-    static_assert(Text_iterator<otext_iterator<utf8_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf8_encoding, char*>>(), "");
     static_assert(Text_iterator<otext_iterator<utf16_encoding, char16_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16be_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf16le_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf16be_encoding, char*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf16le_encoding, char*>>(), "");
     static_assert(Text_iterator<otext_iterator<utf32_encoding, char32_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32be_encoding, uint_least8_t*>>(), "");
-    static_assert(Text_iterator<otext_iterator<utf32le_encoding, uint_least8_t*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf32be_encoding, char*>>(), "");
+    static_assert(Text_iterator<otext_iterator<utf32le_encoding, char*>>(), "");
 }
 
 void test_text_view_models() {
@@ -621,7 +623,8 @@ void test_text_view_models() {
     static_assert(Text_view<basic_text_view<execution_character_encoding, char(&)[5]>>(), "");
     static_assert(Text_view<basic_text_view<execution_character_encoding, const char(&)[5]>>(), "");
     static_assert(Text_view<basic_text_view<execution_wide_character_encoding, wchar_t(&)[5]>>(), "");
-    static_assert(Text_view<basic_text_view<char8_character_encoding, uint_least8_t(&)[5]>>(), "");
+    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    static_assert(Text_view<basic_text_view<char8_character_encoding, char(&)[5]>>(), "");
     static_assert(Text_view<basic_text_view<char16_character_encoding, char16_t(&)[5]>>(), "");
     static_assert(Text_view<basic_text_view<char32_character_encoding, char32_t(&)[5]>>(), "");
     static_assert(Text_view<basic_text_view<execution_character_encoding, string&>>(), "");
@@ -1924,7 +1927,13 @@ void test_utf16_encoding() {
 void test_utf16be_encoding() {
     using ET = utf16be_encoding;
     using CT = ET::character_type;
+    using CUT = ET::code_unit_type;
     using CUMS = code_unit_map_sequence<ET>;
+
+    // FIXME: code_unit_type for UTF-16BE is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
 
     // Test an empty code unit sequence.
     CUMS code_unit_maps_empty{};
@@ -1932,11 +1941,11 @@ void test_utf16be_encoding() {
 
     // Test a non-empty code unit sequence.
     CUMS code_unit_maps{
-        { {}, { CT{U'\U00000041'} }, { 0x00, 0x41 } },
-        { {}, { CT{U'\U00000141'} }, { 0x01, 0x41 } },
-        { {}, { CT{U'\U00001141'} }, { 0x11, 0x41 } },
-        { {}, { CT{U'\U00011141'} }, { 0xD8, 0x04, 0xDD, 0x41 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+        { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x01), CUT(0x41) } },
+        { {}, { CT{U'\U00001141'} }, { CUT(0x11), CUT(0x41) } },
+        { {}, { CT{U'\U00011141'} }, { CUT(0xD8), CUT(0x04), CUT(0xDD), CUT(0x41) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps);
 
     string encoded_string("\x00\x61\xD8\x04\xDD\x41\x00\x7A", 8);
@@ -1950,7 +1959,13 @@ void test_utf16be_encoding() {
 void test_utf16le_encoding() {
     using ET = utf16le_encoding;
     using CT = ET::character_type;
+    using CUT = ET::code_unit_type;
     using CUMS = code_unit_map_sequence<ET>;
+
+    // FIXME: code_unit_type for UTF-16LE is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
 
     // Test an empty code unit sequence.
     CUMS code_unit_maps_empty{};
@@ -1958,11 +1973,11 @@ void test_utf16le_encoding() {
 
     // Test a non-empty code unit sequence.
     CUMS code_unit_maps{
-        { {}, { CT{U'\U00000041'} }, { 0x41, 0x00 } },
-        { {}, { CT{U'\U00000141'} }, { 0x41, 0x01 } },
-        { {}, { CT{U'\U00001141'} }, { 0x41, 0x11 } },
-        { {}, { CT{U'\U00011141'} }, { 0x04, 0xD8, 0x41, 0xDD } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+        { {}, { CT{U'\U00000041'} }, { CUT(0x41), CUT(0x00) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x41), CUT(0x01) } },
+        { {}, { CT{U'\U00001141'} }, { CUT(0x41), CUT(0x11) } },
+        { {}, { CT{U'\U00011141'} }, { CUT(0x04), CUT(0xD8), CUT(0x41), CUT(0xDD) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps);
 
     string encoded_string("\x61\x00\x04\xD8\x41\xDD\x7A\x00", 8);
@@ -1976,8 +1991,14 @@ void test_utf16le_encoding() {
 void test_utf16bom_encoding() {
     using ET = utf16bom_encoding;
     using CT = ET::character_type;
+    using CUT = ET::code_unit_type;
     using ST = ET::state_type;
     using CUMS = code_unit_map_sequence<ET>;
+
+    // FIXME: code_unit_type for UTF-16BOM is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
 
     // Test an empty code unit sequence.
     CUMS code_unit_maps_empty{};
@@ -1987,47 +2008,47 @@ void test_utf16bom_encoding() {
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_be_bom{
         { { ST::to_bom_written_state() },
-              {}, { 0xFE, 0xFF } } }; // BE BOM
+              {}, { CUT(0xFE), CUT(0xFF) } } }; // BE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_be_bom);
 
     // Test a code unit sequence containing only a LE BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_le_bom{
         { { ST::to_le_bom_written_state() },
-              {}, { 0xFF, 0xFE } } }; // LE BOM
+              {}, { CUT(0xFF), CUT(0xFE) } } }; // LE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_le_bom);
 
     // Test a code unit sequence not containing a BOM.  Big endian is assumed.
     CUMS code_unit_maps_no_bom{
         { { ST::to_assume_bom_written_state() },
               {},                    {} },
-        { {}, { CT{U'\U00000041'} }, { 0x00, 0x41 } },
-        { {}, { CT{U'\U00000141'} }, { 0x01, 0x41 } },
-        { {}, { CT{U'\U0000FEFF'} }, { 0xFE, 0xFF } }, // Not a BOM
-        { {}, { CT{U'\U00011141'} }, { 0xD8, 0x04, 0xDD, 0x41 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+        { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x01), CUT(0x41) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0xFE), CUT(0xFF) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0xD8), CUT(0x04), CUT(0xDD), CUT(0x41) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_no_bom);
 
     // Test a code unit sequence containing a BE BOM.
     CUMS code_unit_maps_be_bom{
-        { {}, {},                    { 0xFE, 0xFF } }, // BE BOM
-        { {}, { CT{U'\U00000041'} }, { 0x00, 0x41 } },
-        { {}, { CT{U'\U00000141'} }, { 0x01, 0x41 } },
-        { {}, { CT{U'\U0000FEFF'} }, { 0xFE, 0xFF } }, // Not a BOM
-        { {}, { CT{U'\U00011141'} }, { 0xD8, 0x04, 0xDD, 0x41 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+        { {}, {},                    { CUT(0xFE), CUT(0xFF) } }, // BE BOM
+        { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x01), CUT(0x41) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0xFE), CUT(0xFF) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0xD8), CUT(0x04), CUT(0xDD), CUT(0x41) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_be_bom);
 
     // Test a code unit sequence containing a LE BOM.  This requires an explicit
     // state transition to force writing of a LE BOM.
     CUMS code_unit_maps_le_bom{
         { { ST::to_le_bom_written_state() },
-              {},                    { 0xFF, 0xFE } }, // LE BOM
-        { {}, { CT{U'\U00000041'} }, { 0x41, 0x00 } },
-        { {}, { CT{U'\U00000141'} }, { 0x41, 0x01 } },
-        { {}, { CT{U'\U0000FEFF'} }, { 0xFF, 0xFE } }, // Not a BOM
-        { {}, { CT{U'\U00011141'} }, { 0x04, 0xD8, 0x41, 0xDD } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00 } } };
+              {},                    { CUT(0xFF), CUT(0xFE) } }, // LE BOM
+        { {}, { CT{U'\U00000041'} }, { CUT(0x41), CUT(0x00) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x41), CUT(0x01) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0xFF), CUT(0xFE) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0x04), CUT(0xD8), CUT(0x41), CUT(0xDD) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_le_bom);
 
     {
@@ -2108,7 +2129,13 @@ void test_utf32_encoding() {
 void test_utf32be_encoding() {
     using ET = utf32be_encoding;
     using CT = ET::character_type;
+    using CUT = ET::code_unit_type;
     using CUMS = code_unit_map_sequence<ET>;
+
+    // FIXME: code_unit_type for UTF-32BE is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
 
     // Test an empty code unit sequence.
     CUMS code_unit_maps_empty{};
@@ -2116,11 +2143,11 @@ void test_utf32be_encoding() {
 
     // Test a non-empty code unit sequence.
     CUMS code_unit_maps{
-        { {}, { CT{U'\U00000041'} }, { 0x00, 0x00, 0x00, 0x41 } },
-        { {}, { CT{U'\U00000141'} }, { 0x00, 0x00, 0x01, 0x41 } },
-        { {}, { CT{U'\U00001141'} }, { 0x00, 0x00, 0x11, 0x41 } },
-        { {}, { CT{U'\U00011141'} }, { 0x00, 0x01, 0x11, 0x41 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+        { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x00), CUT(0x00), CUT(0x01), CUT(0x41) } },
+        { {}, { CT{U'\U00001141'} }, { CUT(0x00), CUT(0x00), CUT(0x11), CUT(0x41) } },
+        { {}, { CT{U'\U00011141'} }, { CUT(0x00), CUT(0x01), CUT(0x11), CUT(0x41) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x00) } } };
     test_random_access_encoding<ET>(code_unit_maps);
 
     string encoded_string("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\x00\x7A", 12);
@@ -2134,7 +2161,13 @@ void test_utf32be_encoding() {
 void test_utf32le_encoding() {
     using ET = utf32le_encoding;
     using CT = ET::character_type;
+    using CUT = ET::code_unit_type;
     using CUMS = code_unit_map_sequence<ET>;
+
+    // FIXME: code_unit_type for UTF-32LE is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
 
     // Test an empty code unit sequence.
     CUMS code_unit_maps_empty{};
@@ -2142,11 +2175,11 @@ void test_utf32le_encoding() {
 
     // Test a non-empty code unit sequence.
     CUMS code_unit_maps{
-        { {}, { CT{U'\U00000041'} }, { 0x41, 0x00, 0x00, 0x00 } },
-        { {}, { CT{U'\U00000141'} }, { 0x41, 0x01, 0x00, 0x00 } },
-        { {}, { CT{U'\U00001141'} }, { 0x41, 0x11, 0x00, 0x00 } },
-        { {}, { CT{U'\U00011141'} }, { 0x41, 0x11, 0x01, 0x00 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+        { {}, { CT{U'\U00000041'} }, { CUT(0x41), CUT(0x00), CUT(0x00), CUT(0x00) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x41), CUT(0x01), CUT(0x00), CUT(0x00) } },
+        { {}, { CT{U'\U00001141'} }, { CUT(0x41), CUT(0x11), CUT(0x00), CUT(0x00) } },
+        { {}, { CT{U'\U00011141'} }, { CUT(0x41), CUT(0x11), CUT(0x01), CUT(0x00) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x00) } } };
     test_random_access_encoding<ET>(code_unit_maps);
 
     string encoded_string("\x61\x00\x00\x00\x41\x11\x01\x00\x7A\x00\x00\x00", 12);
@@ -2160,8 +2193,14 @@ void test_utf32le_encoding() {
 void test_utf32bom_encoding() {
     using ET = utf32bom_encoding;
     using CT = ET::character_type;
+    using CUT = ET::code_unit_type;
     using ST = ET::state_type;
     using CUMS = code_unit_map_sequence<ET>;
+
+    // FIXME: code_unit_type for UTF-32BOM is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
 
     // Test an empty code unit sequence.
     CUMS code_unit_maps_empty{};
@@ -2171,47 +2210,47 @@ void test_utf32bom_encoding() {
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_be_bom{
         { { ST::to_bom_written_state() },
-              {}, { 0x00, 0x00, 0xFE, 0xFF } } }; // BE BOM
+              {}, { CUT(0x00), CUT(0x00), CUT(0xFE), CUT(0xFF) } } }; // BE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_be_bom);
 
     // Test a code unit sequence containing only a LE BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_le_bom{
         { { ST::to_le_bom_written_state() },
-              {}, { 0xFF, 0xFE, 0x00, 0x00 } } }; // LE BOM
+              {}, { CUT(0xFF), CUT(0xFE), CUT(0x00), CUT(0x00) } } }; // LE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_le_bom);
 
     // Test a code unit sequence not containing a BOM.  Big endian is assumed.
     CUMS code_unit_maps_no_bom{
         { { ST::to_assume_bom_written_state() },
               {},                    {} },
-        { {}, { CT{U'\U00000041'} }, { 0x00, 0x00, 0x00, 0x41 } },
-        { {}, { CT{U'\U00000141'} }, { 0x00, 0x00, 0x01, 0x41 } },
-        { {}, { CT{U'\U0000FEFF'} }, { 0x00, 0x00, 0xFE, 0xFF } }, // Not a BOM
-        { {}, { CT{U'\U00011141'} }, { 0x00, 0x01, 0x11, 0x41 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+        { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x00), CUT(0x00), CUT(0x01), CUT(0x41) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0x00), CUT(0x00), CUT(0xFE), CUT(0xFF) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0x00), CUT(0x01), CUT(0x11), CUT(0x41) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_no_bom);
 
     // Test a code unit sequence containing a BE BOM.
     CUMS code_unit_maps_be_bom{
-        { {}, {},                    { 0x00, 0x00, 0xFE, 0xFF } }, // BE BOM
-        { {}, { CT{U'\U00000041'} }, { 0x00, 0x00, 0x00, 0x41 } },
-        { {}, { CT{U'\U00000141'} }, { 0x00, 0x00, 0x01, 0x41 } },
-        { {}, { CT{U'\U0000FEFF'} }, { 0x00, 0x00, 0xFE, 0xFF } }, // Not a BOM
-        { {}, { CT{U'\U00011141'} }, { 0x00, 0x01, 0x11, 0x41 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+        { {}, {},                    { CUT(0x00), CUT(0x00), CUT(0xFE), CUT(0xFF) } }, // BE BOM
+        { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x41) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x00), CUT(0x00), CUT(0x01), CUT(0x41) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0x00), CUT(0x00), CUT(0xFE), CUT(0xFF) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0x00), CUT(0x01), CUT(0x11), CUT(0x41) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_be_bom);
 
     // Test a code unit sequence containing a LE BOM.  This requires an explicit
     // state transition to force writing of a LE BOM.
     CUMS code_unit_maps_le_bom{
         { { ST::to_le_bom_written_state() },
-              {},                    { 0xFF, 0xFE, 0x00, 0x00 } }, // LE BOM
-        { {}, { CT{U'\U00000041'} }, { 0x41, 0x00, 0x00, 0x00 } },
-        { {}, { CT{U'\U00000141'} }, { 0x41, 0x01, 0x00, 0x00 } },
-        { {}, { CT{U'\U0000FEFF'} }, { 0xFF, 0xFE, 0x00, 0x00 } }, // Not a BOM
-        { {}, { CT{U'\U00011141'} }, { 0x41, 0x11, 0x01, 0x00 } },
-        { {}, { CT{U'\0'} },         { 0x00, 0x00, 0x00, 0x00 } } };
+              {},                    { CUT(0xFF), CUT(0xFE), CUT(0x00), CUT(0x00) } }, // LE BOM
+        { {}, { CT{U'\U00000041'} }, { CUT(0x41), CUT(0x00), CUT(0x00), CUT(0x00) } },
+        { {}, { CT{U'\U00000141'} }, { CUT(0x41), CUT(0x01), CUT(0x00), CUT(0x00) } },
+        { {}, { CT{U'\U0000FEFF'} }, { CUT(0xFF), CUT(0xFE), CUT(0x00), CUT(0x00) } }, // Not a BOM
+        { {}, { CT{U'\U00011141'} }, { CUT(0x41), CUT(0x11), CUT(0x01), CUT(0x00) } },
+        { {}, { CT{U'\0'} },         { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x00) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_le_bom);
 
     {
