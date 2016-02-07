@@ -270,14 +270,14 @@ public:
         return iterator{initial_state(), &r, text_detail::adl_begin(r)};
     }
     iterator end() const
-    requires origin::Empty_type<state_type>()
+    requires std::is_empty<state_type>::value
           && origin::Iterator<code_unit_sentinel>()
     {
         // Use the (empty) initial state to construct the end iterator.
         return iterator{ET::initial_state(), &r, text_detail::adl_end(r)};
     }
     sentinel end() const
-    requires !origin::Empty_type<state_type>()
+    requires !std::is_empty<state_type>::value
           || !origin::Iterator<code_unit_sentinel>()
     {
         return sentinel{text_detail::adl_end(r)};

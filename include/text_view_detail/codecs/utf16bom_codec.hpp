@@ -214,7 +214,7 @@ public:
         if (state.endian == state_type::big_endian) {
             using utf16_codec = utf16be_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
-            static_assert(origin::Empty_type<utf16_state_type>(), "");
+            static_assert(std::is_empty<utf16_state_type>::value, "");
 
             utf16_state_type utf16_state;
             int utf16_encoded_code_units = 0;
@@ -228,7 +228,7 @@ public:
         } else {
             using utf16_codec = utf16le_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
-            static_assert(origin::Empty_type<utf16_state_type>(), "");
+            static_assert(std::is_empty<utf16_state_type>::value, "");
 
             utf16_state_type utf16_state;
             int utf16_encoded_code_units = 0;
@@ -259,7 +259,7 @@ public:
         if (state.endian == state_type::big_endian) {
             using utf16_codec = utf16be_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
-            static_assert(origin::Empty_type<utf16_state_type>(), "");
+            static_assert(std::is_empty<utf16_state_type>::value, "");
 
             utf16_state_type utf16_state;
             int utf16_decoded_code_units = 0;
@@ -274,7 +274,7 @@ public:
         } else {
             using utf16_codec = utf16le_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
-            static_assert(origin::Empty_type<utf16_state_type>(), "");
+            static_assert(std::is_empty<utf16_state_type>::value, "");
 
             utf16_state_type utf16_state;
             int utf16_decoded_code_units = 0;
@@ -329,7 +329,7 @@ public:
         if (state.endian == state_type::big_endian) {
             using utf16_codec = utf16be_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
-            static_assert(origin::Empty_type<utf16_state_type>(), "");
+            static_assert(std::is_empty<utf16_state_type>::value, "");
 
             utf16_state_type utf16_state;
             int utf16_decoded_code_units = 0;
@@ -344,7 +344,7 @@ public:
         } else {
             using utf16_codec = utf16le_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
-            static_assert(origin::Empty_type<utf16_state_type>(), "");
+            static_assert(std::is_empty<utf16_state_type>::value, "");
 
             utf16_state_type utf16_state;
             int utf16_decoded_code_units = 0;

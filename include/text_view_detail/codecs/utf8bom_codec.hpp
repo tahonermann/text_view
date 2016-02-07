@@ -132,7 +132,7 @@ public:
 
         using utf8_codec = utf8_codec<CT, CUT>;
         using utf8_state_type = typename utf8_codec::state_type;
-        static_assert(origin::Empty_type<utf8_state_type>(), "");
+        static_assert(std::is_empty<utf8_state_type>::value, "");
 
         utf8_state_type utf8_state;
         int utf8_encoded_code_units = 0;
@@ -162,7 +162,7 @@ public:
 
         using utf8_codec = utf8_codec<CT, CUT>;
         using utf8_state_type = typename utf8_codec::state_type;
-        static_assert(origin::Empty_type<utf8_state_type>(), "");
+        static_assert(std::is_empty<utf8_state_type>::value, "");
 
         utf8_state_type utf8_state;
         int utf8_decoded_code_units = 0;
@@ -207,7 +207,7 @@ public:
 
         using utf8_codec = utf8_codec<CT, CUT>;
         using utf8_state_type = typename utf8_codec::state_type;
-        static_assert(origin::Empty_type<utf8_state_type>(), "");
+        static_assert(std::is_empty<utf8_state_type>::value, "");
 
         utf8_state_type utf8_state;
         int utf8_decoded_code_units = 0;

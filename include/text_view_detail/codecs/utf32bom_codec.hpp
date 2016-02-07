@@ -222,7 +222,7 @@ public:
         if (state.endian == state_type::big_endian) {
             using utf32_codec = utf32be_codec<CT, CUT>;
             using utf32_state_type = typename utf32_codec::state_type;
-            static_assert(origin::Empty_type<utf32_state_type>(), "");
+            static_assert(std::is_empty<utf32_state_type>::value, "");
 
             utf32_state_type utf32_state;
             int utf32_encoded_code_units = 0;
@@ -236,7 +236,7 @@ public:
         } else {
             using utf32_codec = utf32le_codec<CT, CUT>;
             using utf32_state_type = typename utf32_codec::state_type;
-            static_assert(origin::Empty_type<utf32_state_type>(), "");
+            static_assert(std::is_empty<utf32_state_type>::value, "");
 
             utf32_state_type utf32_state;
             int utf32_encoded_code_units = 0;
@@ -267,7 +267,7 @@ public:
         if (state.endian == state_type::big_endian) {
             using utf32_codec = utf32be_codec<CT, CUT>;
             using utf32_state_type = typename utf32_codec::state_type;
-            static_assert(origin::Empty_type<utf32_state_type>(), "");
+            static_assert(std::is_empty<utf32_state_type>::value, "");
 
             utf32_state_type utf32_state;
             int utf32_decoded_code_units = 0;
@@ -282,7 +282,7 @@ public:
         } else {
             using utf32_codec = utf32le_codec<CT, CUT>;
             using utf32_state_type = typename utf32_codec::state_type;
-            static_assert(origin::Empty_type<utf32_state_type>(), "");
+            static_assert(std::is_empty<utf32_state_type>::value, "");
 
             utf32_state_type utf32_state;
             int utf32_decoded_code_units = 0;
@@ -337,7 +337,7 @@ public:
         if (state.endian == state_type::big_endian) {
             using utf32_codec = utf32be_codec<CT, CUT>;
             using utf32_state_type = typename utf32_codec::state_type;
-            static_assert(origin::Empty_type<utf32_state_type>(), "");
+            static_assert(std::is_empty<utf32_state_type>::value, "");
 
             utf32_state_type utf32_state;
             int utf32_decoded_code_units = 0;
@@ -352,7 +352,7 @@ public:
         } else {
             using utf32_codec = utf32le_codec<CT, CUT>;
             using utf32_state_type = typename utf32_codec::state_type;
-            static_assert(origin::Empty_type<utf32_state_type>(), "");
+            static_assert(std::is_empty<utf32_state_type>::value, "");
 
             utf32_state_type utf32_state;
             int utf32_decoded_code_units = 0;

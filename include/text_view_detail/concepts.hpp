@@ -215,7 +215,7 @@ concept bool Text_random_access_decoder() {
     return Text_bidirectional_decoder<T, CUIT>()
         && origin::Random_access_iterator<CUIT>()
         && text_detail::Same_value<int, T::min_code_units, T::max_code_units>()
-        && origin::Empty_type<typename T::state_type>();
+        && std::is_empty<typename T::state_type>::value;
 }
 
 
