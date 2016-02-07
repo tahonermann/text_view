@@ -18,11 +18,10 @@
 namespace std {
 namespace experimental {
 inline namespace text {
-namespace text_detail {
 
 
 /*
- *  to_initial_state                                 to_initial_state
+ *  to_initial                                             to_initial
  *  +-------------------------------v-------------------------------+
  *  |                               v                               |
  *  |                       +---------------+                       |
@@ -58,9 +57,9 @@ namespace text_detail {
  *      to_assume_bom_written            to_assume_bom_written
  *      to_assume_be_bom_written         to_assume_le_bom_written
  */
-struct utf32bom_codec_state_transition {
+struct utf32bom_encoding_state_transition {
     enum {
-        to_initial_state,
+        to_initial,
         to_bom_written,
         to_be_bom_written,
         to_le_bom_written,
@@ -68,57 +67,60 @@ struct utf32bom_codec_state_transition {
         to_assume_be_bom_written,
         to_assume_le_bom_written
     } state_transition;
+
+    static utf32bom_encoding_state_transition
+    to_initial_state() {
+        return { to_initial };
+    }
+
+    static utf32bom_encoding_state_transition
+    to_bom_written_state() {
+        return { to_bom_written };
+    }
+
+    static utf32bom_encoding_state_transition
+    to_be_bom_written_state() {
+        return { to_be_bom_written };
+    }
+
+    static utf32bom_encoding_state_transition
+    to_le_bom_written_state() {
+        return { to_le_bom_written };
+    }
+
+    static utf32bom_encoding_state_transition
+    to_assume_bom_written_state() {
+        return { to_assume_bom_written };
+    }
+
+    static utf32bom_encoding_state_transition
+    to_assume_be_bom_written_state() {
+        return { to_assume_be_bom_written };
+    }
+
+    static utf32bom_encoding_state_transition
+    to_assume_le_bom_written_state() {
+        return { to_assume_le_bom_written };
+    }
 };
 
-struct utf32bom_codec_state {
+struct utf32bom_encoding_state {
     enum endian_type {
         big_endian = 0,
         little_endian = 1
     };
     bool bom_read_or_written : 1;
     endian_type endian : 1;
-
-    static utf32bom_codec_state_transition
-    to_initial_state() {
-        return { utf32bom_codec_state_transition::to_initial_state };
-    }
-
-    static utf32bom_codec_state_transition
-    to_bom_written_state() {
-        return { utf32bom_codec_state_transition::to_bom_written };
-    }
-
-    static utf32bom_codec_state_transition
-    to_be_bom_written_state() {
-        return { utf32bom_codec_state_transition::to_be_bom_written };
-    }
-
-    static utf32bom_codec_state_transition
-    to_le_bom_written_state() {
-        return { utf32bom_codec_state_transition::to_le_bom_written };
-    }
-
-    static utf32bom_codec_state_transition
-    to_assume_bom_written_state() {
-        return { utf32bom_codec_state_transition::to_assume_bom_written };
-    }
-
-    static utf32bom_codec_state_transition
-    to_assume_be_bom_written_state() {
-        return { utf32bom_codec_state_transition::to_assume_be_bom_written };
-    }
-
-    static utf32bom_codec_state_transition
-    to_assume_le_bom_written_state() {
-        return { utf32bom_codec_state_transition::to_assume_le_bom_written };
-    }
 };
+
+
+namespace text_detail {
 
 template<Character CT, CodeUnit CUT>
 class utf32bom_codec {
 public:
-    using state_type = utf32bom_codec_state;
-    using state_transition_type = utf32bom_codec_state_transition;
+    using state_type = utf32bom_encoding_state;
+    using state_transition_type = utf32bom_encoding_state_transition;
     using character_type = CT;
     using code_unit_type = CUT;
     static constexpr int min_code_units = 4;
@@ -139,14 +141,14 @@ public:
         using unsigned_code_unit_type =
             std::make_unsigned_t<code_unit_type>;
 
-        if (stt.state_transition == state_transition_type::to_initial_state) {
+        if (stt.state_transition == state_transition_type::to_initial) {
             // Transition to initial state from any state.
             state.bom_read_or_written = false;
             state.endian = state_type::big_endian;
         } else if (! state.bom_read_or_written) {
             // In initial state.
             switch (stt.state_transition) {
-                case state_transition_type::to_initial_state:
+                case state_transition_type::to_initial:
                     // Handled above.
                     break;
                 case state_transition_type::to_bom_written:
@@ -190,7 +192,7 @@ public:
             {
                 throw text_encode_error("Invalid LE state transition");
             } else {
-                // to_initial_state handled above, the rest have no affect.
+                // to_initial handled above, the rest have no affect.
             }
         } else {
             // In BE BOM read or written state.
@@ -201,7 +203,7 @@ public:
             {
                 throw text_encode_error("Invalid BE state transition");
             } else {
-                // to_initial_state handled above, the rest have no affect.
+                // to_initial handled above, the rest have no affect.
             }
         }
     }
@@ -218,7 +220,7 @@ public:
 
         if (! state.bom_read_or_written) {
             encode_state_transition(
-                state, out, state_type::to_bom_written_state(),
+                state, out, state_transition_type::to_bom_written_state(),
                 encoded_code_units);
         }
 
@@ -382,8 +384,9 @@ public:
     }
 };
 
-
 } // namespace text_detail
+
+
 } // inline namespace text
 } // namespace experimental
 } // namespace std

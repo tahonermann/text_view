@@ -11,6 +11,7 @@
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/exceptions.hpp>
 #include <text_view_detail/character.hpp>
+#include <text_view_detail/trivial_encoding_state.hpp>
 
 
 namespace std {
@@ -19,15 +20,11 @@ inline namespace text {
 namespace text_detail {
 
 
-struct trivial_codec_state {};
-
-struct trivial_codec_state_transition {};
-
 template<Character CT, CodeUnit CUT>
 class trivial_codec {
 public:
-    using state_type = trivial_codec_state;
-    using state_transition_type = trivial_codec_state_transition;
+    using state_type = trivial_encoding_state;
+    using state_transition_type = trivial_encoding_state_transition;
     using character_type = CT;
     using code_unit_type = CUT;
     static constexpr int min_code_units = 1;

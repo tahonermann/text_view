@@ -18,11 +18,10 @@
 namespace std {
 namespace experimental {
 inline namespace text {
-namespace text_detail {
 
 
 /*
- *  to_initial_state
+ *  to_initial
  *  +-----+
  *  |     v
  *  |  +---------------+  to_bom_written   /---------\
@@ -39,38 +38,41 @@ namespace text_detail {
  *  |     v               v     |
  *  +-----+               +-----+
  */
-struct utf8bom_codec_state_transition {
+struct utf8bom_encoding_state_transition {
     enum {
-        to_initial_state,
+        to_initial,
         to_bom_written,
         to_assume_bom_written
     } state_transition;
-};
 
-struct utf8bom_codec_state {
-    bool bom_read_or_written : 1;
-
-    static utf8bom_codec_state_transition
+    static utf8bom_encoding_state_transition
     to_initial_state() {
-        return { utf8bom_codec_state_transition::to_initial_state };
+        return { to_initial };
     }
 
-    static utf8bom_codec_state_transition
+    static utf8bom_encoding_state_transition
     to_bom_written_state() {
-        return { utf8bom_codec_state_transition::to_bom_written };
+        return { to_bom_written };
     }
 
-    static utf8bom_codec_state_transition
+    static utf8bom_encoding_state_transition
     to_assume_bom_written_state() {
-        return { utf8bom_codec_state_transition::to_assume_bom_written };
+        return { to_assume_bom_written };
     }
 };
+
+struct utf8bom_encoding_state {
+    bool bom_read_or_written : 1;
+};
+
+
+namespace text_detail {
 
 template<Character CT, CodeUnit CUT>
 class utf8bom_codec {
 public:
-    using state_type = utf8bom_codec_state;
-    using state_transition_type = utf8bom_codec_state_transition;
+    using state_type = utf8bom_encoding_state;
+    using state_transition_type = utf8bom_encoding_state_transition;
     using character_type = CT;
     using code_unit_type = CUT;
     static constexpr int min_code_units = 1;
@@ -92,7 +94,7 @@ public:
             std::make_unsigned_t<code_unit_type>;
 
         switch (stt.state_transition) {
-            case state_transition_type::to_initial_state:
+            case state_transition_type::to_initial:
                 state.bom_read_or_written = false;
                 break;
             case state_transition_type::to_bom_written:
@@ -126,7 +128,7 @@ public:
 
         if (! state.bom_read_or_written) {
             encode_state_transition(
-                state, out, state_type::to_bom_written_state(),
+                state, out, state_transition_type::to_bom_written_state(),
                 encoded_code_units);
         }
 
@@ -235,8 +237,9 @@ public:
     }
 };
 
-
 } // namespace text_detail
+
+
 } // inline namespace text
 } // namespace experimental
 } // namespace std

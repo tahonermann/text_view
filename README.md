@@ -310,6 +310,16 @@ template<CharacterSet CST>
   bool operator!=(const character<CST> &lhs,
                   const character<any_character_set> &rhs);
 
+// encoding state and transition types:
+class trivial_encoding_state;
+class trivial_encoding_state_transition;
+class utf8bom_encoding_state;
+class utf8bom_encoding_state_transition;
+class utf16bom_encoding_state;
+class utf16bom_encoding_state_transition;
+class utf32bom_encoding_state;
+class utf32bom_encoding_state_transition;
+
 // encodings:
 class basic_execution_character_encoding;
 class basic_execution_wide_character_encoding;
@@ -914,6 +924,9 @@ template<CharacterSet CST>
 
 ## Encodings
 
+- [class trivial_encoding_state](#class-trivial_encoding_state)
+- [class trivial_encoding_state_transition]
+  (#class-trivial_encoding_state_transition)
 - [Class basic_execution_character_encoding]
   (#class-basic_execution_character_encoding)
 - [Class basic_execution_wide_character_encoding]
@@ -932,12 +945,25 @@ template<CharacterSet CST>
 - [Class utf32bom_encoding](#class-utf32bom_encoding)
 - [Encoding type aliases](#encoding-type-aliases)
 
+### Class trivial_encoding_state
+
+```C++
+class trivial_encoding_state {};
+```
+
+### Class trivial_encoding_state_transition
+
+```C++
+class trivial_encoding_state_transition {};
+```
+
 ### Class basic_execution_character_encoding
 
 ```C++
 class basic_execution_character_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<basic_execution_character_set>;
   using code_unit_type = char;
 
@@ -986,8 +1012,9 @@ class basic_execution_character_encoding {
 
 ```C++
 class basic_execution_wide_character_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<basic_execution_wide_character_set>;
   using code_unit_type = wchar_t;
 
@@ -1037,8 +1064,9 @@ class basic_execution_wide_character_encoding {
 ```C++
 #if defined(__STDC_ISO_10646__)
 class iso_10646_wide_character_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = wchar_t;
 
@@ -1088,8 +1116,9 @@ class iso_10646_wide_character_encoding {
 
 ```C++
 class utf8_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1137,9 +1166,21 @@ class utf8_encoding {
 ### Class utf8bom_encoding
 
 ```C++
+class utf8bom_encoding_state {
+  /* implementation-defined */
+};
+
+class utf8bom_encoding_state_transition {
+public:
+  static utf8bom_encoding_state_transition to_initial_state();
+  static utf8bom_encoding_state_transition to_bom_written_state();
+  static utf8bom_encoding_state_transition to_assume_bom_written_state();
+};
+
 class utf8bom_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = utf8bom_encoding_state;
+  using state_transition_type = utf8bom_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1188,8 +1229,9 @@ class utf8bom_encoding {
 
 ```C++
 class utf16_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char16_t;
 
@@ -1238,8 +1280,9 @@ class utf16_encoding {
 
 ```C++
 class utf16be_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1288,8 +1331,9 @@ class utf16be_encoding {
 
 ```C++
 class utf16le_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1337,9 +1381,25 @@ class utf16le_encoding {
 ### Class utf16bom_encoding
 
 ```C++
+class utf16bom_encoding_state {
+  /* implementation-defined */
+};
+
+class utf16bom_encoding_state_transition {
+public:
+  static utf16bom_encoding_state_transition to_initial_state();
+  static utf16bom_encoding_state_transition to_bom_written_state();
+  static utf16bom_encoding_state_transition to_be_bom_written_state();
+  static utf16bom_encoding_state_transition to_le_bom_written_state();
+  static utf16bom_encoding_state_transition to_assume_bom_written_state();
+  static utf16bom_encoding_state_transition to_assume_be_bom_written_state();
+  static utf16bom_encoding_state_transition to_assume_le_bom_written_state();
+};
+
 class utf16bom_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = utf16bom_encoding_state;
+  using state_transition_type = utf16bom_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1388,8 +1448,9 @@ class utf16bom_encoding {
 
 ```C++
 class utf32_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char32_t;
 
@@ -1438,8 +1499,9 @@ class utf32_encoding {
 
 ```C++
 class utf32be_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1488,8 +1550,9 @@ class utf32be_encoding {
 
 ```C++
 class utf32le_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 
@@ -1537,9 +1600,25 @@ class utf32le_encoding {
 ### Class utf32bom_encoding
 
 ```C++
+class utf32bom_encoding_state {
+  /* implementation-defined */
+};
+
+class utf32bom_encoding_state_transition {
+public:
+  static utf32bom_encoding_state_transition to_initial_state();
+  static utf32bom_encoding_state_transition to_bom_written_state();
+  static utf32bom_encoding_state_transition to_be_bom_written_state();
+  static utf32bom_encoding_state_transition to_le_bom_written_state();
+  static utf32bom_encoding_state_transition to_assume_bom_written_state();
+  static utf32bom_encoding_state_transition to_assume_be_bom_written_state();
+  static utf32bom_encoding_state_transition to_assume_le_bom_written_state();
+};
+
 class utf32bom_encoding {
-  using state_type = /* implementation-defined */;
-  using state_transition_type = /* implementation-defined */;
+public:
+  using state_type = utf32bom_encoding_state;
+  using state_transition_type = utf32bom_encoding_state_transition;
   using character_type = character<unicode_character_set>;
   using code_unit_type = char;
 

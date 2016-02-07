@@ -420,20 +420,20 @@ void test_text_encoding_state_models() {
     // Archetypes
     static_assert(TextEncodingState<text_encoding_state_archetype>());
     // std
-    static_assert(TextEncodingState<text_detail::trivial_codec_state>());
-    static_assert(TextEncodingState<text_detail::utf8bom_codec_state>());
-    static_assert(TextEncodingState<text_detail::utf16bom_codec_state>());
-    static_assert(TextEncodingState<text_detail::utf32bom_codec_state>());
+    static_assert(TextEncodingState<trivial_encoding_state>());
+    static_assert(TextEncodingState<utf8bom_encoding_state>());
+    static_assert(TextEncodingState<utf16bom_encoding_state>());
+    static_assert(TextEncodingState<utf32bom_encoding_state>());
 }
 
 void test_text_encoding_state_transition_models() {
     // Archetypes
     static_assert(TextEncodingStateTransition<text_encoding_state_transition_archetype>());
     // std
-    static_assert(TextEncodingStateTransition<text_detail::trivial_codec_state_transition>());
-    static_assert(TextEncodingStateTransition<text_detail::utf8bom_codec_state_transition>());
-    static_assert(TextEncodingStateTransition<text_detail::utf16bom_codec_state_transition>());
-    static_assert(TextEncodingStateTransition<text_detail::utf32bom_codec_state_transition>());
+    static_assert(TextEncodingStateTransition<trivial_encoding_state_transition>());
+    static_assert(TextEncodingStateTransition<utf8bom_encoding_state_transition>());
+    static_assert(TextEncodingStateTransition<utf16bom_encoding_state_transition>());
+    static_assert(TextEncodingStateTransition<utf32bom_encoding_state_transition>());
 }
 
 void test_text_encoding_models() {
@@ -1836,7 +1836,7 @@ void test_utf8bom_encoding() {
     using ET = utf8bom_encoding;
     using CT = ET::character_type;
     using CUT = ET::code_unit_type;
-    using ST = ET::state_type;
+    using STT = ET::state_transition_type;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-8 is char, but the values below require
@@ -1851,13 +1851,13 @@ void test_utf8bom_encoding() {
     // Test a code unit sequence containing only a BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_bom{
-        { { ST::to_bom_written_state() },
+        { { STT::to_bom_written_state() },
               {}, { CUT(0xEF), CUT(0xBB), CUT(0xBF) } } };
     test_bidirectional_encoding<ET>(code_unit_maps_only_bom);
 
     // Test a code unit sequence not containing a BOM.
     CUMS code_unit_maps_no_bom{
-        { { ST::to_assume_bom_written_state() },
+        { { STT::to_assume_bom_written_state() },
               {},                    {} },
         { {}, { CT{U'\U00000041'} }, { CUT(0x41) } },
         { {}, { CT{U'\U00000141'} }, { CUT(0xC5), CUT(0x81) } },
@@ -2003,7 +2003,7 @@ void test_utf16bom_encoding() {
     using ET = utf16bom_encoding;
     using CT = ET::character_type;
     using CUT = ET::code_unit_type;
-    using ST = ET::state_type;
+    using STT = ET::state_transition_type;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-16BOM is char, but the values below require
@@ -2018,20 +2018,20 @@ void test_utf16bom_encoding() {
     // Test a code unit sequence containing only a BE BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_be_bom{
-        { { ST::to_bom_written_state() },
+        { { STT::to_bom_written_state() },
               {}, { CUT(0xFE), CUT(0xFF) } } }; // BE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_be_bom);
 
     // Test a code unit sequence containing only a LE BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_le_bom{
-        { { ST::to_le_bom_written_state() },
+        { { STT::to_le_bom_written_state() },
               {}, { CUT(0xFF), CUT(0xFE) } } }; // LE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_le_bom);
 
     // Test a code unit sequence not containing a BOM.  Big endian is assumed.
     CUMS code_unit_maps_no_bom{
-        { { ST::to_assume_bom_written_state() },
+        { { STT::to_assume_bom_written_state() },
               {},                    {} },
         { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x41) } },
         { {}, { CT{U'\U00000141'} }, { CUT(0x01), CUT(0x41) } },
@@ -2053,7 +2053,7 @@ void test_utf16bom_encoding() {
     // Test a code unit sequence containing a LE BOM.  This requires an explicit
     // state transition to force writing of a LE BOM.
     CUMS code_unit_maps_le_bom{
-        { { ST::to_le_bom_written_state() },
+        { { STT::to_le_bom_written_state() },
               {},                    { CUT(0xFF), CUT(0xFE) } }, // LE BOM
         { {}, { CT{U'\U00000041'} }, { CUT(0x41), CUT(0x00) } },
         { {}, { CT{U'\U00000141'} }, { CUT(0x41), CUT(0x01) } },
@@ -2205,7 +2205,7 @@ void test_utf32bom_encoding() {
     using ET = utf32bom_encoding;
     using CT = ET::character_type;
     using CUT = ET::code_unit_type;
-    using ST = ET::state_type;
+    using STT = ET::state_transition_type;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-32BOM is char, but the values below require
@@ -2220,20 +2220,20 @@ void test_utf32bom_encoding() {
     // Test a code unit sequence containing only a BE BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_be_bom{
-        { { ST::to_bom_written_state() },
+        { { STT::to_bom_written_state() },
               {}, { CUT(0x00), CUT(0x00), CUT(0xFE), CUT(0xFF) } } }; // BE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_be_bom);
 
     // Test a code unit sequence containing only a LE BOM.  This requires an
     // explicit state transition to force writing of the BOM when encoding.
     CUMS code_unit_maps_only_le_bom{
-        { { ST::to_le_bom_written_state() },
+        { { STT::to_le_bom_written_state() },
               {}, { CUT(0xFF), CUT(0xFE), CUT(0x00), CUT(0x00) } } }; // LE BOM
     test_bidirectional_encoding<ET>(code_unit_maps_only_le_bom);
 
     // Test a code unit sequence not containing a BOM.  Big endian is assumed.
     CUMS code_unit_maps_no_bom{
-        { { ST::to_assume_bom_written_state() },
+        { { STT::to_assume_bom_written_state() },
               {},                    {} },
         { {}, { CT{U'\U00000041'} }, { CUT(0x00), CUT(0x00), CUT(0x00), CUT(0x41) } },
         { {}, { CT{U'\U00000141'} }, { CUT(0x00), CUT(0x00), CUT(0x01), CUT(0x41) } },
@@ -2255,7 +2255,7 @@ void test_utf32bom_encoding() {
     // Test a code unit sequence containing a LE BOM.  This requires an explicit
     // state transition to force writing of a LE BOM.
     CUMS code_unit_maps_le_bom{
-        { { ST::to_le_bom_written_state() },
+        { { STT::to_le_bom_written_state() },
               {},                    { CUT(0xFF), CUT(0xFE), CUT(0x00), CUT(0x00) } }, // LE BOM
         { {}, { CT{U'\U00000041'} }, { CUT(0x41), CUT(0x00), CUT(0x00), CUT(0x00) } },
         { {}, { CT{U'\U00000141'} }, { CUT(0x41), CUT(0x01), CUT(0x00), CUT(0x00) } },

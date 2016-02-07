@@ -10,8 +10,9 @@
 
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/archetypes.hpp>
-#include <text_view_detail/character.hpp>
 #include <text_view_detail/charsets.hpp>
+#include <text_view_detail/character.hpp>
+#include <text_view_detail/trivial_encoding_state.hpp>
 #include <text_view_detail/codecs.hpp>
 #include <text_view_detail/encodings.hpp>
 #include <text_view_detail/text_iterator.hpp>
