@@ -291,7 +291,7 @@ template<typename T>
 template<typename T>
   using character_set_type_t = /* implementation-defined */ ;
 template<typename T>
-  ut =sing encoding_type_t /* implementation-defined */ ;
+  using encoding_type_t /* implementation-defined */ ;
 
 // characters:
 template<CharacterSet CST> class character;
