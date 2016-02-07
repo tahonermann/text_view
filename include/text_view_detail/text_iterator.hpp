@@ -36,29 +36,29 @@ namespace text_detail {
  * Random_access_decoder Bidirectional_iterator     bidirectional_iterator_tag
  * Random_access_decoder Random_access_iterator     random_access_iterator_tag
  */
-template<typename Text_encoding, typename Iterator>
+template<typename TextEncoding, typename Iterator>
 struct itext_iterator_category_selector;
 
-template<Text_encoding ET, Code_unit_iterator CUIT>
+template<TextEncoding ET, CodeUnitIterator CUIT>
 struct itext_iterator_category_selector<ET, CUIT> {
     using type = origin::Iterator_category<CUIT>;
 };
-template<Text_encoding ET, Code_unit_iterator CUIT>
-requires origin::Bidirectional_iterator<CUIT>()   // or Random_access_iterator
-      && ! Text_bidirectional_decoder<ET, CUIT>() // and ! Text_random_access_decoder
+template<TextEncoding ET, CodeUnitIterator CUIT>
+requires origin::Bidirectional_iterator<CUIT>() // or Random_access_iterator
+      && ! TextBidirectionalDecoder<ET, CUIT>() // and ! TextRandomAccessDecoder
 struct itext_iterator_category_selector<ET, CUIT> {
     using type = std::forward_iterator_tag;
 };
-template<Text_encoding ET, Code_unit_iterator CUIT>
+template<TextEncoding ET, CodeUnitIterator CUIT>
 requires origin::Random_access_iterator<CUIT>()
-      && Text_bidirectional_decoder<ET, CUIT>()
-      && ! Text_random_access_decoder<ET, CUIT>()
+      && TextBidirectionalDecoder<ET, CUIT>()
+      && ! TextRandomAccessDecoder<ET, CUIT>()
 struct itext_iterator_category_selector<ET, CUIT> {
     using type = std::bidirectional_iterator_tag;
 };
 
 
-template<Text_encoding ET, origin::Input_range RT>
+template<TextEncoding ET, origin::Input_range RT>
 class itext_iterator_base
     : protected ET::state_type
 {
@@ -94,8 +94,8 @@ public:
     }
 };
 
-template<Text_encoding ET, origin::Input_range RT>
-requires Text_decoder<ET, origin::Iterator_type<const RT>>()
+template<TextEncoding ET, origin::Input_range RT>
+requires TextDecoder<ET, origin::Iterator_type<const RT>>()
       && origin::Input_iterator<origin::Iterator_type<const RT>>()
 class itext_iterator_data
     : public itext_iterator_base<ET, RT>
@@ -128,8 +128,8 @@ protected:
     iterator current;
 };
 
-template<Text_encoding ET, origin::Input_range RT>
-requires Text_decoder<ET, origin::Iterator_type<const RT>>()
+template<TextEncoding ET, origin::Input_range RT>
+requires TextDecoder<ET, origin::Iterator_type<const RT>>()
       && origin::Forward_iterator<origin::Iterator_type<const RT>>()
 class itext_iterator_data<ET, RT>
     : public itext_iterator_base<ET, RT>
@@ -182,8 +182,8 @@ protected:
 } // namespace text_detail
 
 
-template<Text_encoding ET, origin::Input_range RT>
-requires Text_decoder<ET, origin::Iterator_type<const RT>>()
+template<TextEncoding ET, origin::Input_range RT>
+requires TextDecoder<ET, origin::Iterator_type<const RT>>()
 class itext_iterator
     : public text_detail::itext_iterator_data<ET, RT>
 {
@@ -243,7 +243,7 @@ public:
     friend bool operator<(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Text_random_access_decoder<
+    requires TextRandomAccessDecoder<
         encoding_type,
         iterator>()
     {
@@ -252,7 +252,7 @@ public:
     friend bool operator>(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Text_random_access_decoder<
+    requires TextRandomAccessDecoder<
         encoding_type,
         iterator>()
     {
@@ -261,7 +261,7 @@ public:
     friend bool operator<=(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Text_random_access_decoder<
+    requires TextRandomAccessDecoder<
         encoding_type,
         iterator>()
     {
@@ -270,7 +270,7 @@ public:
     friend bool operator>=(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Text_random_access_decoder<
+    requires TextRandomAccessDecoder<
         encoding_type,
         iterator>()
     {
@@ -301,7 +301,7 @@ public:
     }
 
     itext_iterator& operator++()
-        requires Text_forward_decoder<encoding_type, iterator>()
+        requires TextForwardDecoder<encoding_type, iterator>()
     {
         ok = false;
         this->current_range.first = this->current_range.last;
@@ -334,7 +334,7 @@ public:
     }
 
     itext_iterator& operator--()
-        requires Text_bidirectional_decoder<encoding_type, iterator>()
+        requires TextBidirectionalDecoder<encoding_type, iterator>()
     {
         ok = false;
         this->current_range.last = this->current_range.first;
@@ -361,7 +361,7 @@ public:
     }
 
     itext_iterator operator--(int)
-        requires Text_bidirectional_decoder<encoding_type, iterator>()
+        requires TextBidirectionalDecoder<encoding_type, iterator>()
     {
         itext_iterator it{*this};
         --*this;
@@ -369,7 +369,7 @@ public:
     }
 
     itext_iterator& operator+=(difference_type n)
-        requires Text_random_access_decoder<encoding_type, iterator>()
+        requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         if (n < 0) {
             this->current_range.first +=
@@ -386,7 +386,7 @@ public:
     friend itext_iterator operator+(
         itext_iterator l,
         difference_type n)
-    requires Text_random_access_decoder<encoding_type, iterator>()
+    requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         return l += n;
     }
@@ -394,13 +394,13 @@ public:
     friend itext_iterator operator+(
         difference_type n,
         itext_iterator r)
-    requires Text_random_access_decoder<encoding_type, iterator>()
+    requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         return r += n;
     }
 
     itext_iterator& operator-=(difference_type n)
-        requires Text_random_access_decoder<encoding_type, iterator>()
+        requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         return *this += -n;
     }
@@ -408,7 +408,7 @@ public:
     friend itext_iterator operator-(
         itext_iterator l,
         difference_type n)
-    requires Text_random_access_decoder<encoding_type, iterator>()
+    requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         return l -= n;
     }
@@ -416,7 +416,7 @@ public:
     friend difference_type operator-(
         const itext_iterator &l,
         const itext_iterator &r)
-    requires Text_random_access_decoder<encoding_type, iterator>()
+    requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         return (l.current_range.first - r.current_range.first) /
                encoding_type::max_code_units;
@@ -428,7 +428,7 @@ public:
     // '*this + n') that is destroyed before the function returns.
     value_type operator[](
         difference_type n) const
-    requires Text_random_access_decoder<encoding_type, iterator>()
+    requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         return *(*this + n);
     }
@@ -458,7 +458,7 @@ private:
 };
 
 
-template<Text_encoding ET, origin::Input_range RT>
+template<TextEncoding ET, origin::Input_range RT>
 class itext_sentinel {
 public:
     using range_type = std::remove_reference_t<RT>;
@@ -649,7 +649,7 @@ private:
 };
 
 
-template<Text_encoding E, Code_unit_iterator CUIT>
+template<TextEncoding E, CodeUnitIterator CUIT>
 requires origin::Output_iterator<CUIT, typename E::code_unit_type>()
 class otext_iterator
     : private E::state_type

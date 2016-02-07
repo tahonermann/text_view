@@ -21,7 +21,7 @@ inline namespace text {
 
 namespace text_detail {
 template<typename T, T t1, T t2>
-concept bool Same_value() {
+concept bool SameValue() {
     return t1 == t2;
 }
 } // text_detail namespace
@@ -31,7 +31,7 @@ concept bool Same_value() {
  * Code unit concept
  */
 template<typename T>
-concept bool Code_unit() {
+concept bool CodeUnit() {
     return origin::Integral_type<T>()
         && (origin::Unsigned_type<T>()
             || origin::Same<T, origin::Remove_cv<char>>()
@@ -43,7 +43,7 @@ concept bool Code_unit() {
  * Code point concept
  */
 template<typename T>
-concept bool Code_point() {
+concept bool CodePoint() {
     return origin::Integral_type<T>()
         && (origin::Unsigned_type<T>()
             || origin::Same<T, origin::Remove_cv<char>>()
@@ -55,11 +55,11 @@ concept bool Code_point() {
  * Character set concept
  */
 template<typename T>
-concept bool Character_set() {
+concept bool CharacterSet() {
     return requires () {
                { T::get_name() } noexcept -> const char *;
            }
-        && Code_point<typename T::code_point_type>();
+        && CodePoint<typename T::code_point_type>();
 }
 
 
@@ -68,7 +68,7 @@ concept bool Character_set() {
  */
 template<typename T>
 concept bool Character() {
-    return Character_set<character_set_type_of<T>>()
+    return CharacterSet<character_set_type_of<T>>()
         && origin::Regular<T>()
         && origin::Copyable<T>()
         && requires (T t, code_point_type_of<character_set_type_of<T>> cp) {
@@ -83,9 +83,9 @@ concept bool Character() {
  * Code unit iterator concept
  */
 template<typename T>
-concept bool Code_unit_iterator() {
+concept bool CodeUnitIterator() {
     return origin::Iterator<T>()
-        && Code_unit<origin::Value_type<T>>();
+        && CodeUnit<origin::Value_type<T>>();
 }
 
 
@@ -95,7 +95,7 @@ concept bool Code_unit_iterator() {
  * requirements described in C++11 [char.traits.typedefs] 21.2.2p4.
  */
 template<typename T>
-concept bool Text_encoding_state() {
+concept bool TextEncodingState() {
     return origin::Default_constructible<T>()
         && origin::Copyable<T>();
 }
@@ -105,7 +105,7 @@ concept bool Text_encoding_state() {
  * Text encoding state transition concept
  */
 template<typename T>
-concept bool Text_encoding_state_transition() {
+concept bool TextEncodingStateTransition() {
     return origin::Default_constructible<T>()
         && origin::Copyable<T>();
 }
@@ -115,14 +115,14 @@ concept bool Text_encoding_state_transition() {
  * Text encoding concept
  */
 template<typename T>
-concept bool Text_encoding() {
+concept bool TextEncoding() {
     return requires () {
                { T::min_code_units } noexcept -> int;
                { T::max_code_units } noexcept -> int;
            }
-        && Text_encoding_state<typename T::state_type>()
-        && Text_encoding_state_transition<typename T::state_transition_type>()
-        && Code_unit<typename T::code_unit_type>()
+        && TextEncodingState<typename T::state_type>()
+        && TextEncodingStateTransition<typename T::state_transition_type>()
+        && CodeUnit<typename T::code_unit_type>()
         && Character<typename T::character_type>()
         && requires () {
                { T::initial_state() }
@@ -135,8 +135,8 @@ concept bool Text_encoding() {
  * Text encoder concept
  */
 template<typename T, typename CUIT>
-concept bool Text_encoder() {
-    return Text_encoding<T>()
+concept bool TextEncoder() {
+    return TextEncoding<T>()
         && origin::Output_iterator<CUIT, typename T::code_unit_type>()
         && requires (
                typename T::state_type &state,
@@ -161,8 +161,8 @@ concept bool Text_encoder() {
  * Text decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Text_decoder() {
-    return Text_encoding<T>()
+concept bool TextDecoder() {
+    return TextEncoding<T>()
         && origin::Input_iterator<CUIT>()
         && origin::Convertible<origin::Value_type<CUIT>,
                                typename T::code_unit_type>()
@@ -182,8 +182,8 @@ concept bool Text_decoder() {
  * Text forward decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Text_forward_decoder() {
-    return Text_decoder<T, CUIT>()
+concept bool TextForwardDecoder() {
+    return TextDecoder<T, CUIT>()
         && origin::Forward_iterator<CUIT>();
 }
 
@@ -192,8 +192,8 @@ concept bool Text_forward_decoder() {
  * Text bidirectional decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Text_bidirectional_decoder() {
-    return Text_forward_decoder<T, CUIT>()
+concept bool TextBidirectionalDecoder() {
+    return TextForwardDecoder<T, CUIT>()
         && origin::Bidirectional_iterator<CUIT>()
         && requires (
                typename T::state_type &state,
@@ -211,10 +211,10 @@ concept bool Text_bidirectional_decoder() {
  * Text random access decoder concept
  */
 template<typename T, typename CUIT>
-concept bool Text_random_access_decoder() {
-    return Text_bidirectional_decoder<T, CUIT>()
+concept bool TextRandomAccessDecoder() {
+    return TextBidirectionalDecoder<T, CUIT>()
         && origin::Random_access_iterator<CUIT>()
-        && text_detail::Same_value<int, T::min_code_units, T::max_code_units>()
+        && text_detail::SameValue<int, T::min_code_units, T::max_code_units>()
         && std::is_empty<typename T::state_type>::value;
 }
 
@@ -223,11 +223,11 @@ concept bool Text_random_access_decoder() {
  * Text iterator concept
  */
 template<typename T>
-concept bool Text_iterator() {
+concept bool TextIterator() {
     return origin::Iterator<T>()
         && Character<origin::Value_type<T>>()
-        && Text_encoding<typename T::encoding_type>()
-        && Text_encoding_state<typename T::state_type>()
+        && TextEncoding<typename T::encoding_type>()
+        && TextEncodingState<typename T::state_type>()
         && requires (T t, const T ct) {
                { t.state() } noexcept
                    -> typename T::encoding_type::state_type&;
@@ -241,9 +241,9 @@ concept bool Text_iterator() {
  * Text sentinel concept
  */
 template<typename T, typename I>
-concept bool Text_sentinel() {
+concept bool TextSentinel() {
     return origin::Sentinel<T, I>()
-        && Text_iterator<I>();
+        && TextIterator<I>();
 }
 
 
@@ -251,13 +251,13 @@ concept bool Text_sentinel() {
  * Text view concept
  */
 template<typename T>
-concept bool Text_view() {
+concept bool TextView() {
     return origin::Input_range<T>()
-        && Text_iterator<origin::Iterator_type<T>>()
-        && Text_encoding<typename T::encoding_type>()
+        && TextIterator<origin::Iterator_type<T>>()
+        && TextEncoding<typename T::encoding_type>()
         && origin::Input_range<typename T::range_type>()
-        && Text_encoding_state<typename T::state_type>()
-        && Code_unit_iterator<typename T::code_unit_iterator>()
+        && TextEncodingState<typename T::state_type>()
+        && CodeUnitIterator<typename T::code_unit_iterator>()
         && requires (T t, const T ct) {
                { t.base() } noexcept
                    -> typename T::range_type&;

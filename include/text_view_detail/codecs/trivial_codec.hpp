@@ -23,7 +23,7 @@ struct trivial_codec_state {};
 
 struct trivial_codec_state_transition {};
 
-template<Character CT, Code_unit CUT>
+template<Character CT, CodeUnit CUT>
 class trivial_codec {
 public:
     using state_type = trivial_codec_state;
@@ -33,7 +33,7 @@ public:
     static constexpr int min_code_units = 1;
     static constexpr int max_code_units = 1;
 
-    template<Code_unit_iterator CUIT>
+    template<CodeUnitIterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
     static void encode_state_transition(
         state_type &state,
@@ -44,7 +44,7 @@ public:
         encoded_code_units = 0;
     }
 
-    template<Code_unit_iterator CUIT>
+    template<CodeUnitIterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
     static void encode(
         state_type &state,
@@ -61,7 +61,7 @@ public:
         encoded_code_units = 1;
     }
 
-    template<Code_unit_iterator CUIT, typename CUST>
+    template<CodeUnitIterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
@@ -86,7 +86,7 @@ public:
         return true;
     }
 
-    template<Code_unit_iterator CUIT, typename CUST>
+    template<CodeUnitIterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()

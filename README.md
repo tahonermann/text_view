@@ -244,22 +244,22 @@ namespace experimental {
 inline namespace text {
 
 // concepts:
-template<typename T> concept bool Code_unit();
-template<typename T> concept bool Code_point();
-template<typename T> concept bool Character_set();
+template<typename T> concept bool CodeUnit();
+template<typename T> concept bool CodePoint();
+template<typename T> concept bool CharacterSet();
 template<typename T> concept bool Character();
-template<typename T> concept bool Code_unit_iterator();
-template<typename T> concept bool Text_encoding_state();
-template<typename T> concept bool Text_encoding_state_transition();
-template<typename T> concept bool Text_encoding();
-template<typename T, typename I> concept bool Text_encoder();
-template<typename T, typename I> concept bool Text_decoder();
-template<typename T, typename I> concept bool Text_forward_decoder();
-template<typename T, typename I> concept bool Text_bidirectional_decoder();
-template<typename T, typename I> concept bool Text_random_access_decoder();
-template<typename T> concept bool Text_iterator();
-template<typename T, typename I> concept bool Text_sentinel();
-template<typename T> concept bool Text_view();
+template<typename T> concept bool CodeUnitIterator();
+template<typename T> concept bool TextEncodingState();
+template<typename T> concept bool TextEncodingStateTransition();
+template<typename T> concept bool TextEncoding();
+template<typename T, typename I> concept bool TextEncoder();
+template<typename T, typename I> concept bool TextDecoder();
+template<typename T, typename I> concept bool TextForwardDecoder();
+template<typename T, typename I> concept bool TextBidirectionalDecoder();
+template<typename T, typename I> concept bool TextRandomAccessDecoder();
+template<typename T> concept bool TextIterator();
+template<typename T, typename I> concept bool TextSentinel();
+template<typename T> concept bool TextView();
 
 // character sets:
 class any_character_set;
@@ -294,19 +294,19 @@ template<typename T>
   using encoding_type_of = /* implementation-defined */ ;
 
 // characters:
-template<Character_set CST> class character;
+template<CharacterSet CST> class character;
 template <> class character<any_character_set>;
 
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator==(const character<any_character_set> &lhs,
                   const character<CST> &rhs);
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator==(const character<CST> &lhs,
                   const character<any_character_set> &rhs);
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator!=(const character<any_character_set> &lhs,
                   const character<CST> &rhs);
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator!=(const character<CST> &lhs,
                   const character<any_character_set> &rhs);
 
@@ -335,21 +335,21 @@ using char16_character_encoding = /* implementation-defined */ ;
 using char32_character_encoding = /* implementation-defined */ ;
 
 // itext_iterator:
-template<Text_encoding ET, ranges::InputRange RT>
-  requires Text_decoder<ET, ranges::iterator_t<const RT>>()
+template<TextEncoding ET, ranges::InputRange RT>
+  requires TextDecoder<ET, ranges::iterator_t<const RT>>()
   class itext_iterator;
 
 // itext_sentinel:
-template<Text_encoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::InputRange RT>
   class itext_sentinel;
 
 // otext_iterator:
-template<Text_encoding E, Code_unit_iterator CUIT>
+template<TextEncoding E, CodeUnitIterator CUIT>
   requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
   class otext_iterator;
 
 // basic_text_view:
-template<Text_encoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::InputRange RT>
   class basic_text_view;
 
 // basic_text_view type aliases:
@@ -365,36 +365,36 @@ using u32text_view = basic_text_view<char32_character_encoding,
                                      /* implementation-defined */ >;
 
 // basic_text_view factory functions:
-template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
   auto make_text_view(typename ET::state_type state, IT first, ST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
   auto make_text_view(IT first, ST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_encoding ET, ranges::ForwardIterator IT>
+template<TextEncoding ET, ranges::ForwardIterator IT>
   auto make_text_view(typename ET::state_type state,
                       IT first,
                       typename std::make_unsigned<ranges::difference_type_t<IT>>::type n)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_encoding ET, ranges::ForwardIterator IT>
+template<TextEncoding ET, ranges::ForwardIterator IT>
   auto make_text_view(IT first,
                       typename std::make_unsigned<ranges::difference_type_t<IT>>::type n)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_encoding ET, ranges::InputRange Iterable>
+template<TextEncoding ET, ranges::InputRange Iterable>
   auto make_text_view(typename ET::state_type state,
                       const Iterable &iterable)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_encoding ET, ranges::InputRange Iterable>
+template<TextEncoding ET, ranges::InputRange Iterable>
   auto make_text_view(const Iterable &iterable)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_iterator TIT, Text_sentinel<TIT> TST>
+template<TextIterator TIT, TextSentinel<TIT> TST>
   auto make_text_view(TIT first, TST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
-template<Text_view TVT>
+template<TextView TVT>
   TVT make_text_view(TVT tv);
 
 // make_cstr_view:
-template<Code_unit CUT, std::size_t N>
+template<CodeUnit CUT, std::size_t N>
   auto make_cstr_view(const CUT (&cstr)[N])
   -> /* implementation-defined */ ;
 
@@ -405,65 +405,65 @@ template<Code_unit CUT, std::size_t N>
 
 ## Concepts
 
-- [Concept Code_unit](#concept-code_unit)
-- [Concept Code_point](#concept-code_point)
-- [Concept Character_set](#concept-character_set)
+- [Concept CodeUnit](#concept-codeunit)
+- [Concept CodePoint](#concept-codepoint)
+- [Concept CharacterSet](#concept-characterset)
 - [Concept Character](#concept-character)
-- [Concept Code_unit_iterator](#concept-code_unit_iterator)
-- [Concept Text_encoding_state](#concept-text_encoding_state)
-- [Concept Text_encoding_state_transition]
-  (#concept-text_encoding_state_transition)
-- [Concept Text_encoding](#concept-text_encoding)
-- [Concept Text_encoder](#concept-text_encoder)
-- [Concept Text_decoder](#concept-text_decoder)
-- [Concept Text_forward_decoder](#concept-text_forward_decoder)
-- [Concept Text_bidirectional_decoder](#concept-text_bidirectional_decoder)
-- [Concept Text_random_access_decoder](#concept-text_random_access_decoder)
-- [Concept Text_iterator](#concept-text_iterator)
-- [Concept Text_sentinel](#concept-text_sentinel)
-- [Concept Text_view](#concept-text_view)
+- [Concept CodeUnitIterator](#concept-codeunititerator)
+- [Concept TextEncodingState](#concept-textencodingstate)
+- [Concept TextEncodingStateTransition]
+  (#concept-textencodingstatetransition)
+- [Concept TextEncoding](#concept-textencoding)
+- [Concept TextEncoder](#concept-textencoder)
+- [Concept TextDecoder](#concept-textdecoder)
+- [Concept TextForwardDecoder](#concept-textforwarddecoder)
+- [Concept TextBidirectionalDecoder](#concept-textbidirectionaldecoder)
+- [Concept TextRandomAccessDecoder](#concept-textrandomaccessdecoder)
+- [Concept TextIterator](#concept-textiterator)
+- [Concept TextSentinel](#concept-textsentinel)
+- [Concept TextView](#concept-textview)
 
-### Concept Code_unit
-The `Code_unit` concept specifies requirements for a type usable as the
+### Concept CodeUnit
+The `CodeUnit` concept specifies requirements for a type usable as the
 [code unit](#code-unit) type of a string type.
 
 ```C++
-template<typename T> concept bool Code_unit() {
+template<typename T> concept bool CodeUnit() {
   return /* implementation-defined */ ;
 }
 ```
 
-`Code_unit<T>()` is satisfied if and only if
+`CodeUnit<T>()` is satisfied if and only if
 `std::is_integral<T>::value` is true and at least one of
 `std::is_unsigned<T>::value` is true,
 `std::is_same<std::remove_cv<T>::type, char>::value` is true, or
 `std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
 
-### Concept Code_point
-The `Code_point` concept specifies requirements for a type usable as the
+### Concept CodePoint
+The `CodePoint` concept specifies requirements for a type usable as the
 [code point](#code-point) type of a [character set](#character-set) type.
 
 ```C++
-template<typename T> concept bool Code_point() {
+template<typename T> concept bool CodePoint() {
   return /* implementation-defined */ ;
 }
 ```
 
-`Code_point<T>()` is satisfied if and only if
+`CodePoint<T>()` is satisfied if and only if
 `std::is_integral<T>::value` is true and at least one of
 `std::is_unsigned<T>::value` is true,
 `std::is_same<std::remove_cv<T>::type, char>::value` is true, or
 `std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
 
-### Concept Character_set
-The `Character_set` concept specifies requirements for a type that describes
+### Concept CharacterSet
+The `CharacterSet` concept specifies requirements for a type that describes
 a [character set](#character-set).  Such a type has a member typedef-name
-declaration for a type that satisfies `Code_point` and a static member function
+declaration for a type that satisfies `CodePoint` and a static member function
 that returns a name for the [character set](#character-set).
 
 ```C++
-template<typename T> concept bool Character_set() {
-  return Code_point<typename T::code_point_type>()
+template<typename T> concept bool CharacterSet() {
+  return CodePoint<typename T::code_point_type>()
       && requires () {
            { T::get_name() } noexcept -> const char *;
          };
@@ -481,7 +481,7 @@ Types that satisfy `Character` are regular and copyable.
 template<typename T> concept bool Character() {
   return ranges::Regular<T>()
       && ranges::Copyable<T>()
-      && Character_set<typename T::character_set_type>()
+      && CharacterSet<typename T::character_set_type>()
       && requires (T t, typename T::character_set_type::code_point_type cp) {
            t.set_code_point(cp);
            { t.get_code_point() } -> typename T::character_set_type::code_point_type;
@@ -490,42 +490,42 @@ template<typename T> concept bool Character() {
 }
 ```
 
-### Concept Code_unit_iterator
-The `Code_unit_iterator` concept specifies requirements of an iterator that
-has a value type that satisfies `Code_unit`.
+### Concept CodeUnitIterator
+The `CodeUnitIterator` concept specifies requirements of an iterator that
+has a value type that satisfies `CodeUnit`.
 
 ```C++
-template<typename T> concept bool Code_unit_iterator() {
+template<typename T> concept bool CodeUnitIterator() {
   return ranges::Iterator<T>()
-      && Code_unit<ranges::value_type_t<T>>();
+      && CodeUnit<ranges::value_type_t<T>>();
 }
 ```
 
-### Concept Text_encoding_state
-The `Text_encoding_state` concept specifies requirements of types that hold
+### Concept TextEncodingState
+The `TextEncodingState` concept specifies requirements of types that hold
 [encoding](#encoding) state.  Such types are default constructible and copyable.
 
 ```C++
-template<typename T> concept bool Text_encoding_state() {
+template<typename T> concept bool TextEncodingState() {
   return ranges::DefaultConstructible<T>()
       && ranges::Copyable<T>();
 }
 ```
 
-### Concept Text_encoding_state_transition
-The `Text_encoding_state_transition` concept specifies requirements of types
+### Concept TextEncodingStateTransition
+The `TextEncodingStateTransition` concept specifies requirements of types
 that hold [encoding](#encoding) state transitions.  Such types are default
 constructible and copyable.
 
 ```C++
-template<typename T> concept bool Text_encoding_state_transition() {
+template<typename T> concept bool TextEncodingStateTransition() {
   return ranges::DefaultConstructible<T>()
       && ranges::Copyable<T>();
 }
 ```
 
-### Concept Text_encoding
-The `Text_encoding` concept specifies requirements of types that define an
+### Concept TextEncoding
+The `TextEncoding` concept specifies requirements of types that define an
 [encoding](#encoding).  Such types define member types that identify the
 [code unit](#code-unit), [character](#character), encoding state, and encoding
 state transition types, a static member function that returns an initial
@@ -535,14 +535,14 @@ minimum and maximum number of [code units](#code-units) used to encode any
 single character.
 
 ```C++
-template<typename T> concept bool Text_encoding() {
+template<typename T> concept bool TextEncoding() {
   return requires () {
            { T::min_code_units } noexcept -> int;
            { T::max_code_units } noexcept -> int;
          }
-      && Text_encoding_state<typename T::state_type>()
-      && Text_encoding_state_transition<typename T::state_transition_type>()
-      && Code_unit<typename T::code_unit_type>()
+      && TextEncodingState<typename T::state_type>()
+      && TextEncodingStateTransition<typename T::state_transition_type>()
+      && CodeUnit<typename T::code_unit_type>()
       && Character<typename T::character_type>()
       && requires () {
            { T::initial_state() }
@@ -551,16 +551,16 @@ template<typename T> concept bool Text_encoding() {
 }
 ```
 
-### Concept Text_encoder
-The `Text_encoder` concept specifies requirements of types that are used to
+### Concept TextEncoder
+The `TextEncoder` concept specifies requirements of types that are used to
 encode [characters](#character) using a particular [code unit](#code-unit)
 iterator that satisfies `OutputIterator`.  Such a type satisifies
-`Text_encoding` and defines static member functions used to encode state
+`TextEncoding` and defines static member functions used to encode state
 transitions and [characters](#character).
 
 ```C++
-template<typename T, typename I> concept bool Text_encoder() {
-  return Text_encoding<T>()
+template<typename T, typename I> concept bool TextEncoder() {
+  return TextEncoding<T>()
       && ranges::OutputIterator<CUIT, typename T::code_unit_type>()
       && requires (
            typename T::state_type &state,
@@ -581,16 +581,16 @@ template<typename T, typename I> concept bool Text_encoder() {
 }
 ```
 
-### Concept Text_decoder
-The `Text_decoder` concept specifies requirements of types that are used to
+### Concept TextDecoder
+The `TextDecoder` concept specifies requirements of types that are used to
 decode [characters](#character) using a particular [code unit](#code-unit)
 iterator that satisifies `InputIterator`.  Such a type satisfies
-`Text_encoding` and defines a static member function used to decode state
+`TextEncoding` and defines a static member function used to decode state
 transitions and [characters](#character).
 
 ```C++
-template<typename T, typename I> concept bool Text_decoder() {
-  return Text_encoding<T>()
+template<typename T, typename I> concept bool TextDecoder() {
+  return TextEncoding<T>()
       && ranges::InputIterator<CUIT>()
       && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
                                typename T::code_unit_type>()
@@ -606,30 +606,30 @@ template<typename T, typename I> concept bool Text_decoder() {
 }
 ```
 
-### Concept Text_forward_decoder
-The `Text_forward_decoder` concept specifies requirements of types that are
+### Concept TextForwardDecoder
+The `TextForwardDecoder` concept specifies requirements of types that are
 used to decode [characters](#character) using a particular
 [code unit](#code-unit) iterator that satisifies `ForwardIterator`.  Such a
-type satisfies `Text_decoder`.
+type satisfies `TextDecoder`.
 
 ```C++
-template<typename T, typename I> concept bool Text_forward_decoder() {
-  return Text_decoder<T, CUIT>()
+template<typename T, typename I> concept bool TextForwardDecoder() {
+  return TextDecoder<T, CUIT>()
       && ranges::ForwardIterator<CUIT>();
 }
 ```
 
-### Concept Text_bidirectional_decoder
-The `Text_bidirectional_decoder` concept specifies requirements of types that
+### Concept TextBidirectionalDecoder
+The `TextBidirectionalDecoder` concept specifies requirements of types that
 are used to decode [characters](#character) using a particular
 [code unit](#code-unit) iterator that satisifies `BidirectionalIterator`.  Such
-a type satisfies `Text_forward_decoder` and defines a static member function
+a type satisfies `TextForwardDecoder` and defines a static member function
 used to decode state transitions and [characters](#character) in the reverse
 order of their encoding.
 
 ```C++
-template<typename T, typename I> concept bool Text_bidirectional_decoder() {
-  return Text_forward_decoder<T, CUIT>()
+template<typename T, typename I> concept bool TextBidirectionalDecoder() {
+  return TextForwardDecoder<T, CUIT>()
       && ranges::BidirectionalIterator<CUIT>()
       && requires (
            typename T::state_type &state,
@@ -643,37 +643,37 @@ template<typename T, typename I> concept bool Text_bidirectional_decoder() {
 }
 ```
 
-### Concept Text_random_access_decoder
-The `Text_random_access_decoder` concept specifies requirements of types that
+### Concept TextRandomAccessDecoder
+The `TextRandomAccessDecoder` concept specifies requirements of types that
 are used to decode [characters](#character) using a particular
 [code unit](#code-unit) iterator that satisifies `RandomAccessIterator`.  Such a
-type satisfies `Text_bidirectional_decoder`, requires that the minimum and
+type satisfies `TextBidirectionalDecoder`, requires that the minimum and
 maximum number of [code units](#code-unit) used to encode any character have
 the same value, and that the encoding state be an empty type.
 
 ```C++
-template<typename T, typename I> concept bool Text_random_access_decoder() {
-  return Text_bidirectional_decoder<T, CUIT>()
+template<typename T, typename I> concept bool TextRandomAccessDecoder() {
+  return TextBidirectionalDecoder<T, CUIT>()
       && ranges::RandomAccessIterator<CUIT>()
       && T::min_code_units == T::max_code_units
       && std::is_empty<typename T::state_type>::value;
 }
 ```
 
-### Concept Text_iterator
-The `Text_iterator` concept specifies requirements of types that are used to
+### Concept TextIterator
+The `TextIterator` concept specifies requirements of types that are used to
 iterator over [characters](#character) in an [encoded](#encoding) sequence of
 [code units](#code-unit).  [Encoding](#encoding) state is held in each iterator
 instance as needed to decode the [code unit](#code-unit) sequence and is made
 accessible via non-static member functions.  The value type of a
-`Text_iterator` satisfies `Character`.
+`TextIterator` satisfies `Character`.
 
 ```C++
-template<typename T> concept bool Text_iterator() {
+template<typename T> concept bool TextIterator() {
   return ranges::Iterator<T>()
       && Character<ranges::value_type_t<T>>()
-      && Text_encoding<typename T::encoding_type>()
-      && Text_encoding_state<typename T::state_type>()
+      && TextEncoding<typename T::encoding_type>()
+      && TextEncodingState<typename T::state_type>()
       && requires (T t, const T ct) {
            { t.state() } noexcept
                -> typename T::encoding_type::state_type&;
@@ -683,40 +683,40 @@ template<typename T> concept bool Text_iterator() {
 }
 ```
 
-### Concept Text_sentinel
-The `Text_sentinel` concept specifies requirements of types that are used to
+### Concept TextSentinel
+The `TextSentinel` concept specifies requirements of types that are used to
 mark the end of a range of encoded [characters](#character).  A type T that
-satisfies `Text_iterator` also satisfies `Text_sentinel<T>` there by enabling
-`Text_iterator` types to be used as sentinels.
+satisfies `TextIterator` also satisfies `TextSentinel<T>` there by enabling
+`TextIterator` types to be used as sentinels.
 
 ```C++
-template<typename T, typename I> concept bool Text_sentinel() {
+template<typename T, typename I> concept bool TextSentinel() {
   return ranges::Sentinel<T, I>()
-      && Text_iterator<I>();
+      && TextIterator<I>();
 }
 ```
 
-### Concept Text_view
-The `Text_view` concept specifies requirements of types that provide view access
+### Concept TextView
+The `TextView` concept specifies requirements of types that provide view access
 to an underlying [code unit](#code-unit) range.  Such types satisy
-`ranges::View`, provide iterators that satisfy `Text_iterator`, define member
+`ranges::View`, provide iterators that satisfy `TextIterator`, define member
 types that identify the [encoding](#encoding), encoding state, and underlying
 [code unit](#code-unit) range and iterator types.  Non-static member functions
 are provided to access the underlying [code unit](#code-unit) range and initial
 [encoding](#encoding) state.
 
-Types that satisfy `Text_view` do not own the underlying [code unit](#code-unit)
+Types that satisfy `TextView` do not own the underlying [code unit](#code-unit)
 range and are copyable in constant time.  The lifetime of the underlying range
-must exceed the lifetime of referencing `Text_view` objects.
+must exceed the lifetime of referencing `TextView` objects.
 
 ```C++
-template<typename T> concept bool Text_view() {
+template<typename T> concept bool TextView() {
   return ranges::View<T>()
-      R& Text_iterator<ranges::iterator_t<T>>()
-      && Text_encoding<typename T::encoding_type>()
+      R& TextIterator<ranges::iterator_t<T>>()
+      && TextEncoding<typename T::encoding_type>()
       && ranges::InputRange<typename T::range_type>()
-      && Text_encoding_state<typename T::state_type>()
-      && Code_unit_iterator<typename T::code_unit_iterator>()
+      && TextEncodingState<typename T::state_type>()
+      && CodeUnitIterator<typename T::code_unit_iterator>()
       R& requires (T t, const T ct) {
            { t.base() } noexcept
                -> typename T::range_type&;
@@ -858,7 +858,7 @@ template<typename CST>
 ### Class template character
 
 ```C++
-template<Character_set CST>
+template<CharacterSet CST>
 class character {
 public:
   using character_set_type = CST;
@@ -903,16 +903,16 @@ private:
   code_point_type code_point; // exposition only
 };
 
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator==(const character<any_character_set> &lhs,
                   const character<CST> &rhs);
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator==(const character<CST> &lhs,
                   const character<any_character_set> &rhs);
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator!=(const character<any_character_set> &lhs,
                   const character<CST> &rhs);
-template<Character_set CST>
+template<CharacterSet CST>
   bool operator!=(const character<CST> &lhs,
                   const character<any_character_set> &rhs);
 ```
@@ -951,21 +951,21 @@ class basic_execution_character_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -975,7 +975,7 @@ class basic_execution_character_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1001,21 +1001,21 @@ class basic_execution_wide_character_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1025,7 +1025,7 @@ class basic_execution_wide_character_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1052,21 +1052,21 @@ class iso_10646_wide_character_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1076,7 +1076,7 @@ class iso_10646_wide_character_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1103,21 +1103,21 @@ class utf8_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1127,7 +1127,7 @@ class utf8_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1153,21 +1153,21 @@ class utf8bom_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1177,7 +1177,7 @@ class utf8bom_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1203,21 +1203,21 @@ class utf16_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1227,7 +1227,7 @@ class utf16_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1253,21 +1253,21 @@ class utf16be_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1277,7 +1277,7 @@ class utf16be_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1303,21 +1303,21 @@ class utf16le_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1327,7 +1327,7 @@ class utf16le_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1353,21 +1353,21 @@ class utf16bom_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1377,7 +1377,7 @@ class utf16bom_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1403,21 +1403,21 @@ class utf32_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1427,7 +1427,7 @@ class utf32_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1453,21 +1453,21 @@ class utf32be_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1477,7 +1477,7 @@ class utf32be_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1503,21 +1503,21 @@ class utf32le_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1527,7 +1527,7 @@ class utf32le_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1553,21 +1553,21 @@ class utf32bom_encoding {
 
   static const state_type& initial_state();
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT>
+  template<CodeUnitIterator CUIT>
     requires ranges::OutputIterator<CUIT, code_unit_type>()
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
                        int &encoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1577,7 +1577,7 @@ class utf32bom_encoding {
                        character_type &c,
                        int &decoded_code_units)
 
-  template<Code_unit_iterator CUIT, typename CUST>
+  template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
@@ -1608,8 +1608,8 @@ using char32_character_encoding = /* implementation-defined */ ;
 ### Class template itext_iterator
 
 ```C++
-template<Text_encoding ET, ranges::InputRange RT>
-  requires Text_decoder<
+template<TextEncoding ET, ranges::InputRange RT>
+  requires TextDecoder<
              ET,
              ranges::iterator_t<std::add_const_t<std::remove_reference_t<RT>>>>()
 class itext_iterator {
@@ -1638,42 +1638,42 @@ public:
   friend bool operator!=(const itext_iterator &l, const itext_iterator &r);
 
   friend bool operator<(const itext_iterator &l, const itext_iterator &r)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
   friend bool operator>(const itext_iterator &l, const itext_iterator &r)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
   friend bool operator<=(const itext_iterator &l, const itext_iterator &r)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
   friend bool operator>=(const itext_iterator &l, const itext_iterator &r)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   itext_iterator& operator++();
   itext_iterator& operator++()
-    requires Text_forward_decoder<encoding_type, iterator>();
+    requires TextForwardDecoder<encoding_type, iterator>();
   itext_iterator operator++(int);
 
   itext_iterator& operator--()
-    requires Text_bidirectional_decoder<encoding_type, iterator>();
+    requires TextBidirectionalDecoder<encoding_type, iterator>();
   itext_iterator operator--(int)
-    requires Text_bidirectional_decoder<encoding_type, iterator>();
+    requires TextBidirectionalDecoder<encoding_type, iterator>();
 
   itext_iterator& operator+=(difference_type n)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
   itext_iterator& operator-=(difference_type n)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   friend itext_iterator operator+(itext_iterator l, difference_type n)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
   friend itext_iterator operator+(difference_type n, itext_iterator r)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   friend itext_iterator operator-(itext_iterator l, difference_type n)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
   friend difference_type operator-(const itext_iterator &l,
                                    const itext_iterator &r)
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   value_type operator[](difference_type n) const
-    requires Text_random_access_decoder<encoding_type, iterator>();
+    requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   const state_type& state() const noexcept;
   state_type& state() noexcept;
@@ -1681,7 +1681,7 @@ public:
   iterator base() const;
 
   /* implementation-defined */ base_range() const
-    requires Text_decoder<encoding_type, iterator>()
+    requires TextDecoder<encoding_type, iterator>()
           && ranges::ForwardIterator<iterator>();
 
   bool is_ok() const noexcept;
@@ -1696,7 +1696,7 @@ private:
 ### Class template itext_sentinel
 
 ```C++
-template<Text_encoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::InputRange RT>
 class itext_sentinel {
 public:
   using range_type = std::remove_reference_t<RT>;
@@ -1784,7 +1784,7 @@ private:
 ### Class template otext_iterator
 
 ```C++
-template<Text_encoding E, Code_unit_iterator CUIT>
+template<TextEncoding E, CodeUnitIterator CUIT>
   requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
 class otext_iterator {
 public:
@@ -1835,7 +1835,7 @@ private:
 ### Class template basic_text_view
 
 ```C++
-template<Text_encoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::InputRange RT>
 class basic_text_view {
 public:
   using encoding_type = ET;
@@ -1968,48 +1968,48 @@ using u32text_view = basic_text_view<
 ### make_text_view
 
 ```C++
-template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
   auto make_text_view(typename ET::state_type state,
                       IT first, ST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
 
-template<Text_encoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
   auto make_text_view(IT first, ST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<Text_encoding ET, ranges::ForwardIterator IT>
+template<TextEncoding ET, ranges::ForwardIterator IT>
   auto make_text_view(typename ET::state_type state,
                       IT first,
                       ranges::difference_type_t<IT> n)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<Text_encoding ET, ranges::ForwardIterator IT>
+template<TextEncoding ET, ranges::ForwardIterator IT>
   auto make_text_view(IT first,
                       ranges::difference_type_t<IT> n)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<Text_encoding ET, ranges::InputRange Iterable>
+template<TextEncoding ET, ranges::InputRange Iterable>
   auto make_text_view(typename ET::state_type state,
                       const Iterable &iterable)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<Text_encoding ET, ranges::InputRange Iterable>
+template<TextEncoding ET, ranges::InputRange Iterable>
   auto make_text_view(const Iterable &iterable)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<Text_iterator TIT, Text_sentinel<TIT> TST>
+template<TextIterator TIT, TextSentinel<TIT> TST>
   auto make_text_view(TIT first, TST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<Text_view TVT>
+template<TextView TVT>
   TVT make_text_view(TVT tv);
 ```
 
 ### make_cstr_view
 
 ```C++
-template<Code_unit CUT, std::size_t N>
+template<CodeUnit CUT, std::size_t N>
   auto make_cstr_view(const CUT (&cstr)[N])
   -> /* implementation-defined */ ;
 ```

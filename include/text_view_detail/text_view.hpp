@@ -69,7 +69,7 @@ inline namespace text {
 // FIXME: derive from range_base to make this explicit.  However, Origin
 // FIXME: currently defines a range_base template class that differs from what
 // FIXME: N4382 specifies.
-template<Text_encoding ET, origin::Input_range RT>
+template<TextEncoding ET, origin::Input_range RT>
 class basic_text_view
     : private ET::state_type
 {
@@ -310,7 +310,7 @@ using u32text_view = basic_text_view<
  */
 // Overload to construct a text view from an N4382 InputIterator, Sentinel,
 // and an explicitly specified initial encoding state.
-template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+template<TextEncoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
 auto make_text_view(
     typename ET::state_type state,
     IT first,
@@ -322,7 +322,7 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4382 InputIterator, Sentinel,
 // and an implicit initial encoding state.
-template<Text_encoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
+template<TextEncoding ET, origin::Input_iterator IT, origin::Sentinel<IT> ST>
 auto make_text_view(
     IT first,
     ST last)
@@ -335,7 +335,7 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4382 ForwardIterator, a count, and
 // an explicitly specified initial encoding state.
-template<Text_encoding ET, origin::Forward_iterator IT>
+template<TextEncoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     typename ET::state_type state,
     IT first,
@@ -349,7 +349,7 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4382 ForwardIterator, a count, and
 // an implicit initial encoding state.
-template<Text_encoding ET, origin::Forward_iterator IT>
+template<TextEncoding ET, origin::Forward_iterator IT>
 auto make_text_view(
     IT first,
     origin::Difference_type<IT> n)
@@ -361,7 +361,7 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4382 Iterable const reference
 // and an explicitly specified initial encoding state.
-template<Text_encoding ET, origin::Input_range Iterable>
+template<TextEncoding ET, origin::Input_range Iterable>
 auto make_text_view(
     typename ET::state_type state,
     const Iterable &iterable)
@@ -374,7 +374,7 @@ auto make_text_view(
 
 // Overload to construct a text view from an N4382 Iterable const reference
 // and an implicit initial encoding state.
-template<Text_encoding ET, origin::Input_range Iterable>
+template<TextEncoding ET, origin::Input_range Iterable>
 auto make_text_view(
     const Iterable &iterable)
 {
@@ -385,7 +385,7 @@ auto make_text_view(
 
 // Overload to construct a text view from a text iterator/sentinel pair.  The
 // initial encoding state is inferred from the first iterator.
-template<Text_iterator TIT, Text_sentinel<TIT> TST>
+template<TextIterator TIT, TextSentinel<TIT> TST>
 auto make_text_view(
     TIT first,
     TST last)
@@ -398,7 +398,7 @@ auto make_text_view(
 }
 
 // Overload to construct a text view from an existing text view.
-template<Text_view TVT>
+template<TextView TVT>
 auto make_text_view(
     TVT tv)
 {
@@ -413,7 +413,7 @@ auto make_text_view(
 // literal) that holds a C style string with a null character terminator.  The
 // constructed view excludes the string terminator that is presumed, but not
 // verified to be present.
-template<Code_unit CUT, std::size_t N>
+template<CodeUnit CUT, std::size_t N>
 auto make_cstr_view(const CUT (&cstr)[N]) {
     using view_type = origin::bounded_range<const CUT*>;
     return view_type{cstr, cstr + (N - 1)};

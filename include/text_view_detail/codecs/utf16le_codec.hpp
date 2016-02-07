@@ -22,7 +22,7 @@ inline namespace text {
 namespace text_detail {
 
 
-template<Character CT, Code_unit CUT>
+template<Character CT, CodeUnit CUT>
 class utf16le_codec {
 public:
     using state_type = trivial_codec_state;
@@ -34,7 +34,7 @@ public:
 
     static_assert(sizeof(code_unit_type) * CHAR_BIT >= 8);
 
-    template<Code_unit_iterator CUIT>
+    template<CodeUnitIterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
     static void encode_state_transition(
         state_type &state,
@@ -45,7 +45,7 @@ public:
         encoded_code_units = 0;
     }
 
-    template<Code_unit_iterator CUIT>
+    template<CodeUnitIterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
     static void encode(
         state_type &state,
@@ -91,7 +91,7 @@ public:
         }
     }
 
-    template<Code_unit_iterator CUIT, typename CUST>
+    template<CodeUnitIterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()
@@ -141,7 +141,7 @@ public:
         return true;
     }
 
-    template<Code_unit_iterator CUIT, typename CUST>
+    template<CodeUnitIterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
           && origin::Sentinel<CUST, CUIT>()

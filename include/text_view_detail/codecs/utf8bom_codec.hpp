@@ -66,7 +66,7 @@ struct utf8bom_codec_state {
     }
 };
 
-template<Character CT, Code_unit CUT>
+template<Character CT, CodeUnit CUT>
 class utf8bom_codec {
 public:
     using state_type = utf8bom_codec_state;
@@ -78,7 +78,7 @@ public:
 
     static_assert(sizeof(code_unit_type) * CHAR_BIT >= 8);
 
-    template<Code_unit_iterator CUIT>
+    template<CodeUnitIterator CUIT>
     requires origin::Output_iterator<CUIT, code_unit_type>()
     static void encode_state_transition(
         state_type &state,
@@ -112,7 +112,7 @@ public:
         }
     }
 
-    template<Code_unit_iterator CUIT>
+    template<CodeUnitIterator CUIT>
     requires origin::Output_iterator<
                  CUIT,
                  std::make_unsigned_t<code_unit_type>>()
@@ -145,7 +145,7 @@ public:
         encoded_code_units += utf8_encoded_code_units;
     }
 
-    template<Code_unit_iterator CUIT, typename CUST>
+    template<CodeUnitIterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<
                  origin::Value_type<CUIT>,
@@ -190,7 +190,7 @@ public:
         return return_value;
     }
 
-    template<Code_unit_iterator CUIT, typename CUST>
+    template<CodeUnitIterator CUIT, typename CUST>
     requires origin::Input_iterator<CUIT>()
           && origin::Convertible<
                  origin::Value_type<CUIT>,
