@@ -4,12 +4,11 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#ifndef TEXT_VIEW_TEXT // {
-#define TEXT_VIEW_TEXT
+#ifndef TEXT_VIEW_HPP // {
+#define TEXT_VIEW_HPP
 
 
 #include <text_view_detail/concepts.hpp>
-#include <text_view_detail/archetypes.hpp>
 #include <text_view_detail/charsets.hpp>
 #include <text_view_detail/character.hpp>
 #include <text_view_detail/trivial_encoding_state.hpp>
@@ -19,4 +18,4 @@
 #include <text_view_detail/text_view.hpp>
 
 
-#endif // } TEXT_VIEW_TEXT
+#endif // } TEXT_VIEW_HPP

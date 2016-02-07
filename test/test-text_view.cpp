@@ -20,6 +20,7 @@
 #include <utility>
 #include <string>
 #include <text_view>
+#include <text_view_archetypes.hpp>
 
 
 using namespace std;
