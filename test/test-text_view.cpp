@@ -344,6 +344,17 @@ private:
 };
 
 
+// Constructs a view from an array reference (that may correspond to a string
+// literal) that holds a C style string with a null character terminator.  The
+// constructed view excludes the string terminator that is presumed, but not
+// verified to be present.
+template<CodeUnit CUT, std::size_t N>
+auto make_cstr_view(const CUT (&cstr)[N]) {
+    using view_type = origin::bounded_range<const CUT*>;
+    return view_type{cstr, cstr + (N - 1)};
+}
+
+
 void test_code_unit_models() {
     // Archetypes
     static_assert(CodeUnit<code_unit_archetype>());

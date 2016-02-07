@@ -393,11 +393,6 @@ template<TextIterator TIT, TextSentinel<TIT> TST>
 template<TextView TVT>
   TVT make_text_view(TVT tv);
 
-// make_cstr_view:
-template<CodeUnit CUT, std::size_t N>
-  auto make_cstr_view(const CUT (&cstr)[N])
-  -> /* implementation-defined */ ;
-
 } // inline namespace text
 } // namespace experimental
 } // namespace std
@@ -1830,7 +1825,6 @@ private:
 - [Class template basic_text_view](#class-template-basic_text_view)
 - [Text view type aliases](#text-view-type-aliases)
 - [make_text_view](#make_text_view)
-- [make_cstr_view](#make_cstr_view)
 
 ### Class template basic_text_view
 
@@ -2004,14 +1998,6 @@ template<TextIterator TIT, TextSentinel<TIT> TST>
 
 template<TextView TVT>
   TVT make_text_view(TVT tv);
-```
-
-### make_cstr_view
-
-```C++
-template<CodeUnit CUT, std::size_t N>
-  auto make_cstr_view(const CUT (&cstr)[N])
-  -> /* implementation-defined */ ;
 ```
 
 # Supported Encodings
