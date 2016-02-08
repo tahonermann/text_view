@@ -77,10 +77,15 @@ The iterators provided by [Text_view] also provide access to the underlying
 auto base_it = it.base_range().begin();
 assert(*base_it++ == '\xC3');
 assert(*base_it++ == '\xB8');
+assert(base_it == it.base_range().end());
 ```
 
-[Text_view] ranges satisfy the requirements for use in range-based for
-statements.
+[Text_view] ranges satisfy the requirements for use in
+[C++11][ISO/IEC 14882:2011] range-based for statements.  This support is
+currently limited to views constructed for stateless [encodings](#encoding)
+as a sentinel is used as the end iterator for stateful [encodings](#encoding).
+The enhancements to the range-based for statement in the
+[ranges proposal][N4560] will remove this limitation.
 
 ```C++
 for (const auto &ch : tv) {
