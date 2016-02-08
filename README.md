@@ -104,6 +104,7 @@ for (const auto &ch : tv) {
 [Text_view] does **not** currently provide interfaces for the following:
 - Transcoding of code points from one [character set](#character-set) to
   another.
+- Iterators for grapheme clusters or other boundary conditions.
 - Collation.
 - Localization.
 - Internationalization.
