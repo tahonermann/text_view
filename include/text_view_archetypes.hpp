@@ -135,16 +135,14 @@ struct text_encoding_archetype_template
 
     static const state_type& initial_state();
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(
         state_type &state,
         CUIT &out,
         const state_transition_type &stt,
         int &encoded_code_units);
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(
         state_type &state,
         CUIT &out,

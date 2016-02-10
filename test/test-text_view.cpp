@@ -682,12 +682,10 @@ void test_any_character_set() {
 // 'it' which must write the resulting code units to the container reflected by
 // 'code_unit_range'.
 template<
-    TextEncoding ET,
     origin::Input_range RT,
     TextOutputIterator TIT>
-requires origin::Output_iterator<TIT, character_type_t<ET>>()
 void test_forward_encode(
-    const code_unit_map_sequence<ET> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TIT>> &code_unit_maps,
     const RT &code_unit_range,
     TIT it)
 {
@@ -714,12 +712,11 @@ void test_forward_encode(
 // test.  Characters are encoded via 'it' which must write the resulting code
 // units to the container reflected by 'code_unit_range'.
 template<
-    TextEncoding ET,
     origin::Input_range RT,
     TextOutputIterator TIT>
 requires origin::Forward_iterator<TIT>()
 void test_forward_encode(
-    const code_unit_map_sequence<ET> &code_unit_maps,
+    const code_unit_map_sequence<encoding_type_t<TIT>> &code_unit_maps,
     const RT &code_unit_range,
     TIT it)
 {
@@ -1122,7 +1119,7 @@ void test_forward_encoding(
         output_iterator<decltype(begin(container)), code_unit_type>;
     base_iterator_type base_iterator(begin(container));
     auto it = make_otext_iterator<ET>(base_iterator);
-    test_forward_encode<ET>(code_unit_maps, container, it);
+    test_forward_encode(code_unit_maps, container, it);
     }
 
     // Test otext_iterator with an underlying forward iterator.
@@ -1133,7 +1130,7 @@ void test_forward_encoding(
         num_code_units,
         code_unit_type{});
     auto it = make_otext_iterator<ET>(begin(container));
-    test_forward_encode<ET>(code_unit_maps, container, it);
+    test_forward_encode(code_unit_maps, container, it);
     }
 
     // Test otext_iterator with an underlying bidirectional iterator.
@@ -1144,14 +1141,14 @@ void test_forward_encoding(
         num_code_units,
         code_unit_type{});
     auto it = make_otext_iterator<ET>(begin(container));
-    test_forward_encode<ET>(code_unit_maps, container, it);
+    test_forward_encode(code_unit_maps, container, it);
     }
 
     // Test otext_iterator with an underlying random access iterator.
     {
     vector<code_unit_type> container(num_code_units);
     auto it = make_otext_iterator<ET>(begin(container));
-    test_forward_encode<ET>(code_unit_maps, container, it);
+    test_forward_encode(code_unit_maps, container, it);
     }
 
 

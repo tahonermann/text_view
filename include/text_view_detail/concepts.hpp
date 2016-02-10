@@ -147,7 +147,7 @@ concept bool TextEncoding() {
 template<typename T, typename CUIT>
 concept bool TextEncoder() {
     return TextEncoding<T>()
-        && origin::Output_iterator<CUIT, code_unit_type_t<T>>()
+        && CodeUnitOutputIterator<CUIT, code_unit_type_t<T>>()
         && requires (
                typename T::state_type &state,
                CUIT &out,
