@@ -23,7 +23,7 @@ int main() {
     auto a_utf8_tv = make_text_view<utf8_encoding>(a_utf8_string);
 
     // Declare a type alias for the UTF-8 character type for convenience.
-    using CT = utf8_encoding::character_type;
+    using CT = character_type_t<utf8_encoding>;
 
     // Declare an array of the expected code points encountered during
     // enumeration for validation purposes.

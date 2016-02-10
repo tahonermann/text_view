@@ -30,8 +30,7 @@ public:
     static constexpr int min_code_units = 1;
     static constexpr int max_code_units = 1;
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(
         state_type &state,
         CUIT &out,
@@ -41,8 +40,7 @@ public:
         encoded_code_units = 0;
     }
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(
         state_type &state,
         CUIT &out,

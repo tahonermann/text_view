@@ -21,7 +21,7 @@ template<CharacterSet CST>
 class character {
 public:
     using character_set_type = CST;
-    using code_point_type = typename character_set_type::code_point_type;
+    using code_point_type = code_point_type_t<character_set_type>;
 
     character() = default;
     explicit character(code_point_type code_point)
@@ -63,7 +63,7 @@ template<>
 class character<any_character_set> {
 public:
     using character_set_type = any_character_set;
-    using code_point_type = typename character_set_type::code_point_type;
+    using code_point_type = code_point_type_t<character_set_type>;
 
     character() = default;
     explicit character(code_point_type code_point)

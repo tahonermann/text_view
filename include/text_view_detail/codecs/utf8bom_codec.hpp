@@ -80,8 +80,7 @@ public:
 
     static_assert(sizeof(code_unit_type) * CHAR_BIT >= 8);
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static void encode_state_transition(
         state_type &state,
         CUIT &out,
@@ -114,10 +113,7 @@ public:
         }
     }
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<
-                 CUIT,
-                 std::make_unsigned_t<code_unit_type>>()
+    template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static void encode(
         state_type &state,
         CUIT &out,

@@ -34,19 +34,17 @@ public:
 
     static_assert(sizeof(code_unit_type) * CHAR_BIT >= 8);
 
-    template<CodeUnitIterator CUIT> 
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(
         state_type &state,
         CUIT &out,
         const state_transition_type &stt,
         int &encoded_code_units)
-    {   
+    {
         encoded_code_units = 0;
     }
 
-    template<CodeUnitIterator CUIT>
-    requires origin::Output_iterator<CUIT, code_unit_type>()
+    template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(
         state_type &state,
         CUIT &out,
@@ -74,7 +72,7 @@ public:
         } else {
             uint_least16_t cu1 = 0xD800 + (((cp - 0x10000) >> 10) & 0x03FF);
             uint_least16_t cu2 = 0xDC00 + ((cp - 0x10000) & 0x03FF);
-            
+
             code_unit_type octet1 = (cu1 >> 8) & 0xFF;
             code_unit_type octet2 = cu1 & 0xFF;
             code_unit_type octet3 = (cu2 >> 8) & 0xFF;

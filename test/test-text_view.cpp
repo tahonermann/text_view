@@ -38,8 +38,8 @@ using namespace std::experimental;
 template<TextEncoding ET>
 struct code_unit_map {
     using state_transition_type = typename ET::state_transition_type;
-    using code_unit_type = typename ET::code_unit_type;
-    using character_type = typename ET::character_type;
+    using code_unit_type = code_unit_type_t<ET>;
+    using character_type = character_type_t<ET>;
 
     // FIXME: std::optional would be a better choice than vector for specifying
     // FIXME: a state transition or a character.  The intent is to allow
@@ -128,19 +128,6 @@ class output_iterator
 {
 public:
     output_iterator(IT it) : it(it) {}
-
-    friend bool operator==(
-        const output_iterator &l,
-        const output_iterator &r)
-    {
-        return l.it == r.it;
-    }
-    friend bool operator!=(
-        const output_iterator &l,
-        const output_iterator &r)
-    {
-        return !(l == r);
-    }
 
     auto operator*() -> output_iterator& {
         return *this;
@@ -417,6 +404,16 @@ void test_code_unit_iterator_models() {
     static_assert(CodeUnitIterator<char32_t*>());
 }
 
+void test_code_unit_output_iterator_models() {
+    // Archetypes
+    static_assert(CodeUnitOutputIterator<code_unit_output_iterator_archetype, code_unit_archetype>());
+    // std
+    static_assert(CodeUnitOutputIterator<char*, char>());
+    static_assert(CodeUnitOutputIterator<wchar_t*, wchar_t>());
+    static_assert(CodeUnitOutputIterator<char16_t*, char16_t>());
+    static_assert(CodeUnitOutputIterator<char32_t*, char32_t>());
+}
+
 void test_text_encoding_state_models() {
     // Archetypes
     static_assert(TextEncodingState<text_encoding_state_archetype>());
@@ -594,7 +591,6 @@ void test_text_iterator_models() {
     // Archetypes
     static_assert(TextIterator<text_iterator_archetype>());
     static_assert(TextIterator<text_view_archetype::iterator>());
-    static_assert(TextIterator<otext_iterator<text_encoding_archetype, code_unit_iterator_archetype>>());
     // std input iterators
     static_assert(TextIterator<itext_iterator<basic_execution_character_encoding, char(&)[5]>>());
     static_assert(TextIterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t(&)[5]>>());
@@ -608,19 +604,25 @@ void test_text_iterator_models() {
     static_assert(TextIterator<itext_iterator<utf32_encoding, char32_t(&)[5]>>());
     static_assert(TextIterator<itext_iterator<utf32be_encoding, char(&)[5]>>());
     static_assert(TextIterator<itext_iterator<utf32le_encoding, char(&)[5]>>());
+}
+
+void test_text_output_iterator_models() {
+    // Archetypes
+    static_assert(TextOutputIterator<text_output_iterator_archetype>());
+    static_assert(TextOutputIterator<otext_iterator<text_encoding_archetype, code_unit_iterator_archetype>>());
     // std output iterators
-    static_assert(TextIterator<otext_iterator<basic_execution_character_encoding, char*>>());
-    static_assert(TextIterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>());
+    static_assert(TextOutputIterator<otext_iterator<basic_execution_character_encoding, char*>>());
+    static_assert(TextOutputIterator<otext_iterator<basic_execution_wide_character_encoding, wchar_t*>>());
 #if defined(__STDC_ISO_10646__)
-    static_assert(TextIterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>());
+    static_assert(TextOutputIterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>());
 #endif
-    static_assert(TextIterator<otext_iterator<utf8_encoding, char*>>());
-    static_assert(TextIterator<otext_iterator<utf16_encoding, char16_t*>>());
-    static_assert(TextIterator<otext_iterator<utf16be_encoding, char*>>());
-    static_assert(TextIterator<otext_iterator<utf16le_encoding, char*>>());
-    static_assert(TextIterator<otext_iterator<utf32_encoding, char32_t*>>());
-    static_assert(TextIterator<otext_iterator<utf32be_encoding, char*>>());
-    static_assert(TextIterator<otext_iterator<utf32le_encoding, char*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf8_encoding, char*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf16_encoding, char16_t*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf16be_encoding, char*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf16le_encoding, char*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf32_encoding, char32_t*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf32be_encoding, char*>>());
+    static_assert(TextOutputIterator<otext_iterator<utf32le_encoding, char*>>());
 }
 
 void test_text_view_models() {
@@ -682,8 +684,8 @@ void test_any_character_set() {
 template<
     TextEncoding ET,
     origin::Input_range RT,
-    TextIterator TIT>
-requires origin::Output_iterator<TIT, typename ET::character_type>()
+    TextOutputIterator TIT>
+requires origin::Output_iterator<TIT, character_type_t<ET>>()
 void test_forward_encode(
     const code_unit_map_sequence<ET> &code_unit_maps,
     const RT &code_unit_range,
@@ -714,7 +716,7 @@ void test_forward_encode(
 template<
     TextEncoding ET,
     origin::Input_range RT,
-    TextIterator TIT>
+    TextOutputIterator TIT>
 requires origin::Forward_iterator<TIT>()
 void test_forward_encode(
     const code_unit_map_sequence<ET> &code_unit_maps,
@@ -1102,7 +1104,7 @@ template<TextEncoding ET>
 void test_forward_encoding(
     const code_unit_map_sequence<ET> &code_unit_maps)
 {
-    using code_unit_type = typename ET::code_unit_type;
+    using code_unit_type = code_unit_type_t<ET>;
 
     int num_code_units = 0;
     for (const auto &cum : code_unit_maps) {
@@ -1119,8 +1121,7 @@ void test_forward_encoding(
     using base_iterator_type =
         output_iterator<decltype(begin(container)), code_unit_type>;
     base_iterator_type base_iterator(begin(container));
-    otext_iterator<ET, base_iterator_type>
-        it(ET::initial_state(), base_iterator);
+    auto it = make_otext_iterator<ET>(base_iterator);
     test_forward_encode<ET>(code_unit_maps, container, it);
     }
 
@@ -1131,8 +1132,7 @@ void test_forward_encoding(
         front_insert_iterator<decltype(container)>{container},
         num_code_units,
         code_unit_type{});
-    otext_iterator<ET, decltype(begin(container))>
-        it(ET::initial_state(), begin(container));
+    auto it = make_otext_iterator<ET>(begin(container));
     test_forward_encode<ET>(code_unit_maps, container, it);
     }
 
@@ -1143,16 +1143,14 @@ void test_forward_encoding(
         front_insert_iterator<decltype(container)>{container},
         num_code_units,
         code_unit_type{});
-    otext_iterator<ET, decltype(begin(container))>
-        it(ET::initial_state(), begin(container));
+    auto it = make_otext_iterator<ET>(begin(container));
     test_forward_encode<ET>(code_unit_maps, container, it);
     }
 
     // Test otext_iterator with an underlying random access iterator.
     {
     vector<code_unit_type> container(num_code_units);
-    otext_iterator<ET, decltype(begin(container))>
-        it(ET::initial_state(), begin(container));
+    auto it = make_otext_iterator<ET>(begin(container));
     test_forward_encode<ET>(code_unit_maps, container, it);
     }
 
@@ -1235,7 +1233,7 @@ void test_bidirectional_encoding(
 {
     test_forward_encoding<ET>(code_unit_maps);
 
-    using code_unit_type = typename ET::code_unit_type;
+    using code_unit_type = code_unit_type_t<ET>;
 
     // Test itext_iterator with an underlying bidirectional iterator.
     {
@@ -1285,7 +1283,7 @@ void test_random_access_encoding(
 {
     test_bidirectional_encoding<ET>(code_unit_maps);
 
-    using code_unit_type = typename ET::code_unit_type;
+    using code_unit_type = code_unit_type_t<ET>;
 
     // Test itext_iterator with an underlying random access iterator.
     {
@@ -1334,13 +1332,13 @@ void test_construct_text_view(
         &code_unit_maps_with_terminator,
     const code_unit_map_sequence<encoding_type_t<TVT>>
         &code_unit_maps_without_terminator,
-    const typename encoding_type_t<TVT>::code_unit_type (&cstr)[cstr_length],
+    const code_unit_type_t<encoding_type_t<TVT>> (&cstr)[cstr_length],
     const array<
-        typename encoding_type_t<TVT>::code_unit_type,
+        code_unit_type_t<encoding_type_t<TVT>>,
         ary_length> &ary,
     const String &str,
     const initializer_list<
-        const typename encoding_type_t<TVT>::code_unit_type> &il)
+        const code_unit_type_t<encoding_type_t<TVT>>> &il)
 {
     using ET = encoding_type_t<TVT>;
     using RT = typename TVT::range_type;
@@ -1491,10 +1489,10 @@ template<
 void test_make_text_view(
     const code_unit_map_sequence<ET> &code_unit_maps_with_terminator,
     const code_unit_map_sequence<ET> &code_unit_maps_without_terminator,
-    const typename ET::code_unit_type (&cstr)[cstr_length],
-    const array<typename ET::code_unit_type, ary_length> &ary,
+    const code_unit_type_t<ET> (&cstr)[cstr_length],
+    const array<code_unit_type_t<ET>, ary_length> &ary,
     const String &str,
-    const initializer_list<const typename ET::code_unit_type> &il)
+    const initializer_list<const code_unit_type_t<ET>> &il)
 {
     // Test construction with an explicit initial state and an iterator range.
     test_text_view(code_unit_maps_without_terminator,
@@ -1590,7 +1588,7 @@ void test_make_text_view(
 void test_text_view() {
     using TVT = text_view;
     using ET = encoding_type_t<TVT>;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     CUMS code_unit_maps_with_terminator{
@@ -1631,7 +1629,7 @@ void test_text_view() {
 void test_wtext_view() {
     using TVT = wtext_view;
     using ET = encoding_type_t<TVT>;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     CUMS code_unit_maps_with_terminator{
@@ -1672,7 +1670,7 @@ void test_wtext_view() {
 void test_u8text_view() {
     using TVT = u8text_view;
     using ET = encoding_type_t<TVT>;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: Once N4267 is implemented, replace these character literals with
@@ -1722,7 +1720,7 @@ void test_u8text_view() {
 void test_u16text_view() {
     using TVT = u16text_view;
     using ET = encoding_type_t<TVT>;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     CUMS code_unit_maps_with_terminator{
@@ -1763,7 +1761,7 @@ void test_u16text_view() {
 void test_u32text_view() {
     using TVT = u32text_view;
     using ET = encoding_type_t<TVT>;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     CUMS code_unit_maps_with_terminator{
@@ -1803,8 +1801,8 @@ void test_u32text_view() {
 
 void test_utf8_encoding() {
     using ET = utf8_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-8 is char, but the values below require
@@ -1835,8 +1833,8 @@ void test_utf8_encoding() {
 
 void test_utf8bom_encoding() {
     using ET = utf8bom_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using STT = ET::state_transition_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1912,7 +1910,7 @@ void test_utf8bom_encoding() {
 
 void test_utf16_encoding() {
     using ET = utf16_encoding;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // Test an empty code unit sequence.
@@ -1938,8 +1936,8 @@ void test_utf16_encoding() {
 
 void test_utf16be_encoding() {
     using ET = utf16be_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-16BE is char, but the values below require
@@ -1970,8 +1968,8 @@ void test_utf16be_encoding() {
 
 void test_utf16le_encoding() {
     using ET = utf16le_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-16LE is char, but the values below require
@@ -2002,8 +2000,8 @@ void test_utf16le_encoding() {
 
 void test_utf16bom_encoding() {
     using ET = utf16bom_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using STT = ET::state_transition_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -2114,7 +2112,7 @@ void test_utf16bom_encoding() {
 
 void test_utf32_encoding() {
     using ET = utf32_encoding;
-    using CT = ET::character_type;
+    using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // Test an empty code unit sequence.
@@ -2140,8 +2138,8 @@ void test_utf32_encoding() {
 
 void test_utf32be_encoding() {
     using ET = utf32be_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-32BE is char, but the values below require
@@ -2172,8 +2170,8 @@ void test_utf32be_encoding() {
 
 void test_utf32le_encoding() {
     using ET = utf32le_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
     // FIXME: code_unit_type for UTF-32LE is char, but the values below require
@@ -2204,8 +2202,8 @@ void test_utf32le_encoding() {
 
 void test_utf32bom_encoding() {
     using ET = utf32bom_encoding;
-    using CT = ET::character_type;
-    using CUT = ET::code_unit_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
     using STT = ET::state_transition_type;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -2320,12 +2318,14 @@ int main() {
     test_character_set_models();
     test_character_models();
     test_code_unit_iterator_models();
+    test_code_unit_output_iterator_models();
     test_text_encoding_state_models();
     test_text_encoding_state_transition_models();
     test_text_encoding_models();
     test_text_encoder_models();
     test_text_decoder_models();
     test_text_iterator_models();
+    test_text_output_iterator_models();
     test_text_view_models();
 
     test_any_character_set();

@@ -255,6 +255,7 @@ template<typename T> concept bool CodePoint();
 template<typename T> concept bool CharacterSet();
 template<typename T> concept bool Character();
 template<typename T> concept bool CodeUnitIterator();
+template<typename T, typename V> concept bool CodeUnitOutputIterator();
 template<typename T> concept bool TextEncodingState();
 template<typename T> concept bool TextEncodingStateTransition();
 template<typename T> concept bool TextEncoding();
@@ -264,6 +265,7 @@ template<typename T, typename I> concept bool TextForwardDecoder();
 template<typename T, typename I> concept bool TextBidirectionalDecoder();
 template<typename T, typename I> concept bool TextRandomAccessDecoder();
 template<typename T> concept bool TextIterator();
+template<typename T> concept bool TextOutputIterator();
 template<typename T, typename I> concept bool TextSentinel();
 template<typename T> concept bool TextView();
 
@@ -293,9 +295,13 @@ const character_set_info& get_character_set_info(character_set_id id);
 
 // character set and encoding traits:
 template<typename T>
+  using code_unit_type_t = /* implementation-defined */ ;
+template<typename T>
   using code_point_type_t = /* implementation-defined */ ;
 template<typename T>
   using character_set_type_t = /* implementation-defined */ ;
+template<typename T>
+  using character_type_t = /* implementation-defined */ ;
 template<typename T>
   using encoding_type_t /* implementation-defined */ ;
 
@@ -360,9 +366,16 @@ template<TextEncoding ET, ranges::InputRange RT>
   class itext_sentinel;
 
 // otext_iterator:
-template<TextEncoding E, CodeUnitIterator CUIT>
-  requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
+template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
   class otext_iterator;
+
+// otext_iterator factory functions:
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(typename ET::state_type state, IT out)
+  -> otext_iterator<ET, IT>;
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(IT out)
+  -> otext_iterator<ET, IT>;
 
 // basic_text_view:
 template<TextEncoding ET, ranges::InputRange RT>
@@ -421,6 +434,7 @@ template<TextView TVT>
 - [Concept CharacterSet](#concept-characterset)
 - [Concept Character](#concept-character)
 - [Concept CodeUnitIterator](#concept-codeunititerator)
+- [Concept CodeUnitOutputIterator](#concept-codeunitoutputiterator)
 - [Concept TextEncodingState](#concept-textencodingstate)
 - [Concept TextEncodingStateTransition]
   (#concept-textencodingstatetransition)
@@ -432,6 +446,7 @@ template<TextView TVT>
 - [Concept TextRandomAccessDecoder](#concept-textrandomaccessdecoder)
 - [Concept TextIterator](#concept-textiterator)
 - [Concept TextSentinel](#concept-textsentinel)
+- [Concept TextOutputIterator](#concept-textoutputiterator)
 - [Concept TextView](#concept-textview)
 
 ### Concept CodeUnit
@@ -474,7 +489,7 @@ that returns a name for the [character set](#character-set).
 
 ```C++
 template<typename T> concept bool CharacterSet() {
-  return CodePoint<typename T::code_point_type>()
+  return CodePoint<code_point_type_t<T>>()
       && requires () {
            { T::get_name() } noexcept -> const char *;
          };
@@ -492,10 +507,10 @@ Types that satisfy `Character` are regular and copyable.
 template<typename T> concept bool Character() {
   return ranges::Regular<T>()
       && ranges::Copyable<T>()
-      && CharacterSet<typename T::character_set_type>()
-      && requires (T t, typename T::character_set_type::code_point_type cp) {
+      && CharacterSet<character_set_type_t<T>>()
+      && requires (T t, code_point_type_t<character_set_type_t<T>> cp) {
            t.set_code_point(cp);
-           { t.get_code_point() } -> typename T::character_set_type::code_point_type;
+           { t.get_code_point() } -> code_point_type_t<character_set_type_t<T>>;
            { t.get_character_set_id() } -> character_set_id;
          };
 }
@@ -509,6 +524,17 @@ has a value type that satisfies `CodeUnit`.
 template<typename T> concept bool CodeUnitIterator() {
   return ranges::Iterator<T>()
       && CodeUnit<ranges::value_type_t<T>>();
+}
+```
+
+### Concept CodeUnitOutputIterator
+The `CodeUnitOutputIterator` concept specifies requirements of an output
+iterator that can be assigned from a type that satisfies `CodeUnit`.
+
+```C++
+template<typename T, typename V> concept bool CodeUnitOutputIterator() {
+  return ranges::OutputIterator<T, V>()
+      && CodeUnit<V>();
 }
 ```
 
@@ -553,8 +579,8 @@ template<typename T> concept bool TextEncoding() {
          }
       && TextEncodingState<typename T::state_type>()
       && TextEncodingStateTransition<typename T::state_transition_type>()
-      && CodeUnit<typename T::code_unit_type>()
-      && Character<typename T::character_type>()
+      && CodeUnit<code_unit_type_t<T>>()
+      && Character<character_type_t<T>>()
       && requires () {
            { T::initial_state() }
                -> const typename T::state_type&;
@@ -572,7 +598,7 @@ transitions and [characters](#character).
 ```C++
 template<typename T, typename I> concept bool TextEncoder() {
   return TextEncoding<T>()
-      && ranges::OutputIterator<CUIT, typename T::code_unit_type>()
+      && ranges::OutputIterator<CUIT, code_unit_type_t<T>>()
       && requires (
            typename T::state_type &state,
            CUIT &out,
@@ -584,7 +610,7 @@ template<typename T, typename I> concept bool TextEncoder() {
       && requires (
            typename T::state_type &state,
            CUIT &out,
-           typename T::character_type c,
+           character_type_t<T> c,
            int &encoded_code_units)
          {
            T::encode(state, out, c, encoded_code_units);
@@ -604,12 +630,12 @@ template<typename T, typename I> concept bool TextDecoder() {
   return TextEncoding<T>()
       && ranges::InputIterator<CUIT>()
       && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
-                               typename T::code_unit_type>()
+                               code_unit_type_t<T>>()
       && requires (
            typename T::state_type &state,
            CUIT &in_next,
            CUIT in_end,
-           typename T::character_type &c,
+           character_type_t<T> &c,
            int &decoded_code_units)
          {
            { T::decode(state, in_next, in_end, c, decoded_code_units) } -> bool;
@@ -646,7 +672,7 @@ template<typename T, typename I> concept bool TextBidirectionalDecoder() {
            typename T::state_type &state,
            CUIT &in_next,
            CUIT in_end,
-           typename T::character_type &c,
+           character_type_t<T> &c,
            int &decoded_code_units)
          {
            { T::rdecode(state, in_next, in_end, c, decoded_code_units) } -> bool;
@@ -683,13 +709,13 @@ accessible via non-static member functions.  The value type of a
 template<typename T> concept bool TextIterator() {
   return ranges::Iterator<T>()
       && Character<ranges::value_type_t<T>>()
-      && TextEncoding<typename T::encoding_type>()
+      && TextEncoding<encoding_type_t<T>>()
       && TextEncodingState<typename T::state_type>()
       && requires (T t, const T ct) {
            { t.state() } noexcept
-               -> typename T::encoding_type::state_type&;
+               -> typename encoding_type_t<T>::state_type&;
            { ct.state() } noexcept
-               -> const typename T::encoding_type::state_type&;
+               -> const typename encoding_type_t<T>::state_type&;
          };
 }
 ```
@@ -704,6 +730,27 @@ satisfies `TextIterator` also satisfies `TextSentinel<T>` there by enabling
 template<typename T, typename I> concept bool TextSentinel() {
   return ranges::Sentinel<T, I>()
       && TextIterator<I>();
+}
+```
+
+### Concept TextOutputIterator
+The `TextOutputIterator` concept specifies requirements of types that are used
+to [encode](#encoding) [characters](#character) as a sequence of
+[code units](#code-unit).  [Encoding](#encoding) state is held in each iterator
+instance as needed to encode the [code unit](#code-unit) sequence and is made
+accessible via non-static member functions.
+
+```C++
+template<typename T> concept bool TextOutputIterator() {
+  return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
+      && TextEncoding<encoding_type_t<T>>()
+      && TextEncodingState<typename T::state_type>()
+      && requires (T t, const T ct) {
+           { t.state() } noexcept
+               -> typename encoding_type_t<T>::state_type&;
+           { ct.state() } noexcept
+               -> const typename encoding_type_t<T>::state_type&;
+         };
 }
 ```
 
@@ -724,10 +771,10 @@ must exceed the lifetime of referencing `TextView` objects.
 template<typename T> concept bool TextView() {
   return ranges::View<T>()
       R& TextIterator<ranges::iterator_t<T>>()
-      && TextEncoding<typename T::encoding_type>()
+      && TextEncoding<encoding_type_t<T>>()
       && ranges::InputRange<typename T::range_type>()
       && TextEncodingState<typename T::state_type>()
-      && CodeUnitIterator<typename T::code_unit_iterator>()
+      && CodeUnitIterator<code_unit_iterator_t<T>>()
       R& requires (T t, const T ct) {
            { t.base() } noexcept
                -> typename T::range_type&;
@@ -873,7 +920,7 @@ template<CharacterSet CST>
 class character {
 public:
   using character_set_type = CST;
-  using code_point_type = typename character_set_type::code_point_type;
+  using code_point_type = code_point_type_t<character_set_type>;
 
   character() = default;
   explicit character(code_point_type code_point);
@@ -894,7 +941,7 @@ template<>
 class character<any_character_set> {
 public:
   using character_set_type = any_character_set;
-  using code_point_type = typename character_set_type::code_point_type;
+  using code_point_type = code_point_type_t<character_set_type>;
 
   character() = default;
   explicit character(code_point_type code_point);
@@ -978,15 +1025,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1029,15 +1074,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1081,15 +1124,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1133,15 +1174,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1195,15 +1234,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1246,15 +1283,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1297,15 +1332,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1348,15 +1381,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1414,15 +1445,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1465,15 +1494,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1516,15 +1543,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1567,15 +1592,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1633,15 +1656,13 @@ public:
 
   static const state_type& initial_state();
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(state_type &state,
                                         CUIT &out,
                                         const state_transition_type &stt,
                                         int &encoded_code_units)
 
-  template<CodeUnitIterator CUIT>
-    requires ranges::OutputIterator<CUIT, code_unit_type>()
+  template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode(state_type &state,
                        CUIT &out,
                        character_type c,
@@ -1684,6 +1705,7 @@ using char32_character_encoding = /* implementation-defined */ ;
 - [Class template itext_iterator](#class-template-itext_iterator)
 - [Class template itext_sentinel](#class-template-itext_sentinel)
 - [Class template otext_iterator](#class-template-otext_iterator)
+- [make_otext_iterator](#make_otext_iterator)
 
 ### Class template itext_iterator
 
@@ -1700,7 +1722,7 @@ public:
 
   using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
   using iterator_category = /* implementation-defined */;
-  using value_type = typename encoding_type::character_type;
+  using value_type = character_type_t<encoding_type>;
   using reference = std::add_const_t<value_type>&;
   using pointer = std::add_const_t<value_type>*;
   using difference_type = ranges::difference_type_t<iterator>;
@@ -1864,8 +1886,7 @@ private:
 ### Class template otext_iterator
 
 ```C++
-template<TextEncoding E, CodeUnitIterator CUIT>
-  requires ranges::OutputIterator<CUIT, typename E::code_unit_type>()
+template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
 class otext_iterator {
 public:
   using encoding_type = E;
@@ -1874,7 +1895,7 @@ public:
 
   using iterator = CUIT;
   using iterator_category = std::output_iterator_tag;
-  using value_type = typename encoding_type::character_type;
+  using value_type = character_type_t<encoding_type>;
   using reference = value_type&;
   using pointer = value_type*;
   using difference_type = ranges::difference_type_t<iterator>;
@@ -1885,14 +1906,11 @@ public:
 
   otext_iterator& operator*();
 
-  friend bool operator==(const otext_iterator &l, const otext_iterator &r);
-  friend bool operator!=(const otext_iterator &l, const otext_iterator &r);
-
   otext_iterator& operator++();
   otext_iterator& operator++(int);
 
   otext_iterator& operator=(const state_transition_type &stt);
-  otext_iterator& operator=(const typename encoding_type::character_type &value);
+  otext_iterator& operator=(const character_type_t<encoding_type> &value);
 
   const state_type& state() const noexcept;
   state_type& state() noexcept;
@@ -1903,6 +1921,17 @@ private:
   state_type base_state;  // exposition only
   iterator base_iterator; // exposition only
 };
+```
+
+### make_otext_iterator
+
+```C++
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(typename ET::state_type state, IT out)
+  -> otext_iterator<ET, IT>;
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(IT out)
+  -> otext_iterator<ET, IT>;
 ```
 
 ## Text view

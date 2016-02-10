@@ -56,7 +56,7 @@ class character_archetype_template
 {
 public:
     using character_set_type = CST;
-    using code_point_type = typename CST::code_point_type;
+    using code_point_type = code_point_type_t<CST>;
 
     character_archetype_template();
     character_archetype_template(code_point_type cp);
@@ -90,6 +90,15 @@ template<CodeUnit CUT>
 using code_unit_iterator_archetype_template = CUT*;
 using code_unit_iterator_archetype =
           code_unit_iterator_archetype_template<code_unit_archetype>;
+
+
+/*
+ * Code unit output iterator archetype
+ */
+template<CodeUnit CUT>
+using code_unit_output_iterator_archetype_template = CUT*;
+using code_unit_output_iterator_archetype =
+          code_unit_output_iterator_archetype_template<code_unit_archetype>;
 
 
 /*
@@ -181,9 +190,9 @@ public:
     using state_type = typename ET::state_type;
     using iterator = CUIT;
     using iterator_category = origin::Iterator_category<iterator>;
-    using value_type = typename ET::character_type;
-    using reference = typename ET::character_type&;
-    using pointer = typename ET::character_type*;
+    using value_type = character_type_t<ET>;
+    using reference = character_type_t<ET>&;
+    using pointer = character_type_t<ET>*;
     using difference_type = origin::Difference_type<iterator>;
 
     text_iterator_archetype_template();
@@ -267,6 +276,36 @@ public:
 using text_iterator_archetype = text_iterator_archetype_template<
                                     text_encoding_archetype,
                                     code_unit_iterator_archetype>;
+
+
+/*
+ * Text output iterator archetype
+ */
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+class text_output_iterator_archetype_template {
+public:
+    using encoding_type = ET;
+    using state_type = typename ET::state_type;
+    using iterator = CUIT;
+    using iterator_category = origin::Iterator_category<iterator>;
+    using value_type = character_type_t<ET>;
+    using reference = character_type_t<ET>&;
+    using pointer = character_type_t<ET>*;
+    using difference_type = origin::Difference_type<iterator>;
+
+    text_output_iterator_archetype_template();
+    text_output_iterator_archetype_template(iterator, iterator);
+    text_output_iterator_archetype_template(state_type, iterator, iterator);
+    const state_type& state() const noexcept;
+    state_type& state() noexcept;
+    iterator base() const;
+    reference operator*() const noexcept;
+    text_output_iterator_archetype_template& operator++();
+    text_output_iterator_archetype_template operator++(int);
+};
+using text_output_iterator_archetype = text_output_iterator_archetype_template<
+                                           text_encoding_archetype,
+                                           code_unit_output_iterator_archetype>;
 
 
 /*

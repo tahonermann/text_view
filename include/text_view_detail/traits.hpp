@@ -166,6 +166,28 @@ get_character_set_id() {
 
 
 /*
+ * Associated code unit type helper
+ */
+namespace text_detail {
+template<typename T>
+struct get_code_unit_type_t;
+
+template<typename T>
+requires requires () { typename T::code_unit_type; }
+struct get_code_unit_type_t<T> {
+    using type = typename T::code_unit_type;
+};
+
+template<typename T>
+using code_unit_type_t =
+          typename get_code_unit_type_t<origin::Strip<T>>::type;
+} // namespace text_detail
+
+template<typename T>
+using code_unit_type_t = text_detail::code_unit_type_t<T>;
+
+
+/*
  * Associated code point type helper
  */
 namespace text_detail {
@@ -207,6 +229,28 @@ using character_set_type_t =
 
 template<typename T>
 using character_set_type_t = text_detail::character_set_type_t<T>;
+
+
+/*
+ * Associated character type helper
+ */
+namespace text_detail {
+template<typename T>
+struct get_character_type_t;
+
+template<typename T>
+requires requires () { typename T::character_type; }
+struct get_character_type_t<T> {
+    using type = typename T::character_type;
+};
+
+template<typename T>
+using character_type_t =
+          typename get_character_type_t<origin::Strip<T>>::type;
+} // namespace text_detail
+
+template<typename T>
+using character_type_t = text_detail::character_type_t<T>;
 
 
 /*

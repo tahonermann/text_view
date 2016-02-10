@@ -51,7 +51,7 @@ template<TextEncoding ET>
 void dump_code_points(
     ifstream &ifs)
 {
-    using CUT = typename ET::code_unit_type;
+    using CUT = code_unit_type_t<ET>;
     istream_iterator<CUT> ifs_in(ifs), ifs_end;
 
     // FIXME: The C++11 range-based-for requires that the begin and end types

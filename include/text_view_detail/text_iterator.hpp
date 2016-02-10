@@ -71,7 +71,7 @@ public:
               typename text_detail::itext_iterator_category_selector<
                   encoding_type,
                   iterator>::type;
-    using value_type = typename encoding_type::character_type;
+    using value_type = character_type_t<encoding_type>;
     using reference = const value_type&;
     using pointer = const value_type*;
     using difference_type = origin::Difference_type<iterator>;
@@ -649,8 +649,7 @@ private:
 };
 
 
-template<TextEncoding E, CodeUnitIterator CUIT>
-requires origin::Output_iterator<CUIT, typename E::code_unit_type>()
+template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
 class otext_iterator
     : private E::state_type
 {
@@ -660,7 +659,7 @@ public:
     using state_transition_type = typename E::state_transition_type;
     using iterator = CUIT;
     using iterator_category = std::output_iterator_tag;
-    using value_type = typename encoding_type::character_type;
+    using value_type = character_type_t<encoding_type>;
     using reference = value_type&;
     using pointer = value_type*;
     using difference_type = origin::Difference_type<iterator>;
@@ -693,19 +692,6 @@ public:
         return *this;
     }
 
-    friend bool operator==(
-        const otext_iterator &l,
-        const otext_iterator &r)
-    {
-        return l.current == r.current;
-    }
-    friend bool operator!=(
-        const otext_iterator &l,
-        const otext_iterator &r)
-    {
-        return !(l == r);
-    }
-
     otext_iterator& operator++() {
         return *this;
     }
@@ -725,7 +711,7 @@ public:
     }
 
     otext_iterator& operator=(
-        const typename encoding_type::character_type &value)
+        const character_type_t<encoding_type> &value)
     {
         iterator tmp{current};
         int encoded_code_units = 0;
@@ -737,6 +723,29 @@ public:
 protected:
     iterator current;
 };
+
+
+/*
+ * make_otext_iterator
+ */
+// Overload to construct an output text iterator from an output iterator and
+// and an explicitly specified initial encoding state.
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+auto make_otext_iterator(
+    typename ET::state_type state,
+    IT out)
+{
+    return otext_iterator<ET, IT>{state, out};
+}
+
+// Overload to construct an output text iterator from an output iterator and
+// and an implicit initial encoding state.
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+auto make_otext_iterator(
+    IT out)
+{
+    return otext_iterator<ET, IT>{ET::initial_state(), out};
+}
 
 
 } // inline namespace text

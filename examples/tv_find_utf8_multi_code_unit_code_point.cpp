@@ -26,7 +26,7 @@ int main() {
     // Declare a character corresponding to the LATIN SMALL LETTER O WITH STROKE
     // in the Unicode character set.
     auto latin_small_letter_o_with_stroke =
-        utf8_encoding::character_type{0x00F8};
+        character_type_t<utf8_encoding>{0x00F8};
 
     // Search for the code point.  This returns a text iterator.
     auto ti = find(
