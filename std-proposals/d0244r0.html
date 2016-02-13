@@ -1,4 +1,6 @@
 <!doctype html public "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+
 <head>
 
 <title>Text_view: A C++ concepts and range based character encoding and code
@@ -60,21 +62,17 @@ table#header td
   <li><a href="#design_considerations">
       Design Considerations</a></li>
   <ul>
+    <li><a href="#iterator_conformance">
+        Iterator Requirement Conformance</a></li>
+    <li><a href="#error_handling">
+        Error Handling</a></li>
     <li><a href="#encoding_orientation">
         Encoding Forms vs Encoding Schemes</a></li>
     <li><a href="#streaming">
         Streaming</a></li>
   </ul>
-  <li><a href="#future_directions">
-      Future Directions</a></li>
-  <li><a href="#faq">
-      FAQ</a></li>
-  <ul>
-    <li><a href="#faq_explicit_encodings">
-        Why do I have to specify the encoding for string literals?</a></li>
-    <li><a href="#faq_custom_encodings">
-        Can I define my own encodings?  If so, How?</a></li>
-  </ul>
+  <li><a href="#implementation_exp">
+      Implementation Experience</a></li>
   <li><a href="#technical_specifications">
       Technical Specifications</a></li>
   <ul>
@@ -105,7 +103,133 @@ table#header td
 
 <h1 id="introduction">Introduction</h1>
 
+<p>C++11 <sup><a href="#ref_cxx11">[C++11]</a></sup> added support for new
+character types
+<sup><a href="#ref_n2249">[N2249]</a></sup> and Unicode string literals
+<sup><a href="#ref_n2442">[N2442]</a></sup>, but neither C++11, nor more recent
+standards have provided means of efficiently and conveniently enumerating code
+points in Unicode or legacy encodings.  While it is possible to implement such
+enumeration using interfaces provided in the standard
+<code>&lt;locale&gt;</code> and <code>&lt;codecvt&gt;</code> libraries, doing
+so is awkward, requires that text be provided as pointers to contiguous memory,
+and inefficent due to virtual function call overhead.
+
+<p>The described library provides iterator and range based interfaces for
+encoding and decoding strings in a variety of character encodings.  The
+interface is intended to support all modern and legacy character encodings,
+though implementations are expected to only provide support for a limited set
+of encodings.
+
+<p>An example usage follows. Note that \u00F8 (LATIN SMALL LETTER O WITH STROKE)
+is encoded as UTF-8 using two code units (\xC3\xB8), but iterator based
+enumeration sees just the single code point.
+
+<pre><code>
+using CT = utf8_encoding::character_type;
+auto tv = make_text_view<utf8_encoding>(u8"J\u00F8erg");
+auto it = tv.begin();
+assert(*it++ == CT{0x004A}); // 'J'
+assert(*it++ == CT{0x00F8}); // 'ø'
+assert(*it++ == CT{0x0065}); // 'e'
+</code></pre>
+
+The provided iterators and views are compatible with the non-modifying sequence
+utilities provided by the standard C++ <code>&lt;algorithm&gt;</code> library.
+This enables use of standard algorithms to search encoded text.
+
+<pre><code>
+it = std::find(tv.begin(), tv.end(), CT{0x00F8});
+assert(it != tv.end());
+</code></pre>
+
+<p>The iterators also provide access to the underlying code unit sequence.
+
+<pre><code>
+auto base_it = it.base_range().begin();
+assert(*base_it++ == '\xC3');
+assert(*base_it++ == '\xB8');
+assert(base_it == it.base_range().end());
+</code></pre>
+
+These ranges satisfy the requirements for use in C++11 range-based for
+statements.  This support is currently limited to views constructed for
+stateless encodings as a sentinel type is used as the end iterator for
+stateful encodings.  The enhancements to the range-based for statement
+in the ranges proposal
+<sup><a href="#ref_ranges">[Ranges]</a></sup> will remove this limitation.
+
+<pre><code>
+for (const auto&amp; ch : tv) {
+  ...
+}
+</code></pre>
+
 <h1 id="motivation">Motivation and Scope</h1>
+
+<p>Consider the following code to search for the occurrence of U+00F8 in the
+UTF-8 encoded string using C++ standard provided interfaces.
+
+<pre><code>
+std::string s = u8"J\u00F8erg";
+std::mbstate_t state = std::mbstate_t{};
+codecvt_utf8&lt;char32_t&gt; utf8_converter;
+const char *from_begin = s.data();
+const char *from_end = s.data() + s.size();
+const char *from_current;
+const char *from_next = from_begin;
+char32_t to[1];
+std::codecvt_base::result r;
+do {
+    from_current = from_next;
+    char32_t *to_begin = &amp;to[0];
+    char32_t *to_end = &amp;to[1];
+    char32_t *to_next;
+    r = utf8_converter.in(
+        state,
+        from_current, from_end, from_next,
+        to_begin, to_end, to_next); 
+} while (r != std::codecvt_base::error &amp;&amp; to[0] != char32_t{0x00F8});
+if (r != std::codecvt_base::error &amp;&amp; to[0] == char32_t{0x00F8}) {
+    cout &lt;&lt; "Found at offset " &lt;&lt; (from_current - from_begin) &lt;&lt; endl;
+} else {
+    cout &lt;&lt; "Not found" &lt;&lt; endl;
+}
+</code></pre>
+
+<p>There are a number of issues with the above code:
+
+<ul>
+  <li>It is verbose.</li>
+  <li>It is limited to working with strings that are stored in contiguous
+      memory.</li>
+  <li>It is inefficient.  All <code>codecvt</code> public member functions
+      dispatch to virtual member functions.
+  <li>It is not generic.  Use of the <code>codecvt_utf8</code> facet makes it
+      specific to handling of UTF-8 encoded text.  Making this code generic
+      would require some other means of identifying an appropriate facet to
+      use.</li>
+  <li>It is not applicable to non-Unicode encodings; <code>codecvt</code>
+      doesn't provide means to retrieve a code point for the encodings used
+      for ordinary and wide strings.  The above code only accomplishes this
+      by depending on transcoding to UTF-32 and the fact that UTF-32 is a
+      trivial encoding.</li>
+</ul>
+
+<p>The above method is not the only method available to identify a search term
+in an encoded string.  For some encodings, it is feasible to encode the search
+term in the encoding and to search for a matching code unit sequence.  This
+approach works for UTF-8, UTF-16, and UTF-32, but not for many other encodings.
+Consider the Shift-JIS encoding of U+6D6C.  This is encoded as 0x8A 0x5C.
+Shift-JIS is a multibyte encoding that is almost ASCII compatible.  The code
+unit sequence 0x5C encodes the ASCII '\' character.  But note that 0x5C appears
+as the second byte of the code unit sequence for U+6D6C.  Naively searching for
+the matching code unit sequence for '\' would incorrectly match the trailing
+code unit sequence for U+6D6C.
+
+<p>The library described here is intended to solve the above issues while also
+providing a modern interface that is intuitive to use and can be used with
+other standard provided facilities; in particular, the C++ standard
+<code>&lt;algorithm&gt;</code> library.
 
 <h1 id="terminology">Terminology</h1>
 
@@ -224,17 +348,111 @@ encodings such as Windows code page 1252.
 
 <h1 id="design_considerations">Design Considerations</h1>
 
+<h2 id="iterator_conformance">Iterator Requirement Conformance</h2>
+
+<p>The iterators provided by this library do not conform to all of the
+C++ standard requirements for forward and random access iterators.
+
+<p>Each iterator holds its own copy of decoded code point values, two iterators
+that compare equally will return different addresses when dereferenced.  The
+standard requires that equivalent iterators return equivalent reference and
+pointer addresses when dereferenced.  For random access iterators,
+<code>operator[]</code> returns a value type since any returned reference type
+would immediately become dangling.
+
+<p>The above conformance issues will be resolved if the proxy iterators
+proposal <sup><a href="#ref_proxy_iterators">P0022R1</a></sup> is accepted.
+
+<h2 id="error_handling">Error Handling</h2>
+
+<p>The reference implementation currently throws exceptions when underflow
+occurs or when invalid code unit sequences are encountered.  Use of exceptions
+is not acceptable by many members of the C++ community.
+
+<p>An alternative to exceptions has not yet been settled on.  One possibility
+is to add an additional template parameter to the basic_text_view and
+itext_iterator class templates that enables alternative error handling to
+be implemented.  Custom error handlers could then substitute replacement
+characters and/or record errors via some other mechanism.
+
 <h2 id="encoding_orientation">Encoding Forms vs Encoding Schemes</h2>
+
+<p>The Unicode standard differentiates code unit oriented and byte oriented
+encodings.  The former are termed encoding forms; the latter, encoding schemes.
+This library provides support for some of each.  For example,
+<code>utf16_encoding</code> is code unit oriented; the value type of its
+iterators is <code>char16_t</code>.  The <code>utf16be_encoding</code>,
+<code>utf16le_encoding</code>, and <code>utf16bom_encoding</code> encodings
+are byte oriented; the value type of their iterators is <code>char</code>.
 
 <h2 id="streaming">Streaming</h2>
 
-<h1 id="faq">FAQ</h1>
+<p>Decoding from a streaming source without unacceptably blocking on underflow
+requires the ability to decode a partial code unit sequence, save state,
+and then resume decoding the remainder of the code unit sequence when more
+data becomes available.  This requirement presents challenges for an iterator
+based approach.  The specification presented in this paper does not provide
+a good solution for this use case.
 
-<h2 id="faq_explicit_encodings">
-      Why do I have to specify the encoding for string literals?</h2>
+<p>One possibility is to add additional state tracking that is stored with
+each iterator.  Support for the possibility of trailing non-code-point
+encoding code unit sequences (escape sequences in some encodings) already
+requires that code point iterators greedily consume code units.  This enables
+an iterator to compare equal to the end iterator even when its current base
+code unit iterator does not equal the end iterator of the underlying code
+unit range.  Storing partial code unit sequence state with an iterator that
+compares equal to the end iterator would enable users to write code like the
+following.
 
-<h2 id="faq_custom_encodings">
-      Can I define my own encodings?  If so, How?</h2>
+<pre><code>
+using encoding = utf8_encoding;
+auto state = encoding::initial_state();
+do {
+  std::string b = get_more_data();
+  auto tv = make_text_view&lt;encoding&gt;(state, begin(b), end(b));
+  auto it = begin(tv);
+  while (it != end(tv))
+    ...;
+  state = it; // Trailing state is preserved in the end iterator.  Save it
+              // to seed state for the next loop iteration.
+} while (!b.empty());
+</code></pre>
+
+<p>However, this leaves open the possibility for trailing code units at the
+end of an encoded text to go unnoticed.  In a non-buffering scenario, an
+iterator might silently compare equal to the end iterator even though there
+are (possibly invalid) code units remaining.
+
+<p>It might be feasible to address this by adding a policy template parameter
+to basic_text_view and itext_iterator similiar to what is discussed in the
+<a href="#error_handling">error handling</a> section.
+
+<h1 id="implementation_exp">Implementation Experience</h1>
+
+<p>A reference implementation of the described library is publicly available at
+<a href="https://github.com/tahonermann/text_view">
+https://github.com/tahonermann/text_view</a>
+<sup><a href="#ref_text_view">[Text_view]</a></sup>.
+The implementation requires a compiler that implements the C++ Concepts
+technical specification
+<sup><a href="#ref_concepts">[Concepts]</a></sup>.
+The only compiler known to do so at the time of this
+writing is the in-development gcc 6.0 release.
+
+<p>The reference implementation currently depends on Andrew Sutton's 
+<a href="http://asutton.github.io/origin">Origin</a>
+<sup><a href="#ref_origin">[Origin]</a></sup> libraries for concept
+definitions.  Origin's concept definitions do not match the concept
+definitions specified in the proposed ranges technical specification
+<sup><a href="#ref_ranges">[Ranges]</a></sup> and used as the specification
+of the described library in this document.  As a result, the interface
+declarations in the reference implementation differ from those presented
+here.  The expectation is that code written to the specification presented
+here will work with the reference implementation, but there may be some
+corner cases that make the differences apparent.  Any such differences should
+be considered defects or limitations of the reference implementation and
+reported at <a href="https://github.com/tahonermann/text_view/issues">
+https://github.com/tahonermann/text_view/issues</a>.
 
 <h1 id="technical_specifications">Technical Specifications</h1>
 
@@ -2250,6 +2468,81 @@ template&lt;TextView TVT&gt;
 
 <h1 id="acknowledgements">Acknowledgements</h1>
 
+Thank you to the std-proposals community and especially to Zhihao Yuan,
+Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
+
 <h1 id="references">References</h1>
+
+<table>
+  <tr>
+    <td id="ref_cxx11"><sup>[C++11]</sup></td>
+    <td>
+      "Information technology -- Programming languages -- C++", ISO/IEC 14882:2011.<br/>
+      <a href="http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372">
+      http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372</a></td>
+  </tr>
+  <tr>
+    <td id="ref_concepts"><sup>[Concepts]</sup></td>
+    <td>
+      "C++ Extensions for concepts", ISO/IEC technical specification 19217:2015.<br/>
+      <a href="http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031">
+      http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n2249"><sup>[N2249]</sup></td>
+    <td>
+      Lawrence Crowl,
+      "New Character Types in C++", N2249, 2007.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n2442"><sup>[N2442]</sup></td>
+    <td>
+      Lawrence Crowl and Beman Dawes,
+      "Raw and Unicode String Literals; Unified Proposal (Rev. 2)", N2442, 2007.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm</a></td>
+  </tr>
+  <tr>
+    <td id="ref_origin"><sup>[Origin]</sup></td>
+    <td>
+      Andrew Sutton,
+      Origin libraries.<br/>
+      <a href="http://asutton.github.io/origin">
+      http://asutton.github.io/origin</a></td>
+  </tr>
+  <tr>
+    <td id="ref_proxy_iterators"><sup>[Proxy Iterators]</sup></td>
+    <td>
+      Eric Niebler,
+      "Proxy Iterators for the Ranges Extensions", P0022R1, 2015.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_ranges"><sup>[Ranges]</sup></td>
+    <td>
+      Eric Niebler and Casey Carter,
+      "Working Draft, C++ Extensions for Ranges", N4560, 2015.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf</a></td>
+  </tr>
+  <tr>
+    <td id="ref_text_view"><sup>[Text_view]</sup></td>
+    <td>
+      Tom Honermann,
+      Text_view library.<br/>
+      <a href="https://github.com/tahonermann/text_view">
+      https://github.com/tahonermann/text_view</a></td>
+  </tr>
+  <tr>
+    <td id="ref_unicode"><sup>[Unicode]</sup></td>
+    <td>
+      "Unicode 8.0.0", 2015.<br/>
+      <a href="http://www.unicode.org/versions/Unicode8.0.0">
+      http://www.unicode.org/versions/Unicode8.0.0</a></td>
+  </tr>
+</table>
 
 </body>
