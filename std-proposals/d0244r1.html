@@ -70,6 +70,8 @@ table#header td
         Encoding Forms vs Encoding Schemes</a></li>
     <li><a href="#streaming">
         Streaming</a></li>
+    <li><a href="#char_types">
+        Character types</a></li>
     <li><a href="#locale_dependencies">
         Locale Dependent Encodings</a></li>
   </ul>
@@ -442,6 +444,56 @@ are (possibly invalid) code units remaining.
 <p>It might be feasible to address this by adding a policy template parameter
 to basic_text_view and itext_iterator similiar to what is discussed in the
 <a href="#error_handling">error handling</a> section.
+
+<h2 id="char_types">Character types</h2>
+
+<p>This library defines a character class template parameterized by character
+set type used to represent character values.  The purpose of this class
+template is to make explicit the association of a code point value and a
+character set.
+
+<p>It has been suggested that <code>char32_t</code> be supported as a character
+type that is implicitly associated with the Unicode character set and that
+values of this type always be interpreted as Unicode code point values.  This
+suggestion is intended to enable UTF-32 string literals to be directly usable
+as sequences of character values (in addition to being sequences of code unit
+and code point values).  This has a cost in that it prohibits use of the
+<code>char32_t</code> type as a code unit or code point type for other
+encodings.  Non-Unicode encodings, including the encodings used for ordinary
+and wide string literals, would still require a distinct character type (such
+as a specialization of the character class template) so that the correct
+character set can be inferred from objects of the character type.
+
+<p>This suggestion raises concerns for the author.  To a certain degree, it can
+be accommodated by removing the current members of the character class template
+in favor of free functions and type trait templates.  However, it results in
+ambiguities when enumerating the elements of a UTF-32 string literal; are the
+elements code point or character values?  Well, the answer would be both (and
+code unit values as well).  This raises the potential for inadvertently
+writing (generic) code that confuses code points and characters, runs as
+expected for UTF-32 encodings, but fails to compile for other encodings.  The
+author would prefer to enforce correct code via the type system and is unaware
+of any particular benefits that the ability to treat UTF-32 string literals
+as sequences of character type would bring.
+
+<p>It has also been suggested that <code>char32_t</code> might suffice as the
+only character type; that decoding of any encoded string include implicit
+transcoding to Unicode code points.  The author believes that this suggestion
+is not feasible for several reasons:
+
+<ol>
+  <li>Some encodings use character sets that define characters such that round
+      trip transcoding to Unicode and back fails to preserve the original code
+      point value.  For example, Shift-JIS (Microsoft code page 932) defines
+      duplicate code points for the same character for compatibility with IBM
+      and NEC character set extensions.<br/>
+      <a href="https://support.microsoft.com/en-us/kb/170559">
+      https://support.microsoft.com/en-us/kb/170559</a></li>
+  <li>Transcoding to Unicode for all non-Unicode encodings would carry
+      non-negligible performance costs and would pessimize platforms such as
+      IBM's z/OS that use EBCIDC by default for the non-Unicode execution
+      character sets.</li>
+</ol>
 
 <h2 id="locale_dependencies">Locale Dependent Encodings</h2>
 
