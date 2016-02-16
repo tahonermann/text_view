@@ -82,6 +82,8 @@ table#header td
   <ul>
     <li><a href="#future_transcoding">
         Transcoding</a></li>
+    <li><a href="#future_constexpr">
+        Constexpr Support</a></li>
   </ul>
   <li><a href="#faq">
       FAQ</a></li>
@@ -569,6 +571,60 @@ utilized in some cases to transcode multiple code points in parallel.
 
 <p>Future work is intended to enable optimized transcoding and transcoding
 between distinct character sets.
+
+<h2 id="future_constexpr">Constexpr Support</h2>
+
+<p>Encodings that are not dependent on run-time support could conceivably
+support code point enumeration and transcoding to other encodings at compile
+time.  This could be useful to conveniently provide text in alternative
+encodings at compile-time to meet requirements of external interfaces without
+incurring run-time overhead, having to write the string with hex escape
+sequences, or having to rely on preprocessing or other build time tools.
+
+<p>An example would be to provide a string in Modified UTF-8 for use in a JNI
+application.
+
+<pre><code>
+auto tv = "Text with \0 embedded NUL"_modified_utf8;
+// equivalent to:
+auto tv = make_text_view&lt;modified_utf8_encoding&gt;(
+              "Text with \xC0\x80 embedded NUL");
+</code></pre>
+
+<p>Unfortunately, user defined literals (UDLs) are currently unable to provide
+this support; though a constexpr UDL operator can be written, there is no known
+way to write the UDL such that an arbitrarily sized compile-time data structure
+can be returned, nor is there a way to instantitate a static buffer for the
+resulting transformation on a per string literal basis.
+
+<p>However, it is possible to perform string transformations at compile-time
+using a template constexpr function; so long as is is acceptable for the
+translated string to be embedded in another data structure.
+
+<pre><code>
+template&lt;int N&gt;
+struct my_str {
+    char code_units[N];
+};
+
+template&lt;int N&gt;
+constexpr my_str&lt;N&gt; make_my_str(const char (&amp;str)[N]) {
+    my_str&lt;N&gt; ms{};
+    for (int i = 0; i &lt; N; ++i) {
+        char cu = str[i] ? str[i] + 1 : 0;
+        ms.code_units[i] = cu;
+    }
+    return ms;
+}
+
+constexpr auto ms = make_my_str("text"); // ms.code_units[] == "ufyu"
+</code></pre>
+
+<p>One caveat of this approach is that the returned data structure owns the
+code unit sequence and is therefore more container-like than view-like.
+
+<p>Core language enhancements are probably necessary to make compile-time string
+literal translations a usable feature.
 
 <h1 id="faq">FAQ</h1>
 
