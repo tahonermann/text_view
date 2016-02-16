@@ -11,6 +11,11 @@ table#header td
 {
     text-align: left;
 }
+table#references th,
+table#references td
+{
+    vertical-align: top;
+}
 </style>
 
 </head>
@@ -25,7 +30,7 @@ table#header td
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-02-13</td>
+    <td>2016-02-15</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -64,6 +69,8 @@ table#header td
   <ul>
     <li><a href="#iterator_requirements">
         Iterator Requirements</a></li>
+    <li><a href="#view_requirements">
+        View Requirements</a></li>
     <li><a href="#error_handling">
         Error Handling</a></li>
     <li><a href="#encoding_orientation">
@@ -382,6 +389,27 @@ would immediately become dangling.
 
 <p>The above conformance issues will be resolved if the proxy iterators
 proposal <sup><a href="#ref_proxy_iterators">P0022R1</a></sup> is accepted.
+
+<h2 id="view_requirements">View Requirements</h2>
+
+<p>The <code>basic_text_view</code> and <code>itext_iterator</code> class
+templates are parameterized on a view type that provides access to the
+underlying code unit sequence.  <code>make_text_view</code> and the various
+type aliases of <code>basic_text_view</code> are required to choose a view type
+to select a specialization of these class templates.  The C++ standard library
+doesn't currently define a suitable view type, though the need for one has been
+recognized.  N3350 <sup><a href="#ref_n3350">[N3350]</a></sup> proposed a
+<code>std::range</code> class template to fill this need and the ranges proposal
+<sup><a href="#ref_ranges">[Ranges]</a></sup> states (C.2, "Iterator Range
+Type") that a future paper will propose such a type.
+
+<p>The technical specification in this paper leaves the view type selected by
+<code>make_text_view</code> and the type aliases of <code>basic_text_view</code>
+up to the implementation.  The reference implementation uses Origin's
+<code>origin::bounded_range</code> class template for this purpose.  It would
+have been possible to define a suitable view type as part of this library, but
+the author felt it better to wait until a suitable type becomes available as
+part of either the ranges proposal or the standard library.
 
 <h2 id="error_handling">Error Handling</h2>
 
@@ -2712,7 +2740,6 @@ template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt
                       IT first, ST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 
-
 template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
   auto make_text_view(IT first, ST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
@@ -2752,7 +2779,7 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
 
 <h1 id="references">References</h1>
 
-<table>
+<table id="references">
   <tr>
     <td id="ref_cxx11"><sup>[C++11]</sup></td>
     <td>
@@ -2782,6 +2809,14 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       "Raw and Unicode String Literals; Unified Proposal (Rev. 2)", N2442, 2007.<br/>
       <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm">
       http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n3350"><sup>[N3350]</sup></td>
+    <td>
+      Jeffrey Yasskin,
+      "A minimal std::range&gt;Iter&gt;", N3350, 2012.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3350.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3350.html</a></td>
   </tr>
   <tr>
     <td id="ref_origin"><sup>[Origin]</sup></td>
