@@ -800,49 +800,107 @@ template<typename T> concept bool TextView() {
 
 ### Class any_character_set
 
+The `any_character_set` class provides a generic [character set](#character-set)
+type used when a specific [character set](#character-set) type is unknown or
+when the ability to switch between specific [character sets](#character-set)
+is required.  This class satisfies the `CharacterSet` concept and has an
+implementation defined `code_point_type` that is able to represent
+[code point](#code-point) values from all of the implementation provided
+[character set](#character-set) types.  
+
 ```C++
 class any_character_set {
 public:
   using code_point_type = /* implementation-defined */;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "any_character_set";
+  }
 };
 ```
 
 ### Class basic_execution_character_set
+
+The `basic_execution_character_set` class represents the basic execution
+character set specified in `[lex.charset]p3` of the [C++11][ISO/IEC 14882:2011]
+standard.  This class satisfies the `CharacterSet` concept and has a
+`code_point_type` member type that aliases `char`.
 
 ```C++
 class basic_execution_character_set {
 public:
   using code_point_type = char;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "basic_execution_character_set";
+  }
 };
 ```
 
 ### Class basic_execution_wide_character_set
+
+The `basic_execution_wide_character_set` class represents the basic execution
+wide character set specified in `[lex.charset]p3` of the
+[C++11][ISO/IEC 14882:2011] standard.  This class satisfies the `CharacterSet`
+concept and has a `code_point_type` member type that aliases `wchar_t`.
 
 ```C++
 class basic_execution_wide_character_set {
 public:
   using code_point_type = wchar_t;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "basic_execution_wide_character_set";
+  }
 };
 ```
 
 ### Class unicode_character_set
+
+The `unicode_character_set` class represents the [Unicode]
+[character sets](#character-set).  This class satisfies the `CharacterSet`
+concept and has a `code_point_type` member type that aliases `char32_t`.
 
 ```C++
 class unicode_character_set {
 public:
   using code_point_type = char32_t;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "unicode_character_set";
+  }
 };
 ```
 
 ### Character set type aliases
+
+The `execution_character_set`,
+`execution_wide_character_set`, and
+`universal_character_set` type aliases reflect the implementation
+defined execution, wide execution, and universal
+[character sets](#character-set) specified in `[lex.charset]p2-3` of the C++
+standard.
+
+The [character set](#character-set) aliased by `execution_character_set` must be
+a superset of the `basic_execution_character_set`
+[character set](#character-set).  This alias refers to the
+[character set](#character-set) that the compiler assumes during
+translation; the [character set](#character-set) that the compiler uses when
+translating [characters](#character) specified by universal-character-name
+designators in ordinary string literals, not the locale sensitive run-time
+execution [character set](#character-set).
+
+The [character set](#character-set) aliased by `execution_wide_character_set`
+must be a superset of the `basic_execution_wide_character_set`
+[character set](#character-set).  This alias refers to the
+[character set](#character-set)  that the compiler assumes during
+translation; the [character set](#character-set) that the compiler uses when
+translating [characters](#character) specified by universal-character-name
+designators in wide string literals, not the locale sensitive run-time
+execution wide [character set](#character-set).
+
+The [character set](#character-set) aliased by `universal_character_set` must
+be a superset of the `unicode_character_set` [character set](#character-set).
 
 ```C++
 using execution_character_set = /* implementation-defined */ ;
@@ -856,6 +914,13 @@ using universal_character_set = /* implementation-defined */ ;
 - [get_character_set_id](#get_character_set_id)
 
 ### Class character_set_id
+
+The `character_set_id` class provides unique, opaque values used to identify
+[character sets](#character-set) at run-time.  Values of this type are produced
+by `get_character_set_id()` and can be passed to `get_character_set_info()` to
+obtain [character set](#character-set) information.  Values of this type are
+copy constructible, copy assignable, equality comparable, and strictly totally
+ordered.
 
 ```C++
 class character_set_id {
@@ -874,6 +939,9 @@ public:
 
 ### get_character_set_id
 
+`get_character_set_id()` returns a unique, opaque value for the
+[character set](#character-set) type specified by the template parameter.
+
 ```C++
 template<typename CST>
   inline character_set_id get_character_set_id();
@@ -885,6 +953,11 @@ template<typename CST>
 - [get_character_set_info](#get_character_set_info)
 
 ### Class character_set_info
+
+The `character_set_info` class stores information about a
+[character set](#character-set).  Values of this type are produced by the
+`get_character_set_info()` functions based on a [character set](#character-set)
+type or ID.
 
 ```C++
 class character_set_info {
@@ -902,6 +975,10 @@ private:
 
 ### get_character_set_info
 
+The `get_character_set_info()` functions return a reference to a
+`character_set_info` object based on a [character set](#character-set) type or
+ID.
+
 ```C++
 const character_set_info& get_character_set_info(character_set_id id);
 
@@ -914,6 +991,30 @@ template<typename CST>
 - [Class template character](#class-template-character)
 
 ### Class template character
+
+Objects of `character` class template specialization type define a
+[character](#character) via the association of a [code point](#code-point)
+value and a [character set](#character-set).  The specialization provided for
+the `any_character_set` type is used to maintain a dynamic
+[character set](#character-set) association while specializations for other
+[character sets](#character-set) specify a static association.  These types
+satisfy the `Character` concept and are default constructible, copy
+constructible, copy assignable, and equality comparable.  Member functions
+provide access to the [code point](#code-point) and
+[character set](#character-set) ID values for the represented
+[character](#character).  Default constructed objects represent a null
+[character](#character) using a zero initialized [code point](#code-point)
+value.
+
+Objects with different [character set](#character-set) type are not equality
+comparable with the exception that objects with a static
+[character set](#character-set) type of `any_character_set` are comparable with
+objects with any static [character set](#character-set) type.  In this case,
+objects compare equally if and only if their [character set](#character-set)
+ID and [code point](#code-point) values match.  Equality comparison between
+objects with different static [character set](#character-set) type is not
+implemented to avoid potentially costly unintended implicit transcoding between
+[character sets](#character-set).
 
 ```C++
 template<CharacterSet CST>
@@ -1000,11 +1101,22 @@ template<CharacterSet CST>
 
 ### Class trivial_encoding_state
 
+The `trivial_encoding_state` class is an empty class used by stateless
+[encodings](#encoding) to implement the parts of the generic
+[encoding](#encoding) interfaces necessary to support stateful
+[encodings](#encoding).
+
 ```C++
 class trivial_encoding_state {};
 ```
 
 ### Class trivial_encoding_state_transition
+
+The `trivial_encoding_state_transition` class is an empty class used by
+stateless [encodings](#encoding) to implement the parts of the generic
+[encoding](#encoding) interfaces necessary to support stateful
+[encodings](#encoding) that support non-[code-point](#code-point)
+encoding [code unit](#code-unit) sequences.
 
 ```C++
 class trivial_encoding_state_transition {};

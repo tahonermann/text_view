@@ -1392,53 +1392,108 @@ template&lt;typename T&gt; concept bool TextView() {
 
 <h3 id="class_any_character_set">Class any_character_set</h3>
 
+<p>The <code>any_character_set</code> class provides a generic character set
+type used when a specific character set type is unknown or when the ability to
+switch between specific character sets is required.  This class satisfies the
+<code>CharacterSet</code> concept and has an implementation defined
+<code>code_point_type</code> that is able to represent code point values from
+all of the implementation provided character set types.
+
 <pre><code>
 class any_character_set {
 public:
   using code_point_type = /* implementation-defined */;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "any_character_set";
+  }
 };
 </code></pre>
 
 <h3 id="class_basic_execution_character_set">
   Class basic_execution_character_set</h3>
 
+<p>The <code>basic_execution_character_set</code> class represents the
+basic execution character set specified in <code>[lex.charset]p3</code> of the
+C++ standard.  This class satisfies the <code>CharacterSet</code> concept and
+has a <code>code_point_type</code> member type that aliases <code>char</code>.
+
 <pre><code>
 class basic_execution_character_set {
 public:
   using code_point_type = char;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "basic_execution_character_set";
+  }
 };
 </code></pre>
 
 <h3 id="class_basic_execution_wide_character_set">
   Class basic_execution_wide_character_set</h3>
 
+<p>The <code>basic_execution_wide_character_set</code> class represents the
+basic execution wide character set specified in <code>[lex.charset]p3</code> of
+the C++ standard.  This class satisfies the <code>CharacterSet</code> concept
+and has a <code>code_point_type</code> member type that aliases
+<code>wchar_t</code>.
+
 <pre><code>
 class basic_execution_wide_character_set {
 public:
   using code_point_type = wchar_t;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "basic_execution_wide_character_set";
+  }
 };
 </code></pre>
 
 <h3 id="class_unicode_character_set">
   Class unicode_character_set</h3>
 
+<p>The <code>unicode_character_set</code> class represents the
+Unicode character set.  This class satisfies the <code>CharacterSet</code>
+concept and has a <code>code_point_type</code> member type that aliases
+<code>char32_t</code>.
+
 <pre><code>
 class unicode_character_set {
 public:
   using code_point_type = char32_t;
 
-  static const char* get_name() noexcept;
+  static const char* get_name() noexcept {
+    return "unicode_character_set";
+  }
 };
 </code></pre>
 
 <h3 id="character_set_type_aliases">
   Character set type aliases</h3>
+
+<p>The <code>execution_character_set</code>,
+<code>execution_wide_character_set</code>, and
+<code>universal_character_set</code> type aliases reflect the implementation
+defined execution, wide execution, and universal character sets specified in
+<code>[lex.charset]p2-3</code> of the C++ standard.
+
+<p>The character set aliased by <code>execution_character_set</code> must be
+a superset of the <code>basic_execution_character_set</code> character set.
+This alias refers to the character set that the compiler assumes during
+translation; the character set that the compiler uses when translating
+characters specified by universal-character-name designators in ordinary
+string literals, not the locale sensitive run-time execution character set.
+
+<p>The character set aliased by <code>execution_wide_character_set</code> must
+be a superset of the <code>basic_execution_wide_character_set</code> character
+set.  This alias refers to the character set that the compiler assumes during
+translation; the character set that the compiler uses when translating
+characters specified by universal-character-name designators in wide string
+literals, not the locale sensitive run-time execution wide character set.
+
+<p>The character set aliased by <code>universal_character_set</code> must
+be a superset of the <code>unicode_character_set</code> character
+set.
 
 <pre><code>
 using execution_character_set = /* implementation-defined */ ;
@@ -1458,6 +1513,13 @@ using universal_character_set = /* implementation-defined */ ;
 <h3 id="class_character_set_id">
   Class character_set_id</h3>
 
+<p>The <code>character_set_id</code> class provides unique, opaque values
+used to identify character sets at run-time.  Values of this type are
+produced by <code>get_character_set_id()</code> and can be passed to
+<code>get_character_set_info()</code> to obtain character set information.
+Values of this type are copy constructible, copy assignable, equality
+comparable, and strictly totally ordered.
+
 <pre><code>
 class character_set_id {
 public:
@@ -1476,6 +1538,9 @@ public:
 <h3 id="get_character_set_id">
   get_character_set_id</h3>
 
+<p><code>get_character_set_id()</code> returns a unique, opaque value for
+the chracter set type specified by the template parameter.
+
 <pre><code>
 template&lt;typename CST&gt;
   inline character_set_id get_character_set_id();
@@ -1492,6 +1557,11 @@ template&lt;typename CST&gt;
 
 <h3 id="class_character_set_info">
   Class character_set_info</h3>
+
+<p>The <code>character_set_info</code> class stores information about a
+character set.  Values of this type are produced by the
+<code>get_character_set_info()</code> functions based on a character set
+type or ID.
 
 <pre><code>
 class character_set_info {
@@ -1510,6 +1580,9 @@ private:
 <h3 id="get_character_set_info">
   get_character_set_info</h3>
 
+<p>The <code>get_character_set_info()</code> functions return a reference to a
+<code>character_set_info</code> object based on a character set type or ID.
+
 <pre><code>
 const character_set_info&amp; get_character_set_info(character_set_id id);
 
@@ -1526,6 +1599,25 @@ template&lt;typename CST&gt;
 
 <h3 id="class_template_character">
   Class template character</h3>
+
+<p>Objects of <code>character</code> class template specialization type define
+a character via the association of a code point value and a character set.  The
+specialization provided for the <code>any_character_set</code> type is used to
+maintain a dynamic character set association while specializations for other
+character sets specify a static association.  These types satisfy the
+<code>Character</code> concept and are default constructible, copy
+constructible, copy assignable, and equality comparable.  Member functions
+provide access to the code point and character set ID values for the represented
+character.  Default constructed objects represent a null character using a zero
+initialized code point value.
+
+<p>Objects with different character set type are not equality comparable with
+the exception that objects with a static character set type of
+<code>any_character_set</code> are comparable with objects with any static
+character set type.  In this case, objects compare equally if and only if their
+character set ID and code point values match.  Equality comparison between
+objects with different static character set type is not implemented to avoid
+potentially costly unintended implicit transcoding between character sets.
 
 <pre><code>
 template&lt;CharacterSet CST&gt;
@@ -1627,12 +1719,21 @@ template&lt;CharacterSet CST&gt;
 <h3 id="class_trivial_encoding_state">
   Class trivial_encoding_state</h3>
 
+<p>The <code>trivial_encoding_state</code> class is an empty class used by
+stateless encodings to implement the parts of the generic encoding interfaces
+necessary to support stateful encodings.
+
 <pre><code>
 class trivial_encoding_state {};
 </code></pre>
 
 <h3 id="class_trivial_encoding_state_transition">
   Class trivial_encoding_state_transition</h3>
+
+<p>The <code>trivial_encoding_state_transition</code> class is an empty class
+used by stateless encodings to implement the parts of the generic encoding
+interfaces necessary to support stateful encodings that support non-code-point
+encoding code unit sequences.
 
 <pre><code>
 class trivial_encoding_state_transition {};
