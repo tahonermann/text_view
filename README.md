@@ -1124,6 +1124,14 @@ class trivial_encoding_state_transition {};
 
 ### Class basic_execution_character_encoding
 
+The `basic_execution_character_encoding` class implements support for the
+[encoding](#encoding) used for ordinary string literals limited to support
+for the basic execution character set as defined in `[lex.charset]p3` of
+the C++ standard.
+
+This [encoding](#encoding) is trivial, stateless, fixed width, supports
+random access decoding, and has a [code unit](#code-unit) of type `char`.
+
 ```C++
 class basic_execution_character_encoding {
 public:
@@ -1173,6 +1181,14 @@ public:
 
 ### Class basic_execution_wide_character_encoding
 
+The `basic_execution_wide_character_encoding` class implements support for the
+[encoding](#encoding) used for wide string literals limited to support for the
+basic execution wide-character set as defined in `[lex.charset]p3` of
+the C++ standard.
+
+This [encoding](#encoding) is trivial, stateless, fixed width, supports
+random access decoding, and has a [code unit](#code-unit) of type `wchar_t`.
+
 ```C++
 class basic_execution_wide_character_encoding {
 public:
@@ -1221,6 +1237,20 @@ public:
 ```
 
 ### Class iso_10646_wide_character_encoding
+
+The `iso_10646_wide_character_encoding` class is only defined
+when the `__STDC_ISO_10646__` macro is defined.
+
+The `iso_10646_wide_character_encoding` class implements support for the
+[encoding](#encoding) used for wide string literals when that
+[encoding](#encoding) uses the [Unicode] [character set](#character-set) and
+`wchar_t` is large enough to store the [code point](#code-point) values of
+all [characters](#character) defined by the version of the [Unicode] standard
+indicated by the value of the `__STDC_ISO_10646__` macro as specified in
+`[cpp.predefined]p2` of the C++ standard.
+
+This [encoding](#encoding) is trivial, stateless, fixed width, supports random
+access decoding, and has a [code unit](#code-unit) of type `wchar_t`.
 
 ```C++
 #if defined(__STDC_ISO_10646__)

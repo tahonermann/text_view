@@ -1742,6 +1742,14 @@ class trivial_encoding_state_transition {};
 <h3 id="class_basic_execution_character_encoding">
   Class basic_execution_character_encoding</h3>
 
+<p>The <code>basic_execution_character_encoding</code> class implements support
+for the encoding used for ordinary string literals limited to support for the
+basic execution character set as defined in <code>[lex.charset]p3</code> of
+the C++ standard.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <code>char</code>.
+
 <pre><code>
 class basic_execution_character_encoding {
 public:
@@ -1792,6 +1800,14 @@ public:
 <h3 id="class_basic_execution_wide_character_encoding">
   Class basic_execution_wide_character_encoding</h3>
 
+<p>The <code>basic_execution_wide_character_encoding</code> class implements
+support for the encoding used for wide string literals limited to support for
+the basic execution wide-character set as defined in
+<code>[lex.charset]p3</code> of the C++ standard.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <code>wchar_t</code>.
+
 <pre><code>
 class basic_execution_wide_character_encoding {
 public:
@@ -1841,6 +1857,19 @@ public:
 
 <h3 id="class_iso_10646_wide_character_encoding">
   Class iso_10646_wide_character_encoding</h3>
+
+<p>The <code>iso_10646_wide_character_encoding</code> class is only defined
+when the <code>__STDC_ISO_10646__</code> macro is defined.
+
+<p>The <code>iso_10646_wide_character_encoding</code> class implements
+support for the encoding used for wide string literals when that encoding
+uses the Unicode character set and <code>wchar_t</code> is large enough to
+store the code point values of all characters defined by the version of the
+Unicode standard indicated by the value of the <code>__STDC_ISO_10646__</code>
+macro as specified in <code>[cpp.predefined]p2</code> of the C++ standard.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <code>wchar_t</code>.
 
 <pre><code>
 #if defined(__STDC_ISO_10646__)
