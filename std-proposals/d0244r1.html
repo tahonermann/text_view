@@ -1923,6 +1923,12 @@ public:
 <h3 id="class_utf8_encoding">
   Class utf8_encoding</h3>
 
+<p>The <code>utf8_encoding</code> class implements support for the Unicode
+UTF-8 encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char</code>.
+
 <pre><code>
 class utf8_encoding {
 public:
@@ -1972,6 +1978,16 @@ public:
 
 <h3 id="class_utf8bom_encoding">
   Class utf8bom_encoding</h3>
+
+<p>The <code>utf8bom_encoding</code> class implements support for the Unicode
+UTF-8 encoding with a byte order mark (BOM).
+
+<p>This encoding is stateful, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char</code>.
+
+<p>This encoding defines a state transition class that enables forcing or
+suppressing the encoding of a BOM, or influencing whether a decoded BOM
+code unit sequence represents a BOM or a code point.
 
 <pre><code>
 class utf8bom_encoding_state {
@@ -2034,6 +2050,12 @@ public:
 <h3 id="class_utf16_encoding">
   Class utf16_encoding</h3>
 
+<p>The <code>utf16_encoding</code> class implements support for the Unicode
+UTF-16 encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char16_t</code>.
+
 <pre><code>
 class utf16_encoding {
 public:
@@ -2083,6 +2105,12 @@ public:
 
 <h3 id="class_utf16be_encoding">
   Class utf16be_encoding</h3>
+
+<p>The <code>utf16be_encoding</code> class implements support for the Unicode
+UTF-16 big-endian encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char</code>.
 
 <pre><code>
 class utf16be_encoding {
@@ -2134,6 +2162,12 @@ public:
 <h3 id="class_utf16le_encoding">
   Class utf16le_encoding</h3>
 
+<p>The <code>utf16le_encoding</code> class implements support for the Unicode
+UTF-16 little-endian encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char</code>.
+
 <pre><code>
 class utf16le_encoding {
 public:
@@ -2183,6 +2217,16 @@ public:
 
 <h3 id="class_utf16bom_encoding">
   Class utf16bom_encoding</h3>
+
+<p>The <code>utf16bom_encoding</code> class implements support for the Unicode
+UTF-16 encoding with a byte order mark (BOM).
+
+<p>This encoding is stateful, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char</code>.
+
+<p>This encoding defines a state transition class that enables forcing or
+suppressing the encoding of a BOM, or influencing whether a decoded BOM
+code unit sequence represents a BOM or a code point.
 
 <pre><code>
 class utf16bom_encoding_state {
@@ -2249,6 +2293,12 @@ public:
 <h3 id="class_utf32_encoding">
   Class utf32_encoding</h3>
 
+<p>The <code>utf32_encoding</code> class implements support for the Unicode
+UTF-32 encoding.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <code>char32_t</code>.
+
 <pre><code>
 class utf32_encoding {
 public:
@@ -2298,6 +2348,12 @@ public:
 
 <h3 id="class_utf32be_encoding">
   Class utf32be_encoding</h3>
+
+<p>The <code>utf32be_encoding</code> class implements support for the Unicode
+UTF-32 big-endian encoding.
+
+<p>This encoding is stateless, fixed width, supports random access
+decoding, and has a code unit of type <code>char</code>.
 
 <pre><code>
 class utf32be_encoding {
@@ -2349,6 +2405,12 @@ public:
 <h3 id="class_utf32le_encoding">
   Class utf32le_encoding</h3>
 
+<p>The <code>utf32le_encoding</code> class implements support for the Unicode
+UTF-32 little-endian encoding.
+
+<p>This encoding is stateless, fixed width, supports random access
+decoding, and has a code unit of type <code>char</code>.
+
 <pre><code>
 class utf32le_encoding {
 public:
@@ -2398,6 +2460,16 @@ public:
 
 <h3 id="class_utf32bom_encoding">
   Class utf32bom_encoding</h3>
+
+<p>The <code>utf32bom_encoding</code> class implements support for the Unicode
+UTF-32 encoding with a byte order mark (BOM).
+
+<p>This encoding is stateful, variable width, supports bidirectional
+decoding, and has a code unit of type <code>char</code>.
+
+<p>This encoding defines a state transition class that enables forcing or
+suppressing the encoding of a BOM, or influencing whether a decoded BOM
+code unit sequence represents a BOM or a code point.
 
 <pre><code>
 class utf32bom_encoding_state {

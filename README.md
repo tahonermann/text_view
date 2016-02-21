@@ -1303,6 +1303,12 @@ public:
 
 ### Class utf8_encoding
 
+The `utf8_encoding` class implements support for the [Unicode] UTF-8
+[encoding](#encoding).
+
+This [encoding](#encoding) is stateless, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char`.
+
 ```C++
 class utf8_encoding {
 public:
@@ -1351,6 +1357,17 @@ public:
 ```
 
 ### Class utf8bom_encoding
+
+The `utf8bom_encoding` class implements support for the [Unicode] UTF-8
+[encoding](#encoding) with a byte order mark (BOM).
+
+This [encoding](#encoding) is stateful, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char`.
+
+This [encoding](#encoding) defines a state transition class that enables
+forcing or suppressing the encoding of a BOM, or influencing whether a decoded
+BOM [code unit](#code-unit) sequence represents a BOM or a
+[code point](#code-point).
 
 ```C++
 class utf8bom_encoding_state {
@@ -1412,6 +1429,12 @@ public:
 
 ### Class utf16_encoding
 
+The `utf16_encoding` class implements support for the [Unicode] UTF-16
+[encoding](#encoding).
+
+This [encoding](#encoding) is stateless, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char16_t`.
+
 ```C++
 class utf16_encoding {
 public:
@@ -1460,6 +1483,12 @@ public:
 ```
 
 ### Class utf16be_encoding
+
+The `utf16be_encoding` class implements support for the [Unicode] UTF-16
+big-endian [encoding](#encoding).
+
+This [encoding](#encoding) is stateless, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char`.
 
 ```C++
 class utf16be_encoding {
@@ -1510,6 +1539,12 @@ public:
 
 ### Class utf16le_encoding
 
+The `utf16le_encoding` class implements support for the [Unicode] UTF-16
+little-endian [encoding](#encoding).
+
+This [encoding](#encoding) is stateless, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char`.
+
 ```C++
 class utf16le_encoding {
 public:
@@ -1558,6 +1593,17 @@ public:
 ```
 
 ### Class utf16bom_encoding
+
+The `utf16bom_encoding_state` class implements support for the [Unicode] UTF-16
+[encoding](#encoding) with a byte order mark (BOM).
+
+This [encoding](#encoding) is stateful, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char`.
+
+This [encoding](#encoding) defines a state transition class that enables
+forcing or suppressing the encoding of a BOM, or influencing whether a decoded
+BOM [code unit](#code-unit) sequence represents a BOM or a
+[code point](#code-point).
 
 ```C++
 class utf16bom_encoding_state {
@@ -1623,6 +1669,12 @@ public:
 
 ### Class utf32_encoding
 
+The `utf32_encoding` class implements support for the [Unicode] UTF-32
+[encoding](#encoding).
+
+This [encoding](#encoding) is trivial, stateless, fixed width, supports
+random access decoding, and has a [code unit](#code-unit) of type `char32_t`.
+
 ```C++
 class utf32_encoding {
 public:
@@ -1671,6 +1723,12 @@ public:
 ```
 
 ### Class utf32be_encoding
+
+The `utf32be_encoding` class implements support for the [Unicode] UTF-32
+big-endian [encoding](#encoding).
+
+This [encoding](#encoding) is stateless, fixed width, supports random access
+decoding, and has a [code unit](#code-unit) of type `char`.
 
 ```C++
 class utf32be_encoding {
@@ -1721,6 +1779,12 @@ public:
 
 ### Class utf32le_encoding
 
+The `utf32le_encoding` class implements support for the [Unicode] UTF-32
+little-endian [encoding](#encoding).
+
+This [encoding](#encoding) is stateless, fixed width, supports random access
+decoding, and has a [code unit](#code-unit) of type `char`.
+
 ```C++
 class utf32le_encoding {
 public:
@@ -1769,6 +1833,17 @@ public:
 ```
 
 ### Class utf32bom_encoding
+
+The `utf32bom_encoding` class implements support for the [Unicode] UTF-32
+[encoding](#encoding) with a byte order mark (BOM).
+
+This [encoding](#encoding) is stateful, variable width, supports bidirectional
+decoding, and has a [code unit](#code-unit) of type `char`.
+
+This [encoding](#encoding) defines a state transition class that enables
+forcing or suppressing the encoding of a BOM, or influencing whether a decoded
+BOM [code unit](#code-unit) sequence represents a BOM or a
+[code point](#code-point).
 
 ```C++
 class utf32bom_encoding_state {
