@@ -593,7 +593,7 @@ currently supported due to lack of interfaces to transcode a code point
 from one character set to the code point of a different one.
 
 <p>Additionally, naively transcoding between encodings using std::copy()
-works, but is not optimal; techniques are known to accelerate transcoding 
+works, but is not optimal; techniques are known to accelerate transcoding
 between some sets of encoding.  For example, SIMD instructions can be
 utilized in some cases to transcode multiple code points in parallel.
 
@@ -2535,6 +2535,49 @@ public:
 
 <h3 id="encoding-type-aliases">
   Encoding type aliases</h3>
+
+<p>The <code>execution_character_encoding</code>,
+<code>execution_wide_character_encoding</code>,
+<code>char8_character_encoding</code>,
+<code>char16_character_encoding</code>, and
+<code>char32_character_encoding</code> type aliases reflect the implementation
+defined encodings used for execution, wide execution, UTF-8, char16_t, and
+char32_t string literals.
+
+<p>Each of these encodings carries a compatibility requirement with another
+encoding.  Decode compatibility is satisfied when the following criteria is met.
+
+<ol>
+  <li>Text encoded by the compatibility encoding can be decoded by the aliased
+      encoding.</li>
+  <li>Text encoded by the aliased encoding can be decoded by the compatibility
+      encoding when encoded characters are restricted to members of the
+      character set of the compatibility encoding.</li>
+</ol>
+
+<p>These compatibility requirements allow implementation freedom to use
+encodings that provide features beyond the minimum requirements imposed on the
+compatibility encodings by the standard.  For example, the encoding aliased by
+<code>execution_character_encoding</code> is allowed to support characters that
+are not members of the character set of the
+<code>basic_execution_character_encoding</code>
+
+<p>The encoding aliased by <code>execution_character_encoding</code> must be
+decode compatible with the <code>basic_execution_character_encoding</code>
+encoding.
+
+<p>The encoding aliased by <code>execution_wide_character_encoding</code> must
+be decode compatible with the
+<code>basic_execution_wide_character_encoding</code> encoding.
+
+<p>The encoding aliased by <code>char8_character_encoding</code> must be
+decode compatible with the <code>utf8_encoding</code> encoding.
+
+<p>The encoding aliased by <code>char16_character_encoding</code> must be
+decode compatible with the <code>utf16_encoding</code> encoding.
+
+<p>The encoding aliased by <code>char32_character_encoding</code> must be
+decode compatible with the <code>utf32_encoding</code> encoding.
 
 <pre><code>
 using execution_character_encoding = /* implementation-defined */ ;

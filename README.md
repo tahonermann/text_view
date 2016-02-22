@@ -806,7 +806,7 @@ when the ability to switch between specific [character sets](#character-set)
 is required.  This class satisfies the `CharacterSet` concept and has an
 implementation defined `code_point_type` that is able to represent
 [code point](#code-point) values from all of the implementation provided
-[character set](#character-set) types.  
+[character set](#character-set) types.
 
 ```C++
 class any_character_set {
@@ -1908,6 +1908,49 @@ public:
 ```
 
 ### Encoding type aliases
+
+The `execution_character_encoding`,
+`execution_wide_character_encoding`,
+`char8_character_encoding`,
+`char16_character_encoding`, and
+`char32_character_encoding` type aliases reflect the implementation
+defined [encodings](#encoding) used for execution, wide execution, UTF-8,
+char16_t, and char32_t string literals.
+
+Each of these [encodings](#encoding) carries a compatibility requirement with
+another [encoding](#encoding).  Decode compatibility is satisfied when the
+following criteria is met.
+
+1. Text encoded by the compatibility [encoding](#encoding) can be decoded
+   by the aliased [encoding](#encoding).
+2. Text encoded by the aliased [encoding](#encoding) can be decoded by the
+   compatibility [encoding](#encoding) when encoded [characters](#character)
+   are restricted to members of the [character set](#character-set) of the
+   compatibility [encoding](#encoding).
+
+These compatibility requirements allow implementation freedom to use
+[encodings](#encoding) that provide features beyond the minimum requirements
+imposed on the compatibility [encodings](#encoding) by the standard.  For
+example, the [encoding](#encoding) aliased by `execution_character_encoding`
+is allowed to support [characters](#character) that are not members of the
+[character set](#character-set) of the `basic_execution_character_encoding`
+
+The [encoding](#encoding) aliased by `execution_character_encoding` must be
+decode compatible with the `basic_execution_character_encoding`
+[encoding](#encoding).
+
+The [encoding](#encoding) aliased by `execution_wide_character_encoding` must
+be decode compatible with the
+`basic_execution_wide_character_encoding` [encoding](#encoding).
+
+The [encoding](#encoding) aliased by `char8_character_encoding` must be
+decode compatible with the `utf8_encoding` [encoding](#encoding).
+
+The [encoding](#encoding) aliased by `char16_character_encoding` must be
+decode compatible with the `utf16_encoding` [encoding](#encoding).
+
+The [encoding](#encoding) aliased by `char32_character_encoding` must be
+decode compatible with the `utf32_encoding` [encoding](#encoding).
 
 ```C++
 using execution_character_encoding = /* implementation-defined */ ;
