@@ -1969,6 +1969,38 @@ using char32_character_encoding = /* implementation-defined */ ;
 
 ### Class template itext_iterator
 
+Objects of `itext_iterator` class template specialization type provide a
+standard iterator interface for enumerating the [characters](#character) encoded
+by the associated [encoding](#encoding) `ET` in the [code unit](#code-unit)
+sequence exposed by the associated view `RT`.  These types satisfy the
+`TextIterator` concept and are default constructible, copy and move
+constructible, copy and move assignable, and equality comparable.
+
+These types also conditionally satisfy `ranges::ForwardIterator`,
+`ranges::BidirectionalIterator`, and `ranges::RandomAccessIterator` depending
+on traits of the associated [encoding](#encoding) `ET` and view `RT` as
+described in the following table.
+
+When `ET` and `ranges::iterator_t<RT>` satisfy ... | then `itext_iterator<ET, RT>` satisfies ...  | and `itext_iterator<ET, RT>::iterator_category` is ...
+-------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------
+`TextDecoder` | `ranges::InputIterator` | `std::input_iterator_tag`
+`TextForwardDecoder` | `ranges::ForwardIterator` | `std::forward_iterator_tag`
+`TextBidirectionalDecoder` | `ranges::BidirectionalIterator` | `std::bidirectional_iterator_tag`
+`TextRandomAccessDecoder` | `ranges::RandomAccessIterator` | `std::random_access_iterator_tag`
+
+Member functions provide access to the stored [encoding](#encoding) state, the
+underlying [code unit](#code-unit) iterator, and, when `ranges::ForwardIterator`
+is satisified, the underlying [code unit](#code-unit) range for the current
+[character](#character).  The underlying [code unit](#code-unit) range is
+returned with an implementation defined type that satisfies `ranges::View`.
+The `is_ok` member function returns true if the iterator is dereferenceable as
+a result of having successfully decoded a [code point](#code-point) (This
+predicate is used to distinguish between an input iterator that just
+successfully decoded the last [code point](#code-point) in the
+[code unit](#code-unit) stream as compared to one that was advanced after having
+done so; in both cases, the underlying [code unit](#code-unit) input iterator
+will compare equal to the end of the stream iterator).
+
 ```C++
 template<TextEncoding ET, ranges::InputRange RT>
   requires TextDecoder<

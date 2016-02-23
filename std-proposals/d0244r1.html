@@ -2603,6 +2603,61 @@ using char32_character_encoding = /* implementation-defined */ ;
 <h3 id="class_template_itext_iterator">
   Class template itext_iterator</h3>
 
+<p>Objects of <code>itext_iterator</code> class template specialization type
+provide a standard iterator interface for enumerating the characters encoded
+by the associated encoding <code>ET</code> in the code unit sequence exposed
+by the associated view <code>RT</code>.  These types satisfy the
+<code>TextIterator</code> concept and are default constructible, copy and move
+constructible, copy and move assignable, and equality comparable.
+
+<p>These types also conditionally satisfy <code>ranges::ForwardIterator</code>,
+<code>ranges::BidirectionalIterator</code>, and
+<code>ranges::RandomAccessIterator</code> depending on traits of the associated
+encoding <code>ET</code> and view <code>RT</code> as described in the following
+table.
+
+<table border="1">
+  <tr>
+    <th>When <code>ET</code> and <code>ranges::iterator_t&lt;RT&gt;</code>
+        satisfy ...</th>
+    <th>then <code>itext_iterator&lt;ET, RT&gt;</code> satisfies ...</th>
+    <th>and <code>itext_iterator&lt;ET, RT&gt;::iterator_category</code> is
+        ...</th>
+  </tr>
+  <tr>
+    <td><code>TextDecoder</code></td>
+    <td><code>ranges::InputIterator</code></td>
+    <td><code>std::input_iterator_tag</code></td>
+  </tr>
+  <tr>
+    <td><code>TextForwardDecoder</code></td>
+    <td><code>ranges::ForwardIterator</code></td>
+    <td><code>std::forward_iterator_tag</code></td>
+  </tr>
+  <tr>
+    <td><code>TextBidirectionalDecoder</code></td>
+    <td><code>ranges::BidirectionalIterator</code></td>
+    <td><code>std::bidirectional_iterator_tag</code></td>
+  </tr>
+  <tr>
+    <td><code>TextRandomAccessDecoder</code></td>
+    <td><code>ranges::RandomAccessIterator</code></td>
+    <td><code>std::random_access_iterator_tag</code></td>
+  </tr>
+</table>
+
+<p>Member functions provide access to the stored encoding state, the underlying
+code unit iterator, and, when <code>ranges::ForwardIterator</code> is
+satisified, the underlying code unit range for the current character.  The
+underlying code unit range is returned with an implementation defined type that
+satisfies <code>ranges::View</code>.  The <code>is_ok</code> member function
+returns true if the iterator is dereferenceable as a result of having
+successfully decoded a code point (This predicate is used to distinguish between
+an input iterator that just successfully decoded the last code point in the code
+unit stream as compared to one that was advanced after having done so; in both
+cases, the underlying code unit input iterator will compare equal to the end of
+the stream iterator).
+
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
   requires TextDecoder&lt;
