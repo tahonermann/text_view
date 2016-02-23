@@ -532,18 +532,39 @@ interpretation of code point values that do not correspond to characters of the
 basic ordinary and wide execution character sets is determined at
 run-time based on locale settings.  Yet, ordinary and wide string literals
 may contain universal-character-name designators that are transcoded at
-compile time to some character set that is a superset of the corresponding
+compile-time to some character set that is a superset of the corresponding
 basic character set and assumed to be a subset of the execution character set.
-The compile-time extended character set is not named in the C++ standard.
+These compile-time extended character sets are not currently named in the C++
+standard.
+
+<p>Some compilers allow these compile-time extended character sets to be
+specified by command line options.  For example, gcc supports
+<code>-fexec-charset=</code> and <code>-fwide-exec-charset=</code> options
+and Microsoft Visual C++ in Visual Studio 2015 Update 2 CTP recently added
+the <code>/execution-charset:</code> and <code>/utf-8</code> options.  More
+information on these options can be found at:
+
+<ul>
+  <li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Preprocessor-Options.html#Preprocessor-Options">
+      https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Preprocessor-Options.html#Preprocessor-Options</a></li>
+  <li><a href="https://blogs.msdn.microsoft.com/vcblog/2016/02/22/new-options-for-managing-character-sets-in-the-microsoft-cc-compiler/">
+      https://blogs.msdn.microsoft.com/vcblog/2016/02/22/new-options-for-managing-character-sets-in-the-microsoft-cc-compiler/</a></li>
+</ul>
 
 <p>The <code>execution_character_encoding</code> and
 <code>execution_wide_character_encoding</code> type aliases defined by this
-library refer to encodings that use these unnamed character sets.  This choice
-is motivated by future intentions to enable compile-time string manipulation
-and to avoid the performance overhead of run-time locale awareness.
+library refer to encodings that use these unnamed character sets that are
+known at compile-time.  This choice is motivated by future intentions to enable
+compile-time string manipulation and to allow avoiding the performance overhead
+of run-time locale awareness when an application is not locale dependent.
 
 <p>Though not currently specified, it may be appropriate to define additional
-type aliases to encoding classes that implement locale awareness.
+encoding classes that implement locale awareness.  It may also be more
+appropriate for the <code>execution_character_encoding</code> and
+<code>execution_wide_character_encoding</code> type aliases to refer to these
+locale dependent encodings and to introduce different names to refer to the
+extended compile-time execution encodings that are not currently named by the
+C++ standard.
 
 <h1 id="implementation_exp">Implementation Experience</h1>
 
