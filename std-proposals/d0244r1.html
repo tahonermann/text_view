@@ -2627,9 +2627,9 @@ using char32_character_encoding = /* implementation-defined */ ;
 <p>Objects of <code>itext_iterator</code> class template specialization type
 provide a standard iterator interface for enumerating the characters encoded
 by the associated encoding <code>ET</code> in the code unit sequence exposed
-by the associated view <code>RT</code>.  These types satisfy the
-<code>TextIterator</code> concept and are default constructible, copy and move
-constructible, copy and move assignable, and equality comparable.
+by the associated view.  These types satisfy the <code>TextIterator</code>
+concept and are default constructible, copy and move constructible, copy and
+move assignable, and equality comparable.
 
 <p>These types also conditionally satisfy <code>ranges::ForwardIterator</code>,
 <code>ranges::BidirectionalIterator</code>, and
@@ -2768,6 +2768,19 @@ private:
 <h3 id="class_template_itext_sentinel">
   Class template itext_sentinel</h3>
 
+<p>Objects of <code>itext_sentinel</code> class template specialization type
+denote the end of a range of text as delimited by a sentinel object for the
+underlying code unit sequence.  These types satisfy the
+<code>TextSentinel</code> concept and are copy and move constructible, copy
+and move assignable, and equality comparable.  All objects of the same
+<code>itext_sentinel</code> type compare equally.  Member functions provide
+access to the sentinel for the underlying code unit sequence.  
+
+<p>Objects of these types are constructible from and equality comparable to
+<code>itext_iterator</code> objects that have matching encoding and view types.
+Support for relational comparisons is conditional on the underlying code unit
+iterator and sentinel types supporting relational comparisons.
+
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
 class itext_sentinel {
@@ -2857,6 +2870,15 @@ private:
 <h3 id="class_template_otext_iterator">
   Class template otext_iterator</h3>
 
+<p>Objects of <code>otext_iterator</code> class template specialization type
+provide a standard iterator interface for encoding characters in the form
+implemented by the associated encoding <code>ET</code>.  These types satisfy
+the <code>TextOutputIterator</code> concept and are default constructible,
+copy and move constructible, and copy and move assignable.
+
+<p>Member functions provide access to the stored encoding state and the
+underlying code unit output iterator.
+
 <pre><code>
 template&lt;TextEncoding E, CodeUnitOutputIterator&lt;code_unit_type_t&lt;E&gt;&gt; CUIT&gt;
 class otext_iterator {
@@ -2897,6 +2919,12 @@ private:
 
 <h3 id="make_otext_iterator">
   make_otext_iterator</h3>
+
+<p>The <code>make_otext_iterator</code> functions enable convenient construction
+of <code>otext_iterator</code> objects via type deduction of the underlying
+code unit output iterator type.  Overloads are provided to enable construction
+with an explicit encoding state or the implicit encoding dependent initial
+state.
 
 <pre><code>
 template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; IT&gt;

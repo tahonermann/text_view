@@ -1972,7 +1972,7 @@ using char32_character_encoding = /* implementation-defined */ ;
 Objects of `itext_iterator` class template specialization type provide a
 standard iterator interface for enumerating the [characters](#character) encoded
 by the associated [encoding](#encoding) `ET` in the [code unit](#code-unit)
-sequence exposed by the associated view `RT`.  These types satisfy the
+sequence exposed by the associated view.  These types satisfy the
 `TextIterator` concept and are default constructible, copy and move
 constructible, copy and move assignable, and equality comparable.
 
@@ -2089,6 +2089,20 @@ private:
 
 ### Class template itext_sentinel
 
+Objects of `itext_sentinel` class template specialization type denote the end
+of a range of text as delimited by a sentinel object for the underlying
+[code unit](#code-unit) sequence.  These types satisfy the `TextSentinel`
+concept and are copy and move constructible, copy and move assignable, and
+equality comparable.  All objects of the same `itext_sentinel` type compare
+equally.  Member functions provide access to the sentinel for the underlying
+[code unit](#code-unit) sequence.
+
+Objects of these types are constructible from and equality comparable to
+`itext_iterator` objects that have matching [encoding](#encoding) and view
+types.  Support for relational comparisons is conditional on the underlying
+[code unit](#code-unit) iterator and sentinel types supporting relational
+comparisons.
+
 ```C++
 template<TextEncoding ET, ranges::InputRange RT>
 class itext_sentinel {
@@ -2177,6 +2191,15 @@ private:
 
 ### Class template otext_iterator
 
+Objects of `otext_iterator` class template specialization type provide a
+standard iterator interface for encoding [characters](#character) in the form
+implemented by the associated [encoding](#encoding) `ET`.  These types satisfy
+the `TextOutputIterator` concept and are default constructible, copy and move
+constructible, and copy and move assignable.
+
+Member functions provide access to the stored encoding state and the underlying
+[code unit](#code-unit) output iterator.
+
 ```C++
 template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
 class otext_iterator {
@@ -2216,6 +2239,12 @@ private:
 ```
 
 ### make_otext_iterator
+
+The `make_otext_iterator` functions enable convenient construction of
+`otext_iterator` objects via type deduction of the underlying
+[code unit](#code-unit) output iterator type.  Overloads are provided to enable
+construction with an explicit [encoding](#encoding) state or the implicit
+[encoding](#encoding) dependent initial state.
 
 ```C++
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
