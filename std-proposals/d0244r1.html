@@ -142,7 +142,7 @@ character types
 standards have provided means of efficiently and conveniently enumerating code
 points in Unicode or legacy encodings.  While it is possible to implement such
 enumeration using interfaces provided in the standard
-<code>&lt;locale&gt;</code> and <code>&lt;codecvt&gt;</code> libraries, doing
+<tt>&lt;locale&gt;</tt> and <tt>&lt;codecvt&gt;</tt> libraries, doing
 so is awkward, requires that text be provided as pointers to contiguous memory,
 and inefficent due to virtual function call overhead.
 
@@ -168,7 +168,7 @@ assert(*it++ == CT{0x0065}); // 'e'
 </blockquote>
 
 The provided iterators and views are compatible with the non-modifying sequence
-utilities provided by the standard C++ <code>&lt;algorithm&gt;</code> library.
+utilities provided by the standard C++ <tt>&lt;algorithm&gt;</tt> library.
 This enables use of standard algorithms to search encoded text.
 
 <blockquote class="code">
@@ -244,13 +244,13 @@ if (r != std::codecvt_base::error &amp;&amp; to[0] == char32_t{0x00F8}) {
   <li>It is verbose.</li>
   <li>It is limited to working with strings that are stored in contiguous
       memory.</li>
-  <li>It is inefficient.  All <code>codecvt</code> public member functions
+  <li>It is inefficient.  All <tt>codecvt</tt> public member functions
       dispatch to virtual member functions.
-  <li>It is not generic.  Use of the <code>codecvt_utf8</code> facet makes it
+  <li>It is not generic.  Use of the <tt>codecvt_utf8</tt> facet makes it
       specific to handling of UTF-8 encoded text.  Making this code generic
       would require some other means of identifying an appropriate facet to
       use.</li>
-  <li>It is not applicable to non-Unicode encodings; <code>codecvt</code>
+  <li>It is not applicable to non-Unicode encodings; <tt>codecvt</tt>
       doesn't provide means to retrieve a code point for the encodings used
       for ordinary and wide strings.  The above code only accomplishes this
       by depending on transcoding to UTF-32 and the fact that UTF-32 is a
@@ -271,7 +271,7 @@ code unit sequence for U+6D6C.
 <p>The library described here is intended to solve the above issues while also
 providing a modern interface that is intuitive to use and can be used with
 other standard provided facilities; in particular, the C++ standard
-<code>&lt;algorithm&gt;</code> library.
+<tt>&lt;algorithm&gt;</tt> library.
 
 <h1 id="terminology">Terminology</h1>
 
@@ -293,17 +293,17 @@ transition as defined by a character encoding.  A code unit does not, by itself,
 identify any particular character or code point; the meaning ascribed to a
 particular code unit value is derived from a character encoding definition.
 
-<p>The <code>char</code>, <code>wchar_t</code>, <code>char16_t</code>, and
-<code>char32_t</code> types are most commonly used as code unit types.
+<p>The <tt>char</tt>, <tt>wchar_t</tt>, <tt>char16_t</tt>, and
+<tt>char32_t</tt> types are most commonly used as code unit types.
 
-<p>The string literal <code>u8"J\u00F8erg"</code> contains 7 code units and 6
-code unit sequences; <code>"\u00F8"</code> is encoded in UTF-8 using two code
+<p>The string literal <tt>u8"J\u00F8erg"</tt> contains 7 code units and 6
+code unit sequences; <tt>"\u00F8"</tt> is encoded in UTF-8 using two code
 units and string literals contain a trailing NUL code unit.
 
-<p>The string literal <code>"J\u00F8erg"</code> contains an implementation
+<p>The string literal <tt>"J\u00F8erg"</tt> contains an implementation
 defined number of code units.  The standard does not specify the encoding of
 ordinary and wide string literals, so the number of code units encoded by
-<code>"\u00F8"</code> depends on the implementation defined encoding used for
+<tt>"\u00F8"</tt> depends on the implementation defined encoding used for
 ordinary string literals.
 
 <h2 id="term_code_point">Code Point</h2>
@@ -313,16 +313,16 @@ set.  A code point does not, by itself, identify any particular character; the
 meaning ascribed to a particular code point value is derived from a character
 set definition.
 
-<p>The <code>char</code>, <code>wchar_t</code>, <code>char16_t</code>, and
-<code>char32_t</code> types are most commonly used as code point types.
+<p>The <tt>char</tt>, <tt>wchar_t</tt>, <tt>char16_t</tt>, and
+<tt>char32_t</tt> types are most commonly used as code point types.
 
-<p>The string literal <code>u8"J\u00F8erg"</code> describes a sequence of 6
+<p>The string literal <tt>u8"J\u00F8erg"</tt> describes a sequence of 6
 code point values; string literals implicitly specify a trailing NUL code point.
 
-<p>The string literal <code>"J\u00F8erg"</code> describes a sequence of an
+<p>The string literal <tt>"J\u00F8erg"</tt> describes a sequence of an
 implementation defined number of code point values.  The standard does not
 specify the encoding of ordinary and wide string literals, so the number of
-code points encoded by <code>"\u00F8"</code> depends on the implementation
+code points encoded by <tt>"\u00F8"</tt> depends on the implementation
 defined encoding used for ordinary string literals.  Implementations are
 permitted to translate a single code point in the source or Unicode character
 sets to multiple code points in the execution encoding.
@@ -399,7 +399,7 @@ C++ standard requirements for forward and random access iterators.
 that compare equally will return different addresses when dereferenced.  The
 standard requires that equivalent iterators return equivalent reference and
 pointer addresses when dereferenced.  For random access iterators,
-<code>operator[]</code> returns a value type since any returned reference type
+<tt>operator[]</tt> returns a value type since any returned reference type
 would immediately become dangling.
 
 <p>The above conformance issues will be resolved if the proxy iterators
@@ -407,21 +407,21 @@ proposal <sup><a href="#ref_proxy_iterators">P0022R1</a></sup> is accepted.
 
 <h2 id="view_requirements">View Requirements</h2>
 
-<p>The <code>basic_text_view</code> and <code>itext_iterator</code> class
+<p>The <tt>basic_text_view</tt> and <tt>itext_iterator</tt> class
 templates are parameterized on a view type that provides access to the
-underlying code unit sequence.  <code>make_text_view</code> and the various
-type aliases of <code>basic_text_view</code> are required to choose a view type
+underlying code unit sequence.  <tt>make_text_view</tt> and the various
+type aliases of <tt>basic_text_view</tt> are required to choose a view type
 to select a specialization of these class templates.  The C++ standard library
 doesn't currently define a suitable view type, though the need for one has been
 recognized.  N3350 <sup><a href="#ref_n3350">[N3350]</a></sup> proposed a
-<code>std::range</code> class template to fill this need and the ranges proposal
+<tt>std::range</tt> class template to fill this need and the ranges proposal
 <sup><a href="#ref_ranges">[Ranges]</a></sup> states (C.2, "Iterator Range
 Type") that a future paper will propose such a type.
 
 <p>The technical specification in this paper leaves the view type selected by
-<code>make_text_view</code> and the type aliases of <code>basic_text_view</code>
+<tt>make_text_view</tt> and the type aliases of <tt>basic_text_view</tt>
 up to the implementation.  The reference implementation uses Origin's
-<code>origin::bounded_range</code> class template for this purpose.  It would
+<tt>origin::bounded_range</tt> class template for this purpose.  It would
 have been possible to define a suitable view type as part of this library, but
 the author felt it better to wait until a suitable type becomes available as
 part of either the ranges proposal or the standard library.
@@ -443,10 +443,10 @@ characters and/or record errors via some other mechanism.
 <p>The Unicode standard differentiates code unit oriented and byte oriented
 encodings.  The former are termed encoding forms; the latter, encoding schemes.
 This library provides support for some of each.  For example,
-<code>utf16_encoding</code> is code unit oriented; the value type of its
-iterators is <code>char16_t</code>.  The <code>utf16be_encoding</code>,
-<code>utf16le_encoding</code>, and <code>utf16bom_encoding</code> encodings
-are byte oriented; the value type of their iterators is <code>char</code>.
+<tt>utf16_encoding</tt> is code unit oriented; the value type of its
+iterators is <tt>char16_t</tt>.  The <tt>utf16be_encoding</tt>,
+<tt>utf16le_encoding</tt>, and <tt>utf16bom_encoding</tt> encodings
+are byte oriented; the value type of their iterators is <tt>char</tt>.
 
 <h2 id="streaming">Streaming</h2>
 
@@ -499,13 +499,13 @@ set type used to represent character values.  The purpose of this class
 template is to make explicit the association of a code point value and a
 character set.
 
-<p>It has been suggested that <code>char32_t</code> be supported as a character
+<p>It has been suggested that <tt>char32_t</tt> be supported as a character
 type that is implicitly associated with the Unicode character set and that
 values of this type always be interpreted as Unicode code point values.  This
 suggestion is intended to enable UTF-32 string literals to be directly usable
 as sequences of character values (in addition to being sequences of code unit
 and code point values).  This has a cost in that it prohibits use of the
-<code>char32_t</code> type as a code unit or code point type for other
+<tt>char32_t</tt> type as a code unit or code point type for other
 encodings.  Non-Unicode encodings, including the encodings used for ordinary
 and wide string literals, would still require a distinct character type (such
 as a specialization of the character class template) so that the correct
@@ -523,7 +523,7 @@ author would prefer to enforce correct code via the type system and is unaware
 of any particular benefits that the ability to treat UTF-32 string literals
 as sequences of character type would bring.
 
-<p>It has also been suggested that <code>char32_t</code> might suffice as the
+<p>It has also been suggested that <tt>char32_t</tt> might suffice as the
 only character type; that decoding of any encoded string include implicit
 transcoding to Unicode code points.  The author believes that this suggestion
 is not feasible for several reasons:
@@ -556,9 +556,9 @@ standard.
 
 <p>Some compilers allow these compile-time extended character sets to be
 specified by command line options.  For example, gcc supports
-<code>-fexec-charset=</code> and <code>-fwide-exec-charset=</code> options
+<tt>-fexec-charset=</tt> and <tt>-fwide-exec-charset=</tt> options
 and Microsoft Visual C++ in Visual Studio 2015 Update 2 CTP recently added
-the <code>/execution-charset:</code> and <code>/utf-8</code> options.  More
+the <tt>/execution-charset:</tt> and <tt>/utf-8</tt> options.  More
 information on these options can be found at:
 
 <ul>
@@ -568,8 +568,8 @@ information on these options can be found at:
       https://blogs.msdn.microsoft.com/vcblog/2016/02/22/new-options-for-managing-character-sets-in-the-microsoft-cc-compiler/</a></li>
 </ul>
 
-<p>The <code>execution_character_encoding</code> and
-<code>execution_wide_character_encoding</code> type aliases defined by this
+<p>The <tt>execution_character_encoding</tt> and
+<tt>execution_wide_character_encoding</tt> type aliases defined by this
 library refer to encodings that use these unnamed character sets that are
 known at compile-time.  This choice is motivated by future intentions to enable
 compile-time string manipulation and to allow avoiding the performance overhead
@@ -577,8 +577,8 @@ of run-time locale awareness when an application is not locale dependent.
 
 <p>Though not currently specified, it may be appropriate to define additional
 encoding classes that implement locale awareness.  It may also be more
-appropriate for the <code>execution_character_encoding</code> and
-<code>execution_wide_character_encoding</code> type aliases to refer to these
+appropriate for the <tt>execution_character_encoding</tt> and
+<tt>execution_wide_character_encoding</tt> type aliases to refer to these
 locale dependent encodings and to introduce different names to refer to the
 extended compile-time execution encodings that are not currently named by the
 C++ standard.
@@ -715,16 +715,16 @@ knows that it is a UTF-8 string.  Yet, make_text_view() requires the encoding
 to be explicitly specified via a template argument.
 
 <p>The answer is that ordinary and UTF-8 string literals have the same type;
-array of <code>const char</code>.  The library is unable to implicitly determine
+array of <tt>const char</tt>.  The library is unable to implicitly determine
 an encoding for the provided string.
 
 <p>There are two ways of looking at this issue:
 <ul>
-  <li>1: Why wasn't a <code>char8_t</code> type added for UTF-8 literals?  What
+  <li>1: Why wasn't a <tt>char8_t</tt> type added for UTF-8 literals?  What
          brain dead imbecile designed this?  Why didn't the committee fix this?
          You're all a bunch of jerks!</li>
-  <li>2: <code>char</code>, <code>wchar_t</code>, <code>char16_t</code>, and
-         <code>char32_t</code> are code unit types, sometimes code point types,
+  <li>2: <tt>char</tt>, <tt>wchar_t</tt>, <tt>char16_t</tt>, and
+         <tt>char32_t</tt> are code unit types, sometimes code point types,
          but not character types; they do not have an implied associated
          character set.  They hold integral values that only indicate a
          specific character when interpreted as specifying a code point of a
@@ -733,7 +733,7 @@ an encoding for the provided string.
          is an issue that predates the addition of Unicode literals.</li>
 </ul>
 
-<p>If a <code>char8_t</code> type were to be added and UTF-8 string literals
+<p>If a <tt>char8_t</tt> type were to be added and UTF-8 string literals
 were to be changed to reflect that type, then it would be possible to assume
 (not infer) an encoding based on type for all five of the encodings the
 standard states must be provided.  However, since additional implementation or
@@ -1042,19 +1042,19 @@ template&lt;TextView TVT&gt;
 <h3 id="concept_codeunit">
       Concept CodeUnit</h3>
 
-<p>The <code>CodeUnit</code> concept specifies requirements for a type usable as
+<p>The <tt>CodeUnit</tt> concept specifies requirements for a type usable as
 the code unit type of a string type.
 
-<p><code>CodeUnit&lt;T&gt;()</code> is satisfied if and only if:
+<p><tt>CodeUnit&lt;T&gt;()</tt> is satisfied if and only if:
 <ul>
-  <li><code>std::is_integral&lt;T&gt;::value</code> is true</li>
+  <li><tt>std::is_integral&lt;T&gt;::value</tt> is true</li>
   <li>and at least one of:
     <ul>
-      <li><code>std::is_unsigned&lt;T&gt;::value</code> is true.</li>
-      <li><code>std::is_same&lt;std::remove_cv&lt;T&gt;::type, char&gt;::value
-          </code> is true.</li>
-      <li><code>std::is_same&lt;std::remove_cv&lt;T&gt;::type, wchar_t&gt;::value
-          </code> is true.</li>
+      <li><tt>std::is_unsigned&lt;T&gt;::value</tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, char&gt;::value
+          </tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, wchar_t&gt;::value
+          </tt> is true.</li>
     </ul></li>
 </ul>
 
@@ -1069,19 +1069,19 @@ template&lt;typename T&gt; concept bool CodeUnit() {
 <h3 id="concept_codepoint">
       Concept CodePoint</h3>
 
-<p>The <code>CodePoint</code> concept specifies requirements for a type usable
+<p>The <tt>CodePoint</tt> concept specifies requirements for a type usable
 as the code point type of a character set type.
 
-<p><code>CodePoint&lt;T&gt;()</code> is satisfied if and only if:
+<p><tt>CodePoint&lt;T&gt;()</tt> is satisfied if and only if:
 <ul>
-  <li><code>std::is_integral&lt;T&gt;::value</code> is true</li>
+  <li><tt>std::is_integral&lt;T&gt;::value</tt> is true</li>
   <li>and at least one of:
     <ul>
-      <li><code>std::is_unsigned&lt;T&gt;::value</code> is true.</li>
-      <li><code>std::is_same&lt;std::remove_cv&lt;T&gt;::type, char&gt;::value
-          </code> is true.</li>
-      <li><code>std::is_same&lt;std::remove_cv&lt;T&gt;::type, wchar_t&gt;::value
-          </code> is true.</li>
+      <li><tt>std::is_unsigned&lt;T&gt;::value</tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, char&gt;::value
+          </tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, wchar_t&gt;::value
+          </tt> is true.</li>
     </ul></li>
 </ul>
 
@@ -1096,9 +1096,9 @@ template&lt;typename T&gt; concept bool CodePoint() {
 <h3 id="concept_characterset">
       Concept CharacterSet</h3>
 
-<p>The <code>CharacterSet</code> concept specifies requirements for a type
+<p>The <tt>CharacterSet</tt> concept specifies requirements for a type
 that describes a character set.  Such a type has a member typedef-name
-declaration for a type that satisfies <code>CodePoint</code> and a static
+declaration for a type that satisfies <tt>CodePoint</tt> and a static
 member function that returns a name for the character set.
 
 <blockquote class="code">
@@ -1115,10 +1115,10 @@ template&lt;typename T&gt; concept bool CharacterSet() {
 <h3 id="concept_character">
       Concept Character</h3>
 
-<p>The <code>Character</code> concept specifies requirements for a type that
+<p>The <tt>Character</tt> concept specifies requirements for a type that
 describes a character as defined by an associated character set.  Non-static
 member functions provide access to the code point value of the described
-character.  Types that satisfy <code>Character</code> are regular and copyable.
+character.  Types that satisfy <tt>Character</tt> are regular and copyable.
 
 <blockquote class="code">
 <pre><code>
@@ -1138,8 +1138,8 @@ template&lt;typename T&gt; concept bool Character() {
 <h3 id="concept_codeunititerator">
       Concept CodeUnitIterator</h3>
 
-<p>The <code>CodeUnitIterator</code> concept specifies requirements of an
-iterator that has a value type that satisfies <code>CodeUnit</code>.
+<p>The <tt>CodeUnitIterator</tt> concept specifies requirements of an
+iterator that has a value type that satisfies <tt>CodeUnit</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1153,9 +1153,9 @@ template&lt;typename T&gt; concept bool CodeUnitIterator() {
 <h3 id="concept_codeunitoutputiterator">
       Concept CodeUnitOutputIterator</h3>
 
-<p>The <code>CodeUnitOutputIterator</code> concept specifies requirements of
+<p>The <tt>CodeUnitOutputIterator</tt> concept specifies requirements of
 an output iterator that can be assigned from a type that satisfies
-<code>CodeUnit</code>.
+<tt>CodeUnit</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1169,7 +1169,7 @@ template&lt;typename T, typename V&gt; concept bool CodeUnitOutputIterator() {
 <h3 id="concept_textencodingstate">
       Concept TextEncodingState</h3>
 
-<p>The <code>TextEncodingState</code> concept specifies requirements of types
+<p>The <tt>TextEncodingState</tt> concept specifies requirements of types
 that hold encoding state.  Such types are default constructible and copyable.
 
 <blockquote class="code">
@@ -1184,7 +1184,7 @@ template&lt;typename T&gt; concept bool TextEncodingState() {
 <h3 id="concept_textencodingstatetransition">
       Concept TextEncodingStateTransition</h3>
 
-<p>The <code>TextEncodingStateTransition</code> concept specifies requirements
+<p>The <tt>TextEncodingStateTransition</tt> concept specifies requirements
 of types that hold encoding state transitions.  Such types are default
 constructible and copyable.
 
@@ -1200,7 +1200,7 @@ template&lt;typename T&gt; concept bool TextEncodingStateTransition() {
 <h3 id="concept_textencoding">
       Concept TextEncoding</h3>
 
-<p>The <code>TextEncoding</code> concept specifies requirements of types that
+<p>The <tt>TextEncoding</tt> concept specifies requirements of types that
 define an encoding.  Such types define member types that identify the
 code unit, character, encoding state, and encoding state transition types, a
 static member function that returns an initial encoding state object that
@@ -1230,10 +1230,10 @@ template&lt;typename T&gt; concept bool TextEncoding() {
 <h3 id="concept_textencoder">
       Concept TextEncoder</h3>
 
-<p>The <code>TextEncoder</code> concept specifies requirements of types that
+<p>The <tt>TextEncoder</tt> concept specifies requirements of types that
 are used to encode characters using a particular code unit iterator that
-satisfies <code>OutputIterator</code>.  Such a type satisifies
-<code>TextEncoding</code> and defines static member functions used to encode
+satisfies <tt>OutputIterator</tt>.  Such a type satisifies
+<tt>TextEncoding</tt> and defines static member functions used to encode
 state transitions and characters.
 
 <blockquote class="code">
@@ -1264,10 +1264,10 @@ template&lt;typename T, typename I&gt; concept bool TextEncoder() {
 <h3 id="concept_textdecoder">
       Concept TextDecoder</h3>
 
-<p>The <code>TextDecoder</code> concept specifies requirements of types that
+<p>The <tt>TextDecoder</tt> concept specifies requirements of types that
 are used to decode characters using a particular code unit iterator that
-satisifies <code>InputIterator</code>.  Such a type satisfies
-<code>TextEncoding</code> and defines a static member function used to decode
+satisifies <tt>InputIterator</tt>.  Such a type satisfies
+<tt>TextEncoding</tt> and defines a static member function used to decode
 state transitions and characters.
 
 <blockquote class="code">
@@ -1293,10 +1293,10 @@ template&lt;typename T, typename I&gt; concept bool TextDecoder() {
 <h3 id="concept_textforwarddecoder">
       Concept TextForwardDecoder</h3>
 
-<p>The <code>TextForwardDecoder</code> concept specifies requirements of types
+<p>The <tt>TextForwardDecoder</tt> concept specifies requirements of types
 that are used to decode characters using a particular code unit iterator that
-satisifies <code>ForwardIterator</code>.  Such a type also satisfies
-<code>TextDecoder</code>.
+satisifies <tt>ForwardIterator</tt>.  Such a type also satisfies
+<tt>TextDecoder</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1310,10 +1310,10 @@ template&lt;typename T, typename I&gt; concept bool TextForwardDecoder() {
 <h3 id="concept_textbidirectionaldecoder">
       Concept TextBidirectionalDecoder</h3>
 
-<p>The <code>TextBidirectionalDecoder</code> concept specifies requirements of
+<p>The <tt>TextBidirectionalDecoder</tt> concept specifies requirements of
 types that are used to decode characters using a particular code unit iterator
-that satisifies <code>BidirectionalIterator</code>.  Such a type also satisfies
-<code>TextForwardDecoder</code> and defines a static member function used to
+that satisifies <tt>BidirectionalIterator</tt>.  Such a type also satisfies
+<tt>TextForwardDecoder</tt> and defines a static member function used to
 decode state transitions and characters in the reverse order of their encoding.
 
 <blockquote class="code">
@@ -1337,10 +1337,10 @@ template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder() {
 <h3 id="concept_textrandomaccessdecoder">
       Concept TextRandomAccessDecoder</h3>
 
-<p>The <code>TextRandomAccessDecoder</code> concept specifies requirements of
+<p>The <tt>TextRandomAccessDecoder</tt> concept specifies requirements of
 types that are used to decode characters using a particular code unit iterator
-that satisifies <code>RandomAccessIterator</code>.  Such a type also satisfies
-<code>TextBidirectionalDecoder</code>, requires that the minimum and maximum
+that satisifies <tt>RandomAccessIterator</tt>.  Such a type also satisfies
+<tt>TextBidirectionalDecoder</tt>, requires that the minimum and maximum
 number of code units used to encode any character have the same value, and that
 the encoding state be an empty type.
 
@@ -1358,11 +1358,11 @@ template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder() {
 <h3 id="concept_textiterator">
       Concept TextIterator</h3>
 
-<p>The <code>TextIterator</code> concept specifies requirements of types that
+<p>The <tt>TextIterator</tt> concept specifies requirements of types that
 are used to iterator over characters in an encoded sequence of code units.
 Encoding state is held in each iterator instance as needed to decode the code
 unit sequence and is made accessible via non-static member functions.  The value
-type of a <code>TextIterator</code> satisfies <code>Character</code>.
+type of a <tt>TextIterator</tt> satisfies <tt>Character</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1384,10 +1384,10 @@ template&lt;typename T&gt; concept bool TextIterator() {
 <h3 id="concept_textsentinel">
       Concept TextSentinel</h3>
 
-<p>The <code>TextSentinel</code> concept specifies requirements of types that
+<p>The <tt>TextSentinel</tt> concept specifies requirements of types that
 are used to mark the end of a range of encoded characters.  A type T that
-satisfies <code>TextIterator</code> also satisfies
-<code>TextSentinel&lt;T&gt;</code> there by enabling <code>TextIterator</code>
+satisfies <tt>TextIterator</tt> also satisfies
+<tt>TextSentinel&lt;T&gt;</tt> there by enabling <tt>TextIterator</tt>
 types to be used as sentinels.
 
 <blockquote class="code">
@@ -1402,7 +1402,7 @@ template&lt;typename T, typename I&gt; concept bool TextSentinel() {
 <h3 id="concept_textoutputiterator">
       Concept TextOutputIterator</h3>
 
-<p>The <code>TextOutputIterator</code> concept specifies requirements of types
+<p>The <tt>TextOutputIterator</tt> concept specifies requirements of types
 that are used to encode characters as a sequence of code units.  Encoding state
 is held in each iterator instance as needed to encode the code unit sequence
 and is made accessible via non-static member functions.
@@ -1426,17 +1426,17 @@ template&lt;typename T&gt; concept bool TextOutputIterator() {
 <h3 id="concept_textview">
       Concept TextView</h3>
 
-<p>The <code>TextView</code> concept specifies requirements of types that
+<p>The <tt>TextView</tt> concept specifies requirements of types that
 provide view access to an underlying code unit range.  Such types satisy
-<code>ranges::View</code>, provide iterators that satisfy
-<code>TextIterator</code>, define member types that identify the encoding,
+<tt>ranges::View</tt>, provide iterators that satisfy
+<tt>TextIterator</tt>, define member types that identify the encoding,
 encoding state, and underlying code unit range and iterator types.  Non-static
 member functions are provided to access the underlying code unit range and
 initial encoding state.
 
-<p>Types that satisfy <code>TextView</code> do not own the underlying code unit
+<p>Types that satisfy <tt>TextView</tt> do not own the underlying code unit
 range and are copyable in constant time.  The lifetime of the underlying range
-must exceed the lifetime of referencing <code>TextView</code> objects.
+must exceed the lifetime of referencing <tt>TextView</tt> objects.
 
 <blockquote class="code">
 <pre><code>
@@ -1478,11 +1478,11 @@ template&lt;typename T&gt; concept bool TextView() {
 
 <h3 id="class_any_character_set">Class any_character_set</h3>
 
-<p>The <code>any_character_set</code> class provides a generic character set
+<p>The <tt>any_character_set</tt> class provides a generic character set
 type used when a specific character set type is unknown or when the ability to
 switch between specific character sets is required.  This class satisfies the
-<code>CharacterSet</code> concept and has an implementation defined
-<code>code_point_type</code> that is able to represent code point values from
+<tt>CharacterSet</tt> concept and has an implementation defined
+<tt>code_point_type</tt> that is able to represent code point values from
 all of the implementation provided character set types.
 
 <blockquote class="code">
@@ -1501,10 +1501,10 @@ public:
 <h3 id="class_basic_execution_character_set">
   Class basic_execution_character_set</h3>
 
-<p>The <code>basic_execution_character_set</code> class represents the
-basic execution character set specified in <code>[lex.charset]p3</code> of the
-C++ standard.  This class satisfies the <code>CharacterSet</code> concept and
-has a <code>code_point_type</code> member type that aliases <code>char</code>.
+<p>The <tt>basic_execution_character_set</tt> class represents the
+basic execution character set specified in <tt>[lex.charset]p3</tt> of the
+C++ standard.  This class satisfies the <tt>CharacterSet</tt> concept and
+has a <tt>code_point_type</tt> member type that aliases <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1522,11 +1522,11 @@ public:
 <h3 id="class_basic_execution_wide_character_set">
   Class basic_execution_wide_character_set</h3>
 
-<p>The <code>basic_execution_wide_character_set</code> class represents the
-basic execution wide character set specified in <code>[lex.charset]p3</code> of
-the C++ standard.  This class satisfies the <code>CharacterSet</code> concept
-and has a <code>code_point_type</code> member type that aliases
-<code>wchar_t</code>.
+<p>The <tt>basic_execution_wide_character_set</tt> class represents the
+basic execution wide character set specified in <tt>[lex.charset]p3</tt> of
+the C++ standard.  This class satisfies the <tt>CharacterSet</tt> concept
+and has a <tt>code_point_type</tt> member type that aliases
+<tt>wchar_t</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1544,10 +1544,10 @@ public:
 <h3 id="class_unicode_character_set">
   Class unicode_character_set</h3>
 
-<p>The <code>unicode_character_set</code> class represents the
-Unicode character set.  This class satisfies the <code>CharacterSet</code>
-concept and has a <code>code_point_type</code> member type that aliases
-<code>char32_t</code>.
+<p>The <tt>unicode_character_set</tt> class represents the
+Unicode character set.  This class satisfies the <tt>CharacterSet</tt>
+concept and has a <tt>code_point_type</tt> member type that aliases
+<tt>char32_t</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1565,28 +1565,28 @@ public:
 <h3 id="character_set_type_aliases">
   Character set type aliases</h3>
 
-<p>The <code>execution_character_set</code>,
-<code>execution_wide_character_set</code>, and
-<code>universal_character_set</code> type aliases reflect the implementation
+<p>The <tt>execution_character_set</tt>,
+<tt>execution_wide_character_set</tt>, and
+<tt>universal_character_set</tt> type aliases reflect the implementation
 defined execution, wide execution, and universal character sets specified in
-<code>[lex.charset]p2-3</code> of the C++ standard.
+<tt>[lex.charset]p2-3</tt> of the C++ standard.
 
-<p>The character set aliased by <code>execution_character_set</code> must be
-a superset of the <code>basic_execution_character_set</code> character set.
+<p>The character set aliased by <tt>execution_character_set</tt> must be
+a superset of the <tt>basic_execution_character_set</tt> character set.
 This alias refers to the character set that the compiler assumes during
 translation; the character set that the compiler uses when translating
 characters specified by universal-character-name designators in ordinary
 string literals, not the locale sensitive run-time execution character set.
 
-<p>The character set aliased by <code>execution_wide_character_set</code> must
-be a superset of the <code>basic_execution_wide_character_set</code> character
+<p>The character set aliased by <tt>execution_wide_character_set</tt> must
+be a superset of the <tt>basic_execution_wide_character_set</tt> character
 set.  This alias refers to the character set that the compiler assumes during
 translation; the character set that the compiler uses when translating
 characters specified by universal-character-name designators in wide string
 literals, not the locale sensitive run-time execution wide character set.
 
-<p>The character set aliased by <code>universal_character_set</code> must
-be a superset of the <code>unicode_character_set</code> character
+<p>The character set aliased by <tt>universal_character_set</tt> must
+be a superset of the <tt>unicode_character_set</tt> character
 set.
 
 <blockquote class="code">
@@ -1609,10 +1609,10 @@ using universal_character_set = /* implementation-defined */ ;
 <h3 id="class_character_set_id">
   Class character_set_id</h3>
 
-<p>The <code>character_set_id</code> class provides unique, opaque values
+<p>The <tt>character_set_id</tt> class provides unique, opaque values
 used to identify character sets at run-time.  Values of this type are
-produced by <code>get_character_set_id()</code> and can be passed to
-<code>get_character_set_info()</code> to obtain character set information.
+produced by <tt>get_character_set_id()</tt> and can be passed to
+<tt>get_character_set_info()</tt> to obtain character set information.
 Values of this type are copy constructible, copy assignable, equality
 comparable, and strictly totally ordered.
 
@@ -1636,7 +1636,7 @@ public:
 <h3 id="get_character_set_id">
   get_character_set_id</h3>
 
-<p><code>get_character_set_id()</code> returns a unique, opaque value for
+<p><tt>get_character_set_id()</tt> returns a unique, opaque value for
 the chracter set type specified by the template parameter.
 
 <blockquote class="code">
@@ -1658,9 +1658,9 @@ template&lt;typename CST&gt;
 <h3 id="class_character_set_info">
   Class character_set_info</h3>
 
-<p>The <code>character_set_info</code> class stores information about a
+<p>The <tt>character_set_info</tt> class stores information about a
 character set.  Values of this type are produced by the
-<code>get_character_set_info()</code> functions based on a character set
+<tt>get_character_set_info()</tt> functions based on a character set
 type or ID.
 
 <blockquote class="code">
@@ -1682,8 +1682,8 @@ private:
 <h3 id="get_character_set_info">
   get_character_set_info</h3>
 
-<p>The <code>get_character_set_info()</code> functions return a reference to a
-<code>character_set_info</code> object based on a character set type or ID.
+<p>The <tt>get_character_set_info()</tt> functions return a reference to a
+<tt>character_set_info</tt> object based on a character set type or ID.
 
 <blockquote class="code">
 <pre><code>
@@ -1704,12 +1704,12 @@ template&lt;typename CST&gt;
 <h3 id="class_template_character">
   Class template character</h3>
 
-<p>Objects of <code>character</code> class template specialization type define
+<p>Objects of <tt>character</tt> class template specialization type define
 a character via the association of a code point value and a character set.  The
-specialization provided for the <code>any_character_set</code> type is used to
+specialization provided for the <tt>any_character_set</tt> type is used to
 maintain a dynamic character set association while specializations for other
 character sets specify a static association.  These types satisfy the
-<code>Character</code> concept and are default constructible, copy
+<tt>Character</tt> concept and are default constructible, copy
 constructible, copy assignable, and equality comparable.  Member functions
 provide access to the code point and character set ID values for the represented
 character.  Default constructed objects represent a null character using a zero
@@ -1717,7 +1717,7 @@ initialized code point value.
 
 <p>Objects with different character set type are not equality comparable with
 the exception that objects with a static character set type of
-<code>any_character_set</code> are comparable with objects with any static
+<tt>any_character_set</tt> are comparable with objects with any static
 character set type.  In this case, objects compare equally if and only if their
 character set ID and code point values match.  Equality comparison between
 objects with different static character set type is not implemented to avoid
@@ -1825,7 +1825,7 @@ template&lt;CharacterSet CST&gt;
 <h3 id="class_trivial_encoding_state">
   Class trivial_encoding_state</h3>
 
-<p>The <code>trivial_encoding_state</code> class is an empty class used by
+<p>The <tt>trivial_encoding_state</tt> class is an empty class used by
 stateless encodings to implement the parts of the generic encoding interfaces
 necessary to support stateful encodings.
 
@@ -1838,7 +1838,7 @@ class trivial_encoding_state {};
 <h3 id="class_trivial_encoding_state_transition">
   Class trivial_encoding_state_transition</h3>
 
-<p>The <code>trivial_encoding_state_transition</code> class is an empty class
+<p>The <tt>trivial_encoding_state_transition</tt> class is an empty class
 used by stateless encodings to implement the parts of the generic encoding
 interfaces necessary to support stateful encodings that support non-code-point
 encoding code unit sequences.
@@ -1852,13 +1852,13 @@ class trivial_encoding_state_transition {};
 <h3 id="class_basic_execution_character_encoding">
   Class basic_execution_character_encoding</h3>
 
-<p>The <code>basic_execution_character_encoding</code> class implements support
+<p>The <tt>basic_execution_character_encoding</tt> class implements support
 for the encoding used for ordinary string literals limited to support for the
-basic execution character set as defined in <code>[lex.charset]p3</code> of
+basic execution character set as defined in <tt>[lex.charset]p3</tt> of
 the C++ standard.
 
 <p>This encoding is trivial, stateless, fixed width, supports random access
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1912,13 +1912,13 @@ public:
 <h3 id="class_basic_execution_wide_character_encoding">
   Class basic_execution_wide_character_encoding</h3>
 
-<p>The <code>basic_execution_wide_character_encoding</code> class implements
+<p>The <tt>basic_execution_wide_character_encoding</tt> class implements
 support for the encoding used for wide string literals limited to support for
 the basic execution wide-character set as defined in
-<code>[lex.charset]p3</code> of the C++ standard.
+<tt>[lex.charset]p3</tt> of the C++ standard.
 
 <p>This encoding is trivial, stateless, fixed width, supports random access
-decoding, and has a code unit of type <code>wchar_t</code>.
+decoding, and has a code unit of type <tt>wchar_t</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -1972,18 +1972,18 @@ public:
 <h3 id="class_iso_10646_wide_character_encoding">
   Class iso_10646_wide_character_encoding</h3>
 
-<p>The <code>iso_10646_wide_character_encoding</code> class is only defined
-when the <code>__STDC_ISO_10646__</code> macro is defined.
+<p>The <tt>iso_10646_wide_character_encoding</tt> class is only defined
+when the <tt>__STDC_ISO_10646__</tt> macro is defined.
 
-<p>The <code>iso_10646_wide_character_encoding</code> class implements
+<p>The <tt>iso_10646_wide_character_encoding</tt> class implements
 support for the encoding used for wide string literals when that encoding
-uses the Unicode character set and <code>wchar_t</code> is large enough to
+uses the Unicode character set and <tt>wchar_t</tt> is large enough to
 store the code point values of all characters defined by the version of the
-Unicode standard indicated by the value of the <code>__STDC_ISO_10646__</code>
-macro as specified in <code>[cpp.predefined]p2</code> of the C++ standard.
+Unicode standard indicated by the value of the <tt>__STDC_ISO_10646__</tt>
+macro as specified in <tt>[cpp.predefined]p2</tt> of the C++ standard.
 
 <p>This encoding is trivial, stateless, fixed width, supports random access
-decoding, and has a code unit of type <code>wchar_t</code>.
+decoding, and has a code unit of type <tt>wchar_t</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2039,11 +2039,11 @@ public:
 <h3 id="class_utf8_encoding">
   Class utf8_encoding</h3>
 
-<p>The <code>utf8_encoding</code> class implements support for the Unicode
+<p>The <tt>utf8_encoding</tt> class implements support for the Unicode
 UTF-8 encoding.
 
 <p>This encoding is stateless, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2097,11 +2097,11 @@ public:
 <h3 id="class_utf8bom_encoding">
   Class utf8bom_encoding</h3>
 
-<p>The <code>utf8bom_encoding</code> class implements support for the Unicode
+<p>The <tt>utf8bom_encoding</tt> class implements support for the Unicode
 UTF-8 encoding with a byte order mark (BOM).
 
 <p>This encoding is stateful, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <p>This encoding defines a state transition class that enables forcing or
 suppressing the encoding of a BOM, or influencing whether a decoded BOM
@@ -2170,11 +2170,11 @@ public:
 <h3 id="class_utf16_encoding">
   Class utf16_encoding</h3>
 
-<p>The <code>utf16_encoding</code> class implements support for the Unicode
+<p>The <tt>utf16_encoding</tt> class implements support for the Unicode
 UTF-16 encoding.
 
 <p>This encoding is stateless, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char16_t</code>.
+decoding, and has a code unit of type <tt>char16_t</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2228,11 +2228,11 @@ public:
 <h3 id="class_utf16be_encoding">
   Class utf16be_encoding</h3>
 
-<p>The <code>utf16be_encoding</code> class implements support for the Unicode
+<p>The <tt>utf16be_encoding</tt> class implements support for the Unicode
 UTF-16 big-endian encoding.
 
 <p>This encoding is stateless, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2286,11 +2286,11 @@ public:
 <h3 id="class_utf16le_encoding">
   Class utf16le_encoding</h3>
 
-<p>The <code>utf16le_encoding</code> class implements support for the Unicode
+<p>The <tt>utf16le_encoding</tt> class implements support for the Unicode
 UTF-16 little-endian encoding.
 
 <p>This encoding is stateless, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2344,11 +2344,11 @@ public:
 <h3 id="class_utf16bom_encoding">
   Class utf16bom_encoding</h3>
 
-<p>The <code>utf16bom_encoding</code> class implements support for the Unicode
+<p>The <tt>utf16bom_encoding</tt> class implements support for the Unicode
 UTF-16 encoding with a byte order mark (BOM).
 
 <p>This encoding is stateful, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <p>This encoding defines a state transition class that enables forcing or
 suppressing the encoding of a BOM, or influencing whether a decoded BOM
@@ -2421,11 +2421,11 @@ public:
 <h3 id="class_utf32_encoding">
   Class utf32_encoding</h3>
 
-<p>The <code>utf32_encoding</code> class implements support for the Unicode
+<p>The <tt>utf32_encoding</tt> class implements support for the Unicode
 UTF-32 encoding.
 
 <p>This encoding is trivial, stateless, fixed width, supports random access
-decoding, and has a code unit of type <code>char32_t</code>.
+decoding, and has a code unit of type <tt>char32_t</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2479,11 +2479,11 @@ public:
 <h3 id="class_utf32be_encoding">
   Class utf32be_encoding</h3>
 
-<p>The <code>utf32be_encoding</code> class implements support for the Unicode
+<p>The <tt>utf32be_encoding</tt> class implements support for the Unicode
 UTF-32 big-endian encoding.
 
 <p>This encoding is stateless, fixed width, supports random access
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2537,11 +2537,11 @@ public:
 <h3 id="class_utf32le_encoding">
   Class utf32le_encoding</h3>
 
-<p>The <code>utf32le_encoding</code> class implements support for the Unicode
+<p>The <tt>utf32le_encoding</tt> class implements support for the Unicode
 UTF-32 little-endian encoding.
 
 <p>This encoding is stateless, fixed width, supports random access
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -2595,11 +2595,11 @@ public:
 <h3 id="class_utf32bom_encoding">
   Class utf32bom_encoding</h3>
 
-<p>The <code>utf32bom_encoding</code> class implements support for the Unicode
+<p>The <tt>utf32bom_encoding</tt> class implements support for the Unicode
 UTF-32 encoding with a byte order mark (BOM).
 
 <p>This encoding is stateful, variable width, supports bidirectional
-decoding, and has a code unit of type <code>char</code>.
+decoding, and has a code unit of type <tt>char</tt>.
 
 <p>This encoding defines a state transition class that enables forcing or
 suppressing the encoding of a BOM, or influencing whether a decoded BOM
@@ -2672,11 +2672,11 @@ public:
 <h3 id="encoding-type-aliases">
   Encoding type aliases</h3>
 
-<p>The <code>execution_character_encoding</code>,
-<code>execution_wide_character_encoding</code>,
-<code>char8_character_encoding</code>,
-<code>char16_character_encoding</code>, and
-<code>char32_character_encoding</code> type aliases reflect the implementation
+<p>The <tt>execution_character_encoding</tt>,
+<tt>execution_wide_character_encoding</tt>,
+<tt>char8_character_encoding</tt>,
+<tt>char16_character_encoding</tt>, and
+<tt>char32_character_encoding</tt> type aliases reflect the implementation
 defined encodings used for execution, wide execution, UTF-8, char16_t, and
 char32_t string literals.
 
@@ -2694,26 +2694,26 @@ encoding.  Decode compatibility is satisfied when the following criteria is met.
 <p>These compatibility requirements allow implementation freedom to use
 encodings that provide features beyond the minimum requirements imposed on the
 compatibility encodings by the standard.  For example, the encoding aliased by
-<code>execution_character_encoding</code> is allowed to support characters that
+<tt>execution_character_encoding</tt> is allowed to support characters that
 are not members of the character set of the
-<code>basic_execution_character_encoding</code>
+<tt>basic_execution_character_encoding</tt>
 
-<p>The encoding aliased by <code>execution_character_encoding</code> must be
-decode compatible with the <code>basic_execution_character_encoding</code>
+<p>The encoding aliased by <tt>execution_character_encoding</tt> must be
+decode compatible with the <tt>basic_execution_character_encoding</tt>
 encoding.
 
-<p>The encoding aliased by <code>execution_wide_character_encoding</code> must
+<p>The encoding aliased by <tt>execution_wide_character_encoding</tt> must
 be decode compatible with the
-<code>basic_execution_wide_character_encoding</code> encoding.
+<tt>basic_execution_wide_character_encoding</tt> encoding.
 
-<p>The encoding aliased by <code>char8_character_encoding</code> must be
-decode compatible with the <code>utf8_encoding</code> encoding.
+<p>The encoding aliased by <tt>char8_character_encoding</tt> must be
+decode compatible with the <tt>utf8_encoding</tt> encoding.
 
-<p>The encoding aliased by <code>char16_character_encoding</code> must be
-decode compatible with the <code>utf16_encoding</code> encoding.
+<p>The encoding aliased by <tt>char16_character_encoding</tt> must be
+decode compatible with the <tt>utf16_encoding</tt> encoding.
 
-<p>The encoding aliased by <code>char32_character_encoding</code> must be
-decode compatible with the <code>utf32_encoding</code> encoding.
+<p>The encoding aliased by <tt>char32_character_encoding</tt> must be
+decode compatible with the <tt>utf32_encoding</tt> encoding.
 
 <blockquote class="code">
 <pre><code>
@@ -2741,54 +2741,54 @@ using char32_character_encoding = /* implementation-defined */ ;
 <h3 id="class_template_itext_iterator">
   Class template itext_iterator</h3>
 
-<p>Objects of <code>itext_iterator</code> class template specialization type
+<p>Objects of <tt>itext_iterator</tt> class template specialization type
 provide a standard iterator interface for enumerating the characters encoded
-by the associated encoding <code>ET</code> in the code unit sequence exposed
-by the associated view.  These types satisfy the <code>TextIterator</code>
+by the associated encoding <tt>ET</tt> in the code unit sequence exposed
+by the associated view.  These types satisfy the <tt>TextIterator</tt>
 concept and are default constructible, copy and move constructible, copy and
 move assignable, and equality comparable.
 
-<p>These types also conditionally satisfy <code>ranges::ForwardIterator</code>,
-<code>ranges::BidirectionalIterator</code>, and
-<code>ranges::RandomAccessIterator</code> depending on traits of the associated
-encoding <code>ET</code> and view <code>RT</code> as described in the following
+<p>These types also conditionally satisfy <tt>ranges::ForwardIterator</tt>,
+<tt>ranges::BidirectionalIterator</tt>, and
+<tt>ranges::RandomAccessIterator</tt> depending on traits of the associated
+encoding <tt>ET</tt> and view <tt>RT</tt> as described in the following
 table.
 
 <table border="1">
   <tr>
-    <th>When <code>ET</code> and <code>ranges::iterator_t&lt;RT&gt;</code>
+    <th>When <tt>ET</tt> and <tt>ranges::iterator_t&lt;RT&gt;</tt>
         satisfy ...</th>
-    <th>then <code>itext_iterator&lt;ET, RT&gt;</code> satisfies ...</th>
-    <th>and <code>itext_iterator&lt;ET, RT&gt;::iterator_category</code> is
+    <th>then <tt>itext_iterator&lt;ET, RT&gt;</tt> satisfies ...</th>
+    <th>and <tt>itext_iterator&lt;ET, RT&gt;::iterator_category</tt> is
         ...</th>
   </tr>
   <tr>
-    <td><code>TextDecoder</code></td>
-    <td><code>ranges::InputIterator</code></td>
-    <td><code>std::input_iterator_tag</code></td>
+    <td><tt>TextDecoder</tt></td>
+    <td><tt>ranges::InputIterator</tt></td>
+    <td><tt>std::input_iterator_tag</tt></td>
   </tr>
   <tr>
-    <td><code>TextForwardDecoder</code></td>
-    <td><code>ranges::ForwardIterator</code></td>
-    <td><code>std::forward_iterator_tag</code></td>
+    <td><tt>TextForwardDecoder</tt></td>
+    <td><tt>ranges::ForwardIterator</tt></td>
+    <td><tt>std::forward_iterator_tag</tt></td>
   </tr>
   <tr>
-    <td><code>TextBidirectionalDecoder</code></td>
-    <td><code>ranges::BidirectionalIterator</code></td>
-    <td><code>std::bidirectional_iterator_tag</code></td>
+    <td><tt>TextBidirectionalDecoder</tt></td>
+    <td><tt>ranges::BidirectionalIterator</tt></td>
+    <td><tt>std::bidirectional_iterator_tag</tt></td>
   </tr>
   <tr>
-    <td><code>TextRandomAccessDecoder</code></td>
-    <td><code>ranges::RandomAccessIterator</code></td>
-    <td><code>std::random_access_iterator_tag</code></td>
+    <td><tt>TextRandomAccessDecoder</tt></td>
+    <td><tt>ranges::RandomAccessIterator</tt></td>
+    <td><tt>std::random_access_iterator_tag</tt></td>
   </tr>
 </table>
 
 <p>Member functions provide access to the stored encoding state, the underlying
-code unit iterator, and, when <code>ranges::ForwardIterator</code> is
+code unit iterator, and, when <tt>ranges::ForwardIterator</tt> is
 satisified, the underlying code unit range for the current character.  The
 underlying code unit range is returned with an implementation defined type that
-satisfies <code>ranges::View</code>.  The <code>is_ok</code> member function
+satisfies <tt>ranges::View</tt>.  The <tt>is_ok</tt> member function
 returns true if the iterator is dereferenceable as a result of having
 successfully decoded a code point (This predicate is used to distinguish between
 an input iterator that just successfully decoded the last code point in the code
@@ -2887,16 +2887,16 @@ private:
 <h3 id="class_template_itext_sentinel">
   Class template itext_sentinel</h3>
 
-<p>Objects of <code>itext_sentinel</code> class template specialization type
+<p>Objects of <tt>itext_sentinel</tt> class template specialization type
 denote the end of a range of text as delimited by a sentinel object for the
 underlying code unit sequence.  These types satisfy the
-<code>TextSentinel</code> concept and are copy and move constructible, copy
+<tt>TextSentinel</tt> concept and are copy and move constructible, copy
 and move assignable, and equality comparable.  All objects of the same
-<code>itext_sentinel</code> type compare equally.  Member functions provide
+<tt>itext_sentinel</tt> type compare equally.  Member functions provide
 access to the sentinel for the underlying code unit sequence.  
 
 <p>Objects of these types are constructible from and equality comparable to
-<code>itext_iterator</code> objects that have matching encoding and view types.
+<tt>itext_iterator</tt> objects that have matching encoding and view types.
 Support for relational comparisons is conditional on the underlying code unit
 iterator and sentinel types supporting relational comparisons.
 
@@ -2991,10 +2991,10 @@ private:
 <h3 id="class_template_otext_iterator">
   Class template otext_iterator</h3>
 
-<p>Objects of <code>otext_iterator</code> class template specialization type
+<p>Objects of <tt>otext_iterator</tt> class template specialization type
 provide a standard iterator interface for encoding characters in the form
-implemented by the associated encoding <code>ET</code>.  These types satisfy
-the <code>TextOutputIterator</code> concept and are default constructible,
+implemented by the associated encoding <tt>ET</tt>.  These types satisfy
+the <tt>TextOutputIterator</tt> concept and are default constructible,
 copy and move constructible, and copy and move assignable.
 
 <p>Member functions provide access to the stored encoding state and the
@@ -3043,8 +3043,8 @@ private:
 <h3 id="make_otext_iterator">
   make_otext_iterator</h3>
 
-<p>The <code>make_otext_iterator</code> functions enable convenient construction
-of <code>otext_iterator</code> objects via type deduction of the underlying
+<p>The <tt>make_otext_iterator</tt> functions enable convenient construction
+of <tt>otext_iterator</tt> objects via type deduction of the underlying
 code unit output iterator type.  Overloads are provided to enable construction
 with an explicit encoding state or the implicit encoding dependent initial
 state.
