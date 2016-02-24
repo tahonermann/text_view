@@ -167,7 +167,7 @@ assert(*it++ == CT{0x0065}); // 'e'
 </code></pre>
 </blockquote>
 
-The provided iterators and views are compatible with the non-modifying sequence
+<p>The provided iterators and views are compatible with the non-modifying sequence
 utilities provided by the standard C++ <tt>&lt;algorithm&gt;</tt> library.
 This enables use of standard algorithms to search encoded text.
 
@@ -189,12 +189,11 @@ assert(base_it == it.base_range().end());
 </code></pre>
 </blockquote>
 
-These ranges satisfy the requirements for use in C++11 range-based for
+<p>These ranges satisfy the requirements for use in C++11 range-based for
 statements.  This support is currently limited to views constructed for
 stateless encodings as a sentinel type is used as the end iterator for
-stateful encodings.  The enhancements to the range-based for statement
-in the ranges proposal
-<sup><a href="#ref_ranges">[Ranges]</a></sup> will remove this limitation.
+stateful encodings.  This limitation will be removed if P0184R0
+<sup><a href="#ref_p0184r0">[P0184R0]</a></sup> is adopted.
 
 <blockquote class="code">
 <pre><code>
@@ -403,7 +402,7 @@ pointer addresses when dereferenced.  For random access iterators,
 would immediately become dangling.
 
 <p>The above conformance issues will be resolved if the proxy iterators
-proposal <sup><a href="#ref_proxy_iterators">P0022R1</a></sup> is accepted.
+proposal <sup><a href="#ref_p0022r1">[P0022R1]</a></sup> is accepted.
 
 <h2 id="view_requirements">View Requirements</h2>
 
@@ -415,7 +414,7 @@ to select a specialization of these class templates.  The C++ standard library
 doesn't currently define a suitable view type, though the need for one has been
 recognized.  N3350 <sup><a href="#ref_n3350">[N3350]</a></sup> proposed a
 <tt>std::range</tt> class template to fill this need and the ranges proposal
-<sup><a href="#ref_ranges">[Ranges]</a></sup> states (C.2, "Iterator Range
+<sup><a href="#ref_n4560">[N4560]</a></sup> states (C.2, "Iterator Range
 Type") that a future paper will propose such a type.
 
 <p>The technical specification in this paper leaves the view type selected by
@@ -600,7 +599,7 @@ writing is the in-development gcc 6.0 release.
 <sup><a href="#ref_origin">[Origin]</a></sup> libraries for concept
 definitions.  Origin's concept definitions do not match the concept
 definitions specified in the proposed ranges technical specification
-<sup><a href="#ref_ranges">[Ranges]</a></sup> and used as the specification
+<sup><a href="#ref_n4560">[N4560]</a></sup> and used as the specification
 of the described library in this document.  As a result, the interface
 declarations in the reference implementation differ from those presented
 here.  The expectation is that code written to the specification presented
@@ -3299,15 +3298,15 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3350.html</a></td>
   </tr>
   <tr>
-    <td id="ref_origin"><sup>[Origin]</sup></td>
+    <td id="ref_n4560"><sup>[N4560]</sup></td>
     <td>
-      Andrew Sutton,
-      Origin libraries.<br/>
-      <a href="http://asutton.github.io/origin">
-      http://asutton.github.io/origin</a></td>
+      Eric Niebler and Casey Carter,
+      "Working Draft, C++ Extensions for Ranges", N4560, 2015.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf</a></td>
   </tr>
   <tr>
-    <td id="ref_proxy_iterators"><sup>[Proxy Iterators]</sup></td>
+    <td id="ref_p0022r1"><sup>[P0022R1]</sup></td>
     <td>
       Eric Niebler,
       "Proxy Iterators for the Ranges Extensions", P0022R1, 2015.<br/>
@@ -3315,12 +3314,20 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html</a></td>
   </tr>
   <tr>
-    <td id="ref_ranges"><sup>[Ranges]</sup></td>
+    <td id="ref_p0184r0"><sup>[P0184R0]</sup></td>
     <td>
-      Eric Niebler and Casey Carter,
-      "Working Draft, C++ Extensions for Ranges", N4560, 2015.<br/>
-      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf">
-      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf</a></td>
+      Eric Niebler,
+      "Generalizing the Range-Based For Loop", P0184R0, 2016.<br/>
+      <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">
+      http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_origin"><sup>[Origin]</sup></td>
+    <td>
+      Andrew Sutton,
+      Origin libraries.<br/>
+      <a href="http://asutton.github.io/origin">
+      http://asutton.github.io/origin</a></td>
   </tr>
   <tr>
     <td id="ref_text_view"><sup>[Text_view]</sup></td>

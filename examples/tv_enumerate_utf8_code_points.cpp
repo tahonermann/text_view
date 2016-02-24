@@ -51,7 +51,8 @@ int main() {
 
     // FIXME: The C++11 range-based-for requires that the begin and end types
     // FIXME: be identical.  The RANGE_BASED_FOR macro is used to work around
-    // FIXME: this limitation.
+    // FIXME: this limitation.  This limitation will be removed if P0184R0 is
+    // FIXME: adopted.
     int code_point_index = 0;
     RANGE_BASED_FOR (const auto &ch, a_utf8_tv) {
         assert(ch == expected_code_points[code_point_index++]);

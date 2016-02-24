@@ -15,6 +15,8 @@
 // range types that have different begin and end types.  This implementation
 // is derived from Eric Niebler's RANGES_FOR macro definition in his ranges-v3
 // library.
+//
+// FIXME: This implementation will no longer be needed if P0184R0 is adopted.
 #define RANGE_BASED_FOR(element_decl, ...)                                     \
     if (bool _done = false) {}                                                 \
     else                                                                       \

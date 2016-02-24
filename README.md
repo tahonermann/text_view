@@ -84,8 +84,7 @@ assert(base_it == it.base_range().end());
 [C++11][ISO/IEC 14882:2011] range-based for statements.  This support is
 currently limited to views constructed for stateless [encodings](#encoding)
 as a sentinel is used as the end iterator for stateful [encodings](#encoding).
-The enhancements to the range-based for statement in the
-[ranges proposal][N4560] will remove this limitation.
+This limitation will be removed if [P0184R0] is adopted.
 
 ```C++
 for (const auto &ch : tv) {
@@ -2578,6 +2577,8 @@ encodings such as [Windows code page 1252].
   https://github.com/tahonermann/origin
 - [ISO/IEC technical specification 19217:2015, C++ Extensions for concepts][ISO/IEC 19217:2015]  
   http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031
+- [P0184R0: Generalizing the Range-Based For Loop][P0184R0]
+  http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html
 - [P0022R1: Proxy Iterators for the Ranges Extensions][P0022R1]  
   http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html
 - [N4560: Working Draft, C++ Extensions for Ranges][N4560]  
@@ -2637,6 +2638,9 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf
 [P0022R1]:
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html
 (P0022R1: Proxy Iterators for the Ranges Extensions)
+[P0184R0]:
+http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html
+(P0184R0: Generalizing the Range-Based For Loop)
 [gcc]:
 https://gcc.gnu.org
 (GCC, the GNU Compiler Collection)
