@@ -16,6 +16,11 @@ table#references td
 {
     vertical-align: top;
 }
+blockquote.code
+{
+    background-color: #F1F1F1;
+    border: 1px solid #D1D1D1;
+}
 </style>
 
 </head>
@@ -151,32 +156,38 @@ of encodings.
 is encoded as UTF-8 using two code units (\xC3\xB8), but iterator based
 enumeration sees just the single code point.
 
+<blockquote class="code">
 <pre><code>
 using CT = utf8_encoding::character_type;
-auto tv = make_text_view<utf8_encoding>(u8"J\u00F8erg");
+auto tv = make_text_view&lt;utf8_encoding&gt;(u8"J\u00F8erg");
 auto it = tv.begin();
 assert(*it++ == CT{0x004A}); // 'J'
 assert(*it++ == CT{0x00F8}); // 'ø'
 assert(*it++ == CT{0x0065}); // 'e'
 </code></pre>
+</blockquote>
 
 The provided iterators and views are compatible with the non-modifying sequence
 utilities provided by the standard C++ <code>&lt;algorithm&gt;</code> library.
 This enables use of standard algorithms to search encoded text.
 
+<blockquote class="code">
 <pre><code>
 it = std::find(tv.begin(), tv.end(), CT{0x00F8});
 assert(it != tv.end());
 </code></pre>
+</blockquote>
 
 <p>The iterators also provide access to the underlying code unit sequence.
 
+<blockquote class="code">
 <pre><code>
 auto base_it = it.base_range().begin();
 assert(*base_it++ == '\xC3');
 assert(*base_it++ == '\xB8');
 assert(base_it == it.base_range().end());
 </code></pre>
+</blockquote>
 
 These ranges satisfy the requirements for use in C++11 range-based for
 statements.  This support is currently limited to views constructed for
@@ -185,17 +196,20 @@ stateful encodings.  The enhancements to the range-based for statement
 in the ranges proposal
 <sup><a href="#ref_ranges">[Ranges]</a></sup> will remove this limitation.
 
+<blockquote class="code">
 <pre><code>
 for (const auto&amp; ch : tv) {
   ...
 }
 </code></pre>
+</blockquote>
 
 <h1 id="motivation">Motivation and Scope</h1>
 
 <p>Consider the following code to search for the occurrence of U+00F8 in the
 UTF-8 encoded string using C++ standard provided interfaces.
 
+<blockquote class="code">
 <pre><code>
 std::string s = u8"J\u00F8erg";
 std::mbstate_t state = std::mbstate_t{};
@@ -222,6 +236,7 @@ if (r != std::codecvt_base::error &amp;&amp; to[0] == char32_t{0x00F8}) {
     cout &lt;&lt; "Not found" &lt;&lt; endl;
 }
 </code></pre>
+</blockquote>
 
 <p>There are a number of issues with the above code:
 
@@ -452,6 +467,7 @@ unit range.  Storing partial code unit sequence state with an iterator that
 compares equal to the end iterator would enable users to write code like the
 following.
 
+<blockquote class="code">
 <pre><code>
 using encoding = utf8_encoding;
 auto state = encoding::initial_state();
@@ -465,6 +481,7 @@ do {
               // to seed state for the next loop iteration.
 } while (!b.empty());
 </code></pre>
+</blockquote>
 
 <p>However, this leaves open the possibility for trailing code units at the
 end of an encoded text to go unnoticed.  In a non-buffering scenario, an
@@ -600,6 +617,7 @@ https://github.com/tahonermann/text_view/issues</a>.
 <p>Transcoding between encodings that use the same character set is currently
 possible.  The following example transcodes a UTF-8 string to UTF-16.
 
+<blockquote class="code">
 <pre><code>
 std::string in = get_a_utf8_string();
 std::u16string out;
@@ -608,6 +626,7 @@ auto tv_in = make_text_view&lt;utf8_encoding&gt;(in);
 auto tv_out = make_otext_iterator&lt;utf16_encoding&gt;(out_it);
 std::copy(tv_in.begin(), tv_in.end(), tv_out);
 </code></pre>
+</blockquote>
 
 <p>Transcoding between encodings that use different character sets is not
 currently supported due to lack of interfaces to transcode a code point
@@ -633,12 +652,14 @@ sequences, or having to rely on preprocessing or other build time tools.
 <p>An example would be to provide a string in Modified UTF-8 for use in a JNI
 application.
 
+<blockquote class="code">
 <pre><code>
 auto tv = "Text with \0 embedded NUL"_modified_utf8;
 // equivalent to:
 auto tv = make_text_view&lt;modified_utf8_encoding&gt;(
               "Text with \xC0\x80 embedded NUL");
 </code></pre>
+</blockquote>
 
 <p>Unfortunately, user defined literals (UDLs) are currently unable to provide
 this support; though a constexpr UDL operator can be written, there is no known
@@ -650,6 +671,7 @@ resulting transformation on a per string literal basis.
 using a template constexpr function; so long as is is acceptable for the
 translated string to be embedded in another data structure.
 
+<blockquote class="code">
 <pre><code>
 template&lt;int N&gt;
 struct my_str {
@@ -668,6 +690,7 @@ constexpr my_str&lt;N&gt; make_my_str(const char (&amp;str)[N]) {
 
 constexpr auto ms = make_my_str("text"); // ms.code_units[] == "ufyu"
 </code></pre>
+</blockquote>
 
 <p>One caveat of this approach is that the returned data structure owns the
 code unit sequence and is therefore more container-like than view-like.
@@ -681,9 +704,11 @@ literal translations a usable feature.
     Why do I have to specify the encoding for string literals?</h2>
 
 <p>This question refers to code like this:
+<blockquote class="code">
 <pre><code>
 auto tv = make_text_view&lt;utf8_encoding&gt;(u8"A UTF-8 string");
 </code></pre>
+</blockquote>
 
 <p>The argument to make_text_view() is a UTF-8 string literal.  The compiler
 knows that it is a UTF-8 string.  Yet, make_text_view() requires the encoding
@@ -726,6 +751,7 @@ the type system.
 <p>Yes.  To do so, you'll need to define character set and encoding classes
 appropriate for your encoding.
 
+<blockquote class="code">
 <pre><code>
 class my_character_set {
 public:
@@ -781,11 +807,13 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h1 id="technical_specifications">Technical Specifications</h1>
 
 <h2 id="header_synopsys">Header &lt;text_view&gt; synopsis</h2>
 
+<blockquote class="code">
 <pre><code>
 namespace std {
 namespace experimental {
@@ -968,6 +996,7 @@ template&lt;TextView TVT&gt;
 } // namespace experimental
 } // namespace std
 </code></pre>
+</blockquote>
 
 <h2 id="concepts">Concepts</h2>
 
@@ -1029,11 +1058,13 @@ the code unit type of a string type.
     </ul></li>
 </ul>
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool CodeUnit() {
   return /* implementation-defined */ ;
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_codepoint">
       Concept CodePoint</h3>
@@ -1054,11 +1085,13 @@ as the code point type of a character set type.
     </ul></li>
 </ul>
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool CodePoint() {
   return /* implementation-defined */ ;
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_characterset">
       Concept CharacterSet</h3>
@@ -1068,6 +1101,7 @@ that describes a character set.  Such a type has a member typedef-name
 declaration for a type that satisfies <code>CodePoint</code> and a static
 member function that returns a name for the character set.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool CharacterSet() {
   return CodePoint&lt;code_point_type_t&lt;T&gt;&gt;()
@@ -1076,6 +1110,7 @@ template&lt;typename T&gt; concept bool CharacterSet() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_character">
       Concept Character</h3>
@@ -1085,6 +1120,7 @@ describes a character as defined by an associated character set.  Non-static
 member functions provide access to the code point value of the described
 character.  Types that satisfy <code>Character</code> are regular and copyable.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool Character() {
   return ranges::Regular&lt;T&gt;()
@@ -1097,6 +1133,7 @@ template&lt;typename T&gt; concept bool Character() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_codeunititerator">
       Concept CodeUnitIterator</h3>
@@ -1104,12 +1141,14 @@ template&lt;typename T&gt; concept bool Character() {
 <p>The <code>CodeUnitIterator</code> concept specifies requirements of an
 iterator that has a value type that satisfies <code>CodeUnit</code>.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool CodeUnitIterator() {
   return ranges::Iterator&lt;T&gt;()
       &amp;&amp; CodeUnit&lt;ranges::value_type_t&lt;T&gt;&gt;();
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_codeunitoutputiterator">
       Concept CodeUnitOutputIterator</h3>
@@ -1118,12 +1157,14 @@ template&lt;typename T&gt; concept bool CodeUnitIterator() {
 an output iterator that can be assigned from a type that satisfies
 <code>CodeUnit</code>.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename V&gt; concept bool CodeUnitOutputIterator() {
   return ranges::OutputIterator&lt;T, V&gt;()
       &amp;&amp; CodeUnit&lt;V&gt;();
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textencodingstate">
       Concept TextEncodingState</h3>
@@ -1131,12 +1172,14 @@ template&lt;typename T, typename V&gt; concept bool CodeUnitOutputIterator() {
 <p>The <code>TextEncodingState</code> concept specifies requirements of types
 that hold encoding state.  Such types are default constructible and copyable.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextEncodingState() {
   return ranges::DefaultConstructible&lt;T&gt;()
       &amp;&amp; ranges::Copyable&lt;T&gt;();
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textencodingstatetransition">
       Concept TextEncodingStateTransition</h3>
@@ -1145,12 +1188,14 @@ template&lt;typename T&gt; concept bool TextEncodingState() {
 of types that hold encoding state transitions.  Such types are default
 constructible and copyable.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextEncodingStateTransition() {
   return ranges::DefaultConstructible&lt;T&gt;()
       &amp;&amp; ranges::Copyable&lt;T&gt;();
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textencoding">
       Concept TextEncoding</h3>
@@ -1163,6 +1208,7 @@ defines the encoding state at the beginning of a sequence of encoded characters,
 and static data members that specify the minimum and maximum number of
 code units used to encode any single character.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextEncoding() {
   return requires () {
@@ -1179,6 +1225,7 @@ template&lt;typename T&gt; concept bool TextEncoding() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textencoder">
       Concept TextEncoder</h3>
@@ -1189,6 +1236,7 @@ satisfies <code>OutputIterator</code>.  Such a type satisifies
 <code>TextEncoding</code> and defines static member functions used to encode
 state transitions and characters.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename I&gt; concept bool TextEncoder() {
   return TextEncoding&lt;T&gt;()
@@ -1211,6 +1259,7 @@ template&lt;typename T, typename I&gt; concept bool TextEncoder() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textdecoder">
       Concept TextDecoder</h3>
@@ -1221,6 +1270,7 @@ satisifies <code>InputIterator</code>.  Such a type satisfies
 <code>TextEncoding</code> and defines a static member function used to decode
 state transitions and characters.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename I&gt; concept bool TextDecoder() {
   return TextEncoding&lt;T&gt;()
@@ -1238,6 +1288,7 @@ template&lt;typename T, typename I&gt; concept bool TextDecoder() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textforwarddecoder">
       Concept TextForwardDecoder</h3>
@@ -1247,12 +1298,14 @@ that are used to decode characters using a particular code unit iterator that
 satisifies <code>ForwardIterator</code>.  Such a type also satisfies
 <code>TextDecoder</code>.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename I&gt; concept bool TextForwardDecoder() {
   return TextDecoder&lt;T, CUIT&gt;()
       &amp;&amp; ranges::ForwardIterator&lt;CUIT&gt;();
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textbidirectionaldecoder">
       Concept TextBidirectionalDecoder</h3>
@@ -1263,6 +1316,7 @@ that satisifies <code>BidirectionalIterator</code>.  Such a type also satisfies
 <code>TextForwardDecoder</code> and defines a static member function used to
 decode state transitions and characters in the reverse order of their encoding.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder() {
   return TextForwardDecoder&lt;T, CUIT&gt;()
@@ -1278,6 +1332,7 @@ template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textrandomaccessdecoder">
       Concept TextRandomAccessDecoder</h3>
@@ -1289,6 +1344,7 @@ that satisifies <code>RandomAccessIterator</code>.  Such a type also satisfies
 number of code units used to encode any character have the same value, and that
 the encoding state be an empty type.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder() {
   return TextBidirectionalDecoder&lt;T, CUIT&gt;()
@@ -1297,6 +1353,7 @@ template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder() {
       &amp;&amp; std::is_empty&lt;typename T::state_type&gt;::value;
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textiterator">
       Concept TextIterator</h3>
@@ -1307,6 +1364,7 @@ Encoding state is held in each iterator instance as needed to decode the code
 unit sequence and is made accessible via non-static member functions.  The value
 type of a <code>TextIterator</code> satisfies <code>Character</code>.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextIterator() {
   return ranges::Iterator&lt;T&gt;()
@@ -1321,6 +1379,7 @@ template&lt;typename T&gt; concept bool TextIterator() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textsentinel">
       Concept TextSentinel</h3>
@@ -1331,12 +1390,14 @@ satisfies <code>TextIterator</code> also satisfies
 <code>TextSentinel&lt;T&gt;</code> there by enabling <code>TextIterator</code>
 types to be used as sentinels.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T, typename I&gt; concept bool TextSentinel() {
   return ranges::Sentinel&lt;T, I&gt;()
       &amp;&amp; TextIterator&lt;I&gt;();
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textoutputiterator">
       Concept TextOutputIterator</h3>
@@ -1346,6 +1407,7 @@ that are used to encode characters as a sequence of code units.  Encoding state
 is held in each iterator instance as needed to encode the code unit sequence
 and is made accessible via non-static member functions.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextOutputIterator() {
   return ranges::OutputIterator&lt;T, character_type_t&lt;encoding_type_t&lt;T&gt;&gt;&gt;()
@@ -1359,6 +1421,7 @@ template&lt;typename T&gt; concept bool TextOutputIterator() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h3 id="concept_textview">
       Concept TextView</h3>
@@ -1375,6 +1438,7 @@ initial encoding state.
 range and are copyable in constant time.  The lifetime of the underlying range
 must exceed the lifetime of referencing <code>TextView</code> objects.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextView() {
   return ranges::View&lt;T&gt;()
@@ -1395,6 +1459,7 @@ template&lt;typename T&gt; concept bool TextView() {
          };
 }
 </code></pre>
+</blockquote>
 
 <h2 id="character_sets">Character Sets</h2>
 
@@ -1420,6 +1485,7 @@ switch between specific character sets is required.  This class satisfies the
 <code>code_point_type</code> that is able to represent code point values from
 all of the implementation provided character set types.
 
+<blockquote class="code">
 <pre><code>
 class any_character_set {
 public:
@@ -1430,6 +1496,7 @@ public:
   }
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_basic_execution_character_set">
   Class basic_execution_character_set</h3>
@@ -1439,6 +1506,7 @@ basic execution character set specified in <code>[lex.charset]p3</code> of the
 C++ standard.  This class satisfies the <code>CharacterSet</code> concept and
 has a <code>code_point_type</code> member type that aliases <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class basic_execution_character_set {
 public:
@@ -1449,6 +1517,7 @@ public:
   }
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_basic_execution_wide_character_set">
   Class basic_execution_wide_character_set</h3>
@@ -1459,6 +1528,7 @@ the C++ standard.  This class satisfies the <code>CharacterSet</code> concept
 and has a <code>code_point_type</code> member type that aliases
 <code>wchar_t</code>.
 
+<blockquote class="code">
 <pre><code>
 class basic_execution_wide_character_set {
 public:
@@ -1469,6 +1539,7 @@ public:
   }
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_unicode_character_set">
   Class unicode_character_set</h3>
@@ -1478,6 +1549,7 @@ Unicode character set.  This class satisfies the <code>CharacterSet</code>
 concept and has a <code>code_point_type</code> member type that aliases
 <code>char32_t</code>.
 
+<blockquote class="code">
 <pre><code>
 class unicode_character_set {
 public:
@@ -1488,6 +1560,7 @@ public:
   }
 };
 </code></pre>
+</blockquote>
 
 <h3 id="character_set_type_aliases">
   Character set type aliases</h3>
@@ -1516,11 +1589,13 @@ literals, not the locale sensitive run-time execution wide character set.
 be a superset of the <code>unicode_character_set</code> character
 set.
 
+<blockquote class="code">
 <pre><code>
 using execution_character_set = /* implementation-defined */ ;
 using execution_wide_character_set = /* implementation-defined */ ;
 using universal_character_set = /* implementation-defined */ ;
 </code></pre>
+</blockquote>
 
 <h2 id="character_set_identification">Character Set Identification</h2>
 
@@ -1541,6 +1616,7 @@ produced by <code>get_character_set_id()</code> and can be passed to
 Values of this type are copy constructible, copy assignable, equality
 comparable, and strictly totally ordered.
 
+<blockquote class="code">
 <pre><code>
 class character_set_id {
 public:
@@ -1555,6 +1631,7 @@ public:
   friend bool operator&gt;=(character_set_id lhs, character_set_id rhs);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="get_character_set_id">
   get_character_set_id</h3>
@@ -1562,10 +1639,12 @@ public:
 <p><code>get_character_set_id()</code> returns a unique, opaque value for
 the chracter set type specified by the template parameter.
 
+<blockquote class="code">
 <pre><code>
 template&lt;typename CST&gt;
   inline character_set_id get_character_set_id();
 </code></pre>
+</blockquote>
 
 <h2 id="character_set_information">Character Set Information</h2>
 
@@ -1584,6 +1663,7 @@ character set.  Values of this type are produced by the
 <code>get_character_set_info()</code> functions based on a character set
 type or ID.
 
+<blockquote class="code">
 <pre><code>
 class character_set_info {
 public:
@@ -1597,6 +1677,7 @@ private:
   character_set_id id; // exposition only
 };
 </code></pre>
+</blockquote>
 
 <h3 id="get_character_set_info">
   get_character_set_info</h3>
@@ -1604,12 +1685,14 @@ private:
 <p>The <code>get_character_set_info()</code> functions return a reference to a
 <code>character_set_info</code> object based on a character set type or ID.
 
+<blockquote class="code">
 <pre><code>
 const character_set_info&amp; get_character_set_info(character_set_id id);
 
 template&lt;typename CST&gt;
   inline const character_set_info&amp; get_character_set_info();
 </code></pre>
+</blockquote>
 
 <h2 id="characters">Characters</h2>
 
@@ -1640,6 +1723,7 @@ character set ID and code point values match.  Equality comparison between
 objects with different static character set type is not implemented to avoid
 potentially costly unintended implicit transcoding between character sets.
 
+<blockquote class="code">
 <pre><code>
 template&lt;CharacterSet CST&gt;
 class character {
@@ -1699,6 +1783,7 @@ template&lt;CharacterSet CST&gt;
   bool operator!=(const character&lt;CST&gt; &amp;lhs,
                   const character&lt;any_character_set&gt; &amp;rhs);
 </code></pre>
+</blockquote>
 
 <h2 id="encodings">Encodings</h2>
 
@@ -1744,9 +1829,11 @@ template&lt;CharacterSet CST&gt;
 stateless encodings to implement the parts of the generic encoding interfaces
 necessary to support stateful encodings.
 
+<blockquote class="code">
 <pre><code>
 class trivial_encoding_state {};
 </code></pre>
+</blockquote>
 
 <h3 id="class_trivial_encoding_state_transition">
   Class trivial_encoding_state_transition</h3>
@@ -1756,9 +1843,11 @@ used by stateless encodings to implement the parts of the generic encoding
 interfaces necessary to support stateful encodings that support non-code-point
 encoding code unit sequences.
 
+<blockquote class="code">
 <pre><code>
 class trivial_encoding_state_transition {};
 </code></pre>
+</blockquote>
 
 <h3 id="class_basic_execution_character_encoding">
   Class basic_execution_character_encoding</h3>
@@ -1771,6 +1860,7 @@ the C++ standard.
 <p>This encoding is trivial, stateless, fixed width, supports random access
 decoding, and has a code unit of type <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class basic_execution_character_encoding {
 public:
@@ -1817,6 +1907,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_basic_execution_wide_character_encoding">
   Class basic_execution_wide_character_encoding</h3>
@@ -1829,6 +1920,7 @@ the basic execution wide-character set as defined in
 <p>This encoding is trivial, stateless, fixed width, supports random access
 decoding, and has a code unit of type <code>wchar_t</code>.
 
+<blockquote class="code">
 <pre><code>
 class basic_execution_wide_character_encoding {
 public:
@@ -1875,6 +1967,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_iso_10646_wide_character_encoding">
   Class iso_10646_wide_character_encoding</h3>
@@ -1892,6 +1985,7 @@ macro as specified in <code>[cpp.predefined]p2</code> of the C++ standard.
 <p>This encoding is trivial, stateless, fixed width, supports random access
 decoding, and has a code unit of type <code>wchar_t</code>.
 
+<blockquote class="code">
 <pre><code>
 #if defined(__STDC_ISO_10646__)
 class iso_10646_wide_character_encoding {
@@ -1940,6 +2034,7 @@ public:
 };
 #endif // __STDC_ISO_10646__
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf8_encoding">
   Class utf8_encoding</h3>
@@ -1950,6 +2045,7 @@ UTF-8 encoding.
 <p>This encoding is stateless, variable width, supports bidirectional
 decoding, and has a code unit of type <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf8_encoding {
 public:
@@ -1996,6 +2092,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf8bom_encoding">
   Class utf8bom_encoding</h3>
@@ -2010,6 +2107,7 @@ decoding, and has a code unit of type <code>char</code>.
 suppressing the encoding of a BOM, or influencing whether a decoded BOM
 code unit sequence represents a BOM or a code point.
 
+<blockquote class="code">
 <pre><code>
 class utf8bom_encoding_state {
   /* implementation-defined */
@@ -2067,6 +2165,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf16_encoding">
   Class utf16_encoding</h3>
@@ -2077,6 +2176,7 @@ UTF-16 encoding.
 <p>This encoding is stateless, variable width, supports bidirectional
 decoding, and has a code unit of type <code>char16_t</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf16_encoding {
 public:
@@ -2123,6 +2223,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf16be_encoding">
   Class utf16be_encoding</h3>
@@ -2133,6 +2234,7 @@ UTF-16 big-endian encoding.
 <p>This encoding is stateless, variable width, supports bidirectional
 decoding, and has a code unit of type <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf16be_encoding {
 public:
@@ -2179,6 +2281,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf16le_encoding">
   Class utf16le_encoding</h3>
@@ -2189,6 +2292,7 @@ UTF-16 little-endian encoding.
 <p>This encoding is stateless, variable width, supports bidirectional
 decoding, and has a code unit of type <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf16le_encoding {
 public:
@@ -2235,6 +2339,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf16bom_encoding">
   Class utf16bom_encoding</h3>
@@ -2249,6 +2354,7 @@ decoding, and has a code unit of type <code>char</code>.
 suppressing the encoding of a BOM, or influencing whether a decoded BOM
 code unit sequence represents a BOM or a code point.
 
+<blockquote class="code">
 <pre><code>
 class utf16bom_encoding_state {
   /* implementation-defined */
@@ -2310,6 +2416,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf32_encoding">
   Class utf32_encoding</h3>
@@ -2320,6 +2427,7 @@ UTF-32 encoding.
 <p>This encoding is trivial, stateless, fixed width, supports random access
 decoding, and has a code unit of type <code>char32_t</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf32_encoding {
 public:
@@ -2366,6 +2474,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf32be_encoding">
   Class utf32be_encoding</h3>
@@ -2376,6 +2485,7 @@ UTF-32 big-endian encoding.
 <p>This encoding is stateless, fixed width, supports random access
 decoding, and has a code unit of type <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf32be_encoding {
 public:
@@ -2422,6 +2532,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf32le_encoding">
   Class utf32le_encoding</h3>
@@ -2432,6 +2543,7 @@ UTF-32 little-endian encoding.
 <p>This encoding is stateless, fixed width, supports random access
 decoding, and has a code unit of type <code>char</code>.
 
+<blockquote class="code">
 <pre><code>
 class utf32le_encoding {
 public:
@@ -2478,6 +2590,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_utf32bom_encoding">
   Class utf32bom_encoding</h3>
@@ -2492,6 +2605,7 @@ decoding, and has a code unit of type <code>char</code>.
 suppressing the encoding of a BOM, or influencing whether a decoded BOM
 code unit sequence represents a BOM or a code point.
 
+<blockquote class="code">
 <pre><code>
 class utf32bom_encoding_state {
   /* implementation-defined */
@@ -2553,6 +2667,7 @@ public:
                         int &amp;decoded_code_units);
 };
 </code></pre>
+</blockquote>
 
 <h3 id="encoding-type-aliases">
   Encoding type aliases</h3>
@@ -2600,6 +2715,7 @@ decode compatible with the <code>utf16_encoding</code> encoding.
 <p>The encoding aliased by <code>char32_character_encoding</code> must be
 decode compatible with the <code>utf32_encoding</code> encoding.
 
+<blockquote class="code">
 <pre><code>
 using execution_character_encoding = /* implementation-defined */ ;
 using execution_wide_character_encoding = /* implementation-defined */ ;
@@ -2607,6 +2723,7 @@ using char8_character_encoding = /* implementation-defined */ ;
 using char16_character_encoding = /* implementation-defined */ ;
 using char32_character_encoding = /* implementation-defined */ ;
 </code></pre>
+</blockquote>
 
 <h2 id="text_iterators">Text Iterators</h2>
 
@@ -2679,6 +2796,7 @@ unit stream as compared to one that was advanced after having done so; in both
 cases, the underlying code unit input iterator will compare equal to the end of
 the stream iterator).
 
+<blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
   requires TextDecoder&lt;
@@ -2764,6 +2882,7 @@ private:
   bool ok;                // exposition only
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_template_itext_sentinel">
   Class template itext_sentinel</h3>
@@ -2781,6 +2900,7 @@ access to the sentinel for the underlying code unit sequence.
 Support for relational comparisons is conditional on the underlying code unit
 iterator and sentinel types supporting relational comparisons.
 
+<blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
 class itext_sentinel {
@@ -2866,6 +2986,7 @@ private:
   sentinel base_sentinel; // exposition only
 };
 </code></pre>
+</blockquote>
 
 <h3 id="class_template_otext_iterator">
   Class template otext_iterator</h3>
@@ -2879,6 +3000,7 @@ copy and move constructible, and copy and move assignable.
 <p>Member functions provide access to the stored encoding state and the
 underlying code unit output iterator.
 
+<blockquote class="code">
 <pre><code>
 template&lt;TextEncoding E, CodeUnitOutputIterator&lt;code_unit_type_t&lt;E&gt;&gt; CUIT&gt;
 class otext_iterator {
@@ -2916,6 +3038,7 @@ private:
   iterator base_iterator; // exposition only
 };
 </code></pre>
+</blockquote>
 
 <h3 id="make_otext_iterator">
   make_otext_iterator</h3>
@@ -2926,6 +3049,7 @@ code unit output iterator type.  Overloads are provided to enable construction
 with an explicit encoding state or the implicit encoding dependent initial
 state.
 
+<blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; IT&gt;
   auto make_otext_iterator(typename ET::state_type state, IT out)
@@ -2934,6 +3058,7 @@ template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt
   auto make_otext_iterator(IT out)
   -&gt; otext_iterator&lt;ET, IT&gt;;
 </code></pre>
+</blockquote>
 
 <h2 id="text_view">Text View</h2>
 
@@ -2949,6 +3074,7 @@ template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt
 <h3 id="class_template_basic_text_view">
   Class template basic_text_view</h3>
 
+<blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
 class basic_text_view {
@@ -3058,10 +3184,12 @@ private:
   range_type base_range; // exposition only
 };
 </code></pre>
+</blockquote>
 
 <h3 id="text_view_type_aliases">
   Text view type aliases</h3>
 
+<blockquote class="code">
 <pre><code>
 using text_view = basic_text_view&lt;
           execution_character_encoding,
@@ -3079,10 +3207,12 @@ using u32text_view = basic_text_view&lt;
           char32_character_encoding,
           /* implementation-defined */ &gt;;
 </code></pre>
+</blockquote>
 
 <h3 id="make_text_view">
   make_text_view</h3>
 
+<blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
   auto make_text_view(typename ET::state_type state,
@@ -3120,6 +3250,7 @@ template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
 template&lt;TextView TVT&gt;
   TVT make_text_view(TVT tv);
 </code></pre>
+</blockquote>
 
 <h1 id="acknowledgements">Acknowledgements</h1>
 
