@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-02-23</td>
+    <td>2016-02-25</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -3073,6 +3073,27 @@ template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt
 <h3 id="class_template_basic_text_view">
   Class template basic_text_view</h3>
 
+<p>Objects of <tt>basic_text_view</tt> class template specialization type
+provide a view of an underlying code unit sequence as a sequence of characters.
+These types satisfy the <tt>TextView</tt> concept and are default constructible,
+copy and move constructible, and copy and move assignable.  Member functions
+provide access to the underlying code unit sequence and the initial encoding
+state for the range.
+
+<p>Constructors are provided to construct objects of these types from objects of
+the underlying code unit view type and from iterator and sentinel pairs,
+iterator and difference pairs, and range or <tt>std::basic_string</tt> types for
+which an object of the underlying code unit view type can be constructed.  For
+each of these, overloads are provided to construct the view with an explicit
+encoding state or with an implicit initial encoding state provided by
+the encoding <tt>ET</tt>.
+
+<p>The end of the view is represented with a sentinel type when the end of the
+underlying code unit view is represented with a sentinel type or when the
+encoding <tt>ET</tt> is a stateful encoding; otherwise, the end of the view is
+represented with an iterator of the same type as used for the beginning of the
+view.
+
 <blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
@@ -3188,6 +3209,27 @@ private:
 <h3 id="text_view_type_aliases">
   Text view type aliases</h3>
 
+<p>The <tt>text_view</tt>, <tt>wtext_view</tt>, <tt>u8text_view</tt>,
+<tt>u16text_view</tt> and <tt>u32text_view</tt> type aliases reference an
+implementation defined specialization of <tt>basic_text_view</tt> for all
+five of the encodings the standard states must be provided.
+
+<p>The implementation defined view type used for the underlying code unit
+view type must satisfy <tt>ranges::View</tt> and provide iterators of pointer
+to the underlying code unit type to contiguous storage.  The intent in
+providing these type aliases is to minimize instantiations of the
+<tt>basic_text_view</tt> and <tt>itext_iterator</tt> class templates by
+encouraging use of common view types with underlying code unit views that
+reference contiguous storage, such as views into objects with a type
+instantiated from <tt>std::basic_string</tt>.  See further discussion in the
+<a href="#view_requirements">View Requirements</a> section.
+
+<p>It is permissible for the <tt>text_view</tt> and <tt>u8text_view</tt> type
+aliases to reference the same type.  This will be the case when the execution
+character encoding is UTF-8.  Attempts to overload functions based on
+<tt>text_view</tt> and <tt>u8text_view</tt> will result in multiple function
+definition errors on such implementations.
+
 <blockquote class="code">
 <pre><code>
 using text_view = basic_text_view&lt;
@@ -3210,6 +3252,35 @@ using u32text_view = basic_text_view&lt;
 
 <h3 id="make_text_view">
   make_text_view</h3>
+
+<p>The <tt>make_text_view</tt> functions enable convenient construction of
+<tt>basic_text_view</tt> objects via implicit selection of a view type for the
+underlying code unit sequence.
+
+<p>When provided iterators or ranges for contiguous storage, these functions
+return a <tt>basic_text_view</tt> specialization type that uses the same
+implementation defined view type as for the <tt>basic_text_view</tt> type
+aliases as discussed in <a href="#text_view_type_aliases">Text view type
+aliases</a>
+
+<p>Overloads are provided to construct <tt>basic_text_view</tt> objects from
+iterator and sentinel pairs, iterator and difference pairs, and range or
+<tt>std::basic_string</tt> objects.  For each of these overloads, additional
+overloads are provided to construct the view with an explicit encoding state
+or with an implicit initial encoding state provided by the encoding
+<tt>ET</tt>.  Each of these overloads requires that the encoding type be
+explicitly specified.
+
+<p>Additional overloads are provided to construct the view from iterator and
+sentinel pairs that satisfy <tt>TextIterator</tt> and objects of a type that
+satisfies <tt>TextView</tt>.  For these overloads, the encoding type is
+deduced and the encoding state is implicitly copied from the arguments.
+
+<p>If <tt>make_text_view</tt> is invoked with an rvalue range, then the lifetime
+of the returned object and all copies of it must end with the full-expression
+that the <tt>make_text_view</tt> invocation is within.  Otherwise, the returned
+object or its copies will hold iterators into a destructed object resulting in
+undefined behavior.
 
 <blockquote class="code">
 <pre><code>

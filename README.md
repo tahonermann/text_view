@@ -2262,6 +2262,28 @@ template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
 
 ### Class template basic_text_view
 
+Objects of `basic_text_view` class template specialization type provide a view
+of an underlying [code unit](#code-unit) sequence as a sequence of
+[characters](#character).  These types satisfy the `TextView` concept and are
+default constructible, copy and move constructible, and copy and move
+assignable.  Member functions provide access to the underlying
+[code unit](#code-unit) sequence and the initial [encoding](#encoding)
+state for the range.
+
+Constructors are provided to construct objects of these types from objects of
+the underlying [code unit](#code-unit) view type and from iterator and sentinel
+pairs, iterator and difference pairs, and range or `std::basic_string` types for
+which an object of the underlying [code unit](#code-unit) view type can be
+constructed.  For each of these, overloads are provided to construct the view
+with an explicit [encoding](#encoding) state or with an implicit initial
+[encoding](#encoding) state provided by the [encoding](#encoding) `ET`.
+
+The end of the view is represented with a sentinel type when the end of the
+underlying [code unit](#code-unit) view is represented with a sentinel type or
+when the [encoding](#encoding) `ET` is a stateful [encoding](#encoding);
+otherwise, the end of the view is represented with an iterator of the same type
+as used for the beginning of the view.
+
 ```C++
 template<TextEncoding ET, ranges::InputRange RT>
 class basic_text_view {
@@ -2375,6 +2397,26 @@ private:
 
 ### Text view type aliases
 
+The `text_view`, `wtext_view`, `u8text_view`, `u16text_view` and
+`u32text_view` type aliases reference an implementation defined specialization
+of `basic_text_view` for all five of the [encodings](#encoding) the standard
+states must be provided.
+
+The implementation defined view type used for the underlying
+[code unit](#code-unit) view type must satisfy `ranges::View` and provide
+iterators of pointer to the underlying [code unit](#code-unit) type to
+contiguous storage.  The intent in providing these type aliases is to minimize
+instantiations of the `basic_text_view` and `itext_iterator` class templates by
+encouraging use of common view types with underlying [code unit](#code-unit)
+views that reference contiguous storage, such as views into objects with a type
+instantiated from `std::basic_string`.
+
+It is permissible for the `text_view` and `u8text_view` type aliases to
+reference the same type.  This will be the case when the execution character
+[encoding](#encoding) is UTF-8.  Attempts to overload functions based on
+`text_view` and `u8text_view` will result in multiple function
+definition errors on such implementations.
+
 ```C++
 using text_view = basic_text_view<
           execution_character_encoding,
@@ -2394,6 +2436,34 @@ using u32text_view = basic_text_view<
 ```
 
 ### make_text_view
+
+The `make_text_view` functions enable convenient construction of
+`basic_text_view` objects via implicit selection of a view type for the
+underlying [code unit](#code-unit) sequence.
+
+When provided iterators or ranges for contiguous storage, these functions return
+a `basic_text_view` specialization type that uses the same implementation
+defined view type as for the `basic_text_view` type
+aliases as discussed in [Text view type aliases](#text-view-type-aliases).
+
+Overloads are provided to construct `basic_text_view` objects from
+iterator and sentinel pairs, iterator and difference pairs, and range or
+`std::basic_string` objects.  For each of these overloads, additional 
+overloads are provided to construct the view with an explicit
+[encoding](#encoding) state or with an implicit initial [encoding](#encoding)
+state provided by the [encoding](#encoding) `ET`.  Each of these overloads
+requires that the [encoding](#encoding) type be explicitly specified.
+
+Additional overloads are provided to construct the view from iterator and
+sentinel pairs that satisfy `TextIterator` and objects of a type that satisfies
+`TextView`.  For these overloads, the [encoding](#encoding) type is deduced and
+the [encoding](#encoding) state is implicitly copied from the arguments.
+
+If `make_text_view` is invoked with an rvalue range, then the lifetime of the
+returned object and all copies of it must end with the full-expression that the
+`make_text_view` invocation is within.  Otherwise, the returned object or its
+copies will hold iterators into a destructed object resulting in undefined
+behavior.
 
 ```C++
 template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
