@@ -20,41 +20,32 @@ inline namespace text {
 
 
 namespace text_detail {
-/*
- * Decoder concept       Code unit iterator concept Text iterator category
- * -------------------   -------------------------- ---------------------------
- * Decoder               Input_iterator             input_iterator_tag
- * Decoder               Forward_iterator           forward_iterator_tag
- * Decoder               Bidirectional_iterator     forward_iterator_tag
- * Decoder               Random_access_iterator     forward_iterator_tag
- * Bidirectional_decoder Input_iterator             input_iterator_tag
- * Bidirectional_decoder Forward_iterator           forward_iterator_tag
- * Bidirectional_decoder Bidirectional_iterator     bidirectional_iterator_tag
- * Bidirectional_decoder Random_access_iterator     bidirectional_iterator_tag
- * Random_access_decoder Input_iterator             input_iterator_tag
- * Random_access_decoder Forward_iterator           forward_iterator_tag
- * Random_access_decoder Bidirectional_iterator     bidirectional_iterator_tag
- * Random_access_decoder Random_access_iterator     random_access_iterator_tag
- */
+
 template<typename TextEncoding, typename Iterator>
 struct itext_iterator_category_selector;
 
 template<TextEncoding ET, CodeUnitIterator CUIT>
+requires TextDecoder<ET, CUIT>()
 struct itext_iterator_category_selector<ET, CUIT> {
-    using type = origin::Iterator_category<CUIT>;
+    using type = std::input_iterator_tag;
 };
+
 template<TextEncoding ET, CodeUnitIterator CUIT>
-requires origin::Bidirectional_iterator<CUIT>() // or Random_access_iterator
-      && ! TextBidirectionalDecoder<ET, CUIT>() // and ! TextRandomAccessDecoder
+requires TextForwardDecoder<ET, CUIT>()
 struct itext_iterator_category_selector<ET, CUIT> {
     using type = std::forward_iterator_tag;
 };
+
 template<TextEncoding ET, CodeUnitIterator CUIT>
-requires origin::Random_access_iterator<CUIT>()
-      && TextBidirectionalDecoder<ET, CUIT>()
-      && ! TextRandomAccessDecoder<ET, CUIT>()
+requires TextBidirectionalDecoder<ET, CUIT>()
 struct itext_iterator_category_selector<ET, CUIT> {
     using type = std::bidirectional_iterator_tag;
+};
+
+template<TextEncoding ET, CodeUnitIterator CUIT>
+requires TextRandomAccessDecoder<ET, CUIT>()
+struct itext_iterator_category_selector<ET, CUIT> {
+    using type = std::random_access_iterator_tag;
 };
 
 
