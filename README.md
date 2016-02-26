@@ -2020,7 +2020,7 @@ public:
 
   itext_iterator();
 
-  itext_iterator(const state_type &state,
+  itext_iterator(state_type state,
                  const range_type *range,
                  iterator first);
 

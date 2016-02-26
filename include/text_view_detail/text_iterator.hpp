@@ -57,7 +57,7 @@ public:
     using encoding_type = ET;
     using range_type = RT;
     using state_type = typename encoding_type::state_type;
-    using iterator = origin::Iterator_type<const range_type>;
+    using iterator = origin::Iterator_type<std::add_const_t<range_type>>;
     using iterator_category =
               typename text_detail::itext_iterator_category_selector<
                   encoding_type,
@@ -70,7 +70,7 @@ public:
 protected:
     itext_iterator_base() = default;
 
-    itext_iterator_base(const state_type &state)
+    itext_iterator_base(state_type state)
         // CWG DR1467.  List-initialization doesn't consider copy constructors
         // for aggregates.  The state_type base class must be initialized with
         // an expression-list.
@@ -86,21 +86,21 @@ public:
 };
 
 template<TextEncoding ET, origin::Input_range RT>
-requires TextDecoder<ET, origin::Iterator_type<const RT>>()
-      && origin::Input_iterator<origin::Iterator_type<const RT>>()
+requires TextDecoder<ET, origin::Iterator_type<std::add_const_t<RT>>>()
 class itext_iterator_data
     : public itext_iterator_base<ET, RT>
 {
 public:
-    using state_type = typename itext_iterator_data::state_type;
+    using encoding_type = typename itext_iterator_data::encoding_type;
     using range_type = typename itext_iterator_data::range_type;
+    using state_type = typename itext_iterator_data::state_type;
     using iterator = typename itext_iterator_data::iterator;
 
 protected:
     itext_iterator_data() = default;
 
     itext_iterator_data(
-        const state_type &state,
+        state_type state,
         const range_type *range,
         iterator current)
     :
@@ -120,21 +120,21 @@ protected:
 };
 
 template<TextEncoding ET, origin::Input_range RT>
-requires TextDecoder<ET, origin::Iterator_type<const RT>>()
-      && origin::Forward_iterator<origin::Iterator_type<const RT>>()
+requires TextForwardDecoder<ET, origin::Iterator_type<std::add_const_t<RT>>>()
 class itext_iterator_data<ET, RT>
     : public itext_iterator_base<ET, RT>
 {
 public:
-    using state_type = typename itext_iterator_data::state_type;
+    using encoding_type = typename itext_iterator_data::encoding_type;
     using range_type = typename itext_iterator_data::range_type;
+    using state_type = typename itext_iterator_data::state_type;
     using iterator = typename itext_iterator_data::iterator;
 
 protected:
     itext_iterator_data() = default;
 
     itext_iterator_data(
-        const state_type &state,
+        state_type state,
         const range_type *range,
         iterator first)
     :
@@ -174,7 +174,7 @@ protected:
 
 
 template<TextEncoding ET, origin::Input_range RT>
-requires TextDecoder<ET, origin::Iterator_type<const RT>>()
+requires TextDecoder<ET, origin::Iterator_type<std::add_const_t<RT>>>()
 class itext_iterator
     : public text_detail::itext_iterator_data<ET, RT>
 {
@@ -193,7 +193,7 @@ public:
     itext_iterator() = default;
 
     itext_iterator(
-        const state_type &state,
+        state_type state,
         const range_type *range,
         iterator first)
     :
@@ -438,7 +438,7 @@ private:
             && (!ok || this->base() == other.base());
     }
     bool equal(const itext_iterator &other) const
-        requires origin::Forward_iterator<origin::Iterator_type<const RT>>()
+        requires origin::Forward_iterator<iterator>()
     {
         return this->base() == other.base();
     }
@@ -453,7 +453,7 @@ template<TextEncoding ET, origin::Input_range RT>
 class itext_sentinel {
 public:
     using range_type = RT;
-    using sentinel = origin::Sentinel_type<RT>;
+    using sentinel = origin::Sentinel_type<std::add_const_t<RT>>;
 
     itext_sentinel(sentinel s)
         : s{s} {}
@@ -630,7 +630,7 @@ private:
             && ! ti.is_ok();
     }
     bool equal(const itext_iterator<ET, RT> &ti) const
-        requires origin::Forward_iterator<origin::Iterator_type<const RT>>()
+        requires origin::Forward_iterator<decltype(ti.base())>()
     {
         return ti.base() == base();
     }

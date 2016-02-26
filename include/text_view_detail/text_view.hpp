@@ -77,8 +77,8 @@ public:
     using encoding_type = ET;
     using range_type = RT;
     using state_type = typename ET::state_type;
-    using code_unit_iterator = origin::Iterator_type<const range_type>;
-    using code_unit_sentinel = origin::Sentinel_type<const range_type>;
+    using code_unit_iterator = origin::Iterator_type<std::add_const_t<range_type>>;
+    using code_unit_sentinel = origin::Sentinel_type<std::add_const_t<range_type>>;
     using iterator = itext_iterator<ET, RT>;
     using sentinel = itext_sentinel<ET, RT>;
 
