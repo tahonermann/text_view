@@ -46,10 +46,7 @@ int main() {
     // the underlying code unit type of UTF-8 string literals is 'char' and
     // 'char' may be a signed 8-bit type that is unable to represent the full
     // unsigned range of UTF-8 code unit values.
-    // FIXME: gcc 6.0.0 does not yet implement N4197.  The character literals
-    // FIXME: below should be written with a u8 prefix for consistency with the
-    // FIXME: UTF-8 encoded string written above.
-    assert(*(ti.base_range().begin()+0) == '\xC3');
-    assert(*(ti.base_range().begin()+1) == '\xB8');
+    assert(*(ti.base_range().begin()+0) == u8'\xC3');
+    assert(*(ti.base_range().begin()+1) == u8'\xB8');
     assert((ti.base_range().begin()+2) == ti.base_range().end());
 }

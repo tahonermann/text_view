@@ -1668,32 +1668,26 @@ void test_u8text_view() {
     using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
-    // FIXME: Once N4267 is implemented, replace these character literals with
-    // FIXME: u8 prefixed ones.
     CUMS code_unit_maps_with_terminator{
-        { {}, { CT{U't'} },  { 't'  } },
-        { {}, { CT{U'e'} },  { 'e'  } },
-        { {}, { CT{U'x'} },  { 'x'  } },
-        { {}, { CT{U't'} },  { 't'  } },
-        { {}, { CT{U'\0'} }, { '\0' } } };
+        { {}, { CT{U't'} },  { u8't'  } },
+        { {}, { CT{U'e'} },  { u8'e'  } },
+        { {}, { CT{U'x'} },  { u8'x'  } },
+        { {}, { CT{U't'} },  { u8't'  } },
+        { {}, { CT{U'\0'} }, { u8'\0' } } };
     CUMS code_unit_maps_without_terminator{
-        { {}, { CT{U't'} },  { 't'  } },
-        { {}, { CT{U'e'} },  { 'e'  } },
-        { {}, { CT{U'x'} },  { 'x'  } },
-        { {}, { CT{U't'} },  { 't'  } } };
+        { {}, { CT{U't'} },  { u8't'  } },
+        { {}, { CT{U'e'} },  { u8'e'  } },
+        { {}, { CT{U'x'} },  { u8'x'  } },
+        { {}, { CT{U't'} },  { u8't'  } } };
 
     // Underlying code unit containers.
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
     static const char cstr[] = u8"text";
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
-    // FIXME: Once N4267 is implemented, replace these character literals with
-    // FIXME: u8 prefixed ones.
-    static const array<char, 4> ary{ 't', 'e', 'x', 't' };
+    static const array<char, 4> ary{ u8't', u8'e', u8'x', u8't' };
     static const string str{u8"text"};
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
-    // FIXME: Once N4267 is implemented, replace these character literals with
-    // FIXME: u8 prefixed ones.
-    static const auto il = { 't', 'e', 'x', 't' }; // std::initializer_list<char>.
+    static const auto il = { u8't', u8'e', u8'x', u8't' }; // std::initializer_list<char>.
 
     test_construct_text_view<TVT>(
         code_unit_maps_with_terminator,
