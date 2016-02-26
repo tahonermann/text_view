@@ -365,7 +365,7 @@ template<TextEncoding ET, ranges::InputRange RT>
   class itext_sentinel;
 
 // otext_iterator:
-template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
   class otext_iterator;
 
 // otext_iterator factory functions:
@@ -2200,12 +2200,12 @@ Member functions provide access to the stored encoding state and the underlying
 [code unit](#code-unit) output iterator.
 
 ```C++
-template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
 class otext_iterator {
 public:
-  using encoding_type = E;
-  using state_type = typename E::state_type;
-  using state_transition_type = typename E::state_transition_type;
+  using encoding_type = ET;
+  using state_type = typename ET::state_type;
+  using state_transition_type = typename ET::state_transition_type;
 
   using iterator = CUIT;
   using iterator_category = std::output_iterator_tag;

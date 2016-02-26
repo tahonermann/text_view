@@ -935,7 +935,7 @@ template&lt;TextEncoding ET, ranges::InputRange RT&gt;
   class itext_sentinel;
 
 // otext_iterator:
-template&lt;TextEncoding E, CodeUnitOutputIterator&lt;code_unit_type_t&lt;E&gt;&gt; CUIT&gt;
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; CUIT&gt;
   class otext_iterator;
 
 // otext_iterator factory functions:
@@ -3001,12 +3001,12 @@ underlying code unit output iterator.
 
 <blockquote class="code">
 <pre><code>
-template&lt;TextEncoding E, CodeUnitOutputIterator&lt;code_unit_type_t&lt;E&gt;&gt; CUIT&gt;
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; CUIT&gt;
 class otext_iterator {
 public:
-  using encoding_type = E;
-  using state_type = typename E::state_type;
-  using state_transition_type = typename E::state_transition_type;
+  using encoding_type = ET;
+  using state_type = typename ET::state_type;
+  using state_transition_type = typename ET::state_transition_type;
 
   using iterator = CUIT;
   using iterator_category = std::output_iterator_tag;

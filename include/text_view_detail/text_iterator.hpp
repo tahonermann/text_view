@@ -649,14 +649,14 @@ private:
 };
 
 
-template<TextEncoding E, CodeUnitOutputIterator<code_unit_type_t<E>> CUIT>
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
 class otext_iterator
-    : private E::state_type
+    : private ET::state_type
 {
 public:
-    using encoding_type = E;
-    using state_type = typename E::state_type;
-    using state_transition_type = typename E::state_transition_type;
+    using encoding_type = ET;
+    using state_type = typename ET::state_type;
+    using state_transition_type = typename ET::state_transition_type;
     using iterator = CUIT;
     using iterator_category = std::output_iterator_tag;
     using value_type = character_type_t<encoding_type>;
