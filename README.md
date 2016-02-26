@@ -2004,11 +2004,11 @@ will compare equal to the end of the stream iterator).
 template<TextEncoding ET, ranges::InputRange RT>
   requires TextDecoder<
              ET,
-             ranges::iterator_t<std::add_const_t<std::remove_reference_t<RT>>>>()
+             ranges::iterator_t<std::add_const_t<RT>>>()
 class itext_iterator {
 public:
   using encoding_type = ET;
-  using range_type = std::remove_reference_t<RT>;
+  using range_type = RT;
   using state_type = typename encoding_type::state_type;
 
   using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
@@ -2106,7 +2106,7 @@ comparisons.
 template<TextEncoding ET, ranges::InputRange RT>
 class itext_sentinel {
 public:
-  using range_type = std::remove_reference_t<RT>;
+  using range_type = RT;
   using sentinel = ranges::sentinel_t<std::add_const_t<range_type>>;
 
   itext_sentinel(sentinel s);

@@ -186,7 +186,7 @@ private:
 template<origin::Range RT>
 class iterable_view {
 public:
-    using range_type = std::remove_reference_t<RT>;
+    using range_type = RT;
     using iterator = origin::Iterator_type<RT>;
 
     class sentinel {
@@ -592,18 +592,19 @@ void test_text_iterator_models() {
     static_assert(TextIterator<text_iterator_archetype>());
     static_assert(TextIterator<text_view_archetype::iterator>());
     // std input iterators
-    static_assert(TextIterator<itext_iterator<basic_execution_character_encoding, char(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<basic_execution_wide_character_encoding, wchar_t(&)[5]>>());
+    static_assert(TextIterator<itext_iterator<basic_execution_character_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextIterator<itext_iterator<basic_execution_wide_character_encoding, origin::bounded_range<wchar_t*>>>());
 #if defined(__STDC_ISO_10646__)
-    static_assert(TextIterator<itext_iterator<iso_10646_wide_character_encoding, wchar_t(&)[5]>>());
+    static_assert(TextIterator<itext_iterator<iso_10646_wide_character_encoding, origin::bounded_range<wchar_t*>>>());
 #endif
-    static_assert(TextIterator<itext_iterator<utf8_encoding, char(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<utf16_encoding, char16_t(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<utf16be_encoding, char(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<utf16le_encoding, char(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<utf32_encoding, char32_t(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<utf32be_encoding, char(&)[5]>>());
-    static_assert(TextIterator<itext_iterator<utf32le_encoding, char(&)[5]>>());
+    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    static_assert(TextIterator<itext_iterator<utf8_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextIterator<itext_iterator<utf16_encoding, origin::bounded_range<char16_t*>>>());
+    static_assert(TextIterator<itext_iterator<utf16be_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextIterator<itext_iterator<utf16le_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextIterator<itext_iterator<utf32_encoding, origin::bounded_range<char32_t*>>>());
+    static_assert(TextIterator<itext_iterator<utf32be_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextIterator<itext_iterator<utf32le_encoding, origin::bounded_range<char*>>>());
 }
 
 void test_text_output_iterator_models() {
@@ -616,6 +617,7 @@ void test_text_output_iterator_models() {
 #if defined(__STDC_ISO_10646__)
     static_assert(TextOutputIterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>());
 #endif
+    // FIXME: If N3398 were to be adopted, replace char with char8_t.
     static_assert(TextOutputIterator<otext_iterator<utf8_encoding, char*>>());
     static_assert(TextOutputIterator<otext_iterator<utf16_encoding, char16_t*>>());
     static_assert(TextOutputIterator<otext_iterator<utf16be_encoding, char*>>());
@@ -634,16 +636,12 @@ void test_text_view_models() {
     static_assert(TextView<u8text_view>());
     static_assert(TextView<u16text_view>());
     static_assert(TextView<u32text_view>());
-    static_assert(TextView<basic_text_view<execution_character_encoding, char(&)[5]>>());
-    static_assert(TextView<basic_text_view<execution_character_encoding, const char(&)[5]>>());
-    static_assert(TextView<basic_text_view<execution_wide_character_encoding, wchar_t(&)[5]>>());
+    static_assert(TextView<basic_text_view<execution_character_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextView<basic_text_view<execution_wide_character_encoding, origin::bounded_range<wchar_t*>>>());
     // FIXME: If N3398 were to be adopted, replace char with char8_t.
-    static_assert(TextView<basic_text_view<char8_character_encoding, char(&)[5]>>());
-    static_assert(TextView<basic_text_view<char16_character_encoding, char16_t(&)[5]>>());
-    static_assert(TextView<basic_text_view<char32_character_encoding, char32_t(&)[5]>>());
-    static_assert(TextView<basic_text_view<execution_character_encoding, string&>>());
-    static_assert(TextView<basic_text_view<execution_character_encoding, array<char, 5>&>>());
-    static_assert(TextView<basic_text_view<execution_character_encoding, vector<char>&>>());
+    static_assert(TextView<basic_text_view<char8_character_encoding, origin::bounded_range<char*>>>());
+    static_assert(TextView<basic_text_view<char16_character_encoding, origin::bounded_range<char16_t*>>>());
+    static_assert(TextView<basic_text_view<char32_character_encoding, origin::bounded_range<char32_t*>>>());
     // FIXME: The following basic_text_view instantiations should be rejected
     // FIXME: since the range type they are instantiated with owns the
     // FIXME: underlying storage.

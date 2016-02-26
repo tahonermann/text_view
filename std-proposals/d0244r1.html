@@ -2800,11 +2800,11 @@ the stream iterator).
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
   requires TextDecoder&lt;
              ET,
-             ranges::iterator_t&lt;std::add_const_t&lt;std::remove_reference_t&lt;RT&gt;&gt;&gt;&gt;()
+             ranges::iterator_t&lt;std::add_const_t&lt;RT&gt;&gt;&gt;()
 class itext_iterator {
 public:
   using encoding_type = ET;
-  using range_type = std::remove_reference_t&lt;RT&gt;;
+  using range_type = RT;
   using state_type = typename encoding_type::state_type;
 
   using iterator = ranges::iterator_t&lt;std::add_const_t&lt;range_type&gt;&gt;;
@@ -2904,7 +2904,7 @@ iterator and sentinel types supporting relational comparisons.
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
 class itext_sentinel {
 public:
-  using range_type = std::remove_reference_t&lt;RT&gt;;
+  using range_type = RT;
   using sentinel = ranges::sentinel_t&lt;std::add_const_t&lt;range_type&gt;&gt;;
 
   itext_sentinel(sentinel s);
