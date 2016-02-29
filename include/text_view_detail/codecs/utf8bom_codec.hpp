@@ -8,11 +8,10 @@
 #define TEXT_VIEW_CODECS_UTF8BOM_CODEC_HPP
 
 
-#include <text_view_detail/concepts.hpp>
-#include <text_view_detail/codecs/utf8_codec.hpp>
-#include <origin/core/traits.hpp>
 #include <cassert>
 #include <climits>
+#include <text_view_detail/concepts.hpp>
+#include <text_view_detail/codecs/utf8_codec.hpp>
 
 
 namespace std {
@@ -144,11 +143,11 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires origin::Input_iterator<CUIT>()
-          && origin::Convertible<
-                 origin::Value_type<CUIT>,
+    requires ranges::InputIterator<CUIT>()
+          && ranges::ConvertibleTo<
+                 ranges::value_type_t<CUIT>,
                  std::make_unsigned_t<code_unit_type>>()
-          && origin::Sentinel<CUST, CUIT>()
+          && ranges::Sentinel<CUST, CUIT>()
     static bool decode(
         state_type &state,
         CUIT &in_next,
@@ -189,11 +188,11 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires origin::Input_iterator<CUIT>()
-          && origin::Convertible<
-                 origin::Value_type<CUIT>,
+    requires ranges::InputIterator<CUIT>()
+          && ranges::ConvertibleTo<
+                 ranges::value_type_t<CUIT>,
                  std::make_unsigned_t<code_unit_type>>()
-          && origin::Sentinel<CUST, CUIT>()
+          && ranges::Sentinel<CUST, CUIT>()
     static bool rdecode(
         state_type &state,
         CUIT &in_next,

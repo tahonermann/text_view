@@ -8,8 +8,8 @@ based character encoding and code point enumeration library.
 - [Build and installation](#build-and-installation)
   - [Building and installing gcc]
     (#building-and-installing-gcc)
-  - [Building and installing Origin-text_view]
-    (#building-and-installing-origin-text_view)
+  - [Building and installing cmcstl2]
+    (#building-and-installing-cmcstl2)
   - [Building and installing Text_view]
     (#building-and-installing-text_view)
 - [Usage](#usage)
@@ -120,14 +120,8 @@ for (const auto &ch : tv) {
 specification 19217:2015, **C++ Extensions for concepts**][ISO/IEC 19217:2015]
 As of 2015-12-31, this specification is only supported by the current
 in-development release of [gcc] that currently self-identifies itself as [gcc]
-version 6.0.0.  Additionally, [Text_view] depends on the [Origin-text_view] fork
-of [Andrew Sutton]'s [Origin] library for concept definitions.  The fork is
-necessary to work around the following [gcc] defects and [Origin] issues that
-are surfaced by [Text_view].
-
-1. https://github.com/asutton/origin/issues/5
-2. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69235
-3. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67565
+version 6.0.0.  Additionally, [Text_view] depends on the [cmcstl2]
+implementation of the [ranges proposal][N4560] for concept definitions.
 
 # Build and installation
 This section provides instructions for building [Text_view] and suitable
@@ -171,23 +165,16 @@ $ cd ..
 When complete, the new [gcc] build will be present in the `gcc-trunk-install`
 directory.
 
-## Building and installing [Origin-text_view]
-[Text_view] does not currently build successfully with the top of trunk version
-of the [Origin] library.  The [Origin-text_view] fork of [Origin] was created
-to work around the issues.  The following commands can be used to perform a
-suitable build of [Origin] on Linux that will work with [Text_view].  Note that
-these commands assume that an appropriate build of [gcc] was performed and
-installed as per the previous section.
+## Building and installing [cmcstl2]
+[Text_view] only depends on headers provided by [cmcstl2] and no build or
+installation is required.  [Text_view] is known to build successfully with
+[cmcstl2] git revision `c5cb6e0e629469ddca49f9dc3124157e52319b13`.  The
+following commands can be used to checkout a known good revision.
 
 ```sh
-$ PATH=$(pwd)/gcc-trunk-install/bin; export PATH
-$ git clone https://github.com/tahonermann/origin.git origin-text_view-src
-$ mkdir origin-text_view-build
-$ cd origin-text_view-build
-$ cmake ../origin-text_view-src \
-  -DCMAKE_INSTALL_PREFIX:PATH=$(pwd)/../origin-text_view-install
-$ make install
-$ cd ..
+$ git clone https://github.com/CaseyCarter/cmcstl2.git cmcstl2
+$ cd cmcstl2
+$ git checkout c5cb6e0e629469ddca49f9dc3124157e52319b13
 ```
 
 ## Building and installing [Text_view]
@@ -197,15 +184,15 @@ header-only library in the future, so at some point, a build and installation
 step will be required.
 
 [Text_view] currently has a simple build system that is hard-coded to look for
-[gcc] and [Origin] at specific locations.  This will change at some point in
-the future, but given the present [gcc] and [Origin] requirements, hasn't been
+[gcc] and [cmcstl2] at specific locations.  This will change at some point in
+the future, but given the present [gcc] and [cmcstl2] requirements, hasn't been
 a burden.  The build system is only used to build and run a few test programs.
 
 The following commands suffice to build and run the test programs.  Note that it
-may take several minutes to build the test-text_view program.
+may take several minutes to build the `test-text_view` program.
 
 ```sh
-$ vi setenv-gcc-trunk.sh  # Update GCC_INSTALL_PATH and ORIGIN_INSTALL_PATH.
+$ vi setenv-gcc-trunk.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH=.
 $ . ./setenv-gcc-trunk.sh
 $ make
 ```
@@ -215,7 +202,7 @@ If the build succeeds, a few test and utility programs will be present in the
 
 # Usage
 [Text_view] is currently a header-only library.  To use it in your own code,
-add include paths for the `text_view/include` and [Origin] installation
+add include paths for the `text_view/include` and [cmcstl2] installation
 locations, and include the `text_view` header file:
 
 ```C++
@@ -228,18 +215,11 @@ namespace, so all entities are available from the `std::experimental` namespace
 itself.
 
 The interface descriptions in the sections that follow use the concept names
-from the [ranges proposal][N4560].  However, the actual [Text_view]
-implementation uses the [Origin] library for concept definitions and those
-definitions do not currently match those in the [ranges proposal][N4560].  As a
-result, the definitions that follow do not exactly match the code in the
-[Text_view] library.  The following definitions are intended to be used as
-specification and should be considereed authoritative.  Any differences in
-behavior as defined by these definitions as compared to the [Text_view]
-implementation is unintentional and should be considered indicatative of a
-defect.
-
-Once an implementation of the [ranges proposal][N4560] becomes available, it is
-expected that [Text_view] will be ported to it.
+from the [ranges proposal][N4560], are intended to be used as specification,
+and should be considereed authoritative.  Any differences in behavior as
+defined by these definitions as compared to the [Text_view] implementation are
+unintentional and should be considered indicatative of a defect in either the
+specification or the implementation.
 
 ## Header &lt;text_view&gt; synopsis
 
@@ -461,8 +441,8 @@ template<typename T> concept bool CodeUnit() {
 `CodeUnit<T>()` is satisfied if and only if
 `std::is_integral<T>::value` is true and at least one of
 `std::is_unsigned<T>::value` is true,
-`std::is_same<std::remove_cv<T>::type, char>::value` is true, or
-`std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
+`std::is_same<std::remove_cv_t<T>, char>::value` is true, or
+`std::is_same<std::remove_cv_t<T>, wchar_t>::value` is true.
 
 ### Concept CodePoint
 The `CodePoint` concept specifies requirements for a type usable as the
@@ -477,8 +457,8 @@ template<typename T> concept bool CodePoint() {
 `CodePoint<T>()` is satisfied if and only if
 `std::is_integral<T>::value` is true and at least one of
 `std::is_unsigned<T>::value` is true,
-`std::is_same<std::remove_cv<T>::type, char>::value` is true, or
-`std::is_same<std::remove_cv<T>::type, wchar_t>::value` is true.
+`std::is_same<std::remove_cv_t<T>, char>::value` is true, or
+`std::is_same<std::remove_cv_t<T>, wchar_t>::value` is true.
 
 ### Concept CharacterSet
 The `CharacterSet` concept specifies requirements for a type that describes
@@ -2000,6 +1980,15 @@ successfully decoded the last [code point](#code-point) in the
 done so; in both cases, the underlying [code unit](#code-unit) input iterator
 will compare equal to the end of the stream iterator).
 
+`itext_iterator` is a [proxy iterator][P0022R1] since the value type is computed
+and a meaningful reference type cannot be provided for the dereference and
+subscript operators.  The `reference` member type is an alias of an
+implementation defined proxy reference type, must satisfy `Character`, and must
+support implicit conversion to `const value_type&`.
+
+Note: Implementation of a reference proxy would be simplified if the
+[operator dot proposal][P0252R0] is adopted.
+
 ```C++
 template<TextEncoding ET, ranges::InputRange RT>
   requires TextDecoder<
@@ -2014,7 +2003,7 @@ public:
   using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
   using iterator_category = /* implementation-defined */;
   using value_type = character_type_t<encoding_type>;
-  using reference = std::add_const_t<value_type>&;
+  using reference = /* implementation-defined */;
   using pointer = std::add_const_t<value_type>*;
   using difference_type = ranges::difference_type_t<iterator>;
 
@@ -2065,7 +2054,7 @@ public:
                                    const itext_iterator &r)
     requires TextRandomAccessDecoder<encoding_type, iterator>();
 
-  value_type operator[](difference_type n) const
+  reference operator[](difference_type n) const
     requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   const state_type& state() const noexcept;
@@ -2091,10 +2080,10 @@ private:
 Objects of `itext_sentinel` class template specialization type denote the end
 of a range of text as delimited by a sentinel object for the underlying
 [code unit](#code-unit) sequence.  These types satisfy the `TextSentinel`
-concept and are copy and move constructible, copy and move assignable, and
-equality comparable.  All objects of the same `itext_sentinel` type compare
-equally.  Member functions provide access to the sentinel for the underlying
-[code unit](#code-unit) sequence.
+concept and are default constructible, copy and move constructible, copy and
+move assignable, and equality comparable.  All objects of the same
+`itext_sentinel` type compare equally.  Member functions provide access to the
+sentinel for the underlying [code unit](#code-unit) sequence.
 
 Objects of these types are constructible from and equality comparable to
 `itext_iterator` objects that have matching [encoding](#encoding) and view
@@ -2108,6 +2097,8 @@ class itext_sentinel {
 public:
   using range_type = RT;
   using sentinel = ranges::sentinel_t<std::add_const_t<range_type>>;
+
+  itext_sentinel() = default;
 
   itext_sentinel(sentinel s);
 
@@ -2335,7 +2326,7 @@ public:
     basic_text_view(state_type state,
                     const basic_string<charT, traits, Allocator> &str)
     requires ranges::Constructible<code_unit_iterator, const charT *>()
-          && ranges::Constructible<ranges::difference_type_t<code_unit_iterator>,
+          && ranges::ConvertibleTo<ranges::difference_type_t<code_unit_iterator>,
                                    typename basic_string<charT, traits, Allocator>::size_type>()
           && ranges::Constructible<range_type,
                                    code_unit_iterator,
@@ -2344,7 +2335,7 @@ public:
   template<typename charT, typename traits, typename Allocator>
     basic_text_view(const basic_string<charT, traits, Allocator> &str)
     requires ranges::Constructible<code_unit_iterator, const charT *>()
-          && ranges::Constructible<ranges::difference_type_t<code_unit_iterator>,
+          && ranges::ConvertibleTo<ranges::difference_type_t<code_unit_iterator>,
                                    typename basic_string<charT, traits, Allocator>::size_type>()
           && ranges::Constructible<range_type,
                                    code_unit_iterator,
@@ -2641,12 +2632,12 @@ encodings such as [Windows code page 1252].
 # References
 - [Text_view]  
   https://github.com/tahonermann/text_view
-- [Origin]  
-  http://asutton.github.io/origin
-- [Origin-text_view]  
-  https://github.com/tahonermann/origin
+- [cmcstl2]
+  https://github.com/CaseyCarter/cmcstl2
 - [ISO/IEC technical specification 19217:2015, C++ Extensions for concepts][ISO/IEC 19217:2015]  
   http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031
+- [P0252R0: Operator Dot Wording][P0252R0]
+  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf
 - [P0184R0: Generalizing the Range-Based For Loop][P0184R0]  
   http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html
 - [P0022R1: Proxy Iterators for the Ranges Extensions][P0022R1]  
@@ -2663,15 +2654,9 @@ encodings such as [Windows code page 1252].
 [Text_view]:
 https://github.com/tahonermann/text_view
 (Text_view library)
-[Andrew Sutton]:
-https://github.com/asutton
-(Andrew Sutton)
-[Origin]:
-http://asutton.github.io/origin
-(Origin libraries)
-[Origin-text_view]:
-https://github.com/tahonermann/origin
-(Origin libraries for text_view)
+[cmcstl2]:
+https://github.com/CaseyCarter/cmcstl2
+(An implementation of C++ Extensions for Ranges)
 [Unicode]:
 http://unicode.org
 (The Unicode Consortium)
@@ -2711,6 +2696,9 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html
 [P0184R0]:
 http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html
 (P0184R0: Generalizing the Range-Based For Loop)
+[P0252R0]:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf
+(P0252R0: Operator Dot Wording)
 [gcc]:
 https://gcc.gnu.org
 (GCC, the GNU Compiler Collection)

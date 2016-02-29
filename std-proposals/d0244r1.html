@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-02-25</td>
+    <td>2016-02-29</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -419,11 +419,10 @@ Type") that a future paper will propose such a type.
 
 <p>The technical specification in this paper leaves the view type selected by
 <tt>make_text_view</tt> and the type aliases of <tt>basic_text_view</tt>
-up to the implementation.  The reference implementation uses Origin's
-<tt>origin::bounded_range</tt> class template for this purpose.  It would
-have been possible to define a suitable view type as part of this library, but
-the author felt it better to wait until a suitable type becomes available as
-part of either the ranges proposal or the standard library.
+up to the implementation.  It would have been possible to define a suitable
+view type as part of this library, but the author felt it better to wait until
+a suitable type becomes available as part of either the ranges proposal or the
+standard library.
 
 <h2 id="error_handling">Error Handling</h2>
 
@@ -594,19 +593,19 @@ technical specification
 The only compiler known to do so at the time of this
 writing is the in-development gcc 6.0 release.
 
-<p>The reference implementation currently depends on Andrew Sutton's
-<a href="http://asutton.github.io/origin">Origin</a>
-<sup><a href="#ref_origin">[Origin]</a></sup> libraries for concept
-definitions.  Origin's concept definitions do not match the concept
-definitions specified in the proposed ranges technical specification
-<sup><a href="#ref_n4560">[N4560]</a></sup> and used as the specification
-of the described library in this document.  As a result, the interface
-declarations in the reference implementation differ from those presented
-here.  The expectation is that code written to the specification presented
-here will work with the reference implementation, but there may be some
-corner cases that make the differences apparent.  Any such differences should
-be considered defects or limitations of the reference implementation and
-reported at <a href="https://github.com/tahonermann/text_view/issues">
+<p>The reference implementation currently depends on Casey Carter and Eric
+Niebler's <a href="https://github.com/CaseyCarter/cmcstl2">cmcstl2</a>
+<sup><a href="#ref_cmcstl2">[cmcstl2]</a></sup>.
+implementation of the ranges proposal
+<sup><a href="#ref_n4560">[N4560]</a></sup>
+for concept definitions.  The interfaces described in this document use the
+concept names from the ranges proposal
+<sup><a href="#ref_n4560">[N4560]</a></sup>, are intended to be used as
+specification, and should be considereed authoritative.  Any differences in
+behavior as defined by these definitions as compared to the reference
+implementation are unintentional and should be considered indicatative of
+defects or limitations of the reference implementation and reported at
+<a href="https://github.com/tahonermann/text_view/issues">
 https://github.com/tahonermann/text_view/issues</a>.
 
 <h1 id="future_directions">Future Directions</h1>
@@ -1050,9 +1049,9 @@ the code unit type of a string type.
   <li>and at least one of:
     <ul>
       <li><tt>std::is_unsigned&lt;T&gt;::value</tt> is true.</li>
-      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, char&gt;::value
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, char&gt;::value
           </tt> is true.</li>
-      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, wchar_t&gt;::value
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, wchar_t&gt;::value
           </tt> is true.</li>
     </ul></li>
 </ul>
@@ -1077,9 +1076,9 @@ as the code point type of a character set type.
   <li>and at least one of:
     <ul>
       <li><tt>std::is_unsigned&lt;T&gt;::value</tt> is true.</li>
-      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, char&gt;::value
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, char&gt;::value
           </tt> is true.</li>
-      <li><tt>std::is_same&lt;std::remove_cv&lt;T&gt;::type, wchar_t&gt;::value
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, wchar_t&gt;::value
           </tt> is true.</li>
     </ul></li>
 </ul>
@@ -2795,6 +2794,18 @@ unit stream as compared to one that was advanced after having done so; in both
 cases, the underlying code unit input iterator will compare equal to the end of
 the stream iterator).
 
+<p><tt>itext_iterator</tt> is a proxy iterator
+<sup><a href="#ref_p0022r1">[P0022R1]</a></sup>
+since the value type is computed and a meaningful reference type cannot be
+provided for the dereference and subscript operators.  The <tt>reference</tt>
+member type is an alias of an implementation defined proxy reference type, must
+satisfy <tt>Character</tt>, and must support implicit conversion to <tt>const
+value_type&amp;</tt>.
+
+<p>Note: Implementation of a reference proxy would be simplified if the
+operator dot proposal <sup><a href="#ref_p0252r0">[P0252R0]</a></sup> is
+adopted.
+
 <blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::InputRange RT&gt;
@@ -2810,7 +2821,7 @@ public:
   using iterator = ranges::iterator_t&lt;std::add_const_t&lt;range_type&gt;&gt;;
   using iterator_category = /* implementation-defined */;
   using value_type = character_type_t&lt;encoding_type&gt;;
-  using reference = std::add_const_t&lt;value_type&gt;&amp;;
+  using reference = /* implementation-defined */;
   using pointer = std::add_const_t&lt;value_type&gt;*;
   using difference_type = ranges::difference_type_t&lt;iterator&gt;;
 
@@ -2861,7 +2872,7 @@ public:
                                    const itext_iterator &amp;r)
     requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
 
-  value_type operator[](difference_type n) const
+  reference operator[](difference_type n) const
     requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
 
   const state_type&amp; state() const noexcept;
@@ -2889,10 +2900,10 @@ private:
 <p>Objects of <tt>itext_sentinel</tt> class template specialization type
 denote the end of a range of text as delimited by a sentinel object for the
 underlying code unit sequence.  These types satisfy the
-<tt>TextSentinel</tt> concept and are copy and move constructible, copy
-and move assignable, and equality comparable.  All objects of the same
-<tt>itext_sentinel</tt> type compare equally.  Member functions provide
-access to the sentinel for the underlying code unit sequence.  
+<tt>TextSentinel</tt> concept and are default constructible, copy and move
+constructible, copy and move assignable, and equality comparable.  All objects
+of the same <tt>itext_sentinel</tt> type compare equally.  Member functions
+provide access to the sentinel for the underlying code unit sequence.
 
 <p>Objects of these types are constructible from and equality comparable to
 <tt>itext_iterator</tt> objects that have matching encoding and view types.
@@ -2906,6 +2917,8 @@ class itext_sentinel {
 public:
   using range_type = RT;
   using sentinel = ranges::sentinel_t&lt;std::add_const_t&lt;range_type&gt;&gt;;
+
+  itext_sentinel() = default;
 
   itext_sentinel(sentinel s);
 
@@ -3146,7 +3159,7 @@ public:
     basic_text_view(state_type state,
                     const basic_string&lt;charT, traits, Allocator&gt; &amp;str)
     requires ranges::Constructible&lt;code_unit_iterator, const charT *&gt;()
-          &amp;&amp; ranges::Constructible&lt;ranges::difference_type_t&lt;code_unit_iterator&gt;,
+          &amp;&amp; ranges::ConvertibleTo&lt;ranges::difference_type_t&lt;code_unit_iterator&gt;,
                                    typename basic_string&lt;charT, traits, Allocator&gt;::size_type&gt;()
           &amp;&amp; ranges::Constructible&lt;range_type,
                                    code_unit_iterator,
@@ -3155,7 +3168,7 @@ public:
   template&lt;typename charT, typename traits, typename Allocator&gt;
     basic_text_view(const basic_string&lt;charT, traits, Allocator&gt; &amp;str)
     requires ranges::Constructible&lt;code_unit_iterator, const charT *&gt;()
-          &amp;&amp; ranges::Constructible&lt;ranges::difference_type_t&lt;code_unit_iterator&gt;,
+          &amp;&amp; ranges::ConvertibleTo&lt;ranges::difference_type_t&lt;code_unit_iterator&gt;,
                                    typename basic_string&lt;charT, traits, Allocator&gt;::size_type&gt;()
           &amp;&amp; ranges::Constructible&lt;range_type,
                                    code_unit_iterator,
@@ -3338,6 +3351,14 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372</a></td>
   </tr>
   <tr>
+    <td id="ref_cmcstl2"><sup>[cmcstl2]</sup></td>
+    <td>
+      Casey Carter and Eric Niebler,
+      An implementation of C++ Extensions for Ranges.<br/>
+      <a href="https://github.com/CaseyCarter/cmcstl2">
+      https://github.com/CaseyCarter/cmcstl2</a></td>
+  </tr>
+  <tr>
     <td id="ref_concepts"><sup>[Concepts]</sup></td>
     <td>
       "C++ Extensions for concepts", ISO/IEC technical specification 19217:2015.<br/>
@@ -3393,12 +3414,12 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html</a></td>
   </tr>
   <tr>
-    <td id="ref_origin"><sup>[Origin]</sup></td>
+    <td id="ref_p0252r0"><sup>[P0252R0]</sup></td>
     <td>
-      Andrew Sutton,
-      Origin libraries.<br/>
-      <a href="http://asutton.github.io/origin">
-      http://asutton.github.io/origin</a></td>
+      Bjarne Stroustrup and Gabriel Dos Reis,
+      "Operator Dot Wording", P0252R0, 2016.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf</a></td>
   </tr>
   <tr>
     <td id="ref_text_view"><sup>[Text_view]</sup></td>

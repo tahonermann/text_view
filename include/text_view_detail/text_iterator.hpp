@@ -8,10 +8,9 @@
 #define TEXT_VIEW_TEXT_ITERATOR_HPP
 
 
+#include <experimental/ranges/iterator>
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/concepts.hpp>
-#include <iterator>
-#include <origin/core/traits.hpp>
 
 
 namespace std {
@@ -49,7 +48,7 @@ struct itext_iterator_category_selector<ET, CUIT> {
 };
 
 
-template<TextEncoding ET, origin::Input_range RT>
+template<TextEncoding ET, ranges::View RT>
 class itext_iterator_base
     : protected ET::state_type
 {
@@ -57,15 +56,54 @@ public:
     using encoding_type = ET;
     using range_type = RT;
     using state_type = typename encoding_type::state_type;
-    using iterator = origin::Iterator_type<std::add_const_t<range_type>>;
+    using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
     using iterator_category =
               typename text_detail::itext_iterator_category_selector<
                   encoding_type,
                   iterator>::type;
     using value_type = character_type_t<encoding_type>;
-    using reference = const value_type&;
+    struct reference_proxy {
+        friend bool operator==(
+            const reference_proxy& l,
+            const reference_proxy& r)
+        {
+            return l.value == r.value;
+        }
+        friend bool operator!=(
+            const reference_proxy& l,
+            const reference_proxy& r)
+        {
+            return l.value != r.value;
+        }
+
+        // FIXME: If P0252R0 (Operator Dot Wording) is adopted, replace member
+        // FIXME: functions required to satisfy Character with:
+        // FIXME:   const value_type& operator.() const { return value; }
+        // FIXME: set_code_point() is needed to satisfy Character, but
+        // FIXME: references will always to const.  Can this be omitted?
+        void set_code_point(code_point_type_t<character_set_type_t<value_type>> cp) {
+            value.set_code_point(cp);
+        }
+        auto get_code_point() const
+            -> code_point_type_t<character_set_type_t<value_type>>
+        {
+            return value.get_code_point();
+        }
+        auto get_character_set_id() const
+            -> character_set_id
+        {
+            return value.get_character_set_id();
+        }
+
+        operator const value_type& () const {
+            return value;
+        }
+
+        value_type value;
+    };
+    using reference = reference_proxy;
     using pointer = const value_type*;
-    using difference_type = origin::Difference_type<iterator>;
+    using difference_type = ranges::difference_type_t<iterator>;
 
 protected:
     itext_iterator_base() = default;
@@ -85,8 +123,8 @@ public:
     }
 };
 
-template<TextEncoding ET, origin::Input_range RT>
-requires TextDecoder<ET, origin::Iterator_type<std::add_const_t<RT>>>()
+template<TextEncoding ET, ranges::View RT>
+requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<RT>>>()
 class itext_iterator_data
     : public itext_iterator_base<ET, RT>
 {
@@ -119,8 +157,8 @@ protected:
     iterator current;
 };
 
-template<TextEncoding ET, origin::Input_range RT>
-requires TextForwardDecoder<ET, origin::Iterator_type<std::add_const_t<RT>>>()
+template<TextEncoding ET, ranges::View RT>
+requires TextForwardDecoder<ET, ranges::iterator_t<std::add_const_t<RT>>>()
 class itext_iterator_data<ET, RT>
     : public itext_iterator_base<ET, RT>
 {
@@ -173,8 +211,8 @@ protected:
 } // namespace text_detail
 
 
-template<TextEncoding ET, origin::Input_range RT>
-requires TextDecoder<ET, origin::Iterator_type<std::add_const_t<RT>>>()
+template<TextEncoding ET, ranges::View RT>
+requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<RT>>>()
 class itext_iterator
     : public text_detail::itext_iterator_data<ET, RT>
 {
@@ -212,7 +250,7 @@ public:
     }
 
     reference operator*() const noexcept {
-        return value;
+        return { value };
     }
     pointer operator->() const noexcept {
         return &value;
@@ -413,15 +451,11 @@ public:
                encoding_type::max_code_units;
     }
 
-    // Random access iterator requirements state that operator[] must return
-    // a reference.  That isn't possible here since the reference would be to
-    // a value stored in an object (The itext_iterator instance produced for
-    // '*this + n') that is destroyed before the function returns.
-    value_type operator[](
+    reference operator[](
         difference_type n) const
     requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
-        return *(*this + n);
+        return { *(*this + n) };
     }
 
 private:
@@ -438,7 +472,7 @@ private:
             && (!ok || this->base() == other.base());
     }
     bool equal(const itext_iterator &other) const
-        requires origin::Forward_iterator<iterator>()
+        requires ranges::ForwardIterator<iterator>()
     {
         return this->base() == other.base();
     }
@@ -449,11 +483,13 @@ private:
 };
 
 
-template<TextEncoding ET, origin::Input_range RT>
+template<TextEncoding ET, ranges::View RT>
 class itext_sentinel {
 public:
     using range_type = RT;
-    using sentinel = origin::Sentinel_type<std::add_const_t<RT>>;
+    using sentinel = ranges::sentinel_t<std::add_const_t<RT>>;
+
+    itext_sentinel() = default;
 
     itext_sentinel(sentinel s)
         : s{s} {}
@@ -464,7 +500,7 @@ public:
     // N4382 19.3.2 "Concept EqualityComparable", and N3351 3.3
     // "Foundational Concepts".
     itext_sentinel(const itext_iterator<ET, RT> &ti)
-    requires origin::Convertible<
+    requires ranges::ConvertibleTo<
                  decltype(ti.base()),
                  sentinel>()
     :
@@ -541,7 +577,7 @@ public:
     friend bool operator<(
         const itext_iterator<ET, RT> &ti,
         const itext_sentinel &ts)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -550,7 +586,7 @@ public:
     friend bool operator>(
         const itext_iterator<ET, RT> &ti,
         const itext_sentinel &ts)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -559,7 +595,7 @@ public:
     friend bool operator<=(
         const itext_iterator<ET, RT> &ti,
         const itext_sentinel &ts)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -568,7 +604,7 @@ public:
     friend bool operator>=(
         const itext_iterator<ET, RT> &ti,
         const itext_sentinel &ts)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -578,7 +614,7 @@ public:
     friend bool operator<(
         const itext_sentinel &ts,
         const itext_iterator<ET, RT> &ti)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -587,7 +623,7 @@ public:
     friend bool operator>(
         const itext_sentinel &ts,
         const itext_iterator<ET, RT> &ti)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -596,7 +632,7 @@ public:
     friend bool operator<=(
         const itext_sentinel &ts,
         const itext_iterator<ET, RT> &ti)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -605,7 +641,7 @@ public:
     friend bool operator>=(
         const itext_sentinel &ts,
         const itext_iterator<ET, RT> &ti)
-    requires origin::Weakly_ordered<
+    requires ranges::StrictWeakOrder<
                  typename itext_iterator<ET, RT>::iterator,
                  sentinel>()
     {
@@ -630,7 +666,7 @@ private:
             && ! ti.is_ok();
     }
     bool equal(const itext_iterator<ET, RT> &ti) const
-        requires origin::Forward_iterator<decltype(ti.base())>()
+        requires ranges::ForwardIterator<decltype(ti.base())>()
     {
         return ti.base() == base();
     }
@@ -653,7 +689,7 @@ public:
     using value_type = character_type_t<encoding_type>;
     using reference = value_type&;
     using pointer = value_type*;
-    using difference_type = origin::Difference_type<iterator>;
+    using difference_type = ranges::difference_type_t<iterator>;
 
     otext_iterator() = default;
 

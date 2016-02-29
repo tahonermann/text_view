@@ -8,6 +8,7 @@
 #define TEXT_VIEW_UNICODE_ENCODINGS_HPP
 
 
+#include <cstdint>
 #include <text_view_detail/charsets/unicode_charsets.hpp>
 #include <text_view_detail/character.hpp>
 #include <text_view_detail/codecs/trivial_codec.hpp>
@@ -20,7 +21,6 @@
 #include <text_view_detail/codecs/utf32be_codec.hpp>
 #include <text_view_detail/codecs/utf32le_codec.hpp>
 #include <text_view_detail/codecs/utf32bom_codec.hpp>
-#include <cstdint>
 
 
 namespace std {

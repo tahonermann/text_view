@@ -8,12 +8,12 @@
 #define TEXT_VIEW_CODECS_UTF32LE_CODEC_HPP
 
 
+#include <climits>
+#include <cstdint>
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/exceptions.hpp>
 #include <text_view_detail/character.hpp>
 #include <text_view_detail/trivial_encoding_state.hpp>
-#include <climits>
-#include <cstdint>
 
 
 namespace std {
@@ -73,9 +73,9 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires origin::Input_iterator<CUIT>()
-          && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
-          && origin::Sentinel<CUST, CUIT>()
+    requires ranges::InputIterator<CUIT>()
+          && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
     static bool decode(
         state_type &state,
         CUIT &in_next,
@@ -115,9 +115,9 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires origin::Input_iterator<CUIT>()
-          && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
-          && origin::Sentinel<CUST, CUIT>()
+    requires ranges::InputIterator<CUIT>()
+          && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
     static bool rdecode(
         state_type &state,
         CUIT &in_next,

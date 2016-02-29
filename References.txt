@@ -31,10 +31,6 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3336.html
 N3325: HTML for C++ Standards Documents
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3325.html
 
-Gcc removal of __is_convertible_to:
-- https://gcc.gnu.org/viewcvs/gcc?view=revision&revision=215735
-- https://github.com/asutton/origin/issues/1
-
 Gcc regression in constraint checking for concepts with multiple type requirements:
 - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65552
 

@@ -8,10 +8,8 @@
 #define TEXT_VIEW_ARCHETYPES_HPP
 
 
+#include <experimental/ranges/concepts>
 #include <text_view_detail/concepts.hpp>
-#include <origin/core/concepts.hpp>
-#include <origin/algorithm/concepts.hpp>
-#include <origin/range/range.hpp>
 
 
 namespace std {
@@ -150,9 +148,9 @@ struct text_encoding_archetype_template
         int &encoded_code_units);
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires origin::Input_iterator<CUIT>()
-          && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
-          && origin::Sentinel<CUST, CUIT>()
+    requires ranges::InputIterator<CUIT>()
+          && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
     static bool decode(
         state_type &state,
         CUIT &in_next,
@@ -161,9 +159,9 @@ struct text_encoding_archetype_template
         int &decoded_code_units);
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires origin::Input_iterator<CUIT>()
-          && origin::Convertible<origin::Value_type<CUIT>, code_unit_type>()
-          && origin::Sentinel<CUST, CUIT>()
+    requires ranges::InputIterator<CUIT>()
+          && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
+          && ranges::Sentinel<CUST, CUIT>()
     static bool rdecode(
         state_type &state,
         CUIT &in_next,
@@ -187,11 +185,11 @@ public:
     using encoding_type = ET;
     using state_type = typename ET::state_type;
     using iterator = CUIT;
-    using iterator_category = origin::Iterator_category<iterator>;
+    using iterator_category = ranges::iterator_category_t<iterator>;
     using value_type = character_type_t<ET>;
     using reference = character_type_t<ET>&;
     using pointer = character_type_t<ET>*;
-    using difference_type = origin::Difference_type<iterator>;
+    using difference_type = ranges::difference_type_t<iterator>;
 
     text_iterator_archetype_template();
     text_iterator_archetype_template(iterator, iterator);
@@ -285,11 +283,11 @@ public:
     using encoding_type = ET;
     using state_type = typename ET::state_type;
     using iterator = CUIT;
-    using iterator_category = origin::Iterator_category<iterator>;
+    using iterator_category = ranges::iterator_category_t<iterator>;
     using value_type = character_type_t<ET>;
     using reference = character_type_t<ET>&;
     using pointer = character_type_t<ET>*;
-    using difference_type = origin::Difference_type<iterator>;
+    using difference_type = ranges::difference_type_t<iterator>;
 
     text_output_iterator_archetype_template();
     text_output_iterator_archetype_template(iterator, iterator);
@@ -309,15 +307,16 @@ using text_output_iterator_archetype = text_output_iterator_archetype_template<
 /*
  * Text view archetype
  */
-template<TextEncoding ET, origin::Input_range RT>
+template<TextEncoding ET, ranges::View RT>
 class text_view_archetype_template {
 public:
     using range_type = RT;
     using encoding_type = ET;
     using state_type = typename ET::state_type;
-    using code_unit_iterator = origin::Iterator_type<RT>;
+    using code_unit_iterator = ranges::iterator_t<RT>;
     using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;
 
+    text_view_archetype_template();
     text_view_archetype_template(const state_type &initial_state, RT r);
     const RT& base() const noexcept;
     RT& base() noexcept;
@@ -328,7 +327,7 @@ public:
 };
 using text_view_archetype = text_view_archetype_template<
                                 text_encoding_archetype,
-                                origin::bounded_range<code_unit_iterator_archetype>>;
+                                text_detail::basic_view<code_unit_iterator_archetype>>;
 
 
 } // inline namespace text

@@ -8,9 +8,8 @@
 #define TEXT_VIEW_CONCEPTS_HPP
 
 
-#include <origin/core/traits.hpp>
-#include <origin/algorithm/concepts.hpp>
-#include <origin/range/range.hpp>
+#include <experimental/ranges/concepts>
+#include <experimental/ranges/type_traits>
 #include <text_view_detail/traits.hpp>
 
 
@@ -32,10 +31,10 @@ concept bool SameValue() {
  */
 template<typename T>
 concept bool CodeUnit() {
-    return origin::Integral_type<T>()
-        && (origin::Unsigned_type<T>()
-            || origin::Same<T, origin::Remove_cv<char>>()
-            || origin::Same<T, origin::Remove_cv<wchar_t>>());
+    return std::is_integral<T>::value
+        && (std::is_unsigned<T>::value
+            || std::is_same<std::remove_cv_t<T>, char>::value
+            || std::is_same<std::remove_cv_t<T>, wchar_t>::value);
 }
 
 
@@ -44,10 +43,10 @@ concept bool CodeUnit() {
  */
 template<typename T>
 concept bool CodePoint() {
-    return origin::Integral_type<T>()
-        && (origin::Unsigned_type<T>()
-            || origin::Same<T, origin::Remove_cv<char>>()
-            || origin::Same<T, origin::Remove_cv<wchar_t>>());
+    return std::is_integral<T>::value
+        && (std::is_unsigned<T>::value
+            || std::is_same<std::remove_cv_t<T>, char>::value
+            || std::is_same<std::remove_cv_t<T>, wchar_t>::value);
 }
 
 
@@ -69,8 +68,8 @@ concept bool CharacterSet() {
 template<typename T>
 concept bool Character() {
     return CharacterSet<character_set_type_t<T>>()
-        && origin::Regular<T>()
-        && origin::Copyable<T>()
+        && ranges::Regular<T>()
+        && ranges::Copyable<T>()
         && requires (T t, code_point_type_t<character_set_type_t<T>> cp) {
                t.set_code_point(cp);
                { t.get_code_point() } -> code_point_type_t<character_set_type_t<T>>;
@@ -84,8 +83,8 @@ concept bool Character() {
  */
 template<typename T>
 concept bool CodeUnitIterator() {
-    return origin::Iterator<T>()
-        && CodeUnit<origin::Value_type<T>>();
+    return ranges::Iterator<T>()
+        && CodeUnit<ranges::value_type_t<T>>();
 }
 
 
@@ -94,7 +93,7 @@ concept bool CodeUnitIterator() {
  */
 template<typename T, typename V>
 concept bool CodeUnitOutputIterator() {
-    return origin::Output_iterator<T, V>()
+    return ranges::OutputIterator<T, V>()
         && CodeUnit<V>();
 }
 
@@ -106,8 +105,8 @@ concept bool CodeUnitOutputIterator() {
  */
 template<typename T>
 concept bool TextEncodingState() {
-    return origin::Default_constructible<T>()
-        && origin::Copyable<T>();
+    return ranges::DefaultConstructible<T>()
+        && ranges::Copyable<T>();
 }
 
 
@@ -116,8 +115,8 @@ concept bool TextEncodingState() {
  */
 template<typename T>
 concept bool TextEncodingStateTransition() {
-    return origin::Default_constructible<T>()
-        && origin::Copyable<T>();
+    return ranges::DefaultConstructible<T>()
+        && ranges::Copyable<T>();
 }
 
 
@@ -173,9 +172,9 @@ concept bool TextEncoder() {
 template<typename T, typename CUIT>
 concept bool TextDecoder() {
     return TextEncoding<T>()
-        && origin::Input_iterator<CUIT>()
-        && origin::Convertible<origin::Value_type<CUIT>,
-                               code_unit_type_t<T>>()
+        && ranges::InputIterator<CUIT>()
+        && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
+                                 code_unit_type_t<T>>()
         && requires (
                typename T::state_type &state,
                CUIT &in_next,
@@ -194,7 +193,7 @@ concept bool TextDecoder() {
 template<typename T, typename CUIT>
 concept bool TextForwardDecoder() {
     return TextDecoder<T, CUIT>()
-        && origin::Forward_iterator<CUIT>();
+        && ranges::ForwardIterator<CUIT>();
 }
 
 
@@ -204,7 +203,7 @@ concept bool TextForwardDecoder() {
 template<typename T, typename CUIT>
 concept bool TextBidirectionalDecoder() {
     return TextForwardDecoder<T, CUIT>()
-        && origin::Bidirectional_iterator<CUIT>()
+        && ranges::BidirectionalIterator<CUIT>()
         && requires (
                typename T::state_type &state,
                CUIT &in_next,
@@ -223,7 +222,7 @@ concept bool TextBidirectionalDecoder() {
 template<typename T, typename CUIT>
 concept bool TextRandomAccessDecoder() {
     return TextBidirectionalDecoder<T, CUIT>()
-        && origin::Random_access_iterator<CUIT>()
+        && ranges::RandomAccessIterator<CUIT>()
         && text_detail::SameValue<int, T::min_code_units, T::max_code_units>()
         && std::is_empty<typename T::state_type>::value;
 }
@@ -234,8 +233,8 @@ concept bool TextRandomAccessDecoder() {
  */
 template<typename T>
 concept bool TextIterator() {
-    return origin::Iterator<T>()
-        && Character<origin::Value_type<T>>()
+    return ranges::Iterator<T>()
+        && Character<ranges::value_type_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
         && requires (T t, const T ct) {
@@ -252,7 +251,7 @@ concept bool TextIterator() {
  */
 template<typename T, typename I>
 concept bool TextSentinel() {
-    return origin::Sentinel<T, I>()
+    return ranges::Sentinel<T, I>()
         && TextIterator<I>();
 }
 
@@ -262,7 +261,7 @@ concept bool TextSentinel() {
  */
 template<typename T>
 concept bool TextOutputIterator() {
-    return origin::Output_iterator<T, character_type_t<encoding_type_t<T>>>()
+    return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
         && requires (T t, const T ct) {
@@ -279,10 +278,10 @@ concept bool TextOutputIterator() {
  */
 template<typename T>
 concept bool TextView() {
-    return origin::Input_range<T>()
-        && TextIterator<origin::Iterator_type<T>>()
+    return ranges::View<T>()
+        && TextIterator<ranges::iterator_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
-        && origin::Input_range<typename T::range_type>()
+        && ranges::View<typename T::range_type>()
         && TextEncodingState<typename T::state_type>()
         && CodeUnitIterator<typename T::code_unit_iterator>()
         && requires (T t, const T ct) {

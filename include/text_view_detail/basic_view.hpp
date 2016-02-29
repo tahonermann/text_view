@@ -1,14 +1,14 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#ifndef TEXT_VIEW_BOUNDED_ITERABLE_HPP // {
-#define TEXT_VIEW_BOUNDED_ITERABLE_HPP
+#ifndef TEXT_VIEW_BASIC_VIEW_HPP // {
+#define TEXT_VIEW_BASIC_VIEW_HPP
 
 
-#include <origin/algorithm/concepts.hpp>
+#include <experimental/ranges/concepts>
 
 
 namespace std {
@@ -16,11 +16,11 @@ namespace experimental {
 inline namespace text {
 namespace text_detail {
 
-template<origin::Iterator IT, origin::Sentinel<IT> ST>
-class bounded_iterable {
+template<ranges::Iterator IT, ranges::Sentinel<IT> ST = IT>
+class basic_view {
 public:
-    bounded_iterable() = default;
-    bounded_iterable(IT first, ST last)
+    basic_view() = default;
+    basic_view(IT first, ST last)
         : first{first}, last{last} {}
 
     IT begin() const { return first; }
@@ -37,4 +37,4 @@ private:
 } // namespace std
 
 
-#endif // } TEXT_VIEW_BOUNDED_ITERABLE_HPP
+#endif // } TEXT_VIEW_BASIC_VIEW_HPP

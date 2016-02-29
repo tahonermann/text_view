@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2016, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -9,9 +9,7 @@
 
 
 #include <unordered_map>
-#include <origin/core/traits.hpp>
-#include <origin/algorithm/concepts.hpp>
-#include <origin/range/range.hpp>
+#include <experimental/ranges/concepts>
 
 
 namespace std {
@@ -180,7 +178,7 @@ struct get_code_unit_type_t<T> {
 
 template<typename T>
 using code_unit_type_t =
-          typename get_code_unit_type_t<origin::Strip<T>>::type;
+          typename get_code_unit_type_t<std::remove_reference_t<T>>::type;
 } // namespace text_detail
 
 template<typename T>
@@ -202,7 +200,7 @@ struct get_code_point_type_t<T> {
 
 template<typename T>
 using code_point_type_t =
-          typename get_code_point_type_t<origin::Strip<T>>::type;
+          typename get_code_point_type_t<std::remove_reference_t<T>>::type;
 } // namespace text_detail
 
 template<typename T>
@@ -224,7 +222,7 @@ struct get_character_set_type_t<T> {
 
 template<typename T>
 using character_set_type_t =
-          typename get_character_set_type_t<origin::Strip<T>>::type;
+          typename get_character_set_type_t<std::remove_reference_t<T>>::type;
 } // namespace text_detail
 
 template<typename T>
@@ -246,7 +244,7 @@ struct get_character_type_t<T> {
 
 template<typename T>
 using character_type_t =
-          typename get_character_type_t<origin::Strip<T>>::type;
+          typename get_character_type_t<std::remove_reference_t<T>>::type;
 } // namespace text_detail
 
 template<typename T>
@@ -267,7 +265,7 @@ struct get_encoding_type_t<T> {
 };
 
 template<typename T>
-using encoding_type_t = typename get_encoding_type_t<origin::Strip<T>>::type;
+using encoding_type_t = typename get_encoding_type_t<std::remove_reference_t<T>>::type;
 } // namespace text_detail
 
 template<typename T>
