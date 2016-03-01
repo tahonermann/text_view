@@ -577,7 +577,7 @@ public:
     friend bool operator<(
         const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
-    requires ranges::StrictWeakOrder<
+    requires ranges::StrictTotallyOrdered<
                  typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
@@ -586,7 +586,7 @@ public:
     friend bool operator>(
         const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
-    requires ranges::StrictWeakOrder<
+    requires ranges::StrictTotallyOrdered<
                  typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
@@ -595,7 +595,7 @@ public:
     friend bool operator<=(
         const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
-    requires ranges::StrictWeakOrder<
+    requires ranges::StrictTotallyOrdered<
                  typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
@@ -604,7 +604,7 @@ public:
     friend bool operator>=(
         const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
-    requires ranges::StrictWeakOrder<
+    requires ranges::StrictTotallyOrdered<
                  typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
@@ -614,36 +614,36 @@ public:
     friend bool operator<(
         const itext_sentinel &ts,
         const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
+    requires ranges::StrictTotallyOrdered<
+                 sentinel,
+                 typename itext_iterator<ET, VT>::iterator>()
     {
         return ts.base() < ti.base();
     }
     friend bool operator>(
         const itext_sentinel &ts,
         const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
+    requires ranges::StrictTotallyOrdered<
+                 sentinel,
+                 typename itext_iterator<ET, VT>::iterator>()
     {
         return ts.base() > ti.base();
     }
     friend bool operator<=(
         const itext_sentinel &ts,
         const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
+    requires ranges::StrictTotallyOrdered<
+                 sentinel,
+                 typename itext_iterator<ET, VT>::iterator>()
     {
         return ts.base() <= ti.base();
     }
     friend bool operator>=(
         const itext_sentinel &ts,
         const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
+    requires ranges::StrictTotallyOrdered<
+                 sentinel,
+                 typename itext_iterator<ET, VT>::iterator>()
     {
         return ts.base() >= ti.base();
     }

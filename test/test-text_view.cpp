@@ -181,10 +181,7 @@ private:
 };
 
 
-// InputRange model.  The standard doesn't provide a container type that has
-// different return types for begin() and end().  This template class is used
-// to wrap a type that models InputRange, but might also model BoundedRange, to
-// produce a type that merely models InputRange.
+// Range model with different return types for begin() and end().
 template<ranges::InputRange RT>
 class iterable_view {
 public:
@@ -266,24 +263,28 @@ public:
         friend bool operator<(
             const iterator &i,
             const sentinel &s)
+        requires ranges::RandomAccessIterator<iterator>()
         {   
             return i < s.i;
         }   
         friend bool operator>(
             const iterator &i,
             const sentinel &s)
+        requires ranges::RandomAccessIterator<iterator>()
         {   
             return i > s.i;
         }   
         friend bool operator<=(
             const iterator &i,
             const sentinel &s)
+        requires ranges::RandomAccessIterator<iterator>()
         {   
             return i <= s.i;
         }   
         friend bool operator>=(
             const iterator &i,
             const sentinel &s)
+        requires ranges::RandomAccessIterator<iterator>()
         {   
             return i >= s.i;
         }   
@@ -291,24 +292,28 @@ public:
         friend bool operator<(
             const sentinel &s,
             const iterator &i)
+        requires ranges::RandomAccessIterator<iterator>()
         {
             return s.i < i;
         }
         friend bool operator>(
             const sentinel &s,
             const iterator &i)
+        requires ranges::RandomAccessIterator<iterator>()
         {
             return s.i > i;
         }
         friend bool operator<=(
             const sentinel &s,
             const iterator &i)
+        requires ranges::RandomAccessIterator<iterator>()
         {
             return s.i <= i;
         }
         friend bool operator>=(
             const sentinel &s,
             const iterator &i)
+        requires ranges::RandomAccessIterator<iterator>()
         {
             return s.i >= i;
         }
@@ -1345,7 +1350,6 @@ void test_random_access_encoding(
     test_random_decode(code_unit_maps, container, tv);
     }
 
-#if 0
     // FIXME: This test started failing with a mysterious assertion failure
     // FIXME: following the port to cmcstl2.
     // Test itext_iterator with an underlying N4382 Iterable.
@@ -1360,7 +1364,6 @@ void test_random_access_encoding(
     auto tv = make_text_view<ET>(iv_container);
     test_random_decode(code_unit_maps, iv_container, tv);
     }
-#endif
 }
 
 template<
