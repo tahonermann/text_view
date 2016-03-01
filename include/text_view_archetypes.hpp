@@ -307,19 +307,19 @@ using text_output_iterator_archetype = text_output_iterator_archetype_template<
 /*
  * Text view archetype
  */
-template<TextEncoding ET, ranges::View RT>
+template<TextEncoding ET, ranges::View VT>
 class text_view_archetype_template {
 public:
-    using range_type = RT;
+    using view_type = VT;
     using encoding_type = ET;
     using state_type = typename ET::state_type;
-    using code_unit_iterator = ranges::iterator_t<RT>;
+    using code_unit_iterator = ranges::iterator_t<VT>;
     using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;
 
     text_view_archetype_template();
-    text_view_archetype_template(const state_type &initial_state, RT r);
-    const RT& base() const noexcept;
-    RT& base() noexcept;
+    text_view_archetype_template(const state_type &initial_state, VT r);
+    const VT& base() const noexcept;
+    VT& base() noexcept;
     const state_type& initial_state() const noexcept;
     state_type& initial_state() noexcept;
     iterator begin() const;

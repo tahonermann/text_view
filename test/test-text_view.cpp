@@ -153,11 +153,11 @@ private:
 };
 
 
-// Input range model.  The standard doesn't provide a container type with
-// input iterators that aren't also forward, bidirectional, or random access
+// View model.  The standard doesn't provide a container type with input
+// iterators that aren't also forward, bidirectional, or random access
 // iterators.  input_range_view is used to provide wrapped input iterators
 // for another container type.
-template<ranges::Range RT>
+template<ranges::InputRange RT>
 class input_range_view {
 public:
     input_range_view() = default;
@@ -181,12 +181,11 @@ private:
 };
 
 
-// Iterable model.  The standard doesn't provide a container type that has
-// different return types for begin() and end() as permitted by the N4382
-// Iterable concept.  This template class is used to wrap a type that models
-// the N4382 Range concept to produce a type that merely models the N4382
-// Iterable concept.
-template<ranges::Range RT>
+// InputRange model.  The standard doesn't provide a container type that has
+// different return types for begin() and end().  This template class is used
+// to wrap a type that models InputRange, but might also model BoundedRange, to
+// produce a type that merely models InputRange.
+template<ranges::InputRange RT>
 class iterable_view {
 public:
     using range_type = RT;
@@ -1394,7 +1393,7 @@ void test_construct_text_view(
         const code_unit_type_t<encoding_type_t<TVT>>> &il)
 {
     using ET = encoding_type_t<TVT>;
-    using RT = typename TVT::range_type;
+    using VT = typename TVT::view_type;
     using CUMS = code_unit_map_sequence<encoding_type_t<TVT>>;
 
     // Note: copy-initialization is used in these tests to ensure these forms
@@ -1403,99 +1402,99 @@ void test_construct_text_view(
 
     // Test initialization via the default constructor.
     TVT tv1 = {};
-    test_text_view<TVT>(CUMS{}, RT{}, tv1);
+    test_text_view<TVT>(CUMS{}, VT{}, tv1);
 
     // Test initialization with an explicit initial state and underlying range.
-    TVT tv2 = {ET::initial_state(), RT{&cstr[0], &cstr[cstr_length]}};
+    TVT tv2 = {ET::initial_state(), VT{&cstr[0], &cstr[cstr_length]}};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv2);
 
     // Test initialization with an implicit initial state and underlying range.
-    TVT tv3 = {RT{&cstr[0], &cstr[cstr_length]}};
+    TVT tv3 = {VT{&cstr[0], &cstr[cstr_length]}};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv3);
 
-    // Test initialization with an explicit initial state and an iterator range.
+    // Test initialization with an explicit initial state and an iterator pair.
     TVT tv4 = {ET::initial_state(), &cstr[0], &cstr[cstr_length]};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv4);
 
-    // Test initialization with an implicit initial state and an iterator range.
+    // Test initialization with an implicit initial state and an iterator pair.
     TVT tv5 = {&cstr[0], &cstr[cstr_length]};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv5);
 
     // Test initialization with an explicit initial state and a sized iterator range.
     TVT tv6 = {ET::initial_state(), &cstr[0], cstr_length};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv6);
 
     // Test initialization with an implicit initial state and a sized iterator range.
     TVT tv7 = {&cstr[0], cstr_length};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv7);
 
     // Test initialization with an explicit initial state and a std::string.
     TVT tv8 = {ET::initial_state(), str};
     test_text_view<TVT>(code_unit_maps_without_terminator,
-                        RT{str.c_str(), str.c_str() + str.size()},
+                        VT{str.c_str(), str.c_str() + str.size()},
                         tv8);
 
     // Test initialization with an implicit initial state and a std::string.
     TVT tv9 = {str};
     test_text_view<TVT>(code_unit_maps_without_terminator,
-                        RT{str.c_str(), str.c_str() + str.size()},
+                        VT{str.c_str(), str.c_str() + str.size()},
                         tv9);
 
-    // Test initialization with an explicit initial state and an iterable (C array).
+    // Test initialization with an explicit initial state and an array.
     TVT tv10 = {ET::initial_state(), cstr};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv10);
 
-    // Test initialization with an implicit initial state and an iterable (C array).
+    // Test initialization with an implicit initial state and an array.
     TVT tv11 = {cstr};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv11);
 
-    // Test initialization with an explicit initial state and an iterable (std::array).
+    // Test initialization with an explicit initial state and a std::array.
     TVT tv12 = {ET::initial_state(), ary};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         ary,
                         tv12);
 
-    // Test initialization with an implicit initial state and an iterable (std::array).
+    // Test initialization with an implicit initial state and a std::array.
     TVT tv13 = {ary};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         ary,
                         tv13);
 
-    // Test initialization with an explicit initial state and an iterable (std::initializer_list).
+    // Test initialization with an explicit initial state and a std::initializer_list.
     TVT tv14 = {ET::initial_state(), il};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         il,
                         tv14);
 
-    // Test initialization with an implicit initial state and an iterable (std::initializer_list).
+    // Test initialization with an implicit initial state and a std::initializer_list.
     TVT tv15 = {il};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         il,
                         tv15);
 
-    // Test initialization with an explicit initial state and an iterable (make_cstr_view).
+    // Test initialization with an explicit initial state and result of make_cstr_view().
     TVT tv16 = {ET::initial_state(), make_cstr_view(cstr)};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         make_cstr_view(cstr),
                         tv16);
                              
-    // Test initialization with an implicit initial state and an iterable (make_cstr_view).
+    // Test initialization with an implicit initial state and result of make_cstr_view().
     TVT tv17 = {make_cstr_view(cstr)};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         make_cstr_view(cstr),
@@ -1504,33 +1503,33 @@ void test_construct_text_view(
     // Test initialization with a text iterator pair.
     TVT tv18 = {begin(tv17), end(tv17)};
     test_text_view<TVT>(code_unit_maps_without_terminator,
-                        RT{begin(begin(tv17).base_range()), end(end(tv17).base_range())},
+                        VT{begin(begin(tv17).base_range()), end(end(tv17).base_range())},
                         tv18);
                              
     // Test initialization via the copy constructor.
     TVT tv19 = {tv2}; // Note: used to test move construction below.
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv19);
                              
     // Test initialization via the move constructor.
     TVT tv20 = {move(tv19)};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv20);
 
     // Test copy assignment.
     TVT tv21; // Note: used to test move assignment below.
     tv21 = {tv2};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv21);
 
     // Test move assignment.
     TVT tv22;
     tv22 = {move(tv21)};
     test_text_view<TVT>(code_unit_maps_with_terminator,
-                        RT{&cstr[0], &cstr[cstr_length]},
+                        VT{&cstr[0], &cstr[cstr_length]},
                         tv22);
 }
 
@@ -1547,12 +1546,12 @@ void test_make_text_view(
     const String &str,
     const initializer_list<const code_unit_type_t<ET>> &il)
 {
-    // Test construction with an explicit initial state and an iterator range.
+    // Test construction with an explicit initial state and an iterator pair.
     test_text_view(code_unit_maps_without_terminator,
                    ary,
                    make_text_view<ET>(ET::initial_state(), begin(ary), end(ary)));
 
-    // Test construction with an implicit initial state and an iterator range.
+    // Test construction with an implicit initial state and an iterator pair.
     test_text_view(code_unit_maps_without_terminator,
                    ary,
                    make_text_view<ET>(begin(ary), end(ary)));
@@ -1567,52 +1566,52 @@ void test_make_text_view(
                    ary,
                    make_text_view<ET>(begin(ary), ary.size()));
 
-    // Test construction with an explicit initial state and an iterable (C array).
+    // Test construction with an explicit initial state and an array.
     test_text_view(code_unit_maps_with_terminator,
                    cstr,
                    make_text_view<ET>(ET::initial_state(), cstr));
 
-    // Test construction with an implicit initial state and an iterable (C array).
+    // Test construction with an implicit initial state and an array.
     test_text_view(code_unit_maps_with_terminator,
                    cstr,
                    make_text_view<ET>(cstr));
 
-    // Test construction with an explicit initial state and an iterable (std::array).
+    // Test construction with an explicit initial state and a std::array.
     test_text_view(code_unit_maps_without_terminator,
                    ary,
                    make_text_view<ET>(ET::initial_state(), ary));
 
-    // Test construction with an implicit initial state and an iterable (std::array).
+    // Test construction with an implicit initial state and a std::array.
     test_text_view(code_unit_maps_without_terminator,
                    ary,
                    make_text_view<ET>(ary));
 
-    // Test construction with an explicit initial state and an iterable (std::string).
+    // Test construction with an explicit initial state and a std::string.
     test_text_view(code_unit_maps_without_terminator,
                    str,
                    make_text_view<ET>(ET::initial_state(), str));
 
-    // Test construction with an implicit initial state and an iterable (std::string).
+    // Test construction with an implicit initial state and a std::string.
     test_text_view(code_unit_maps_without_terminator,
                    str,
                    make_text_view<ET>(str));
 
-    // Test construction with an explicit initial state and an iterable (std::initializer_list).
+    // Test construction with an explicit initial state and a std::initializer_list.
     test_text_view(code_unit_maps_without_terminator,
                    il,
                    make_text_view<ET>(ET::initial_state(), il));
 
-    // Test construction with an implicit initial state and an iterable (std::initializer_list).
+    // Test construction with an implicit initial state and a std::initializer_list.
     test_text_view(code_unit_maps_without_terminator,
                    il,
                    make_text_view<ET>(il));
 
-    // Test construction with an explicit initial state and an iterable (make_cstr_view).
+    // Test construction with an explicit initial state and the result of make_cstr_view().
     test_text_view(code_unit_maps_without_terminator,
                    make_cstr_view(cstr),
                    make_text_view<ET>(ET::initial_state(), make_cstr_view(cstr)));
 
-    // Test construction with an implicit initial state and an iterable (make_cstr_view).
+    // Test construction with an implicit initial state and the result of make_cstr_view().
     test_text_view(code_unit_maps_without_terminator,
                    make_cstr_view(cstr),
                    make_text_view<ET>(make_cstr_view(cstr)));

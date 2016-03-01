@@ -281,14 +281,14 @@ concept bool TextView() {
     return ranges::View<T>()
         && TextIterator<ranges::iterator_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
-        && ranges::View<typename T::range_type>()
+        && ranges::View<typename T::view_type>()
         && TextEncodingState<typename T::state_type>()
         && CodeUnitIterator<typename T::code_unit_iterator>()
         && requires (T t, const T ct) {
                { t.base() } noexcept
-                   -> typename T::range_type&;
+                   -> typename T::view_type&;
                { ct.base() } noexcept
-                   -> const typename T::range_type&;
+                   -> const typename T::view_type&;
                { t.initial_state() } noexcept
                    -> typename T::state_type&;
                { ct.initial_state() } noexcept

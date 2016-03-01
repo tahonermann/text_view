@@ -336,12 +336,12 @@ using char16_character_encoding = /* implementation-defined */ ;
 using char32_character_encoding = /* implementation-defined */ ;
 
 // itext_iterator:
-template<TextEncoding ET, ranges::InputRange RT>
-  requires TextDecoder<ET, ranges::iterator_t<const RT>>()
+template<TextEncoding ET, ranges::View VT>
+  requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
   class itext_iterator;
 
 // itext_sentinel:
-template<TextEncoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::View VT>
   class itext_sentinel;
 
 // otext_iterator:
@@ -357,7 +357,7 @@ template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
   -> otext_iterator<ET, IT>;
 
 // basic_text_view:
-template<TextEncoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::View VT>
   class basic_text_view;
 
 // basic_text_view type aliases:
@@ -751,14 +751,14 @@ template<typename T> concept bool TextView() {
   return ranges::View<T>()
       R& TextIterator<ranges::iterator_t<T>>()
       && TextEncoding<encoding_type_t<T>>()
-      && ranges::InputRange<typename T::range_type>()
+      && ranges::View<typename T::view_type>()
       && TextEncodingState<typename T::state_type>()
       && CodeUnitIterator<code_unit_iterator_t<T>>()
       R& requires (T t, const T ct) {
            { t.base() } noexcept
-               -> typename T::range_type&;
+               -> typename T::view_type&;
            { ct.base() } noexcept
-               -> const typename T::range_type&;
+               -> const typename T::view_type&;
            { t.initial_state() } noexcept
                -> typename T::state_type&;
            { ct.initial_state() } noexcept
@@ -1957,10 +1957,10 @@ constructible, copy and move assignable, and equality comparable.
 
 These types also conditionally satisfy `ranges::ForwardIterator`,
 `ranges::BidirectionalIterator`, and `ranges::RandomAccessIterator` depending
-on traits of the associated [encoding](#encoding) `ET` and view `RT` as
+on traits of the associated [encoding](#encoding) `ET` and view `VT` as
 described in the following table.
 
-When `ET` and `ranges::iterator_t<RT>` satisfy ... | then `itext_iterator<ET, RT>` satisfies ...  | and `itext_iterator<ET, RT>::iterator_category` is ...
+When `ET` and `ranges::iterator_t<VT>` satisfy ... | then `itext_iterator<ET, VT>` satisfies ...  | and `itext_iterator<ET, VT>::iterator_category` is ...
 -------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------
 `TextDecoder` | `ranges::InputIterator` | `std::input_iterator_tag`
 `TextForwardDecoder` | `ranges::ForwardIterator` | `std::forward_iterator_tag`
@@ -1990,17 +1990,17 @@ Note: Implementation of a reference proxy would be simplified if the
 [operator dot proposal][P0252R0] is adopted.
 
 ```C++
-template<TextEncoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::View VT>
   requires TextDecoder<
              ET,
-             ranges::iterator_t<std::add_const_t<RT>>>()
+             ranges::iterator_t<std::add_const_t<VT>>>()
 class itext_iterator {
 public:
   using encoding_type = ET;
-  using range_type = RT;
+  using view_type = VT;
   using state_type = typename encoding_type::state_type;
 
-  using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
+  using iterator = ranges::iterator_t<std::add_const_t<view_type>>;
   using iterator_category = /* implementation-defined */;
   using value_type = character_type_t<encoding_type>;
   using reference = /* implementation-defined */;
@@ -2010,7 +2010,7 @@ public:
   itext_iterator();
 
   itext_iterator(state_type state,
-                 const range_type *range,
+                 const view_type *view,
                  iterator first);
 
   reference operator*() const noexcept;
@@ -2092,84 +2092,84 @@ types.  Support for relational comparisons is conditional on the underlying
 comparisons.
 
 ```C++
-template<TextEncoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::View VT>
 class itext_sentinel {
 public:
-  using range_type = RT;
-  using sentinel = ranges::sentinel_t<std::add_const_t<range_type>>;
+  using view_type = VT;
+  using sentinel = ranges::sentinel_t<std::add_const_t<view_type>>;
 
   itext_sentinel() = default;
 
   itext_sentinel(sentinel s);
 
-  itext_sentinel(const itext_iterator<ET, RT> &ti)
+  itext_sentinel(const itext_iterator<ET, VT> &ti)
     requires ranges::ConvertibleTo<decltype(ti.base()), sentinel>();
 
   friend bool operator==(const itext_sentinel &l, const itext_sentinel &r);
   friend bool operator!=(const itext_sentinel &l, const itext_sentinel &r);
 
-  friend bool operator==(const itext_iterator<ET, RT> &ti,
+  friend bool operator==(const itext_iterator<ET, VT> &ti,
                          const itext_sentinel &ts);
-  friend bool operator!=(const itext_iterator<ET, RT> &ti,
+  friend bool operator!=(const itext_iterator<ET, VT> &ti,
                          const itext_sentinel &ts);
   friend bool operator==(const itext_sentinel &ts,
-                         const itext_iterator<ET, RT> &ti);
+                         const itext_iterator<ET, VT> &ti);
   friend bool operator!=(const itext_sentinel &ts,
-                         const itext_iterator<ET, RT> &ti);
+                         const itext_iterator<ET, VT> &ti);
 
   friend bool operator<(const itext_sentinel &l, const itext_sentinel &r);
   friend bool operator>(const itext_sentinel &l, const itext_sentinel &r);
   friend bool operator<=(const itext_sentinel &l, const itext_sentinel &r);
   friend bool operator>=(const itext_sentinel &l, const itext_sentinel &r);
 
-  friend bool operator<(const itext_iterator<ET, RT> &ti,
+  friend bool operator<(const itext_iterator<ET, VT> &ti,
                         const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
-  friend bool operator>(const itext_iterator<ET, RT> &ti,
+  friend bool operator>(const itext_iterator<ET, VT> &ti,
                         const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
-  friend bool operator<=(const itext_iterator<ET, RT> &ti,
+  friend bool operator<=(const itext_iterator<ET, VT> &ti,
                          const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
-  friend bool operator>=(const itext_iterator<ET, RT> &ti,
+  friend bool operator>=(const itext_iterator<ET, VT> &ti,
                          const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
 
   friend bool operator<(const itext_sentinel &ts,
-                        const itext_iterator<ET, RT> &ti)
+                        const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
   friend bool operator>(const itext_sentinel &ts,
-                        const itext_iterator<ET, RT> &ti)
+                        const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
   friend bool operator<=(const itext_sentinel &ts,
-                         const itext_iterator<ET, RT> &ti)
+                         const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
   friend bool operator>=(const itext_sentinel &ts,
-                         const itext_iterator<ET, RT> &ti)
+                         const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
                  std::less<>,
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>();
 
   sentinel base() const;
@@ -2276,49 +2276,49 @@ otherwise, the end of the view is represented with an iterator of the same type
 as used for the beginning of the view.
 
 ```C++
-template<TextEncoding ET, ranges::InputRange RT>
+template<TextEncoding ET, ranges::View VT>
 class basic_text_view {
 public:
   using encoding_type = ET;
-  using range_type = RT;
+  using view_type = VT;
   using state_type = typename ET::state_type;
-  using code_unit_iterator = ranges::iterator_t<std::add_const_t<range_type>>;
-  using code_unit_sentinel = ranges::sentinel_t<std::add_const_t<range_type>>;
-  using iterator = itext_iterator<ET, RT>;
-  using sentinel = itext_sentinel<ET, RT>;
+  using code_unit_iterator = ranges::iterator_t<std::add_const_t<view_type>>;
+  using code_unit_sentinel = ranges::sentinel_t<std::add_const_t<view_type>>;
+  using iterator = itext_iterator<ET, VT>;
+  using sentinel = itext_sentinel<ET, VT>;
 
   basic_text_view();
 
   basic_text_view(state_type state,
-                  range_type r)
-    requires ranges::CopyConstructible<range_type>();
+                  view_type view)
+    requires ranges::CopyConstructible<view_type>();
 
-  basic_text_view(range_type r)
-    requires ranges::CopyConstructible<range_type>();
+  basic_text_view(view_type view)
+    requires ranges::CopyConstructible<view_type>();
 
   basic_text_view(state_type state,
                   code_unit_iterator first,
                   code_unit_sentinel last)
-    requires ranges::Constructible<range_type,
+    requires ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
   basic_text_view(code_unit_iterator first,
                   code_unit_sentinel last)
-    requires ranges::Constructible<range_type,
+    requires ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
   basic_text_view(state_type state,
                   code_unit_iterator first,
                   ranges::difference_type_t<code_unit_iterator> n)
-    requires ranges::Constructible<range_type,
+    requires ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_iterator>();
 
   basic_text_view(code_unit_iterator first,
                   ranges::difference_type_t<code_unit_iterator> n)
-    requires ranges::Constructible<range_type,
+    requires ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_iterator>();
 
@@ -2328,7 +2328,7 @@ public:
     requires ranges::Constructible<code_unit_iterator, const charT *>()
           && ranges::ConvertibleTo<ranges::difference_type_t<code_unit_iterator>,
                                    typename basic_string<charT, traits, Allocator>::size_type>()
-          && ranges::Constructible<range_type,
+          && ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
@@ -2337,7 +2337,7 @@ public:
     requires ranges::Constructible<code_unit_iterator, const charT *>()
           && ranges::ConvertibleTo<ranges::difference_type_t<code_unit_iterator>,
                                    typename basic_string<charT, traits, Allocator>::size_type>()
-          && ranges::Constructible<range_type,
+          && ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
@@ -2346,7 +2346,7 @@ public:
                     const Iterable &iterable)
     requires ranges::Constructible<code_unit_iterator,
                                    ranges::iterator_t<const Iterable>>()
-          && ranges::Constructible<range_type,
+          && ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
@@ -2354,19 +2354,19 @@ public:
     basic_text_view(const Iterable &iterable)
     requires ranges::Constructible<code_unit_iterator,
                                    ranges::iterator_t<const Iterable>>()
-          && ranges::Constructible<range_type,
+          && ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
   basic_text_view(iterator first, sentinel last)
     requires ranges::Constructible<code_unit_iterator,
                                    decltype(std::declval<iterator>().base())>()
-          && ranges::Constructible<range_type,
+          && ranges::Constructible<view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel>();
 
-  const range_type& base() const noexcept;
-  range_type& base() noexcept;
+  const view_type& base() const noexcept;
+  view_type& base() noexcept;
 
   const state_type& initial_state() const noexcept;
   state_type& initial_state() noexcept;
@@ -2381,7 +2381,7 @@ public:
 
 private:
   state_type base_state; // exposition only
-  range_type base_range; // exposition only
+  view_type base_view;   // exposition only
 };
 
 ```

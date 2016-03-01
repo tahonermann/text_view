@@ -48,15 +48,15 @@ struct itext_iterator_category_selector<ET, CUIT> {
 };
 
 
-template<TextEncoding ET, ranges::View RT>
+template<TextEncoding ET, ranges::View VT>
 class itext_iterator_base
     : protected ET::state_type
 {
 public:
     using encoding_type = ET;
-    using range_type = RT;
+    using view_type = VT;
     using state_type = typename encoding_type::state_type;
-    using iterator = ranges::iterator_t<std::add_const_t<range_type>>;
+    using iterator = ranges::iterator_t<std::add_const_t<view_type>>;
     using iterator_category =
               typename text_detail::itext_iterator_category_selector<
                   encoding_type,
@@ -123,14 +123,14 @@ public:
     }
 };
 
-template<TextEncoding ET, ranges::View RT>
-requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<RT>>>()
+template<TextEncoding ET, ranges::View VT>
+requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
 class itext_iterator_data
-    : public itext_iterator_base<ET, RT>
+    : public itext_iterator_base<ET, VT>
 {
 public:
     using encoding_type = typename itext_iterator_data::encoding_type;
-    using range_type = typename itext_iterator_data::range_type;
+    using view_type = typename itext_iterator_data::view_type;
     using state_type = typename itext_iterator_data::state_type;
     using iterator = typename itext_iterator_data::iterator;
 
@@ -139,11 +139,11 @@ protected:
 
     itext_iterator_data(
         state_type state,
-        const range_type *range,
+        const view_type *view,
         iterator current)
     :
-        itext_iterator_base<ET, RT>{state},
-        range{range},
+        itext_iterator_base<ET, VT>{state},
+        view{view},
         current{current}
     {}
 
@@ -153,18 +153,18 @@ public:
     }
 
 protected:
-    const range_type *range;
+    const view_type *view;
     iterator current;
 };
 
-template<TextEncoding ET, ranges::View RT>
-requires TextForwardDecoder<ET, ranges::iterator_t<std::add_const_t<RT>>>()
-class itext_iterator_data<ET, RT>
-    : public itext_iterator_base<ET, RT>
+template<TextEncoding ET, ranges::View VT>
+requires TextForwardDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
+class itext_iterator_data<ET, VT>
+    : public itext_iterator_base<ET, VT>
 {
 public:
     using encoding_type = typename itext_iterator_data::encoding_type;
-    using range_type = typename itext_iterator_data::range_type;
+    using view_type = typename itext_iterator_data::view_type;
     using state_type = typename itext_iterator_data::state_type;
     using iterator = typename itext_iterator_data::iterator;
 
@@ -173,18 +173,18 @@ protected:
 
     itext_iterator_data(
         state_type state,
-        const range_type *range,
+        const view_type *view,
         iterator first)
     :
-        itext_iterator_base<ET, RT>{state},
-        range{range},
-        current_range{first, first}
+        itext_iterator_base<ET, VT>{state},
+        view{view},
+        current_view{first, first}
     {}
 
-    struct current_range_type {
-        current_range_type()
+    struct current_view_type {
+        current_view_type()
             : first{}, last{} {}
-        current_range_type(iterator first, iterator last)
+        current_view_type(iterator first, iterator last)
             : first{first}, last{last} {}
 
         iterator begin() const { return first; }
@@ -196,29 +196,29 @@ protected:
 
 public:
     iterator base() const {
-        return current_range.first;
+        return current_view.first;
     }
 
-    const current_range_type& base_range() const {
-        return current_range;
+    const current_view_type& base_range() const {
+        return current_view;
     }
 
 protected:
-    const range_type *range;
-    current_range_type current_range;
+    const view_type *view;
+    current_view_type current_view;
 };
 
 } // namespace text_detail
 
 
-template<TextEncoding ET, ranges::View RT>
-requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<RT>>>()
+template<TextEncoding ET, ranges::View VT>
+requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
 class itext_iterator
-    : public text_detail::itext_iterator_data<ET, RT>
+    : public text_detail::itext_iterator_data<ET, VT>
 {
 public:
     using encoding_type = typename itext_iterator::encoding_type;
-    using range_type = typename itext_iterator::range_type;
+    using view_type = typename itext_iterator::view_type;
     using state_type = typename itext_iterator::state_type;
     using value_type = typename itext_iterator::value_type;
     using iterator_category = typename itext_iterator::iterator_category;
@@ -232,10 +232,10 @@ public:
 
     itext_iterator(
         state_type state,
-        const range_type *range,
+        const view_type *view,
         iterator first)
     :
-        text_detail::itext_iterator_data<ET, RT>{state, range, first}
+        text_detail::itext_iterator_data<ET, VT>{state, view, first}
     {
         ++*this;
     }
@@ -309,7 +309,7 @@ public:
     itext_iterator& operator++() {
         ok = false;
         iterator tmp_iterator{this->current};
-        auto end(text_detail::adl_end(*this->range));
+        auto end(text_detail::adl_end(*this->view));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -333,9 +333,9 @@ public:
         requires TextForwardDecoder<encoding_type, iterator>()
     {
         ok = false;
-        this->current_range.first = this->current_range.last;
-        iterator tmp_iterator{this->current_range.first};
-        auto end(text_detail::adl_end(*this->range));
+        this->current_view.first = this->current_view.last;
+        iterator tmp_iterator{this->current_view.first};
+        auto end(text_detail::adl_end(*this->view));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -345,13 +345,13 @@ public:
                 end,
                 tmp_value,
                 decoded_code_units);
-            this->current_range.last = tmp_iterator;
+            this->current_view.last = tmp_iterator;
             if (decoded_code_point) {
                 value = tmp_value;
                 ok = true;
                 break;
             }
-            this->current_range.first = this->current_range.last;
+            this->current_view.first = this->current_view.last;
         }
         return *this;
     }
@@ -366,9 +366,9 @@ public:
         requires TextBidirectionalDecoder<encoding_type, iterator>()
     {
         ok = false;
-        this->current_range.last = this->current_range.first;
-        std::reverse_iterator<iterator> rcurrent{this->current_range.last};
-        std::reverse_iterator<iterator> rend{text_detail::adl_begin(*this->range)};
+        this->current_view.last = this->current_view.first;
+        std::reverse_iterator<iterator> rcurrent{this->current_view.last};
+        std::reverse_iterator<iterator> rend{text_detail::adl_begin(*this->view)};
         while (rcurrent != rend) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -378,13 +378,13 @@ public:
                 rend,
                 tmp_value,
                 decoded_code_units);
-            this->current_range.first = rcurrent.base();
+            this->current_view.first = rcurrent.base();
             if (decoded_code_point) {
                 value = tmp_value;
                 ok = true;
                 break;
             }
-            this->current_range.last = this->current_range.first;
+            this->current_view.last = this->current_view.first;
         }
         return *this;
     }
@@ -401,11 +401,11 @@ public:
         requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
         if (n < 0) {
-            this->current_range.first +=
+            this->current_view.first +=
                 ((n+1) * encoding_type::max_code_units);
             --*this;
         } else if (n > 0) {
-            this->current_range.last +=
+            this->current_view.last +=
                 ((n-1) * encoding_type::max_code_units);
             ++*this;
         }
@@ -447,7 +447,7 @@ public:
         const itext_iterator &r)
     requires TextRandomAccessDecoder<encoding_type, iterator>()
     {
-        return (l.current_range.first - r.current_range.first) /
+        return (l.current_view.first - r.current_view.first) /
                encoding_type::max_code_units;
     }
 
@@ -483,11 +483,11 @@ private:
 };
 
 
-template<TextEncoding ET, ranges::View RT>
+template<TextEncoding ET, ranges::View VT>
 class itext_sentinel {
 public:
-    using range_type = RT;
-    using sentinel = ranges::sentinel_t<std::add_const_t<RT>>;
+    using view_type = VT;
+    using sentinel = ranges::sentinel_t<std::add_const_t<VT>>;
 
     itext_sentinel() = default;
 
@@ -499,7 +499,7 @@ public:
     // cross-type equality comparison.  See N4382 19.2.5 "Concept Common",
     // N4382 19.3.2 "Concept EqualityComparable", and N3351 3.3
     // "Foundational Concepts".
-    itext_sentinel(const itext_iterator<ET, RT> &ti)
+    itext_sentinel(const itext_iterator<ET, VT> &ti)
     requires ranges::ConvertibleTo<
                  decltype(ti.base()),
                  sentinel>()
@@ -523,26 +523,26 @@ public:
     }
 
     friend bool operator==(
-        const itext_iterator<ET, RT> &ti,
+        const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     {
         return ts.equal(ti);
     }
     friend bool operator!=(
-        const itext_iterator<ET, RT> &ti,
+        const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     {
         return !(ti == ts);
     }
     friend bool operator==(
         const itext_sentinel &ts,
-        const itext_iterator<ET, RT> &ti)
+        const itext_iterator<ET, VT> &ti)
     {
         return ti == ts;
     }
     friend bool operator!=(
         const itext_sentinel &ts,
-        const itext_iterator<ET, RT> &ti)
+        const itext_iterator<ET, VT> &ti)
     {
         return !(ts == ti);
     }
@@ -575,37 +575,37 @@ public:
     }
 
     friend bool operator<(
-        const itext_iterator<ET, RT> &ti,
+        const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ti.base() < ts.base();
     }
     friend bool operator>(
-        const itext_iterator<ET, RT> &ti,
+        const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ti.base() > ts.base();
     }
     friend bool operator<=(
-        const itext_iterator<ET, RT> &ti,
+        const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ti.base() <= ts.base();
     }
     friend bool operator>=(
-        const itext_iterator<ET, RT> &ti,
+        const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ti.base() >= ts.base();
@@ -613,36 +613,36 @@ public:
 
     friend bool operator<(
         const itext_sentinel &ts,
-        const itext_iterator<ET, RT> &ti)
+        const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ts.base() < ti.base();
     }
     friend bool operator>(
         const itext_sentinel &ts,
-        const itext_iterator<ET, RT> &ti)
+        const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ts.base() > ti.base();
     }
     friend bool operator<=(
         const itext_sentinel &ts,
-        const itext_iterator<ET, RT> &ti)
+        const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ts.base() <= ti.base();
     }
     friend bool operator>=(
         const itext_sentinel &ts,
-        const itext_iterator<ET, RT> &ti)
+        const itext_iterator<ET, VT> &ti)
     requires ranges::StrictWeakOrder<
-                 typename itext_iterator<ET, RT>::iterator,
+                 typename itext_iterator<ET, VT>::iterator,
                  sentinel>()
     {
         return ts.base() >= ti.base();
@@ -653,7 +653,7 @@ public:
     }
 
 private:
-    bool equal(const itext_iterator<ET, RT> &ti) const {
+    bool equal(const itext_iterator<ET, VT> &ti) const {
         // For input iterators, the base iterator corresponds to the next input
         // to be decoded.  Naively checking for base comparison only therefore
         // results in premature matches when the last code point in the input
@@ -665,7 +665,7 @@ private:
         return ti.base() == base()
             && ! ti.is_ok();
     }
-    bool equal(const itext_iterator<ET, RT> &ti) const
+    bool equal(const itext_iterator<ET, VT> &ti) const
         requires ranges::ForwardIterator<decltype(ti.base())>()
     {
         return ti.base() == base();
