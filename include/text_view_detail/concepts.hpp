@@ -23,6 +23,29 @@ template<typename T, T t1, T t2>
 concept bool SameValue() {
     return t1 == t2;
 }
+
+// FIXME: gcc bug 67565, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67565
+// FIXME: Compile time performance is negatively impacted by concept definitions
+// FIXME: specified with disjunction constraints.  Performance is significantly
+// FIXME: improved by rewriting such constraints in terms of constexpr function
+// FIXME: or variable templates.  Rewriting the CodeUnit and CodePoint concepts
+// FIXME: in terms of is_code_unit_v and is_code_point_v dropped build times
+// FIXME: from 5m50s to 2m00s.  Once the performance issues in the compiler are
+// FIXME: addressed, is_code_unit_v and is_code_point_v can be removed and
+// FIXME: the original CodeUnit and CodePoint concept definitions restored.
+template<typename T>
+constexpr bool is_code_unit_v =
+    std::is_integral<T>::value
+    && (std::is_unsigned<T>::value
+        || std::is_same<std::remove_cv_t<T>, char>::value
+        || std::is_same<std::remove_cv_t<T>, wchar_t>::value);
+
+template<typename T>
+constexpr bool is_code_point_v =
+    std::is_integral<T>::value
+    && (std::is_unsigned<T>::value
+        || std::is_same<std::remove_cv_t<T>, char>::value
+        || std::is_same<std::remove_cv_t<T>, wchar_t>::value);
 } // text_detail namespace
 
 
@@ -31,10 +54,7 @@ concept bool SameValue() {
  */
 template<typename T>
 concept bool CodeUnit() {
-    return std::is_integral<T>::value
-        && (std::is_unsigned<T>::value
-            || std::is_same<std::remove_cv_t<T>, char>::value
-            || std::is_same<std::remove_cv_t<T>, wchar_t>::value);
+    return text_detail::is_code_unit_v<T>;
 }
 
 
@@ -43,10 +63,7 @@ concept bool CodeUnit() {
  */
 template<typename T>
 concept bool CodePoint() {
-    return std::is_integral<T>::value
-        && (std::is_unsigned<T>::value
-            || std::is_same<std::remove_cv_t<T>, char>::value
-            || std::is_same<std::remove_cv_t<T>, wchar_t>::value);
+    return text_detail::is_code_point_v<T>;
 }
 
 
