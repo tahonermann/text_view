@@ -710,38 +710,17 @@ auto tv = make_text_view&lt;utf8_encoding&gt;(u8"A UTF-8 string");
 
 <p>The argument to make_text_view() is a UTF-8 string literal.  The compiler
 knows that it is a UTF-8 string.  Yet, make_text_view() requires the encoding
-to be explicitly specified via a template argument.
+to be explicitly specified via a template argument.  Why?
 
 <p>The answer is that ordinary and UTF-8 string literals have the same type;
 array of <tt>const char</tt>.  The library is unable to implicitly determine
 an encoding for the provided string.
 
-<p>There are two ways of looking at this issue:
-<ul>
-  <li>1: Why wasn't a <tt>char8_t</tt> type added for UTF-8 literals?  What
-         brain dead imbecile designed this?  Why didn't the committee fix this?
-         You're all a bunch of jerks!</li>
-  <li>2: <tt>char</tt>, <tt>wchar_t</tt>, <tt>char16_t</tt>, and
-         <tt>char32_t</tt> are code unit types, sometimes code point types,
-         but not character types; they do not have an implied associated
-         character set.  They hold integral values that only indicate a
-         specific character when interpreted as specifying a code point of a
-         particular character set.  The type system does not reflect the
-         character encoding of string literals.  The lack of such reflection
-         is an issue that predates the addition of Unicode literals.</li>
-</ul>
-
-<p>If a <tt>char8_t</tt> type were to be added and UTF-8 string literals
-were to be changed to reflect that type, then it would be possible to assume
-(not infer) an encoding based on type for all five of the encodings the
-standard states must be provided.  However, since additional implementation or
-user defined encodings would likely utilize the common character types as code
-unit or code point types, encoding assumptions could lead to coding errors.
-
-<p>An ideal solution for this problem would likely entail core language
-enhancements to allow distinguishing arguments of array type and string literals
-in overload resolution; in other words, adding character encoding information to
-the type system.
+<p>If a <tt>char8_t</tt> type were to be added to the type system and UTF-8
+string literals were to be changed to reflect that type (with appropriate
+accommodations for backward compatibility), then it would be possible to
+assume (not infer) an encoding based on type for all five of the encodings the
+standard states must be provided.
 
 <h2 id="faq_custom_encodings">
     Can I define my own encodings?  If so, How?</h2>
