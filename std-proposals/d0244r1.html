@@ -2884,10 +2884,8 @@ constructible, copy and move assignable, and equality comparable.  All objects
 of the same <tt>itext_sentinel</tt> type compare equally.  Member functions
 provide access to the sentinel for the underlying code unit sequence.
 
-<p>Objects of these types are constructible from and equality comparable to
-<tt>itext_iterator</tt> objects that have matching encoding and view types.
-Support for relational comparisons is conditional on the underlying code unit
-iterator and sentinel types supporting relational comparisons.
+<p>Objects of these types are equality comparable to <tt>itext_iterator</tt>
+objects that have matching encoding and view types.
 
 <blockquote class="code">
 <pre><code>
@@ -2901,9 +2899,6 @@ public:
 
   itext_sentinel(sentinel s);
 
-  itext_sentinel(const itext_iterator&lt;ET, VT&gt; &amp;ti)
-    requires ranges::ConvertibleTo&lt;decltype(ti.base()), sentinel&gt;();
-
   friend bool operator==(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
   friend bool operator!=(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
 
@@ -2915,53 +2910,6 @@ public:
                          const itext_iterator&lt;ET, VT&gt; &amp;ti);
   friend bool operator!=(const itext_sentinel &amp;ts,
                          const itext_iterator&lt;ET, VT&gt; &amp;ti);
-
-  friend bool operator&lt;(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
-  friend bool operator&gt;(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
-  friend bool operator&lt;=(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
-  friend bool operator&gt;=(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
-
-  friend bool operator&lt;(const itext_iterator&lt;ET, VT&gt; &amp;ti,
-                        const itext_sentinel &amp;ts)
-    requires ranges::StrictTotallyOrdered&lt;
-                 typename itext_iterator&lt;ET, VT&gt;::iterator,
-                 sentinel&gt;();
-  friend bool operator&gt;(const itext_iterator&lt;ET, VT&gt; &amp;ti,
-                        const itext_sentinel &amp;ts)
-    requires ranges::StrictTotallyOrdered&lt;
-                 typename itext_iterator&lt;ET, VT&gt;::iterator,
-                 sentinel&gt;();
-  friend bool operator&lt;=(const itext_iterator&lt;ET, VT&gt; &amp;ti,
-                         const itext_sentinel &amp;ts)
-    requires ranges::StrictTotallyOrdered&lt;
-                 typename itext_iterator&lt;ET, VT&gt;::iterator,
-                 sentinel&gt;();
-  friend bool operator&gt;=(const itext_iterator&lt;ET, VT&gt; &amp;ti,
-                         const itext_sentinel &amp;ts)
-    requires ranges::StrictTotallyOrdered&lt;
-                 typename itext_iterator&lt;ET, VT&gt;::iterator,
-                 sentinel&gt;();
-
-  friend bool operator&lt;(const itext_sentinel &amp;ts,
-                        const itext_iterator&lt;ET, VT&gt; &amp;ti)
-    requires ranges::StrictTotallyOrdered&lt;
-                 sentinel,
-                 typename itext_iterator&lt;ET, VT&gt;::iterator&gt;();
-  friend bool operator&gt;(const itext_sentinel &amp;ts,
-                        const itext_iterator&lt;ET, VT&gt; &amp;ti)
-    requires ranges::StrictTotallyOrdered&lt;
-                 sentinel,
-                 typename itext_iterator&lt;ET, VT&gt;::iterator&gt;();
-  friend bool operator&lt;=(const itext_sentinel &amp;ts,
-                         const itext_iterator&lt;ET, VT&gt; &amp;ti)
-    requires ranges::StrictTotallyOrdered&lt;
-                 sentinel,
-                 typename itext_iterator&lt;ET, VT&gt;::iterator&gt;();
-  friend bool operator&gt;=(const itext_sentinel &amp;ts,
-                         const itext_iterator&lt;ET, VT&gt; &amp;ti)
-    requires ranges::StrictTotallyOrdered&lt;
-                 sentinel,
-                 typename itext_iterator&lt;ET, VT&gt;::iterator&gt;();
 
   sentinel base() const;
 
@@ -3161,6 +3109,13 @@ public:
           &amp;&amp; ranges::Constructible&lt;view_type,
                                    code_unit_iterator,
                                    code_unit_sentinel&gt;();
+
+  basic_text_view(iterator first, iterator last)
+    requires ranges::Constructible&lt;code_unit_iterator,
+                                   decltype(std::declval&lt;iterator&gt;().base())&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_iterator&gt;();
 
   basic_text_view(iterator first, sentinel last)
     requires ranges::Constructible&lt;code_unit_iterator,

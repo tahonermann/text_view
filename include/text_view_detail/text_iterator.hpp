@@ -494,19 +494,6 @@ public:
     itext_sentinel(sentinel s)
         : s{s} {}
 
-    // This constructor is provided in lieu of a specialization of
-    // std::common_type in order to satisfy the common type requirement for
-    // cross-type equality comparison.  See N4382 19.2.5 "Concept Common",
-    // N4382 19.3.2 "Concept EqualityComparable", and N3351 3.3
-    // "Foundational Concepts".
-    itext_sentinel(const itext_iterator<ET, VT> &ti)
-    requires ranges::ConvertibleTo<
-                 decltype(ti.base()),
-                 sentinel>()
-    :
-        s{ti.base()}
-    {}
-
     friend bool operator==(
         const itext_sentinel &l,
         const itext_sentinel &r)
@@ -545,107 +532,6 @@ public:
         const itext_iterator<ET, VT> &ti)
     {
         return !(ts == ti);
-    }
-
-    friend bool operator<(
-        const itext_sentinel &l,
-        const itext_sentinel &r)
-    {
-        // Sentinels always compare equal regardless of any internal state.
-        // See N4128, 10.1 "Sentinel Equality".
-        return false;
-    }
-    friend bool operator>(
-        const itext_sentinel &l,
-        const itext_sentinel &r)
-    {
-        return r < l;
-    }
-    friend bool operator<=(
-        const itext_sentinel &l,
-        const itext_sentinel &r)
-    {
-        return !(r < l);
-    }
-    friend bool operator>=(
-        const itext_sentinel &l,
-        const itext_sentinel &r)
-    {
-        return !(l < r);
-    }
-
-    friend bool operator<(
-        const itext_iterator<ET, VT> &ti,
-        const itext_sentinel &ts)
-    requires ranges::StrictTotallyOrdered<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
-    {
-        return ti.base() < ts.base();
-    }
-    friend bool operator>(
-        const itext_iterator<ET, VT> &ti,
-        const itext_sentinel &ts)
-    requires ranges::StrictTotallyOrdered<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
-    {
-        return ti.base() > ts.base();
-    }
-    friend bool operator<=(
-        const itext_iterator<ET, VT> &ti,
-        const itext_sentinel &ts)
-    requires ranges::StrictTotallyOrdered<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
-    {
-        return ti.base() <= ts.base();
-    }
-    friend bool operator>=(
-        const itext_iterator<ET, VT> &ti,
-        const itext_sentinel &ts)
-    requires ranges::StrictTotallyOrdered<
-                 typename itext_iterator<ET, VT>::iterator,
-                 sentinel>()
-    {
-        return ti.base() >= ts.base();
-    }
-
-    friend bool operator<(
-        const itext_sentinel &ts,
-        const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictTotallyOrdered<
-                 sentinel,
-                 typename itext_iterator<ET, VT>::iterator>()
-    {
-        return ts.base() < ti.base();
-    }
-    friend bool operator>(
-        const itext_sentinel &ts,
-        const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictTotallyOrdered<
-                 sentinel,
-                 typename itext_iterator<ET, VT>::iterator>()
-    {
-        return ts.base() > ti.base();
-    }
-    friend bool operator<=(
-        const itext_sentinel &ts,
-        const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictTotallyOrdered<
-                 sentinel,
-                 typename itext_iterator<ET, VT>::iterator>()
-    {
-        return ts.base() <= ti.base();
-    }
-    friend bool operator>=(
-        const itext_sentinel &ts,
-        const itext_iterator<ET, VT> &ti)
-    requires ranges::StrictTotallyOrdered<
-                 sentinel,
-                 typename itext_iterator<ET, VT>::iterator>()
-    {
-        return ts.base() >= ti.base();
     }
 
     sentinel base() const {

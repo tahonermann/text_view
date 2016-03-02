@@ -191,7 +191,7 @@ public:
     class sentinel {
     public:
         sentinel() = default;
-        sentinel(iterator i) : i{i} {}
+        explicit sentinel(iterator i) : i{i} {}
 
         friend bool operator==(
             const sentinel &l,
@@ -231,91 +231,6 @@ public:
             const iterator &i)
         {
             return !(s == i);
-        }
-
-        friend bool operator<(
-            const sentinel &l,
-            const sentinel &r)
-        {
-            // Sentinels always compare equal regardless of any internal state.
-            // See N4128, 10.1 "Sentinel Equality".
-            return false;
-        }   
-        friend bool operator>(
-            const sentinel &l,
-            const sentinel &r)
-        {
-            return r < l;
-        }   
-        friend bool operator<=(
-            const sentinel &l,
-            const sentinel &r)
-        {
-            return !(r < l);
-        }   
-        friend bool operator>=(
-            const sentinel &l,
-            const sentinel &r)
-        {
-            return !(l < r);
-        }   
-
-        friend bool operator<(
-            const iterator &i,
-            const sentinel &s)
-        requires ranges::RandomAccessIterator<iterator>()
-        {   
-            return i < s.i;
-        }   
-        friend bool operator>(
-            const iterator &i,
-            const sentinel &s)
-        requires ranges::RandomAccessIterator<iterator>()
-        {   
-            return i > s.i;
-        }   
-        friend bool operator<=(
-            const iterator &i,
-            const sentinel &s)
-        requires ranges::RandomAccessIterator<iterator>()
-        {   
-            return i <= s.i;
-        }   
-        friend bool operator>=(
-            const iterator &i,
-            const sentinel &s)
-        requires ranges::RandomAccessIterator<iterator>()
-        {   
-            return i >= s.i;
-        }   
-
-        friend bool operator<(
-            const sentinel &s,
-            const iterator &i)
-        requires ranges::RandomAccessIterator<iterator>()
-        {
-            return s.i < i;
-        }
-        friend bool operator>(
-            const sentinel &s,
-            const iterator &i)
-        requires ranges::RandomAccessIterator<iterator>()
-        {
-            return s.i > i;
-        }
-        friend bool operator<=(
-            const sentinel &s,
-            const iterator &i)
-        requires ranges::RandomAccessIterator<iterator>()
-        {
-            return s.i <= i;
-        }
-        friend bool operator>=(
-            const sentinel &s,
-            const iterator &i)
-        requires ranges::RandomAccessIterator<iterator>()
-        {
-            return s.i >= i;
         }
 
         iterator base() const {
@@ -1349,21 +1264,6 @@ void test_random_access_encoding(
     auto tv = make_text_view<ET>(container);
     test_random_decode(code_unit_maps, container, tv);
     }
-
-    // FIXME: This test started failing with a mysterious assertion failure
-    // FIXME: following the port to cmcstl2.
-    // Test itext_iterator with an underlying N4382 Iterable.
-    {
-    vector<code_unit_type> container;
-    for (const auto &cum : code_unit_maps) {
-        for (const auto &cu : cum.code_units) {
-            container.push_back(cu);
-        }
-    }
-    iterable_view<decltype(container)> iv_container{container};
-    auto tv = make_text_view<ET>(iv_container);
-    test_random_decode(code_unit_maps, iv_container, tv);
-    }
 }
 
 template<
@@ -1503,7 +1403,7 @@ void test_construct_text_view(
                         make_cstr_view(cstr),
                         tv17);
 
-    // Test initialization with a text iterator pair.
+    // Test initialization with a text iterator/sentinel pair.
     TVT tv18 = {begin(tv17), end(tv17)};
     test_text_view<TVT>(code_unit_maps_without_terminator,
                         VT{begin(begin(tv17).base_range()), end(end(tv17).base_range())},

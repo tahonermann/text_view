@@ -197,8 +197,20 @@ public:
                  view_type, code_unit_iterator, code_unit_sentinel>()
     : basic_text_view(text_detail::adl_begin(range), text_detail::adl_end(range)) {}
 
-    // Overload to initialize a text view from a text iterator pair.  The
-    // initial encoding state is inferred from the first iterator.
+    // Overload to initialize a text view from a text iterator pair.
+    // The initial encoding state is inferred from the first iterator.
+    basic_text_view(
+        iterator first,
+        iterator last)
+    requires ranges::Constructible<
+                 code_unit_iterator,
+                 decltype(std::declval<iterator>().base())>()
+          && ranges::Constructible<
+                 view_type, code_unit_iterator, code_unit_iterator>()
+    : basic_text_view{first.state(), first.base(), last.base()} {}
+
+    // Overload to initialize a text view from a text iterator/sentinel pair.
+    // The initial encoding state is inferred from the first iterator.
     basic_text_view(
         iterator first,
         sentinel last)
