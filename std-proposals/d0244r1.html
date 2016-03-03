@@ -96,6 +96,10 @@ blockquote.code
         Transcoding</a></li>
     <li><a href="#future_constexpr">
         Constexpr Support</a></li>
+    <li><a href="#future_unicode_normalization">
+        Unicode Normalization Iterators</a></li>
+    <li><a href="#future_grapheme_cluster">
+        Unicode Grapheme Cluster Iterators</a></li>
   </ul>
   <li><a href="#faq">
       FAQ</a></li>
@@ -695,6 +699,25 @@ code unit sequence and is therefore more container-like than view-like.
 
 <p>Core language enhancements are probably necessary to make compile-time string
 literal translations a usable feature.
+
+<h2 id="future_unicode_normalization">Unicode Normalization Iterators</h2>
+
+<p>Unicode <sup><a href="#ref_unicode">[Unicode]</a></sup> encodings allow
+multiple code point sequences to denote the same character; this occurs with the
+use of combining characters.  Unicode defines several normalization forms to
+enable consistent encoding of code point sequences.
+
+<p>Future work includes development of output iterators that perform Unicode
+normalization.
+
+<h2 id="future_grapheme_cluster">Unicode Grapheme Cluster Iterators</h2>
+
+<p>Unicode <sup><a href="#ref_unicode">[Unicode]</a></sup> defines the concept
+of a grapheme cluster; a sequence of code points that includes nonspacing
+combining characters that, in general, should be processed as a unit.
+
+<p>Future work includes development of input iterators that enumerate grapheme
+clusters.
 
 <h1 id="faq">FAQ</h1>
 
