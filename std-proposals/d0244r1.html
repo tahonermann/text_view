@@ -663,6 +663,10 @@ auto tv = make_text_view&lt;modified_utf8_encoding&gt;(
 </code></pre>
 </blockquote>
 
+<p>An additional example is that some of the proposals for reflections could
+benefit from the ability to transcode identifiers expressed in the basic
+source character encoding to a UTF-8 representation.
+
 <p>Unfortunately, user defined literals (UDLs) are currently unable to provide
 this support; though a constexpr UDL operator can be written, there is no known
 way to write the UDL such that an arbitrarily sized compile-time data structure
