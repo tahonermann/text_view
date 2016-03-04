@@ -2002,7 +2002,7 @@ public:
   using iterator = ranges::iterator_t<std::add_const_t<view_type>>;
   using iterator_category = /* implementation-defined */;
   using value_type = character_type_t<encoding_type>;
-  using reference = /* implementation-defined */;
+  using reference = value_type;
   using pointer = std::add_const_t<value_type>*;
   using difference_type = ranges::difference_type_t<iterator>;
 
