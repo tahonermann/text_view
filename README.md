@@ -13,7 +13,8 @@ based character encoding and code point enumeration library.
   - [Building and installing Text_view]
     (#building-and-installing-text_view)
 - [Usage](#usage)
-  - [Header &lt;text_view&gt; synopsis](#header-text_view-synopsis)
+  - [Header &lt;experimental/text_view&gt; synopsis]
+    (#header-experimental-text_view-synopsis)
   - [Concepts](#concepts)
   - [Character sets](#character-sets)
   - [Character set identification](#character-set-identification)
