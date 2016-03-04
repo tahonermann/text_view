@@ -263,6 +263,7 @@ using text_view = basic_text_view<
 using wtext_view = basic_text_view<
           execution_wide_character_encoding,
           text_detail::basic_view<const wchar_t*>>;
+// FIXME: If N3398 were to be adopted, replace char with char8_t.
 using u8text_view = basic_text_view<
           char8_character_encoding,
           text_detail::basic_view<const char*>>;
