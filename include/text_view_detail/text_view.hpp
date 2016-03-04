@@ -16,7 +16,8 @@
 #include <text_view_detail/advance_to.hpp>
 #include <text_view_detail/basic_view.hpp>
 #include <text_view_detail/concepts.hpp>
-#include <text_view_detail/text_iterator.hpp>
+#include <text_view_detail/itext_iterator.hpp>
+#include <text_view_detail/itext_sentinel.hpp>
 
 
 namespace std {
