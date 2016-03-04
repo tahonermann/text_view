@@ -97,10 +97,9 @@ for (const auto &ch : tv) {
 - Encoding and decoding of text for the [encodings](#encoding) listed in
   [supported encodings](#supported-encodings).
 - Encoding text using [C++11][ISO/IEC 14882:2011] compliant output iterators.
-- Decoding text using mostly [C++11][ISO/IEC 14882:2011] compliant input,
-  forward, bidirectional, and random access iterators.  These iterators lack
-  full compliance for the forward, bidirectional, and random access iterator
-  requirements for issues that are addressed by [P0022R1].
+- Decoding text using input, forward, bidirectional, and random access
+  iterators that are compliant with standard iterator requirements as specified
+  in the [ranges proposal][N4560].
 - Constructing view adapters for encoded text stored in arrays, containers,
   or std::basic_string, or referenced by another range or view.  These view
   adapters meet the requirements for views in the [ranges proposal][N4560].

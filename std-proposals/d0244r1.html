@@ -72,8 +72,6 @@ blockquote.code
   <li><a href="#design_considerations">
       Design Considerations</a></li>
   <ul>
-    <li><a href="#iterator_requirements">
-        Iterator Requirements</a></li>
     <li><a href="#view_requirements">
         View Requirements</a></li>
     <li><a href="#error_handling">
@@ -392,21 +390,6 @@ ISO/IEC 8859 series of encodings including ISO/IEC 8859-1, and many trivial
 encodings such as Windows code page 1252.
 
 <h1 id="design_considerations">Design Considerations</h1>
-
-<h2 id="iterator_requirements">Iterator Requirements</h2>
-
-<p>The iterators provided by this library do not conform to all of the
-C++ standard requirements for forward and random access iterators.
-
-<p>Each iterator holds its own copy of decoded code point values, two iterators
-that compare equally will return different addresses when dereferenced.  The
-standard requires that equivalent iterators return equivalent reference and
-pointer addresses when dereferenced.  For random access iterators,
-<tt>operator[]</tt> returns a value type since any returned reference type
-would immediately become dangling.
-
-<p>The above conformance issues will be resolved if the proxy iterators
-proposal <sup><a href="#ref_p0022r1">[P0022R1]</a></sup> is accepted.
 
 <h2 id="view_requirements">View Requirements</h2>
 
@@ -2800,18 +2783,6 @@ unit stream as compared to one that was advanced after having done so; in both
 cases, the underlying code unit input iterator will compare equal to the end of
 the stream iterator).
 
-<p><tt>itext_iterator</tt> is a proxy iterator
-<sup><a href="#ref_p0022r1">[P0022R1]</a></sup>
-since the value type is computed and a meaningful reference type cannot be
-provided for the dereference and subscript operators.  The <tt>reference</tt>
-member type is an alias of an implementation defined proxy reference type, must
-satisfy <tt>Character</tt>, and must support implicit conversion to <tt>const
-value_type&amp;</tt>.
-
-<p>Note: Implementation of a reference proxy would be simplified if the
-operator dot proposal <sup><a href="#ref_p0252r0">[P0252R0]</a></sup> is
-adopted.
-
 <blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::View VT&gt;
@@ -2827,7 +2798,7 @@ public:
   using iterator = ranges::iterator_t&lt;std::add_const_t&lt;view_type&gt;&gt;;
   using iterator_category = /* implementation-defined */;
   using value_type = character_type_t&lt;encoding_type&gt;;
-  using reference = /* implementation-defined */;
+  using reference = value_type;
   using pointer = std::add_const_t&lt;value_type&gt;*;
   using difference_type = ranges::difference_type_t&lt;iterator&gt;;
 
@@ -3351,28 +3322,12 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf</a></td>
   </tr>
   <tr>
-    <td id="ref_p0022r1"><sup>[P0022R1]</sup></td>
-    <td>
-      Eric Niebler,
-      "Proxy Iterators for the Ranges Extensions", P0022R1, 2015.<br/>
-      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html">
-      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html</a></td>
-  </tr>
-  <tr>
     <td id="ref_p0184r0"><sup>[P0184R0]</sup></td>
     <td>
       Eric Niebler,
       "Generalizing the Range-Based For Loop", P0184R0, 2016.<br/>
       <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">
       http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html</a></td>
-  </tr>
-  <tr>
-    <td id="ref_p0252r0"><sup>[P0252R0]</sup></td>
-    <td>
-      Bjarne Stroustrup and Gabriel Dos Reis,
-      "Operator Dot Wording", P0252R0, 2016.<br/>
-      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf">
-      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf</a></td>
   </tr>
   <tr>
     <td id="ref_text_view"><sup>[Text_view]</sup></td>

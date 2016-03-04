@@ -62,46 +62,7 @@ public:
                   encoding_type,
                   iterator>::type;
     using value_type = character_type_t<encoding_type>;
-    struct reference_proxy {
-        friend bool operator==(
-            const reference_proxy& l,
-            const reference_proxy& r)
-        {
-            return l.value == r.value;
-        }
-        friend bool operator!=(
-            const reference_proxy& l,
-            const reference_proxy& r)
-        {
-            return l.value != r.value;
-        }
-
-        // FIXME: If P0252R0 (Operator Dot Wording) is adopted, replace member
-        // FIXME: functions required to satisfy Character with:
-        // FIXME:   const value_type& operator.() const { return value; }
-        // FIXME: set_code_point() is needed to satisfy Character, but
-        // FIXME: references will always to const.  Can this be omitted?
-        void set_code_point(code_point_type_t<character_set_type_t<value_type>> cp) {
-            value.set_code_point(cp);
-        }
-        auto get_code_point() const
-            -> code_point_type_t<character_set_type_t<value_type>>
-        {
-            return value.get_code_point();
-        }
-        auto get_character_set_id() const
-            -> character_set_id
-        {
-            return value.get_character_set_id();
-        }
-
-        operator const value_type& () const {
-            return value;
-        }
-
-        value_type value;
-    };
-    using reference = reference_proxy;
+    using reference = value_type;
     using pointer = const value_type*;
     using difference_type = ranges::difference_type_t<iterator>;
 
