@@ -16,8 +16,8 @@
 #include <experimental/ranges/algorithm>
 #include <experimental/ranges/iterator>
 #include <experimental/ranges/utility>
-#include <text_view>
-#include <text_view_archetypes.hpp>
+#include <experimental/text_view>
+#include <text_view_detail/archetypes.hpp>
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/advance_to.hpp>
 #include <text_view_detail/riterator.hpp>

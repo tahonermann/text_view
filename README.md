@@ -205,7 +205,7 @@ add include paths for the `text_view/include` and [cmcstl2] installation
 locations, and include the `text_view` header file:
 
 ```C++
-#include <text_view>
+#include <experimental/text_view>
 ```
 
 All interfaces intended for public use are declared in the
@@ -220,7 +220,7 @@ defined by these definitions as compared to the [Text_view] implementation are
 unintentional and should be considered indicatative of a defect in either the
 specification or the implementation.
 
-## Header &lt;text_view&gt; synopsis
+## Header &lt;experimental/text_view&gt; synopsis
 
 ```C++
 namespace std {
