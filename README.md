@@ -14,7 +14,7 @@ based character encoding and code point enumeration library.
     (#building-and-installing-text_view)
 - [Usage](#usage)
   - [Header &lt;experimental/text_view&gt; synopsis]
-    (#header-experimental-text_view-synopsis)
+    (#header--experimental-text_view--synopsis)
   - [Concepts](#concepts)
   - [Character sets](#character-sets)
   - [Character set identification](#character-set-identification)
