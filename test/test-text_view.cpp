@@ -27,6 +27,13 @@ using namespace std;
 using namespace std::experimental;
 
 
+// Nagative concept checks for use in static assertions.
+template<template<typename...> typename T, typename ...Ts>
+concept bool NotATextView() {
+    return ! TextView<T<Ts...>>();
+}
+
+
 // code_unit_map specifies the relationship between a state transition or a
 // character with a code unit sequence.  Any of the state_transitions,
 // characters, and code_units vectors may be empty.  In general,
@@ -464,17 +471,17 @@ void test_text_decoder_models() {
     static_assert(TextBidirectionalDecoder<
                       char16_character_encoding,
                       char16_t*>());
-    static_assert(TextBidirectionalDecoder<
+    static_assert(TextRandomAccessDecoder<
                       char32_character_encoding,
                       char32_t*>());
-    static_assert(TextForwardDecoder<
+    static_assert(TextRandomAccessDecoder<
                       basic_execution_character_encoding,
                       char*>());
-    static_assert(TextForwardDecoder<
+    static_assert(TextRandomAccessDecoder<
                       basic_execution_wide_character_encoding,
                       wchar_t*>());
 #if defined(__STDC_ISO_10646__)
-    static_assert(TextBidirectionalDecoder<
+    static_assert(TextRandomAccessDecoder<
                       iso_10646_wide_character_encoding,
                       wchar_t*>());
 #endif // __STDC_ISO_10646__
@@ -506,6 +513,29 @@ void test_text_decoder_models() {
                       utf32le_encoding,
                       char*>());
     static_assert(TextBidirectionalDecoder<
+                      utf32bom_encoding,
+                      char*>());
+
+    // Expected model failures.
+    static_assert(! TextRandomAccessDecoder<
+                      utf8_encoding,
+                      char*>());
+    static_assert(! TextRandomAccessDecoder<
+                      utf8bom_encoding,
+                      char*>());
+    static_assert(! TextRandomAccessDecoder<
+                      utf16_encoding,
+                      char16_t*>());
+    static_assert(! TextRandomAccessDecoder<
+                      utf16be_encoding,
+                      char*>());
+    static_assert(! TextRandomAccessDecoder<
+                      utf16le_encoding,
+                      char*>());
+    static_assert(! TextRandomAccessDecoder<
+                      utf16bom_encoding,
+                      char*>());
+    static_assert(! TextRandomAccessDecoder<
                       utf32bom_encoding,
                       char*>());
 }
@@ -622,6 +652,9 @@ void test_text_view_models() {
     static_assert(TextView<basic_text_view<char8_character_encoding, text_detail::basic_view<char*>>>());
     static_assert(TextView<basic_text_view<char16_character_encoding, text_detail::basic_view<char16_t*>>>());
     static_assert(TextView<basic_text_view<char32_character_encoding, text_detail::basic_view<char32_t*>>>());
+
+    // Expected model failures.
+    static_assert(! NotATextView<basic_text_view, execution_character_encoding, char(&)[1]>());
 }
 
 // Test any_character_set.
