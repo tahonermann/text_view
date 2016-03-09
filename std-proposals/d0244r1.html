@@ -114,6 +114,8 @@ blockquote.code
         Header &lt;experimental/text_view&gt; synopsis</a></li>
     <li><a href="#concepts">
         Concepts</a></li>
+    <li><a href="#type_traits">
+        Type Traits</a></li>
     <li><a href="#character_sets">
         Character Sets</a></li>
     <li><a href="#character_set_identification">
@@ -1445,6 +1447,92 @@ template&lt;typename T&gt; concept bool TextView() {
                -&gt; const typename T::state_type&amp;;
          };
 }
+</code></pre>
+</blockquote>
+
+<h2 id="type_traits">Type Traits</h2>
+
+<ul>
+  <li><a href="#code_unit_type_t">
+      code_unit_type_t</a></li>
+  <li><a href="#code_point_type_t">
+      code_point_type_t</a></li>
+  <li><a href="#character_set_type_t">
+      character_set_type_t</a></li>
+  <li><a href="#character_type_t">
+      character_type_t</a></li>
+  <li><a href="#encoding_type_t">
+      encoding_type_t</a></li>
+</ul>
+
+<h3 id="code_unit_type_t">code_unit_type_t</h3>
+
+<p>The <tt>code_unit_type_t</tt> type alias template provides convenient means
+for selecting the associated code unit type of some other type, such as an
+encoding type that satisfies <tt>TextEncoding</tt>.  The aliased type is the
+same as <tt>typename T::code_unit_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using code_unit_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="code_point_type_t">code_point_type_t</h3>
+
+<p>The <tt>code_point_type_t</tt> type alias template provides convenient means
+for selecting the associated code point type of some other type, such as a
+type that satisfies <tt>CharacterSet</tt> or <tt>Character</tt>.  The aliased
+type is the same as <tt>typename T::code_point_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using code_point_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="character_set_type_t">character_set_type_t</h3>
+
+<p>The <tt>character_set_type_t</tt> type alias template provides convenient
+means for selecting the associated character set type of some other type, such
+as a type that satisfies <tt>Character</tt>.  The aliased type is the same as
+<tt>typename T::character_set_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using character_set_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="character_type_t">character_type_t</h3>
+
+<p>The <tt>character_type_t</tt> type alias template provides convenient means
+for selecting the associated character type of some other type, such as a type
+that satisfies <tt>TextEncoding</tt>.  The aliased type is the same as
+<tt>typename T::character_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using character_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="encoding_type_t">encoding_type_t</h3>
+
+<p>The <tt>encoding_type_t</tt> type alias template provides convenient means
+for selecting the associated encoding type of some other type, such as a type
+that satisfies <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, or
+<tt>TextView</tt>.  The aliased type is the same as
+<tt>typename T::encoding_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using encoding_type_t /* implementation-defined */ ;
 </code></pre>
 </blockquote>
 

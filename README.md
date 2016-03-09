@@ -16,6 +16,7 @@ based character encoding and code point enumeration library.
   - [Header &lt;experimental/text_view&gt; synopsis]
     (#header-experimentaltext_view-synopsis)
   - [Concepts](#concepts)
+  - [Type traits](#type-traits)
   - [Character sets](#character-sets)
   - [Character set identification](#character-set-identification)
   - [Character set information](#character-set-information)
@@ -765,6 +766,74 @@ template<typename T> concept bool TextView() {
                -> const typename T::state_type&;
          };
 }
+```
+
+## Type traits
+
+- [code_unit_type_t](#code_unit_type_t)
+- [code_point_type_t](#code_point_type_t)
+- [character_set_type_t](#character_set_type_t)
+- [character_type_t](#character_type_t)
+- [encoding_type_t](#encoding_type_t)
+
+### code_unit_type_t
+
+The `code_unit_type_t` type alias template provides convenient means for
+selecting the associated [code unit](#code-unit) type of some other type,
+such as an [encoding](#encoding) type that satisfies `TextEncoding`.  The
+aliased type is the same as `typename T::code_unit_type`.
+
+```C++
+template<typename T>
+  using code_unit_type_t = /* implementation-defined */ ;
+```
+
+### code_point_type_t
+
+The `code_point_type_t` type alias template provides convenient means for
+selecting the associated [code point](#code-point) type of some other type,
+such as a type that satisfies `CharacterSet` or `Character`.  The aliased
+type is the same as `typename T::code_point_type`.
+
+```C++
+template<typename T>
+  using code_point_type_t = /* implementation-defined */ ;
+```
+
+### character_set_type_t
+
+The `character_set_type_t` type alias template provides convenient means for
+selecting the associated [character set](#character-set) type of some other
+type, such as a type that satisfies `Character`.  The aliased type is the same
+as `typename T::character_set_type`.
+
+```C++
+template<typename T>
+  using character_set_type_t = /* implementation-defined */ ;
+```
+
+### character_type_t
+
+The `character_type_t` type alias template provides convenient means for
+selecting the associated [character](#character) type of some other type, such
+as a type that satisfies `TextEncoding`.  The aliased type is the same as
+`typename T::character_type`.
+
+```C++
+template<typename T>
+  using character_type_t = /* implementation-defined */ ;
+```
+
+### encoding_type_t
+
+The `encoding_type_t` type alias template provides convenient means for
+selecting the associated [encoding](#encoding) type of some other type, such
+as a type that satisfies `TextIterator`, `TextOutputIterator`, or `TextView`.
+The aliased type is the same as `typename T::encoding_type`.
+
+```C++
+template<typename T>
+  using encoding_type_t /* implementation-defined */ ;
 ```
 
 ## Character sets
