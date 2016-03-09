@@ -842,13 +842,13 @@ using universal_character_set = /* implementation-defined */ ;
 // character set identification:
 class character_set_id;
 
-template&lt;typename CST&gt;
+template&lt;CharacterSet CST&gt;
   inline character_set_id get_character_set_id();
 
 // character set information:
 class character_set_info;
 
-template&lt;typename CST&gt;
+template&lt;CharacterSet CST&gt;
   inline const character_set_info&amp; get_character_set_info();
 const character_set_info&amp; get_character_set_info(character_set_id id);
 
@@ -1716,7 +1716,7 @@ the chracter set type specified by the template parameter.
 
 <blockquote class="code">
 <pre><code>
-template&lt;typename CST&gt;
+template&lt;CharacterSet CST&gt;
   inline character_set_id get_character_set_id();
 </code></pre>
 </blockquote>
@@ -1764,7 +1764,7 @@ private:
 <pre><code>
 const character_set_info&amp; get_character_set_info(character_set_id id);
 
-template&lt;typename CST&gt;
+template&lt;CharacterSet CST&gt;
   inline const character_set_info&amp; get_character_set_info();
 </code></pre>
 </blockquote>

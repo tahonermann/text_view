@@ -11,6 +11,7 @@
 #include <experimental/ranges/concepts>
 #include <experimental/ranges/type_traits>
 #include <text_view_detail/traits.hpp>
+#include <text_view_detail/character_set_id.hpp>
 
 
 namespace std {

@@ -263,13 +263,13 @@ using universal_character_set = /* implementation-defined */ ;
 // character set identification:
 class character_set_id;
 
-template<typename CST>
+template<CharacterSet CST>
   inline character_set_id get_character_set_id();
 
 // character set information:
 class character_set_info;
 
-template<typename CST>
+template<CharacterSet CST>
   inline const character_set_info& get_character_set_info();
 const character_set_info& get_character_set_info(character_set_id id);
 
@@ -991,7 +991,7 @@ public:
 [character set](#character-set) type specified by the template parameter.
 
 ```C++
-template<typename CST>
+template<CharacterSet CST>
   inline character_set_id get_character_set_id();
 ```
 
@@ -1030,7 +1030,7 @@ ID.
 ```C++
 const character_set_info& get_character_set_info(character_set_id id);
 
-template<typename CST>
+template<CharacterSet CST>
   inline const character_set_info& get_character_set_info();
 ```
 

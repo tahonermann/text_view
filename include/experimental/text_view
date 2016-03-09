@@ -8,8 +8,11 @@
 #define TEXT_VIEW_HPP
 
 
+#include <text_view_detail/traits.hpp>
+#include <text_view_detail/character_set_id.hpp>
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/charsets.hpp>
+#include <text_view_detail/character_set_info.hpp>
 #include <text_view_detail/character.hpp>
 #include <text_view_detail/trivial_encoding_state.hpp>
 #include <text_view_detail/codecs.hpp>
