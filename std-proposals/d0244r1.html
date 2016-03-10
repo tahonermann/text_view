@@ -130,6 +130,8 @@ blockquote.code
         Text Iterators</a></li>
     <li><a href="#text_view">
         Text View</a></li>
+    <li><a href="#exceptions">
+        Exceptions</a></li>
   </ul>
   <li><a href="#acknowledgements">
       Acknowledgements</a></li>
@@ -590,7 +592,7 @@ implementation of the ranges proposal
 for concept definitions.  The interfaces described in this document use the
 concept names from the ranges proposal
 <sup><a href="#ref_n4560">[N4560]</a></sup>, are intended to be used as
-specification, and should be considereed authoritative.  Any differences in
+specification, and should be considered authoritative.  Any differences in
 behavior as defined by these definitions as compared to the reference
 implementation are unintentional and should be considered indicatative of
 defects or limitations of the reference implementation and reported at
@@ -980,6 +982,13 @@ template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 template&lt;TextView TVT&gt;
   TVT make_text_view(TVT tv);
+
+// exception classes:
+class text_runtime_error;
+class text_encode_error;
+class text_decode_error;
+class text_encode_overflow_error;
+class text_decode_underflow_error;
 
 } // inline namespace text
 } // namespace experimental
@@ -3344,6 +3353,103 @@ template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
 
 template&lt;TextView TVT&gt;
   TVT make_text_view(TVT tv);
+</code></pre>
+</blockquote>
+
+<h2 id="exceptions">Exceptions</h2>
+
+<ul>
+  <li><a href="#class_text_runtime_error">
+      Class text_runtime_error</a></li>
+  <li><a href="#class_text_encode_error">
+      Class text_encode_error</a></li>
+  <li><a href="#class_text_decode_error">
+      Class text_decode_error</a></li>
+  <li><a href="#class_text_encode_overflow_error">
+      Class text_encode_overflow_error</a></li>
+  <li><a href="#class_text_decode_underflow_error">
+      Class text_decode_underflow_error</a></li>
+</ul>
+
+<h3 id="class_text_runtime_error">Class text_runtime_error</h3>
+
+<p>The <tt>text_runtime_error</tt> class defines the base class for the types of
+objects thrown as exceptions to report errors detected during text processing.
+
+<blockquote class="code">
+<pre><code>
+class text_runtime_error : public std::runtime_error
+{
+public:
+  using std::runtime_error::runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_encode_error">Class text_encode_error</h3>
+
+<p>The <tt>text_encode_error</tt> class defines the types of objects thrown as
+exceptions to report errors detected during encoding of a character.  Objects of
+this type are generally thrown in response to an attempt to encode a character
+with an invalid code point value, or to encode an invalid state transition.
+
+<blockquote class="code">
+<pre><code>
+class text_encode_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_decode_error">Class text_decode_error</h3>
+
+<p>The <tt>text_decode_error</tt> class defines the types of objects thrown as
+exceptions to report errors detected during decoding of a code unit sequence.
+Objects of this type are generally thrown in response to an attempt to decode
+an ill-formed code unit sequence, a code unit sequence that specifies an invalid
+code point value, or a code unit sequence that specifies an invalid state
+transition.
+
+<blockquote class="code">
+<pre><code>
+class text_decode_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_encode_overflow_error">Class text_encode_overflow_error</h3>
+
+<p>The <tt>text_encode_overflow_error</tt> class defines the types of objects
+thrown as exceptions to report overflow detected during encoding of a character.
+
+<blockquote class="code">
+<pre><code>
+class text_encode_overflow_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_decode_underflow_error">Class text_decode_underflow_error</h3>
+
+<p>The <tt>text_decode_underflow_error</tt> class defines the types of objects
+thrown as exceptions to report undeflow detected during decoding of a code unit
+sequence.
+
+<blockquote class="code">
+<pre><code>
+class text_decode_underflow_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
 </code></pre>
 </blockquote>
 

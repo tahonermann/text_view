@@ -24,6 +24,7 @@ based character encoding and code point enumeration library.
   - [Encodings](#encodings)
   - [Text iterators](#text-iterators)
   - [Text view](#text-view)
+  - [Exceptions](#exceptions)
 - [Supported Encodings](#supported-encodings)
 - [Terminology](#terminology)
   - [Code Unit](#code-unit)
@@ -217,7 +218,7 @@ itself.
 
 The interface descriptions in the sections that follow use the concept names
 from the [ranges proposal][N4560], are intended to be used as specification,
-and should be considereed authoritative.  Any differences in behavior as
+and should be considered authoritative.  Any differences in behavior as
 defined by these definitions as compared to the [Text_view] implementation are
 unintentional and should be considered indicatative of a defect in either the
 specification or the implementation.
@@ -401,6 +402,13 @@ template<TextIterator TIT, TextSentinel<TIT> TST>
   -> basic_text_view<ET, /* implementation-defined */ >;
 template<TextView TVT>
   TVT make_text_view(TVT tv);
+
+// exception classes:
+class text_runtime_error;
+class text_encode_error;
+class text_decode_error;
+class text_encode_overflow_error;
+class text_decode_underflow_error;
 
 } // inline namespace text
 } // namespace experimental
@@ -2508,6 +2516,88 @@ template<TextIterator TIT, TextSentinel<TIT> TST>
 
 template<TextView TVT>
   TVT make_text_view(TVT tv);
+```
+
+## Exceptions
+
+- [Class text_runtime_error](#class-text_runtime_error)
+- [Class text_encode_error](#class-text_encode_error)
+- [Class text_decode_error](#class-text_decode_error)
+- [Class text_encode_overflow_error](#class-text_encode_overflow_error)
+- [Class text_decode_underflow_error](#class-text_decode_underflow_error)
+
+### Class text_runtime_error
+
+The `text_runtime_error` class defines the base class for the types of objects
+thrown as exceptions to report errors detected during text processing.
+
+```C++
+class text_runtime_error : public std::runtime_error
+{
+public:
+  using std::runtime_error::runtime_error;
+};
+```
+
+### Class text_encode_error
+
+The `text_encode_error` class defines the types of objects thrown as exceptions
+to report errors detected during encoding of a [character](#character).  Objects
+of this type are generally thrown in response to an attempt to encode a
+[character](#character) with an invalid [code point](#code-point) value, or to
+encode an invalid state transition.
+
+```C++
+class text_encode_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+```
+
+### Class text_decode_error
+
+The `text_decode_error` class defines the types of objects thrown as exceptions
+to report errors detected during decoding of a [code unit](#code-unit) sequence.
+Objects of this type are generally thrown in response to an attempt to decode
+an ill-formed [code unit](#code-unit) sequence, a [code unit](#code-unit)
+sequence that specifies an invalid [code point](#code-point) value, or a
+[code unit](#code-unit) sequence that specifies an invalid state transition.
+
+```C++
+class text_decode_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+```
+
+### Class text_encode_overflow_error
+
+The `text_encode_overflow_error` class defines the types of objects thrown as
+exceptions to report overflow detected during encoding of a
+[character](#character).
+
+```C++
+class text_encode_overflow_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+```
+
+### Class text_decode_underflow_error
+
+The `text_decode_underflow_error` class defines the types of objects thrown as
+exceptions to report undeflow detected during decoding of a
+[code unit](#code-unit) sequence.
+
+```C++
+class text_decode_underflow_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
 ```
 
 # Supported Encodings
