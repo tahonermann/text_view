@@ -48,9 +48,6 @@ public:
     const state_type& state() const noexcept {
         return *this;
     }
-    state_type& state() noexcept {
-        return *this;
-    }
 
     iterator base() const {
         return current;
@@ -89,6 +86,10 @@ public:
     }
 
 protected:
+    state_type& state() noexcept {
+        return *this;
+    }
+
     iterator current;
 };
 

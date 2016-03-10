@@ -255,10 +255,8 @@ concept bool TextIterator() {
         && Character<ranges::value_type_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
-        && requires (T t, const T ct) {
+        && requires (T t) {
                { t.state() } noexcept
-                   -> typename encoding_type_t<T>::state_type&;
-               { ct.state() } noexcept
                    -> const typename encoding_type_t<T>::state_type&;
            };
 }
@@ -282,10 +280,8 @@ concept bool TextOutputIterator() {
     return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
-        && requires (T t, const T ct) {
+        && requires (T t) {
                { t.state() } noexcept
-                   -> typename encoding_type_t<T>::state_type&;
-               { ct.state() } noexcept
                    -> const typename encoding_type_t<T>::state_type&;
            };
 }
@@ -308,8 +304,6 @@ concept bool TextView() {
                { ct.base() } noexcept
                    -> const typename T::view_type&;
                { t.initial_state() } noexcept
-                   -> typename T::state_type&;
-               { ct.initial_state() } noexcept
                    -> const typename T::state_type&;
            };
 }

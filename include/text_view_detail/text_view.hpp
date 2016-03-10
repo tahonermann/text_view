@@ -232,9 +232,6 @@ public:
     const state_type& initial_state() const noexcept {
         return *this;
     }
-    state_type& initial_state() noexcept {
-        return *this;
-    }
 
     iterator begin() const {
         return iterator{initial_state(), &view, text_detail::adl_begin(view)};

@@ -763,7 +763,7 @@ public:
   static constexpr int min_code_units = ...;
   static constexpr int max_code_units = ...;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -1369,10 +1369,8 @@ template&lt;typename T&gt; concept bool TextIterator() {
       &amp;&amp; Character&lt;ranges::value_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
-      &amp;&amp; requires (T t, const T ct) {
+      &amp;&amp; requires (T t) {
            { t.state() } noexcept
-               -&gt; typename encoding_type_t&lt;T&gt;::state_type&amp;;
-           { ct.state() } noexcept
                -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
          };
 }
@@ -1411,10 +1409,8 @@ template&lt;typename T&gt; concept bool TextOutputIterator() {
   return ranges::OutputIterator&lt;T, character_type_t&lt;encoding_type_t&lt;T&gt;&gt;&gt;()
       &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
-      &amp;&amp; requires (T t, const T ct) {
+      &amp;&amp; requires (T t) {
            { t.state() } noexcept
-               -&gt; typename encoding_type_t&lt;T&gt;::state_type&amp;;
-           { ct.state() } noexcept
                -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
          };
 }
@@ -1451,8 +1447,6 @@ template&lt;typename T&gt; concept bool TextView() {
            { ct.base() } noexcept
                -&gt; const typename T::view_type&amp;;
            { t.initial_state() } noexcept
-               -&gt; typename T::state_type&amp;;
-           { ct.initial_state() } noexcept
                -&gt; const typename T::state_type&amp;;
          };
 }
@@ -2954,7 +2948,6 @@ public:
     requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
 
   const state_type&amp; state() const noexcept;
-  state_type&amp; state() noexcept;
 
   iterator base() const;
 
@@ -3061,7 +3054,6 @@ public:
   otext_iterator&amp; operator=(const character_type_t&lt;encoding_type&gt; &amp;value);
 
   const state_type&amp; state() const noexcept;
-  state_type&amp; state() noexcept;
 
   iterator base() const;
 
@@ -3229,7 +3221,6 @@ public:
   view_type&amp; base() noexcept;
 
   const state_type&amp; initial_state() const noexcept;
-  state_type&amp; initial_state() noexcept;
 
   iterator begin() const;
   iterator end() const

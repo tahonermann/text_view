@@ -75,11 +75,12 @@ protected:
         // an expression-list.
         : state_type(state) {}
 
-public:
-    const state_type& state() const noexcept {
+    state_type& state() noexcept {
         return *this;
     }
-    state_type& state() noexcept {
+
+public:
+    const state_type& state() const noexcept {
         return *this;
     }
 };

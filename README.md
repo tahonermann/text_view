@@ -699,10 +699,8 @@ template<typename T> concept bool TextIterator() {
       && Character<ranges::value_type_t<T>>()
       && TextEncoding<encoding_type_t<T>>()
       && TextEncodingState<typename T::state_type>()
-      && requires (T t, const T ct) {
+      && requires (T t) {
            { t.state() } noexcept
-               -> typename encoding_type_t<T>::state_type&;
-           { ct.state() } noexcept
                -> const typename encoding_type_t<T>::state_type&;
          };
 }
@@ -733,10 +731,8 @@ template<typename T> concept bool TextOutputIterator() {
   return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
       && TextEncoding<encoding_type_t<T>>()
       && TextEncodingState<typename T::state_type>()
-      && requires (T t, const T ct) {
+      && requires (T t) {
            { t.state() } noexcept
-               -> typename encoding_type_t<T>::state_type&;
-           { ct.state() } noexcept
                -> const typename encoding_type_t<T>::state_type&;
          };
 }
@@ -769,8 +765,6 @@ template<typename T> concept bool TextView() {
            { ct.base() } noexcept
                -> const typename T::view_type&;
            { t.initial_state() } noexcept
-               -> typename T::state_type&;
-           { ct.initial_state() } noexcept
                -> const typename T::state_type&;
          };
 }
@@ -2139,7 +2133,6 @@ public:
     requires TextRandomAccessDecoder<encoding_type, iterator>();
 
   const state_type& state() const noexcept;
-  state_type& state() noexcept;
 
   iterator base() const;
 
@@ -2240,7 +2233,6 @@ public:
   otext_iterator& operator=(const character_type_t<encoding_type> &value);
 
   const state_type& state() const noexcept;
-  state_type& state() noexcept;
 
   iterator base() const;
 
@@ -2398,7 +2390,6 @@ public:
   view_type& base() noexcept;
 
   const state_type& initial_state() const noexcept;
-  state_type& initial_state() noexcept;
 
   iterator begin() const;
   iterator end() const
