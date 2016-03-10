@@ -90,8 +90,10 @@ concept bool Character() {
         && ranges::Copyable<T>()
         && requires (T t, code_point_type_t<character_set_type_t<T>> cp) {
                t.set_code_point(cp);
-               { t.get_code_point() } -> code_point_type_t<character_set_type_t<T>>;
-               { t.get_character_set_id() } -> character_set_id;
+               { t.get_code_point() } noexcept
+                   -> code_point_type_t<character_set_type_t<T>>;
+               { t.get_character_set_id() }
+                   -> character_set_id;
            };
 }
 
@@ -152,7 +154,7 @@ concept bool TextEncoding() {
         && CodeUnit<code_unit_type_t<T>>()
         && Character<character_type_t<T>>()
         && requires () {
-               { T::initial_state() }
+               { T::initial_state() } noexcept
                    -> const typename T::state_type&;
            };
 }

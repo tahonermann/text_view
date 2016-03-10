@@ -1126,8 +1126,10 @@ template&lt;typename T&gt; concept bool Character() {
       &amp;&amp; CharacterSet&lt;character_set_type_t&lt;T&gt;&gt;()
       &amp;&amp; requires (T t, code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt; cp) {
            t.set_code_point(cp);
-           { t.get_code_point() } -&gt; code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt;;
-           { t.get_character_set_id() } -&gt; character_set_id;
+           { t.get_code_point() } noexcept
+               -&gt; code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt;;
+           { t.get_character_set_id() }
+               -&gt; character_set_id;
          };
 }
 </code></pre>
@@ -1218,7 +1220,7 @@ template&lt;typename T&gt; concept bool TextEncoding() {
       &amp;&amp; CodeUnit&lt;code_unit_type_t&lt;T&gt;&gt;()
       &amp;&amp; Character&lt;character_type_t&lt;T&gt;&gt;()
       &amp;&amp; requires () {
-           { T::initial_state() }
+           { T::initial_state() } noexcept
                -&gt; const typename T::state_type&amp;;
          };
 }
@@ -1817,7 +1819,7 @@ public:
   friend bool operator!=(const character &amp;lhs,
                          const character &amp;rhs) noexcept;
 
-  void set_code_point(code_point_type code_point) noexcept;
+  void set_code_point(code_point_type code_point);
   code_point_type get_code_point() const noexcept;
 
   static character_set_id get_character_set_id();
@@ -1841,7 +1843,7 @@ public:
   friend bool operator!=(const character &amp;lhs,
                          const character &amp;rhs) noexcept;
 
-  void set_code_point(code_point_type code_point) noexcept;
+  void set_code_point(code_point_type code_point);
   code_point_type get_code_point() const noexcept;
 
   void set_character_set_id(character_set_id new_cs_id) noexcept;

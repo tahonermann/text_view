@@ -40,7 +40,7 @@ public:
         return !(l == r);
     }
 
-    void set_code_point(code_point_type code_point) noexcept {
+    void set_code_point(code_point_type code_point) {
         this->code_point = code_point;
     }
     code_point_type get_code_point() const noexcept {
@@ -85,7 +85,7 @@ public:
         return !(l == r);
     }
 
-    void set_code_point(code_point_type code_point) noexcept {
+    void set_code_point(code_point_type code_point) {
         this->code_point = code_point;
     }
     code_point_type get_code_point() const noexcept {
