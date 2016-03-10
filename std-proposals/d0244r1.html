@@ -1706,13 +1706,13 @@ class character_set_id {
 public:
   character_set_id() = delete;
 
-  friend bool operator==(character_set_id lhs, character_set_id rhs);
-  friend bool operator!=(character_set_id lhs, character_set_id rhs);
+  friend bool operator==(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator!=(character_set_id lhs, character_set_id rhs) noexcept;
 
-  friend bool operator&lt;(character_set_id lhs, character_set_id rhs);
-  friend bool operator&gt;(character_set_id lhs, character_set_id rhs);
-  friend bool operator&lt;=(character_set_id lhs, character_set_id rhs);
-  friend bool operator&gt;=(character_set_id lhs, character_set_id rhs);
+  friend bool operator&lt;(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator&gt;(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator&lt;=(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator&gt;=(character_set_id lhs, character_set_id rhs) noexcept;
 };
 </code></pre>
 </blockquote>
@@ -1816,13 +1816,15 @@ public:
   using code_point_type = code_point_type_t&lt;character_set_type&gt;;
 
   character() = default;
-  explicit character(code_point_type code_point);
+  explicit character(code_point_type code_point) noexcept;
 
-  friend bool operator==(const character &amp;lhs, const character &amp;rhs);
-  friend bool operator!=(const character &amp;lhs, const character &amp;rhs);
+  friend bool operator==(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
+  friend bool operator!=(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
 
-  void set_code_point(code_point_type code_point);
-  code_point_type get_code_point() const;
+  void set_code_point(code_point_type code_point) noexcept;
+  code_point_type get_code_point() const noexcept;
 
   static character_set_id get_character_set_id();
 
@@ -1837,17 +1839,19 @@ public:
   using code_point_type = code_point_type_t&lt;character_set_type&gt;;
 
   character() = default;
-  explicit character(code_point_type code_point);
-  character(character_set_id cs_id, code_point_type code_point);
+  explicit character(code_point_type code_point) noexcept;
+  character(character_set_id cs_id, code_point_type code_point) noexcept;
 
-  friend bool operator==(const character &amp;lhs, const character &amp;rhs);
-  friend bool operator!=(const character &amp;lhs, const character &amp;rhs);
+  friend bool operator==(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
+  friend bool operator!=(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
 
-  void set_code_point(code_point_type code_point);
-  code_point_type get_code_point() const;
+  void set_code_point(code_point_type code_point) noexcept;
+  code_point_type get_code_point() const noexcept;
 
-  void set_character_set_id(character_set_id new_cs_id);
-  character_set_id get_character_set_id() const;
+  void set_character_set_id(character_set_id new_cs_id) noexcept;
+  character_set_id get_character_set_id() const noexcept;
 
 private:
   character_set_id cs_id;     // exposition only
@@ -1956,7 +1960,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 1;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2016,7 +2020,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 1;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2082,7 +2086,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 1;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2141,7 +2145,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2199,9 +2203,9 @@ class utf8bom_encoding_state {
 
 class utf8bom_encoding_state_transition {
 public:
-  static utf8bom_encoding_state_transition to_initial_state();
-  static utf8bom_encoding_state_transition to_bom_written_state();
-  static utf8bom_encoding_state_transition to_assume_bom_written_state();
+  static utf8bom_encoding_state_transition to_initial_state() noexcept;
+  static utf8bom_encoding_state_transition to_bom_written_state() noexcept;
+  static utf8bom_encoding_state_transition to_assume_bom_written_state() noexcept;
 };
 
 class utf8bom_encoding {
@@ -2214,7 +2218,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2272,7 +2276,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 2;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2330,7 +2334,7 @@ public:
   static constexpr int min_code_units = 2;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2388,7 +2392,7 @@ public:
   static constexpr int min_code_units = 2;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2446,13 +2450,13 @@ class utf16bom_encoding_state {
 
 class utf16bom_encoding_state_transition {
 public:
-  static utf16bom_encoding_state_transition to_initial_state();
-  static utf16bom_encoding_state_transition to_bom_written_state();
-  static utf16bom_encoding_state_transition to_be_bom_written_state();
-  static utf16bom_encoding_state_transition to_le_bom_written_state();
-  static utf16bom_encoding_state_transition to_assume_bom_written_state();
-  static utf16bom_encoding_state_transition to_assume_be_bom_written_state();
-  static utf16bom_encoding_state_transition to_assume_le_bom_written_state();
+  static utf16bom_encoding_state_transition to_initial_state() noexcept;
+  static utf16bom_encoding_state_transition to_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_be_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_le_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_assume_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_assume_be_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_assume_le_bom_written_state() noexcept;
 };
 
 class utf16bom_encoding {
@@ -2465,7 +2469,7 @@ public:
   static constexpr int min_code_units = 2;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2523,7 +2527,7 @@ public:
   static constexpr int min_code_units = 1;
   static constexpr int max_code_units = 1;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2581,7 +2585,7 @@ public:
   static constexpr int min_code_units = 4;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2639,7 +2643,7 @@ public:
   static constexpr int min_code_units = 4;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2697,13 +2701,13 @@ class utf32bom_encoding_state {
 
 class utf32bom_encoding_state_transition {
 public:
-  static utf32bom_encoding_state_transition to_initial_state();
-  static utf32bom_encoding_state_transition to_bom_written_state();
-  static utf32bom_encoding_state_transition to_be_bom_written_state();
-  static utf32bom_encoding_state_transition to_le_bom_written_state();
-  static utf32bom_encoding_state_transition to_assume_bom_written_state();
-  static utf32bom_encoding_state_transition to_assume_be_bom_written_state();
-  static utf32bom_encoding_state_transition to_assume_le_bom_written_state();
+  static utf32bom_encoding_state_transition to_initial_state() noexcept;
+  static utf32bom_encoding_state_transition to_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_be_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_le_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_assume_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_assume_be_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_assume_le_bom_written_state() noexcept;
 };
 
 class utf32bom_encoding {
@@ -2716,7 +2720,7 @@ public:
   static constexpr int min_code_units = 4;
   static constexpr int max_code_units = 4;
 
-  static const state_type&amp; initial_state();
+  static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
     static void encode_state_transition(state_type &amp;state,
@@ -2994,8 +2998,10 @@ public:
 
   itext_sentinel(sentinel s);
 
-  friend bool operator==(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
-  friend bool operator!=(const itext_sentinel &amp;l, const itext_sentinel &amp;r);
+  friend bool operator==(const itext_sentinel &amp;l,
+                         const itext_sentinel &amp;r) noexcept;
+  friend bool operator!=(const itext_sentinel &amp;l,
+                         const itext_sentinel &amp;r) noexcept;
 
   friend bool operator==(const itext_iterator&lt;ET, VT&gt; &amp;ti,
                          const itext_sentinel &amp;ts);
@@ -3046,10 +3052,10 @@ public:
 
   otext_iterator(state_type state, iterator current);
 
-  otext_iterator&amp; operator*();
+  otext_iterator&amp; operator*() noexcept;
 
-  otext_iterator&amp; operator++();
-  otext_iterator&amp; operator++(int);
+  otext_iterator&amp; operator++() noexcept;
+  otext_iterator&amp; operator++(int) noexcept;
 
   otext_iterator&amp; operator=(const state_transition_type &amp;stt);
   otext_iterator&amp; operator=(const character_type_t&lt;encoding_type&gt; &amp;value);

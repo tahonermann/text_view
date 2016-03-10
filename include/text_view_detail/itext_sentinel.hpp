@@ -31,7 +31,7 @@ public:
 
     friend bool operator==(
         const itext_sentinel &l,
-        const itext_sentinel &r)
+        const itext_sentinel &r) noexcept
     {
         // Sentinels always compare equal regardless of any internal state.
         // See N4128, 10.1 "Sentinel Equality".
@@ -39,7 +39,7 @@ public:
     }
     friend bool operator!=(
         const itext_sentinel &l,
-        const itext_sentinel &r)
+        const itext_sentinel &r) noexcept
     {
         return !(l == r);
     }

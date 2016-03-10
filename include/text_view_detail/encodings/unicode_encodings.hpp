@@ -37,7 +37,7 @@ struct iso_10646_wide_character_encoding
                  character<unicode_character_set>,
                  wchar_t>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -54,7 +54,7 @@ struct utf8_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -66,7 +66,7 @@ struct utf8bom_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state{ false };
         return state;
     }
@@ -81,7 +81,7 @@ struct utf16_encoding
                  character<unicode_character_set>,
                  char16_t>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -92,7 +92,7 @@ struct utf16be_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -103,7 +103,7 @@ struct utf16le_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -114,7 +114,7 @@ struct utf16bom_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state{ false, state_type::big_endian };
         return state;
     }
@@ -129,7 +129,7 @@ struct utf32_encoding
                  character<unicode_character_set>,
                  char32_t>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -140,7 +140,7 @@ struct utf32be_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -151,7 +151,7 @@ struct utf32le_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state;
         return state;
     }
@@ -162,7 +162,7 @@ struct utf32bom_encoding
                  character<unicode_character_set>,
                  char>
 {
-    static const state_type& initial_state() {
+    static const state_type& initial_state() noexcept {
         static const state_type state{ false, state_type::big_endian };
         return state;
     }

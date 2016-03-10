@@ -24,26 +24,26 @@ public:
     using code_point_type = code_point_type_t<character_set_type>;
 
     character() = default;
-    explicit character(code_point_type code_point)
+    explicit character(code_point_type code_point) noexcept
         : code_point{code_point} {}
 
     friend bool operator==(
         const character &l,
-        const character &r)
+        const character &r) noexcept
     {
         return l.code_point == r.code_point;
     }
     friend bool operator!=(
         const character &l,
-        const character &r)
+        const character &r) noexcept
     {
         return !(l == r);
     }
 
-    void set_code_point(code_point_type code_point) {
+    void set_code_point(code_point_type code_point) noexcept {
         this->code_point = code_point;
     }
-    code_point_type get_code_point() const {
+    code_point_type get_code_point() const noexcept {
         return code_point;
     }
 
@@ -66,36 +66,36 @@ public:
     using code_point_type = code_point_type_t<character_set_type>;
 
     character() = default;
-    explicit character(code_point_type code_point)
+    explicit character(code_point_type code_point) noexcept
         : code_point{code_point} {}
-    character(character_set_id cs_id, code_point_type code_point)
+    character(character_set_id cs_id, code_point_type code_point) noexcept
         : cs_id{cs_id}, code_point{code_point} {}
 
     friend bool operator==(
         const character &l,
-        const character &r)
+        const character &r) noexcept
     {
         return l.cs_id == r.cs_id
             && l.code_point == r.code_point;
     }
     friend bool operator!=(
         const character &l,
-        const character &r)
+        const character &r) noexcept
     {
         return !(l == r);
     }
 
-    void set_code_point(code_point_type code_point) {
+    void set_code_point(code_point_type code_point) noexcept {
         this->code_point = code_point;
     }
-    code_point_type get_code_point() const {
+    code_point_type get_code_point() const noexcept {
         return code_point;
     }
 
-    void set_character_set_id(character_set_id new_cs_id) {
+    void set_character_set_id(character_set_id new_cs_id) noexcept {
         cs_id = new_cs_id;
     }
-    character_set_id get_character_set_id() const {
+    character_set_id get_character_set_id() const noexcept {
         return cs_id;
     }
 

@@ -26,38 +26,38 @@ public:
 
     friend bool operator==(
         character_set_id l,
-        character_set_id r)
+        character_set_id r) noexcept
     {
         return l.id == r.id;
     }
     friend bool operator!=(
         character_set_id l,
-        character_set_id r)
+        character_set_id r) noexcept
     {
         return !(l == r);
     }
 
     friend bool operator<(
         character_set_id l,
-        character_set_id r)
+        character_set_id r) noexcept
     {
         return l.id < r.id;
     }
     friend bool operator>(
         character_set_id l,
-        character_set_id r)
+        character_set_id r) noexcept
     {
         return r < l;
     }
     friend bool operator<=(
         character_set_id l,
-        character_set_id r)
+        character_set_id r) noexcept
     {
         return !(r < l);
     }
     friend bool operator>=(
         character_set_id l,
-        character_set_id r)
+        character_set_id r) noexcept
     {
         return !(l < r);
     }

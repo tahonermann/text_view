@@ -45,17 +45,17 @@ struct utf8bom_encoding_state_transition {
     } state_transition;
 
     static utf8bom_encoding_state_transition
-    to_initial_state() {
+    to_initial_state() noexcept {
         return { to_initial };
     }
 
     static utf8bom_encoding_state_transition
-    to_bom_written_state() {
+    to_bom_written_state() noexcept {
         return { to_bom_written };
     }
 
     static utf8bom_encoding_state_transition
-    to_assume_bom_written_state() {
+    to_assume_bom_written_state() noexcept {
         return { to_assume_bom_written };
     }
 };

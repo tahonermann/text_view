@@ -69,37 +69,37 @@ struct utf16bom_encoding_state_transition {
     } state_transition;
 
     static utf16bom_encoding_state_transition
-    to_initial_state() {
+    to_initial_state() noexcept {
         return { to_initial };
     }
 
     static utf16bom_encoding_state_transition
-    to_bom_written_state() {
+    to_bom_written_state() noexcept {
         return { to_bom_written };
     }
 
     static utf16bom_encoding_state_transition
-    to_be_bom_written_state() {
+    to_be_bom_written_state() noexcept {
         return { to_be_bom_written };
     }
 
     static utf16bom_encoding_state_transition
-    to_le_bom_written_state() {
+    to_le_bom_written_state() noexcept {
         return { to_le_bom_written };
     }
 
     static utf16bom_encoding_state_transition
-    to_assume_bom_written_state() {
+    to_assume_bom_written_state() noexcept {
         return { to_assume_bom_written };
     }
 
     static utf16bom_encoding_state_transition
-    to_assume_be_bom_written_state() {
+    to_assume_be_bom_written_state() noexcept {
         return { to_assume_be_bom_written };
     }
 
     static utf16bom_encoding_state_transition
-    to_assume_le_bom_written_state() {
+    to_assume_le_bom_written_state() noexcept {
         return { to_assume_le_bom_written };
     }
 };

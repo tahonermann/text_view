@@ -41,7 +41,7 @@ private:
 
     character_set_info(
         character_set_id id,
-        const char *name)
+        const char *name) noexcept
     :
         id(id),
         name(name)

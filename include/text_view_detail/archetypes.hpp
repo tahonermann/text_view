@@ -61,19 +61,19 @@ public:
 
     friend bool operator==(
         const character_archetype_template &l,
-        const character_archetype_template &r)
+        const character_archetype_template &r) noexcept
     {
         return true;
     }
     friend bool operator!=(
         const character_archetype_template &l,
-        const character_archetype_template &r)
+        const character_archetype_template &r) noexcept
     {
         return !(l == r);
     }
 
-    void set_code_point(code_point_type cp);
-    code_point_type get_code_point() const;
+    void set_code_point(code_point_type cp) noexcept;
+    code_point_type get_code_point() const noexcept;
 
     static character_set_id get_character_set_id();
 };
@@ -131,7 +131,7 @@ struct text_encoding_archetype_template
     static constexpr int min_code_units = MinCodeUnits;
     static constexpr int max_code_units = MaxCodeUnits;
 
-    static const state_type& initial_state();
+    static const state_type& initial_state() noexcept;
 
     template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static void encode_state_transition(
@@ -203,37 +203,37 @@ public:
     pointer operator->() const noexcept;
     friend bool operator==(
         const text_iterator_archetype_template &l,
-        const text_iterator_archetype_template &r)
+        const text_iterator_archetype_template &r) noexcept
     {
-        return true;
+        return false;
     }
     friend bool operator!=(
         const text_iterator_archetype_template &l,
-        const text_iterator_archetype_template &r)
+        const text_iterator_archetype_template &r) noexcept
     {
         return !(l == r);
     }
     friend bool operator<(
         const text_iterator_archetype_template &l,
-        const text_iterator_archetype_template &r)
+        const text_iterator_archetype_template &r) noexcept
     {
         return true;
     }
     friend bool operator>(
         const text_iterator_archetype_template &l,
-        const text_iterator_archetype_template &r)
+        const text_iterator_archetype_template &r) noexcept
     {
         return r < l;
     }
     friend bool operator<=(
         const text_iterator_archetype_template &l,
-        const text_iterator_archetype_template &r)
+        const text_iterator_archetype_template &r) noexcept
     {
         return !(r < l);
     }
     friend bool operator>=(
         const text_iterator_archetype_template &l,
-        const text_iterator_archetype_template &r)
+        const text_iterator_archetype_template &r) noexcept
     {
         return !(l < r);
     }

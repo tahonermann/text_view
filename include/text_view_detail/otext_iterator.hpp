@@ -56,14 +56,14 @@ public:
         return current;
     }
 
-    otext_iterator& operator*() {
+    otext_iterator& operator*() noexcept {
         return *this;
     }
 
-    otext_iterator& operator++() {
+    otext_iterator& operator++() noexcept {
         return *this;
     }
-    otext_iterator& operator++(int) {
+    otext_iterator& operator++(int) noexcept {
         return *this;
     }
 
