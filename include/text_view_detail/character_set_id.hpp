@@ -70,7 +70,7 @@ private:
     friend const character_set_info&
     get_character_set_info(character_set_id id);
 
-    character_set_id(int id) : id{id} {}
+    character_set_id(int id) noexcept : id{id} {}
 
     int id;
 };
