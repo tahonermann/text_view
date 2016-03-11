@@ -88,11 +88,14 @@ concept bool Character() {
     return CharacterSet<character_set_type_t<T>>()
         && ranges::Regular<T>()
         && ranges::Copyable<T>()
-        && requires (T t, code_point_type_t<character_set_type_t<T>> cp) {
+        && requires (T t,
+                     const T ct,
+                     code_point_type_t<character_set_type_t<T>> cp)
+           {
                t.set_code_point(cp);
-               { t.get_code_point() } noexcept
+               { ct.get_code_point() } noexcept
                    -> code_point_type_t<character_set_type_t<T>>;
-               { t.get_character_set_id() }
+               { ct.get_character_set_id() }
                    -> character_set_id;
            };
 }
@@ -257,8 +260,8 @@ concept bool TextIterator() {
         && Character<ranges::value_type_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
-        && requires (T t) {
-               { t.state() } noexcept
+        && requires (const T ct) {
+               { ct.state() } noexcept
                    -> const typename encoding_type_t<T>::state_type&;
            };
 }
@@ -282,8 +285,8 @@ concept bool TextOutputIterator() {
     return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
-        && requires (T t) {
-               { t.state() } noexcept
+        && requires (const T ct) {
+               { ct.state() } noexcept
                    -> const typename encoding_type_t<T>::state_type&;
            };
 }
@@ -305,7 +308,7 @@ concept bool TextView() {
                    -> typename T::view_type&;
                { ct.base() } noexcept
                    -> const typename T::view_type&;
-               { t.initial_state() } noexcept
+               { ct.initial_state() } noexcept
                    -> const typename T::state_type&;
            };
 }

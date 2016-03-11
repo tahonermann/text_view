@@ -178,6 +178,8 @@ blockquote.code
       return a value instead of a reference type.</li>
   <li>Updated interfaces to pass exception state objects by value.</li>
   <li>Added more noexcept exception specifications.</li>
+  <li>Corrected concept requirements for expressions on const qualified types.
+      </li>
 </ul>
 
 <h1 id="introduction">Introduction</h1>
@@ -1165,11 +1167,14 @@ template&lt;typename T&gt; concept bool Character() {
   return ranges::Regular&lt;T&gt;()
       &amp;&amp; ranges::Copyable&lt;T&gt;()
       &amp;&amp; CharacterSet&lt;character_set_type_t&lt;T&gt;&gt;()
-      &amp;&amp; requires (T t, code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt; cp) {
+      &amp;&amp; requires (T t,
+                           const T ct,
+                           code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt; cp)
+         {
            t.set_code_point(cp);
-           { t.get_code_point() } noexcept
+           { ct.get_code_point() } noexcept
                -&gt; code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt;;
-           { t.get_character_set_id() }
+           { ct.get_character_set_id() }
                -&gt; character_set_id;
          };
 }
@@ -1412,8 +1417,8 @@ template&lt;typename T&gt; concept bool TextIterator() {
       &amp;&amp; Character&lt;ranges::value_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
-      &amp;&amp; requires (T t) {
-           { t.state() } noexcept
+      &amp;&amp; requires (const T ct) {
+           { ct.state() } noexcept
                -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
          };
 }
@@ -1452,8 +1457,8 @@ template&lt;typename T&gt; concept bool TextOutputIterator() {
   return ranges::OutputIterator&lt;T, character_type_t&lt;encoding_type_t&lt;T&gt;&gt;&gt;()
       &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
-      &amp;&amp; requires (T t) {
-           { t.state() } noexcept
+      &amp;&amp; requires (const T ct) {
+           { ct.state() } noexcept
                -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
          };
 }
@@ -1489,7 +1494,7 @@ template&lt;typename T&gt; concept bool TextView() {
                -&gt; typename T::view_type&amp;;
            { ct.base() } noexcept
                -&gt; const typename T::view_type&amp;;
-           { t.initial_state() } noexcept
+           { ct.initial_state() } noexcept
                -&gt; const typename T::state_type&amp;;
          };
 }
