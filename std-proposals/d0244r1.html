@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-03-10</td>
+    <td>2016-03-20</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -164,7 +164,9 @@ blockquote.code
       sections in <a href="#future_directions">Future Directions</a>.</li>
   <li>Updated the <a href="#locale_dependencies">Locale Dependent Encodings</a>
       section in <a href="#design_considerations">Design Considerations</a>.</li>
-  <li>Added references to P0184R0 <sup><a href="#ref_p0184r0">[P0184R0]</a></sup>
+  <li>Added references to
+      <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">P0184R0</a>
+      <sup><a href="#ref_p0184r0">[P0184R0]</a></sup>
       (Generalizing the Range-Based For Loop).</li>
   <li>Constrained the <tt>basic_text_view</tt> view type template parameter
       to be a proper view type; reference types are no longer accepted.</li>
@@ -176,7 +178,7 @@ blockquote.code
   <li>Updated <tt>itext_iterator</tt> to use the character <tt>value_type</tt>
       as the <tt>reference</tt> type; dereference and subscript operators now
       return a value instead of a reference type.</li>
-  <li>Updated interfaces to pass exception state objects by value.</li>
+  <li>Updated interfaces to pass encoding state objects by value.</li>
   <li>Added more noexcept exception specifications.</li>
   <li>Corrected concept requirements for expressions on const qualified types.
       </li>
@@ -308,7 +310,8 @@ if (r != std::codecvt_base::error &amp;&amp; to[0] == char32_t{0x00F8}) {
 <p>The above method is not the only method available to identify a search term
 in an encoded string.  For some encodings, it is feasible to encode the search
 term in the encoding and to search for a matching code unit sequence.  This
-approach works for UTF-8, UTF-16, and UTF-32, but not for many other encodings.
+approach works for UTF-8, UTF-16, and UTF-32 (assuming the search term and 
+text to search are similarly normalized), but not for many other encodings.
 Consider the Shift-JIS encoding of U+6D6C.  This is encoded as 0x8A 0x5C.
 Shift-JIS is a multibyte encoding that is almost ASCII compatible.  The code
 unit sequence 0x5C encodes the ASCII '\' character.  But note that 0x5C appears
