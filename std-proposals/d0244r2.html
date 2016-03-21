@@ -51,8 +51,8 @@ blockquote.code
     point enumeration library</h1>
 
 <ul>
-  <li><a href="#changes_since_p0244r0">
-      Changes Since P0244R0</a></li>
+  <li><a href="#changes_since_p0244r1">
+      Changes Since P0244R1</a></li>
   <li><a href="#introduction">
       Introduction</a></li>
   <li><a href="#motivation">
@@ -141,47 +141,9 @@ blockquote.code
       References</a></li>
 </ul>
 
-<h1 id="changes_since_p0244r0">Changes Since P0244R0</h1>
+<h1 id="changes_since_p0244r1">Changes Since P0244R1</h1>
 
 <ul>
-  <li>Fixed an egregious HTML escaping error in the
-      <a href="#introduction">Introduction</a> that resulted in the template
-      argument to <tt>make_text_view()</tt> being hidden.</li>
-  <li>Ported the <a href="https://github.com/tahonermann/text_view">reference
-      implementation</a> to
-      <a href="https://github.com/CaseyCarter/cmcstl2">cmcstl2</a>
-      <sup><a href="#ref_cmcstl2">[cmcstl2]</a></sup>.</li>
-  <li>Relocated the header file to <tt>&lt;experimental/text_view&gt;</tt>.</li>
-  <li>Added specifications for type traits and exception classes.</tt>
-  <li>Added descriptive prose for all specified entities.</li>
-  <li>Updated formatting of code sections.</li>
-  <li>Added the <a href="#view_requirements">View Requirements</a> and
-      <a href="#char_types">Character Types</a> sections in
-      <a href="#design_considerations">Design Considerations</a>.</li>
-  <li>Added the <a href="#future_constexpr">Constexpr Support</a>,
-      <a href="#future_unicode_normalization">Unicode Normalization Iterators</a>,
-      and <a href="#future_grapheme_cluster">Unicode Grapheme Cluster Iterators</a>
-      sections in <a href="#future_directions">Future Directions</a>.</li>
-  <li>Updated the <a href="#locale_dependencies">Locale Dependent Encodings</a>
-      section in <a href="#design_considerations">Design Considerations</a>.</li>
-  <li>Added references to
-      <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">P0184R0</a>
-      <sup><a href="#ref_p0184r0">[P0184R0]</a></sup>
-      (Generalizing the Range-Based For Loop).</li>
-  <li>Constrained the <tt>basic_text_view</tt> view type template parameter
-      to be a proper view type; reference types are no longer accepted.</li>
-  <li>Removed public mutate access to the encoding state subobjects of
-      <tt>basic_text_view</tt>, <tt>itext_iterator</tt>, and
-      <tt>otext_iterator</tt>.</li>
-  <li>Removed conversion from <tt>itext_iterator</tt> to <tt>itext_sentinel</tt>
-      as a common type is no longer required.</li>
-  <li>Updated <tt>itext_iterator</tt> to use the character <tt>value_type</tt>
-      as the <tt>reference</tt> type; dereference and subscript operators now
-      return a value instead of a reference type.</li>
-  <li>Updated interfaces to pass encoding state objects by value.</li>
-  <li>Added more noexcept exception specifications.</li>
-  <li>Corrected concept requirements for expressions on const qualified types.
-      </li>
 </ul>
 
 <h1 id="introduction">Introduction</h1>
