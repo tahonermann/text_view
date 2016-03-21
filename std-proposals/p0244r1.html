@@ -1,0 +1,3591 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+
+<head>
+
+<title>Text_view: A C++ concepts and range based character encoding and code
+       point enumeration library</title>
+<style type="text/css">
+table#header th,
+table#header td
+{
+    text-align: left;
+}
+table#references th,
+table#references td
+{
+    vertical-align: top;
+}
+blockquote.code
+{
+    background-color: #F1F1F1;
+    border: 1px solid #D1D1D1;
+}
+</style>
+
+</head>
+
+
+<body>
+
+<table id="header">
+  <tr>
+    <th>Document Number:</th>
+    <td>P0244R1</td>
+  </tr>
+  <tr>
+    <th>Date:</th>
+    <td>2016-03-20</td>
+  </tr>
+  <tr>
+    <th>Audience:</th>
+    <td>Library Evolution Working Group</td>
+  </tr>
+  <tr>
+    <th>Reply-to:</th>
+    <td>Tom Honermann &lt;tom@honermann.net&gt;</td>
+  </tr>
+</table>
+
+<h1>Text_view: A C++ concepts and range based character encoding and code
+    point enumeration library</h1>
+
+<ul>
+  <li><a href="#changes_since_p0244r0">
+      Changes Since P0244R0</a></li>
+  <li><a href="#introduction">
+      Introduction</a></li>
+  <li><a href="#motivation">
+      Motivation and Scope</a></li>
+  <li><a href="#terminology">
+      Terminology</a></li>
+  <ul>
+    <li><a href="#term_code_unit">
+        Code Unit</a></li>
+    <li><a href="#term_code_point">
+        Code Point</a></li>
+    <li><a href="#term_character_set">
+        Character Set</a></li>
+    <li><a href="#term_character">
+        Character</a></li>
+    <li><a href="#term_encoding">
+        Encoding</a></li>
+  </ul>
+  <li><a href="#design_considerations">
+      Design Considerations</a></li>
+  <ul>
+    <li><a href="#view_requirements">
+        View Requirements</a></li>
+    <li><a href="#error_handling">
+        Error Handling</a></li>
+    <li><a href="#encoding_orientation">
+        Encoding Forms vs Encoding Schemes</a></li>
+    <li><a href="#streaming">
+        Streaming</a></li>
+    <li><a href="#char_types">
+        Character Types</a></li>
+    <li><a href="#locale_dependencies">
+        Locale Dependent Encodings</a></li>
+  </ul>
+  <li><a href="#implementation_exp">
+      Implementation Experience</a></li>
+  <li><a href="#future_directions">
+      Future Directions</a></li>
+  <ul>
+    <li><a href="#future_transcoding">
+        Transcoding</a></li>
+    <li><a href="#future_constexpr">
+        Constexpr Support</a></li>
+    <li><a href="#future_unicode_normalization">
+        Unicode Normalization Iterators</a></li>
+    <li><a href="#future_grapheme_cluster">
+        Unicode Grapheme Cluster Iterators</a></li>
+  </ul>
+  <li><a href="#faq">
+      FAQ</a></li>
+  <ul>
+    <li><a href="#faq_explicit_encodings">
+        Why do I have to specify the encoding for string literals?</a></li>
+    <li><a href="#faq_custom_encodings">
+        Can I define my own encodings?  If so, How?</a></li>
+  </ul>
+  <li><a href="#technical_specifications">
+      Technical Specifications</a></li>
+  <ul>
+    <li><a href="#header_synopsis">
+        Header &lt;experimental/text_view&gt; synopsis</a></li>
+    <li><a href="#concepts">
+        Concepts</a></li>
+    <li><a href="#type_traits">
+        Type Traits</a></li>
+    <li><a href="#character_sets">
+        Character Sets</a></li>
+    <li><a href="#character_set_identification">
+        Character Set Identification</a></li>
+    <li><a href="#character_set_information">
+        Character Set Information</a></li>
+    <li><a href="#characters">
+        Characters</a></li>
+    <li><a href="#encodings">
+        Encodings</a></li>
+    <li><a href="#text_iterators">
+        Text Iterators</a></li>
+    <li><a href="#text_view">
+        Text View</a></li>
+    <li><a href="#exceptions">
+        Exceptions</a></li>
+  </ul>
+  <li><a href="#acknowledgements">
+      Acknowledgements</a></li>
+  <li><a href="#references">
+      References</a></li>
+</ul>
+
+<h1 id="changes_since_p0244r0">Changes Since P0244R0</h1>
+
+<ul>
+  <li>Fixed an egregious HTML escaping error in the
+      <a href="#introduction">Introduction</a> that resulted in the template
+      argument to <tt>make_text_view()</tt> being hidden.</li>
+  <li>Ported the <a href="https://github.com/tahonermann/text_view">reference
+      implementation</a> to
+      <a href="https://github.com/CaseyCarter/cmcstl2">cmcstl2</a>
+      <sup><a href="#ref_cmcstl2">[cmcstl2]</a></sup>.</li>
+  <li>Relocated the header file to <tt>&lt;experimental/text_view&gt;</tt>.</li>
+  <li>Added specifications for type traits and exception classes.</tt>
+  <li>Added descriptive prose for all specified entities.</li>
+  <li>Updated formatting of code sections.</li>
+  <li>Added the <a href="#view_requirements">View Requirements</a> and
+      <a href="#char_types">Character Types</a> sections in
+      <a href="#design_considerations">Design Considerations</a>.</li>
+  <li>Added the <a href="#future_constexpr">Constexpr Support</a>,
+      <a href="#future_unicode_normalization">Unicode Normalization Iterators</a>,
+      and <a href="#future_grapheme_cluster">Unicode Grapheme Cluster Iterators</a>
+      sections in <a href="#future_directions">Future Directions</a>.</li>
+  <li>Updated the <a href="#locale_dependencies">Locale Dependent Encodings</a>
+      section in <a href="#design_considerations">Design Considerations</a>.</li>
+  <li>Added references to
+      <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">P0184R0</a>
+      <sup><a href="#ref_p0184r0">[P0184R0]</a></sup>
+      (Generalizing the Range-Based For Loop).</li>
+  <li>Constrained the <tt>basic_text_view</tt> view type template parameter
+      to be a proper view type; reference types are no longer accepted.</li>
+  <li>Removed public mutate access to the encoding state subobjects of
+      <tt>basic_text_view</tt>, <tt>itext_iterator</tt>, and
+      <tt>otext_iterator</tt>.</li>
+  <li>Removed conversion from <tt>itext_iterator</tt> to <tt>itext_sentinel</tt>
+      as a common type is no longer required.</li>
+  <li>Updated <tt>itext_iterator</tt> to use the character <tt>value_type</tt>
+      as the <tt>reference</tt> type; dereference and subscript operators now
+      return a value instead of a reference type.</li>
+  <li>Updated interfaces to pass encoding state objects by value.</li>
+  <li>Added more noexcept exception specifications.</li>
+  <li>Corrected concept requirements for expressions on const qualified types.
+      </li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>C++11 <sup><a href="#ref_cxx11">[C++11]</a></sup> added support for new
+character types
+<sup><a href="#ref_n2249">[N2249]</a></sup> and Unicode string literals
+<sup><a href="#ref_n2442">[N2442]</a></sup>, but neither C++11, nor more recent
+standards have provided means of efficiently and conveniently enumerating code
+points in Unicode or legacy encodings.  While it is possible to implement such
+enumeration using interfaces provided in the standard
+<tt>&lt;locale&gt;</tt> and <tt>&lt;codecvt&gt;</tt> libraries, doing
+so is awkward, requires that text be provided as pointers to contiguous memory,
+and inefficent due to virtual function call overhead.
+
+<p>The described library provides iterator and range based interfaces for
+encoding and decoding strings in a variety of character encodings.  The
+interface is intended to support all modern and legacy character encodings,
+though implementations are expected to only provide support for a limited set
+of encodings.
+
+<p>An example usage follows. Note that \u00F8 (LATIN SMALL LETTER O WITH STROKE)
+is encoded as UTF-8 using two code units (\xC3\xB8), but iterator based
+enumeration sees just the single code point.
+
+<blockquote class="code">
+<pre><code>
+using CT = utf8_encoding::character_type;
+auto tv = make_text_view&lt;utf8_encoding&gt;(u8"J\u00F8erg");
+auto it = tv.begin();
+assert(*it++ == CT{0x004A}); // 'J'
+assert(*it++ == CT{0x00F8}); // 'ø'
+assert(*it++ == CT{0x0065}); // 'e'
+</code></pre>
+</blockquote>
+
+<p>The provided iterators and views are compatible with the non-modifying sequence
+utilities provided by the standard C++ <tt>&lt;algorithm&gt;</tt> library.
+This enables use of standard algorithms to search encoded text.
+
+<blockquote class="code">
+<pre><code>
+it = std::find(tv.begin(), tv.end(), CT{0x00F8});
+assert(it != tv.end());
+</code></pre>
+</blockquote>
+
+<p>The iterators also provide access to the underlying code unit sequence.
+
+<blockquote class="code">
+<pre><code>
+auto base_it = it.base_range().begin();
+assert(*base_it++ == '\xC3');
+assert(*base_it++ == '\xB8');
+assert(base_it == it.base_range().end());
+</code></pre>
+</blockquote>
+
+<p>These ranges satisfy the requirements for use in C++11 range-based for
+statements.  This support is currently limited to views constructed for
+stateless encodings as a sentinel type is used as the end iterator for
+stateful encodings.  This limitation will be removed if P0184R0
+<sup><a href="#ref_p0184r0">[P0184R0]</a></sup> is adopted.
+
+<blockquote class="code">
+<pre><code>
+for (const auto&amp; ch : tv) {
+  ...
+}
+</code></pre>
+</blockquote>
+
+<h1 id="motivation">Motivation and Scope</h1>
+
+<p>Consider the following code to search for the occurrence of U+00F8 in the
+UTF-8 encoded string using C++ standard provided interfaces.
+
+<blockquote class="code">
+<pre><code>
+std::string s = u8"J\u00F8erg";
+std::mbstate_t state = std::mbstate_t{};
+codecvt_utf8&lt;char32_t&gt; utf8_converter;
+const char *from_begin = s.data();
+const char *from_end = s.data() + s.size();
+const char *from_current;
+const char *from_next = from_begin;
+char32_t to[1];
+std::codecvt_base::result r;
+do {
+    from_current = from_next;
+    char32_t *to_begin = &amp;to[0];
+    char32_t *to_end = &amp;to[1];
+    char32_t *to_next;
+    r = utf8_converter.in(
+        state,
+        from_current, from_end, from_next,
+        to_begin, to_end, to_next);
+} while (r != std::codecvt_base::error &amp;&amp; to[0] != char32_t{0x00F8});
+if (r != std::codecvt_base::error &amp;&amp; to[0] == char32_t{0x00F8}) {
+    cout &lt;&lt; "Found at offset " &lt;&lt; (from_current - from_begin) &lt;&lt; endl;
+} else {
+    cout &lt;&lt; "Not found" &lt;&lt; endl;
+}
+</code></pre>
+</blockquote>
+
+<p>There are a number of issues with the above code:
+
+<ul>
+  <li>It is verbose.</li>
+  <li>It is limited to working with strings that are stored in contiguous
+      memory.</li>
+  <li>It is inefficient.  All <tt>codecvt</tt> public member functions
+      dispatch to virtual member functions.
+  <li>It is not generic.  Use of the <tt>codecvt_utf8</tt> facet makes it
+      specific to handling of UTF-8 encoded text.  Making this code generic
+      would require some other means of identifying an appropriate facet to
+      use.</li>
+  <li>It is not applicable to non-Unicode encodings; <tt>codecvt</tt>
+      doesn't provide means to retrieve a code point for the encodings used
+      for ordinary and wide strings.  The above code only accomplishes this
+      by depending on transcoding to UTF-32 and the fact that UTF-32 is a
+      trivial encoding.</li>
+</ul>
+
+<p>The above method is not the only method available to identify a search term
+in an encoded string.  For some encodings, it is feasible to encode the search
+term in the encoding and to search for a matching code unit sequence.  This
+approach works for UTF-8, UTF-16, and UTF-32 (assuming the search term and 
+text to search are similarly normalized), but not for many other encodings.
+Consider the Shift-JIS encoding of U+6D6C.  This is encoded as 0x8A 0x5C.
+Shift-JIS is a multibyte encoding that is almost ASCII compatible.  The code
+unit sequence 0x5C encodes the ASCII '\' character.  But note that 0x5C appears
+as the second byte of the code unit sequence for U+6D6C.  Naively searching for
+the matching code unit sequence for '\' would incorrectly match the trailing
+code unit sequence for U+6D6C.
+
+<p>The library described here is intended to solve the above issues while also
+providing a modern interface that is intuitive to use and can be used with
+other standard provided facilities; in particular, the C++ standard
+<tt>&lt;algorithm&gt;</tt> library.
+
+<h1 id="terminology">Terminology</h1>
+
+<p>The terminology used in this document is intended to be consistent with
+industry standards and, in particular, the Unicode standard.  Any
+inconsistencies in the use of this terminology and that in the Unicode standard
+is unintentional.  The terms described in this document comprise a subset of the
+terminology used within the Unicode standard; only those terms necessary to
+specify functionality exhibited by the proposed library are included here.
+Those who would like to learn more about general text processing terminology in
+computer systems are encouraged to read chapter 2, "General Structure" of the
+Unicode standard.
+
+<h2 id="term_code_unit">Code Unit</h2>
+
+<p>A single, indivisible, integral element of an encoded sequence of characters.
+A sequence of one or more code units specifies a code point or encoding state
+transition as defined by a character encoding.  A code unit does not, by itself,
+identify any particular character or code point; the meaning ascribed to a
+particular code unit value is derived from a character encoding definition.
+
+<p>The <tt>char</tt>, <tt>wchar_t</tt>, <tt>char16_t</tt>, and
+<tt>char32_t</tt> types are most commonly used as code unit types.
+
+<p>The string literal <tt>u8"J\u00F8erg"</tt> contains 7 code units and 6
+code unit sequences; <tt>"\u00F8"</tt> is encoded in UTF-8 using two code
+units and string literals contain a trailing NUL code unit.
+
+<p>The string literal <tt>"J\u00F8erg"</tt> contains an implementation
+defined number of code units.  The standard does not specify the encoding of
+ordinary and wide string literals, so the number of code units encoded by
+<tt>"\u00F8"</tt> depends on the implementation defined encoding used for
+ordinary string literals.
+
+<h2 id="term_code_point">Code Point</h2>
+
+<p>An integral value denoting an abstract character as defined by a character
+set.  A code point does not, by itself, identify any particular character; the
+meaning ascribed to a particular code point value is derived from a character
+set definition.
+
+<p>The <tt>char</tt>, <tt>wchar_t</tt>, <tt>char16_t</tt>, and
+<tt>char32_t</tt> types are most commonly used as code point types.
+
+<p>The string literal <tt>u8"J\u00F8erg"</tt> describes a sequence of 6
+code point values; string literals implicitly specify a trailing NUL code point.
+
+<p>The string literal <tt>"J\u00F8erg"</tt> describes a sequence of an
+implementation defined number of code point values.  The standard does not
+specify the encoding of ordinary and wide string literals, so the number of
+code points encoded by <tt>"\u00F8"</tt> depends on the implementation
+defined encoding used for ordinary string literals.  Implementations are
+permitted to translate a single code point in the source or Unicode character
+sets to multiple code points in the execution encoding.
+
+<h2 id="term_character_set">Character Set</h2>
+
+<p>A mapping of code point values to abstract characters.  A character set need
+not provide a mapping for every possible code point value representable by the
+code point type.
+
+<p>C++ does not specify the use of any particular character set or encoding for
+ordinary and wide character and string literals, though it does place some
+restrictions on them.  Unicode character and string literals are governed by the
+Unicode standard.
+
+<p>Common character sets include ASCII, Unicode, and Windows code page 1252.
+
+<h2 id="term_character">Character</h2>
+
+<p>An element of written language, for example, a letter, number, or symbol.  A
+character is identified by the combination of a character set and a code point
+value.
+
+<h2 id="term_encoding">Encoding</h2>
+
+<p>A method of representing a sequence of characters as a sequence of code unit
+sequences.
+
+<p>An encoding may be stateless or stateful.  In stateless encodings, characters
+may be encoded or decoded starting from the beginning of any code unit sequence.
+In stateful encodings, it may be necessary to record certain affects of
+previously encoded characters in order to correctly encode additional
+characters, or to decode preceding code unit sequences in order to correctly
+decode following code unit sequences.
+
+<p>An encoding may be fixed width or variable width.  In fixed width encodings,
+all characters are encoded using a single code unit sequence and all code unit
+sequences have the same length.  In variable width encodings, different
+characters may require multiple code unit sequences, or code unit sequences of
+varying length.
+
+<p>An encoding may support bidirectional or random access decoding of code unit
+sequences.  In bidirectional encodings, characters may be decoded by traversing
+code unit sequences in reverse order.  Such encodings must support a method to
+identify the start of a preceding code unit sequence.  In random access
+encodings, characters may be decoded from any code unit sequence within the
+sequence of code unit sequences, in constant time, without having to decode any
+other code unit sequence.  Random access encodings are necessarily stateless
+and fixed length.  An encoding that is neither bidirectional, nor random
+access, may only be decoded by traversing code unit sequences in forward order.
+
+<p>An encoding may support encoding characters from multiple character sets.
+Such an encoding is either stateful and defines code unit sequences that switch
+the active character set, or defines code unit sequences that implicitly
+identify a character set, or both.
+
+<p>A trivial encoding is one in which all encoded characters correspond to a
+single character set and where each code unit encodes exactly one character
+using the same value as the code point for that character.  Such an encoding is
+stateless, fixed width, and supports random access decoding.
+
+<p>Common encodings include the Unicode UTF-8, UTF-16, and UTF-32 encodings, the
+ISO/IEC 8859 series of encodings including ISO/IEC 8859-1, and many trivial
+encodings such as Windows code page 1252.
+
+<h1 id="design_considerations">Design Considerations</h1>
+
+<h2 id="view_requirements">View Requirements</h2>
+
+<p>The <tt>basic_text_view</tt> and <tt>itext_iterator</tt> class
+templates are parameterized on a view type that provides access to the
+underlying code unit sequence.  <tt>make_text_view</tt> and the various
+type aliases of <tt>basic_text_view</tt> are required to choose a view type
+to select a specialization of these class templates.  The C++ standard library
+doesn't currently define a suitable view type, though the need for one has been
+recognized.  N3350 <sup><a href="#ref_n3350">[N3350]</a></sup> proposed a
+<tt>std::range</tt> class template to fill this need and the ranges proposal
+<sup><a href="#ref_n4560">[N4560]</a></sup> states (C.2, "Iterator Range
+Type") that a future paper will propose such a type.
+
+<p>The technical specification in this paper leaves the view type selected by
+<tt>make_text_view</tt> and the type aliases of <tt>basic_text_view</tt>
+up to the implementation.  It would have been possible to define a suitable
+view type as part of this library, but the author felt it better to wait until
+a suitable type becomes available as part of either the ranges proposal or the
+standard library.
+
+<h2 id="error_handling">Error Handling</h2>
+
+<p>The reference implementation currently throws exceptions when underflow
+occurs or when invalid code unit sequences are encountered.  Use of exceptions
+is not acceptable by many members of the C++ community.
+
+<p>An alternative to exceptions has not yet been settled on.  One possibility
+is to add an additional template parameter to the basic_text_view and
+itext_iterator class templates that enables alternative error handling to
+be implemented.  Custom error handlers could then substitute replacement
+characters and/or record errors via some other mechanism.
+
+<h2 id="encoding_orientation">Encoding Forms vs Encoding Schemes</h2>
+
+<p>The Unicode standard differentiates code unit oriented and byte oriented
+encodings.  The former are termed encoding forms; the latter, encoding schemes.
+This library provides support for some of each.  For example,
+<tt>utf16_encoding</tt> is code unit oriented; the value type of its
+iterators is <tt>char16_t</tt>.  The <tt>utf16be_encoding</tt>,
+<tt>utf16le_encoding</tt>, and <tt>utf16bom_encoding</tt> encodings
+are byte oriented; the value type of their iterators is <tt>char</tt>.
+
+<h2 id="streaming">Streaming</h2>
+
+<p>Decoding from a streaming source without unacceptably blocking on underflow
+requires the ability to decode a partial code unit sequence, save state,
+and then resume decoding the remainder of the code unit sequence when more
+data becomes available.  This requirement presents challenges for an iterator
+based approach.  The specification presented in this paper does not provide
+a good solution for this use case.
+
+<p>One possibility is to add additional state tracking that is stored with
+each iterator.  Support for the possibility of trailing non-code-point
+encoding code unit sequences (escape sequences in some encodings) already
+requires that code point iterators greedily consume code units.  This enables
+an iterator to compare equal to the end iterator even when its current base
+code unit iterator does not equal the end iterator of the underlying code
+unit range.  Storing partial code unit sequence state with an iterator that
+compares equal to the end iterator would enable users to write code like the
+following.
+
+<blockquote class="code">
+<pre><code>
+using encoding = utf8_encoding;
+auto state = encoding::initial_state();
+do {
+  std::string b = get_more_data();
+  auto tv = make_text_view&lt;encoding&gt;(state, begin(b), end(b));
+  auto it = begin(tv);
+  while (it != end(tv))
+    ...;
+  state = it; // Trailing state is preserved in the end iterator.  Save it
+              // to seed state for the next loop iteration.
+} while (!b.empty());
+</code></pre>
+</blockquote>
+
+<p>However, this leaves open the possibility for trailing code units at the
+end of an encoded text to go unnoticed.  In a non-buffering scenario, an
+iterator might silently compare equal to the end iterator even though there
+are (possibly invalid) code units remaining.
+
+<p>It might be feasible to address this by adding a policy template parameter
+to basic_text_view and itext_iterator similiar to what is discussed in the
+<a href="#error_handling">error handling</a> section.
+
+<h2 id="char_types">Character Types</h2>
+
+<p>This library defines a character class template parameterized by character
+set type used to represent character values.  The purpose of this class
+template is to make explicit the association of a code point value and a
+character set.
+
+<p>It has been suggested that <tt>char32_t</tt> be supported as a character
+type that is implicitly associated with the Unicode character set and that
+values of this type always be interpreted as Unicode code point values.  This
+suggestion is intended to enable UTF-32 string literals to be directly usable
+as sequences of character values (in addition to being sequences of code unit
+and code point values).  This has a cost in that it prohibits use of the
+<tt>char32_t</tt> type as a code unit or code point type for other
+encodings.  Non-Unicode encodings, including the encodings used for ordinary
+and wide string literals, would still require a distinct character type (such
+as a specialization of the character class template) so that the correct
+character set can be inferred from objects of the character type.
+
+<p>This suggestion raises concerns for the author.  To a certain degree, it can
+be accommodated by removing the current members of the character class template
+in favor of free functions and type trait templates.  However, it results in
+ambiguities when enumerating the elements of a UTF-32 string literal; are the
+elements code point or character values?  Well, the answer would be both (and
+code unit values as well).  This raises the potential for inadvertently
+writing (generic) code that confuses code points and characters, runs as
+expected for UTF-32 encodings, but fails to compile for other encodings.  The
+author would prefer to enforce correct code via the type system and is unaware
+of any particular benefits that the ability to treat UTF-32 string literals
+as sequences of character type would bring.
+
+<p>It has also been suggested that <tt>char32_t</tt> might suffice as the
+only character type; that decoding of any encoded string include implicit
+transcoding to Unicode code points.  The author believes that this suggestion
+is not feasible for several reasons:
+
+<ol>
+  <li>Some encodings use character sets that define characters such that round
+      trip transcoding to Unicode and back fails to preserve the original code
+      point value.  For example, Shift-JIS (Microsoft code page 932) defines
+      duplicate code points for the same character for compatibility with IBM
+      and NEC character set extensions.<br/>
+      <a href="https://support.microsoft.com/en-us/kb/170559">
+      https://support.microsoft.com/en-us/kb/170559</a></li>
+  <li>Transcoding to Unicode for all non-Unicode encodings would carry
+      non-negligible performance costs and would pessimize platforms such as
+      IBM's z/OS that use EBCIDC by default for the non-Unicode execution
+      character sets.</li>
+</ol>
+
+<h2 id="locale_dependencies">Locale Dependent Encodings</h2>
+
+<p>The ordinary and wide execution character sets are locale dependent; the
+interpretation of code point values that do not correspond to characters of the
+basic ordinary and wide execution character sets is determined at
+run-time based on locale settings.  Yet, ordinary and wide string literals
+may contain universal-character-name designators that are transcoded at
+compile-time to some character set that is a superset of the corresponding
+basic character set and assumed to be a subset of the execution character set.
+These compile-time extended character sets are not currently named in the C++
+standard.
+
+<p>Some compilers allow these compile-time extended character sets to be
+specified by command line options.  For example, gcc supports
+<tt>-fexec-charset=</tt> and <tt>-fwide-exec-charset=</tt> options
+and Microsoft Visual C++ in Visual Studio 2015 Update 2 CTP recently added
+the <tt>/execution-charset:</tt> and <tt>/utf-8</tt> options.  More
+information on these options can be found at:
+
+<ul>
+  <li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Preprocessor-Options.html#Preprocessor-Options">
+      https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Preprocessor-Options.html#Preprocessor-Options</a></li>
+  <li><a href="https://blogs.msdn.microsoft.com/vcblog/2016/02/22/new-options-for-managing-character-sets-in-the-microsoft-cc-compiler/">
+      https://blogs.msdn.microsoft.com/vcblog/2016/02/22/new-options-for-managing-character-sets-in-the-microsoft-cc-compiler/</a></li>
+</ul>
+
+<p>The <tt>execution_character_encoding</tt> and
+<tt>execution_wide_character_encoding</tt> type aliases defined by this
+library refer to encodings that use these unnamed character sets that are
+known at compile-time.  This choice is motivated by future intentions to enable
+compile-time string manipulation and to allow avoiding the performance overhead
+of run-time locale awareness when an application is not locale dependent.
+
+<p>Though not currently specified, it may be appropriate to define additional
+encoding classes that implement locale awareness.  It may also be more
+appropriate for the <tt>execution_character_encoding</tt> and
+<tt>execution_wide_character_encoding</tt> type aliases to refer to these
+locale dependent encodings and to introduce different names to refer to the
+extended compile-time execution encodings that are not currently named by the
+C++ standard.
+
+<h1 id="implementation_exp">Implementation Experience</h1>
+
+<p>A reference implementation of the described library is publicly available at
+<a href="https://github.com/tahonermann/text_view">
+https://github.com/tahonermann/text_view</a>
+<sup><a href="#ref_text_view">[Text_view]</a></sup>.
+The implementation requires a compiler that implements the C++ Concepts
+technical specification
+<sup><a href="#ref_concepts">[Concepts]</a></sup>.
+The only compiler known to do so at the time of this
+writing is the in-development gcc 6.0 release.
+
+<p>The reference implementation currently depends on Casey Carter and Eric
+Niebler's <a href="https://github.com/CaseyCarter/cmcstl2">cmcstl2</a>
+<sup><a href="#ref_cmcstl2">[cmcstl2]</a></sup>.
+implementation of the ranges proposal
+<sup><a href="#ref_n4560">[N4560]</a></sup>
+for concept definitions.  The interfaces described in this document use the
+concept names from the ranges proposal
+<sup><a href="#ref_n4560">[N4560]</a></sup>, are intended to be used as
+specification, and should be considered authoritative.  Any differences in
+behavior as defined by these definitions as compared to the reference
+implementation are unintentional and should be considered indicatative of
+defects or limitations of the reference implementation and reported at
+<a href="https://github.com/tahonermann/text_view/issues">
+https://github.com/tahonermann/text_view/issues</a>.
+
+<h1 id="future_directions">Future Directions</h1>
+
+<h2 id="future_transcoding">Transcoding</h2>
+
+<p>Transcoding between encodings that use the same character set is currently
+possible.  The following example transcodes a UTF-8 string to UTF-16.
+
+<blockquote class="code">
+<pre><code>
+std::string in = get_a_utf8_string();
+std::u16string out;
+std::back_insert_iterator&lt;std::u16string&gt; out_it{out};
+auto tv_in = make_text_view&lt;utf8_encoding&gt;(in);
+auto tv_out = make_otext_iterator&lt;utf16_encoding&gt;(out_it);
+std::copy(tv_in.begin(), tv_in.end(), tv_out);
+</code></pre>
+</blockquote>
+
+<p>Transcoding between encodings that use different character sets is not
+currently supported due to lack of interfaces to transcode a code point
+from one character set to the code point of a different one.
+
+<p>Additionally, naively transcoding between encodings using std::copy()
+works, but is not optimal; techniques are known to accelerate transcoding
+between some sets of encoding.  For example, SIMD instructions can be
+utilized in some cases to transcode multiple code points in parallel.
+
+<p>Future work is intended to enable optimized transcoding and transcoding
+between distinct character sets.
+
+<h2 id="future_constexpr">Constexpr Support</h2>
+
+<p>Encodings that are not dependent on run-time support could conceivably
+support code point enumeration and transcoding to other encodings at compile
+time.  This could be useful to conveniently provide text in alternative
+encodings at compile-time to meet requirements of external interfaces without
+incurring run-time overhead, having to write the string with hex escape
+sequences, or having to rely on preprocessing or other build time tools.
+
+<p>An example would be to provide a string in Modified UTF-8 for use in a JNI
+application.
+
+<blockquote class="code">
+<pre><code>
+auto tv = "Text with \0 embedded NUL"_modified_utf8;
+// equivalent to:
+auto tv = make_text_view&lt;modified_utf8_encoding&gt;(
+              "Text with \xC0\x80 embedded NUL");
+</code></pre>
+</blockquote>
+
+<p>An additional example is that some of the proposals for reflections could
+benefit from the ability to transcode identifiers expressed in the basic
+source character encoding to a UTF-8 representation.
+
+<p>Unfortunately, user defined literals (UDLs) are currently unable to provide
+this support; though a constexpr UDL operator can be written, there is no known
+way to write the UDL such that an arbitrarily sized compile-time data structure
+can be returned, nor is there a way to instantitate a static buffer for the
+resulting transformation on a per string literal basis.
+
+<p>However, it is possible to perform string transformations at compile-time
+using a template constexpr function; so long as is is acceptable for the
+translated string to be embedded in another data structure.
+
+<blockquote class="code">
+<pre><code>
+template&lt;int N&gt;
+struct my_str {
+    char code_units[N];
+};
+
+template&lt;int N&gt;
+constexpr my_str&lt;N&gt; make_my_str(const char (&amp;str)[N]) {
+    my_str&lt;N&gt; ms{};
+    for (int i = 0; i &lt; N; ++i) {
+        char cu = str[i] ? str[i] + 1 : 0;
+        ms.code_units[i] = cu;
+    }
+    return ms;
+}
+
+constexpr auto ms = make_my_str("text"); // ms.code_units[] == "ufyu"
+</code></pre>
+</blockquote>
+
+<p>One caveat of this approach is that the returned data structure owns the
+code unit sequence and is therefore more container-like than view-like.
+
+<p>Core language enhancements are probably necessary to make compile-time string
+literal translations a usable feature.
+
+<h2 id="future_unicode_normalization">Unicode Normalization Iterators</h2>
+
+<p>Unicode <sup><a href="#ref_unicode">[Unicode]</a></sup> encodings allow
+multiple code point sequences to denote the same character; this occurs with the
+use of combining characters.  Unicode defines several normalization forms to
+enable consistent encoding of code point sequences.
+
+<p>Future work includes development of output iterators that perform Unicode
+normalization.
+
+<h2 id="future_grapheme_cluster">Unicode Grapheme Cluster Iterators</h2>
+
+<p>Unicode <sup><a href="#ref_unicode">[Unicode]</a></sup> defines the concept
+of a grapheme cluster; a sequence of code points that includes nonspacing
+combining characters that, in general, should be processed as a unit.
+
+<p>Future work includes development of input iterators that enumerate grapheme
+clusters.
+
+<h1 id="faq">FAQ</h1>
+
+<h2 id="faq_explicit_encodings">
+    Why do I have to specify the encoding for string literals?</h2>
+
+<p>This question refers to code like this:
+<blockquote class="code">
+<pre><code>
+auto tv = make_text_view&lt;utf8_encoding&gt;(u8"A UTF-8 string");
+</code></pre>
+</blockquote>
+
+<p>The argument to make_text_view() is a UTF-8 string literal.  The compiler
+knows that it is a UTF-8 string.  Yet, make_text_view() requires the encoding
+to be explicitly specified via a template argument.  Why?
+
+<p>The answer is that ordinary and UTF-8 string literals have the same type;
+array of <tt>const char</tt>.  The library is unable to implicitly determine
+an encoding for the provided string.
+
+<p>If a <tt>char8_t</tt> type were to be added to the type system and UTF-8
+string literals were to be changed to reflect that type (with appropriate
+accommodations for backward compatibility), then it would be possible to
+assume (not infer) an encoding based on type for all five of the encodings the
+standard states must be provided.
+
+<h2 id="faq_custom_encodings">
+    Can I define my own encodings?  If so, How?</h2>
+
+<p>Yes.  To do so, you'll need to define character set and encoding classes
+appropriate for your encoding.
+
+<blockquote class="code">
+<pre><code>
+class my_character_set {
+public:
+  using code_point_type = ...;
+  static const char* get_name() noexcept;
+};
+
+struct my_encoding_state {};
+struct my_encoding_state_transition {};
+
+class my_encoding {
+public:
+  using state_type = my_encoding_state;
+  using state_transition_type = my_encoding_state_transition;
+  using character_type = character&lt;my_character_set&gt;;
+  using code_unit_type = ...;
+
+  static constexpr int min_code_units = ...;
+  static constexpr int max_code_units = ...;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h1 id="technical_specifications">Technical Specifications</h1>
+
+<h2 id="header_synopsis">Header &lt;experimental/text_view&gt; synopsis</h2>
+
+<blockquote class="code">
+<pre><code>
+namespace std {
+namespace experimental {
+inline namespace text {
+
+// concepts:
+template&lt;typename T&gt; concept bool CodeUnit();
+template&lt;typename T&gt; concept bool CodePoint();
+template&lt;typename T&gt; concept bool CharacterSet();
+template&lt;typename T&gt; concept bool Character();
+template&lt;typename T&gt; concept bool CodeUnitIterator();
+template&lt;typename T, typename V&gt; concept bool CodeUnitOutputIterator();
+template&lt;typename T&gt; concept bool TextEncodingState();
+template&lt;typename T&gt; concept bool TextEncodingStateTransition();
+template&lt;typename T&gt; concept bool TextEncoding();
+template&lt;typename T, typename I&gt; concept bool TextEncoder();
+template&lt;typename T, typename I&gt; concept bool TextDecoder();
+template&lt;typename T, typename I&gt; concept bool TextForwardDecoder();
+template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder();
+template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder();
+template&lt;typename T&gt; concept bool TextIterator();
+template&lt;typename T&gt; concept bool TextOutputIterator();
+template&lt;typename T, typename I&gt; concept bool TextSentinel();
+template&lt;typename T&gt; concept bool TextView();
+
+// character sets:
+class any_character_set;
+class basic_execution_character_set;
+class basic_execution_wide_character_set;
+class unicode_character_set;
+
+// implementation defined character set type aliases:
+using execution_character_set = /* implementation-defined */ ;
+using execution_wide_character_set = /* implementation-defined */ ;
+using universal_character_set = /* implementation-defined */ ;
+
+// character set identification:
+class character_set_id;
+
+template&lt;CharacterSet CST&gt;
+  inline character_set_id get_character_set_id();
+
+// character set information:
+class character_set_info;
+
+template&lt;CharacterSet CST&gt;
+  inline const character_set_info&amp; get_character_set_info();
+const character_set_info&amp; get_character_set_info(character_set_id id);
+
+// character set and encoding traits:
+template&lt;typename T&gt;
+  using code_unit_type_t = /* implementation-defined */ ;
+template&lt;typename T&gt;
+  using code_point_type_t = /* implementation-defined */ ;
+template&lt;typename T&gt;
+  using character_set_type_t = /* implementation-defined */ ;
+template&lt;typename T&gt;
+  using character_type_t = /* implementation-defined */ ;
+template&lt;typename T&gt;
+  using encoding_type_t /* implementation-defined */ ;
+
+// characters:
+template&lt;CharacterSet CST&gt; class character;
+template &lt;&gt; class character&lt;any_character_set&gt;;
+
+template&lt;CharacterSet CST&gt;
+  bool operator==(const character&lt;any_character_set&gt; &amp;lhs,
+                  const character&lt;CST&gt; &amp;rhs);
+template&lt;CharacterSet CST&gt;
+  bool operator==(const character&lt;CST&gt; &amp;lhs,
+                  const character&lt;any_character_set&gt; &amp;rhs);
+template&lt;CharacterSet CST&gt;
+  bool operator!=(const character&lt;any_character_set&gt; &amp;lhs,
+                  const character&lt;CST&gt; &amp;rhs);
+template&lt;CharacterSet CST&gt;
+  bool operator!=(const character&lt;CST&gt; &amp;lhs,
+                  const character&lt;any_character_set&gt; &amp;rhs);
+
+// encoding state and transition types:
+class trivial_encoding_state;
+class trivial_encoding_state_transition;
+class utf8bom_encoding_state;
+class utf8bom_encoding_state_transition;
+class utf16bom_encoding_state;
+class utf16bom_encoding_state_transition;
+class utf32bom_encoding_state;
+class utf32bom_encoding_state_transition;
+
+// encodings:
+class basic_execution_character_encoding;
+class basic_execution_wide_character_encoding;
+#if defined(__STDC_ISO_10646__)
+class iso_10646_wide_character_encoding;
+#endif // __STDC_ISO_10646__
+class utf8_encoding;
+class utf8bom_encoding;
+class utf16_encoding;
+class utf16be_encoding;
+class utf16le_encoding;
+class utf16bom_encoding;
+class utf32_encoding;
+class utf32be_encoding;
+class utf32le_encoding;
+class utf32bom_encoding;
+
+// implementation defined encoding type aliases:
+using execution_character_encoding = /* implementation-defined */ ;
+using execution_wide_character_encoding = /* implementation-defined */ ;
+using char8_character_encoding = /* implementation-defined */ ;
+using char16_character_encoding = /* implementation-defined */ ;
+using char32_character_encoding = /* implementation-defined */ ;
+
+// itext_iterator:
+template&lt;TextEncoding ET, ranges::View VT&gt;
+  requires TextDecoder&lt;ET, ranges::iterator_t&lt;std::add_const_t&lt;VT&gt;&gt;&gt;()
+  class itext_iterator;
+
+// itext_sentinel:
+template&lt;TextEncoding ET, ranges::View VT&gt;
+  class itext_sentinel;
+
+// otext_iterator:
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; CUIT&gt;
+  class otext_iterator;
+
+// otext_iterator factory functions:
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; IT&gt;
+  auto make_otext_iterator(typename ET::state_type state, IT out)
+  -&gt; otext_iterator&lt;ET, IT&gt;;
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; IT&gt;
+  auto make_otext_iterator(IT out)
+  -&gt; otext_iterator&lt;ET, IT&gt;;
+
+// basic_text_view:
+template&lt;TextEncoding ET, ranges::View VT&gt;
+  class basic_text_view;
+
+// basic_text_view type aliases:
+using text_view = basic_text_view&lt;execution_character_encoding,
+                                  /* implementation-defined */ &gt;;
+using wtext_view = basic_text_view&lt;execution_wide_character_encoding,
+                                   /* implementation-defined */ &gt;;
+using u8text_view = basic_text_view&lt;char8_character_encoding,
+                                    /* implementation-defined */ &gt;;
+using u16text_view = basic_text_view&lt;char16_character_encoding,
+                                     /* implementation-defined */ &gt;;
+using u32text_view = basic_text_view&lt;char32_character_encoding,
+                                     /* implementation-defined */ &gt;;
+
+// basic_text_view factory functions:
+template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  auto make_text_view(typename ET::state_type state, IT first, ST last)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  auto make_text_view(IT first, ST last)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
+  auto make_text_view(typename ET::state_type state,
+                      IT first,
+                      typename std::make_unsigned&lt;ranges::difference_type_t&lt;IT&gt;&gt;::type n)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
+  auto make_text_view(IT first,
+                      typename std::make_unsigned&lt;ranges::difference_type_t&lt;IT&gt;&gt;::type n)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
+  auto make_text_view(typename ET::state_type state,
+                      const Iterable &amp;iterable)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
+  auto make_text_view(const Iterable &amp;iterable)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
+  auto make_text_view(TIT first, TST last)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;TextView TVT&gt;
+  TVT make_text_view(TVT tv);
+
+// exception classes:
+class text_runtime_error;
+class text_encode_error;
+class text_decode_error;
+class text_encode_overflow_error;
+class text_decode_underflow_error;
+
+} // inline namespace text
+} // namespace experimental
+} // namespace std
+</code></pre>
+</blockquote>
+
+<h2 id="concepts">Concepts</h2>
+
+<ul>
+  <li><a href="#concept_codeunit">
+      Concept CodeUnit</a></li>
+  <li><a href="#concept_codepoint">
+      Concept CodePoint</a></li>
+  <li><a href="#concept_characterset">
+      Concept CharacterSet</a></li>
+  <li><a href="#concept_character">
+      Concept Character</a></li>
+  <li><a href="#concept_codeunititerator">
+      Concept CodeUnitIterator</a></li>
+  <li><a href="#concept_codeunitoutputiterator">
+      Concept CodeUnitOutputIterator</a></li>
+  <li><a href="#concept_textencodingstate">
+      Concept TextEncodingState</a></li>
+  <li><a href="#concept_textencodingstatetransition">
+      Concept TextEncodingStateTransition</a></li>
+  <li><a href="#concept_textencoding">
+      Concept TextEncoding</a></li>
+  <li><a href="#concept_textencoder">
+      Concept TextEncoder</a></li>
+  <li><a href="#concept_textdecoder">
+      Concept TextDecoder</a></li>
+  <li><a href="#concept_textforwarddecoder">
+      Concept TextForwardDecoder</a></li>
+  <li><a href="#concept_textbidirectionaldecoder">
+      Concept TextBidirectionalDecoder</a></li>
+  <li><a href="#concept_textrandomaccessdecoder">
+      Concept TextRandomAccessDecoder</a></li>
+  <li><a href="#concept_textiterator">
+      Concept TextIterator</a></li>
+  <li><a href="#concept_textsentinel">
+      Concept TextSentinel</a></li>
+  <li><a href="#concept_textoutputiterator">
+      Concept TextOutputIterator</a></li>
+  <li><a href="#concept_textview">
+      Concept TextView</a></li>
+</ul>
+
+<h3 id="concept_codeunit">
+      Concept CodeUnit</h3>
+
+<p>The <tt>CodeUnit</tt> concept specifies requirements for a type usable as
+the code unit type of a string type.
+
+<p><tt>CodeUnit&lt;T&gt;()</tt> is satisfied if and only if:
+<ul>
+  <li><tt>std::is_integral&lt;T&gt;::value</tt> is true</li>
+  <li>and at least one of:
+    <ul>
+      <li><tt>std::is_unsigned&lt;T&gt;::value</tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, char&gt;::value
+          </tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, wchar_t&gt;::value
+          </tt> is true.</li>
+    </ul></li>
+</ul>
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool CodeUnit() {
+  return /* implementation-defined */ ;
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_codepoint">
+      Concept CodePoint</h3>
+
+<p>The <tt>CodePoint</tt> concept specifies requirements for a type usable
+as the code point type of a character set type.
+
+<p><tt>CodePoint&lt;T&gt;()</tt> is satisfied if and only if:
+<ul>
+  <li><tt>std::is_integral&lt;T&gt;::value</tt> is true</li>
+  <li>and at least one of:
+    <ul>
+      <li><tt>std::is_unsigned&lt;T&gt;::value</tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, char&gt;::value
+          </tt> is true.</li>
+      <li><tt>std::is_same&lt;std::remove_cv_t&lt;T&gt;, wchar_t&gt;::value
+          </tt> is true.</li>
+    </ul></li>
+</ul>
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool CodePoint() {
+  return /* implementation-defined */ ;
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_characterset">
+      Concept CharacterSet</h3>
+
+<p>The <tt>CharacterSet</tt> concept specifies requirements for a type
+that describes a character set.  Such a type has a member typedef-name
+declaration for a type that satisfies <tt>CodePoint</tt> and a static
+member function that returns a name for the character set.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool CharacterSet() {
+  return CodePoint&lt;code_point_type_t&lt;T&gt;&gt;()
+      &amp;&amp; requires () {
+           { T::get_name() } noexcept -&gt; const char *;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_character">
+      Concept Character</h3>
+
+<p>The <tt>Character</tt> concept specifies requirements for a type that
+describes a character as defined by an associated character set.  Non-static
+member functions provide access to the code point value of the described
+character.  Types that satisfy <tt>Character</tt> are regular and copyable.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool Character() {
+  return ranges::Regular&lt;T&gt;()
+      &amp;&amp; ranges::Copyable&lt;T&gt;()
+      &amp;&amp; CharacterSet&lt;character_set_type_t&lt;T&gt;&gt;()
+      &amp;&amp; requires (T t,
+                           const T ct,
+                           code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt; cp)
+         {
+           t.set_code_point(cp);
+           { ct.get_code_point() } noexcept
+               -&gt; code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt;;
+           { ct.get_character_set_id() }
+               -&gt; character_set_id;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_codeunititerator">
+      Concept CodeUnitIterator</h3>
+
+<p>The <tt>CodeUnitIterator</tt> concept specifies requirements of an
+iterator that has a value type that satisfies <tt>CodeUnit</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool CodeUnitIterator() {
+  return ranges::Iterator&lt;T&gt;()
+      &amp;&amp; CodeUnit&lt;ranges::value_type_t&lt;T&gt;&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_codeunitoutputiterator">
+      Concept CodeUnitOutputIterator</h3>
+
+<p>The <tt>CodeUnitOutputIterator</tt> concept specifies requirements of
+an output iterator that can be assigned from a type that satisfies
+<tt>CodeUnit</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename V&gt; concept bool CodeUnitOutputIterator() {
+  return ranges::OutputIterator&lt;T, V&gt;()
+      &amp;&amp; CodeUnit&lt;V&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textencodingstate">
+      Concept TextEncodingState</h3>
+
+<p>The <tt>TextEncodingState</tt> concept specifies requirements of types
+that hold encoding state.  Such types are default constructible and copyable.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextEncodingState() {
+  return ranges::DefaultConstructible&lt;T&gt;()
+      &amp;&amp; ranges::Copyable&lt;T&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textencodingstatetransition">
+      Concept TextEncodingStateTransition</h3>
+
+<p>The <tt>TextEncodingStateTransition</tt> concept specifies requirements
+of types that hold encoding state transitions.  Such types are default
+constructible and copyable.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextEncodingStateTransition() {
+  return ranges::DefaultConstructible&lt;T&gt;()
+      &amp;&amp; ranges::Copyable&lt;T&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textencoding">
+      Concept TextEncoding</h3>
+
+<p>The <tt>TextEncoding</tt> concept specifies requirements of types that
+define an encoding.  Such types define member types that identify the
+code unit, character, encoding state, and encoding state transition types, a
+static member function that returns an initial encoding state object that
+defines the encoding state at the beginning of a sequence of encoded characters,
+and static data members that specify the minimum and maximum number of
+code units used to encode any single character.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextEncoding() {
+  return requires () {
+           { T::min_code_units } noexcept -&gt; int;
+           { T::max_code_units } noexcept -&gt; int;
+         }
+      &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
+      &amp;&amp; TextEncodingStateTransition&lt;typename T::state_transition_type&gt;()
+      &amp;&amp; CodeUnit&lt;code_unit_type_t&lt;T&gt;&gt;()
+      &amp;&amp; Character&lt;character_type_t&lt;T&gt;&gt;()
+      &amp;&amp; requires () {
+           { T::initial_state() } noexcept
+               -&gt; const typename T::state_type&amp;;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textencoder">
+      Concept TextEncoder</h3>
+
+<p>The <tt>TextEncoder</tt> concept specifies requirements of types that
+are used to encode characters using a particular code unit iterator that
+satisfies <tt>OutputIterator</tt>.  Such a type satisifies
+<tt>TextEncoding</tt> and defines static member functions used to encode
+state transitions and characters.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename I&gt; concept bool TextEncoder() {
+  return TextEncoding&lt;T&gt;()
+      &amp;&amp; ranges::OutputIterator&lt;CUIT, code_unit_type_t&lt;T&gt;&gt;()
+      &amp;&amp; requires (
+           typename T::state_type &amp;state,
+           CUIT &amp;out,
+           typename T::state_transition_type stt,
+           int &amp;encoded_code_units)
+         {
+           T::encode_state_transition(state, out, stt, encoded_code_units);
+         }
+      &amp;&amp; requires (
+           typename T::state_type &amp;state,
+           CUIT &amp;out,
+           character_type_t&lt;T&gt; c,
+           int &amp;encoded_code_units)
+         {
+           T::encode(state, out, c, encoded_code_units);
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textdecoder">
+      Concept TextDecoder</h3>
+
+<p>The <tt>TextDecoder</tt> concept specifies requirements of types that
+are used to decode characters using a particular code unit iterator that
+satisifies <tt>InputIterator</tt>.  Such a type satisfies
+<tt>TextEncoding</tt> and defines a static member function used to decode
+state transitions and characters.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename I&gt; concept bool TextDecoder() {
+  return TextEncoding&lt;T&gt;()
+      &amp;&amp; ranges::InputIterator&lt;CUIT&gt;()
+      &amp;&amp; ranges::ConvertibleTo&lt;ranges::value_type_t&lt;CUIT&gt;,
+                               code_unit_type_t&lt;T&gt;&gt;()
+      &amp;&amp; requires (
+           typename T::state_type &amp;state,
+           CUIT &amp;in_next,
+           CUIT in_end,
+           character_type_t&lt;T&gt; &amp;c,
+           int &amp;decoded_code_units)
+         {
+           { T::decode(state, in_next, in_end, c, decoded_code_units) } -&gt; bool;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textforwarddecoder">
+      Concept TextForwardDecoder</h3>
+
+<p>The <tt>TextForwardDecoder</tt> concept specifies requirements of types
+that are used to decode characters using a particular code unit iterator that
+satisifies <tt>ForwardIterator</tt>.  Such a type also satisfies
+<tt>TextDecoder</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename I&gt; concept bool TextForwardDecoder() {
+  return TextDecoder&lt;T, CUIT&gt;()
+      &amp;&amp; ranges::ForwardIterator&lt;CUIT&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textbidirectionaldecoder">
+      Concept TextBidirectionalDecoder</h3>
+
+<p>The <tt>TextBidirectionalDecoder</tt> concept specifies requirements of
+types that are used to decode characters using a particular code unit iterator
+that satisifies <tt>BidirectionalIterator</tt>.  Such a type also satisfies
+<tt>TextForwardDecoder</tt> and defines a static member function used to
+decode state transitions and characters in the reverse order of their encoding.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder() {
+  return TextForwardDecoder&lt;T, CUIT&gt;()
+      &amp;&amp; ranges::BidirectionalIterator&lt;CUIT&gt;()
+      &amp;&amp; requires (
+           typename T::state_type &amp;state,
+           CUIT &amp;in_next,
+           CUIT in_end,
+           character_type_t&lt;T&gt; &amp;c,
+           int &amp;decoded_code_units)
+         {
+           { T::rdecode(state, in_next, in_end, c, decoded_code_units) } -&gt; bool;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textrandomaccessdecoder">
+      Concept TextRandomAccessDecoder</h3>
+
+<p>The <tt>TextRandomAccessDecoder</tt> concept specifies requirements of
+types that are used to decode characters using a particular code unit iterator
+that satisifies <tt>RandomAccessIterator</tt>.  Such a type also satisfies
+<tt>TextBidirectionalDecoder</tt>, requires that the minimum and maximum
+number of code units used to encode any character have the same value, and that
+the encoding state be an empty type.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder() {
+  return TextBidirectionalDecoder&lt;T, CUIT&gt;()
+      &amp;&amp; ranges::RandomAccessIterator&lt;CUIT&gt;()
+      &amp;&amp; T::min_code_units == T::max_code_units
+      &amp;&amp; std::is_empty&lt;typename T::state_type&gt;::value;
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textiterator">
+      Concept TextIterator</h3>
+
+<p>The <tt>TextIterator</tt> concept specifies requirements of types that
+are used to iterator over characters in an encoded sequence of code units.
+Encoding state is held in each iterator instance as needed to decode the code
+unit sequence and is made accessible via non-static member functions.  The value
+type of a <tt>TextIterator</tt> satisfies <tt>Character</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextIterator() {
+  return ranges::Iterator&lt;T&gt;()
+      &amp;&amp; Character&lt;ranges::value_type_t&lt;T&gt;&gt;()
+      &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
+      &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
+      &amp;&amp; requires (const T ct) {
+           { ct.state() } noexcept
+               -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textsentinel">
+      Concept TextSentinel</h3>
+
+<p>The <tt>TextSentinel</tt> concept specifies requirements of types that
+are used to mark the end of a range of encoded characters.  A type T that
+satisfies <tt>TextIterator</tt> also satisfies
+<tt>TextSentinel&lt;T&gt;</tt> there by enabling <tt>TextIterator</tt>
+types to be used as sentinels.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T, typename I&gt; concept bool TextSentinel() {
+  return ranges::Sentinel&lt;T, I&gt;()
+      &amp;&amp; TextIterator&lt;I&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textoutputiterator">
+      Concept TextOutputIterator</h3>
+
+<p>The <tt>TextOutputIterator</tt> concept specifies requirements of types
+that are used to encode characters as a sequence of code units.  Encoding state
+is held in each iterator instance as needed to encode the code unit sequence
+and is made accessible via non-static member functions.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextOutputIterator() {
+  return ranges::OutputIterator&lt;T, character_type_t&lt;encoding_type_t&lt;T&gt;&gt;&gt;()
+      &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
+      &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
+      &amp;&amp; requires (const T ct) {
+           { ct.state() } noexcept
+               -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textview">
+      Concept TextView</h3>
+
+<p>The <tt>TextView</tt> concept specifies requirements of types that
+provide view access to an underlying code unit range.  Such types satisy
+<tt>ranges::View</tt>, provide iterators that satisfy
+<tt>TextIterator</tt>, define member types that identify the encoding,
+encoding state, and underlying code unit range and iterator types.  Non-static
+member functions are provided to access the underlying code unit range and
+initial encoding state.
+
+<p>Types that satisfy <tt>TextView</tt> do not own the underlying code unit
+range and are copyable in constant time.  The lifetime of the underlying range
+must exceed the lifetime of referencing <tt>TextView</tt> objects.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextView() {
+  return ranges::View&lt;T&gt;()
+      R&amp; TextIterator&lt;ranges::iterator_t&lt;T&gt;&gt;()
+      &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
+      &amp;&amp; ranges::View&lt;typename T::view_type&gt;()
+      &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
+      &amp;&amp; CodeUnitIterator&lt;code_unit_iterator_t&lt;T&gt;&gt;()
+      R&amp; requires (T t, const T ct) {
+           { t.base() } noexcept
+               -&gt; typename T::view_type&amp;;
+           { ct.base() } noexcept
+               -&gt; const typename T::view_type&amp;;
+           { ct.initial_state() } noexcept
+               -&gt; const typename T::state_type&amp;;
+         };
+}
+</code></pre>
+</blockquote>
+
+<h2 id="type_traits">Type Traits</h2>
+
+<ul>
+  <li><a href="#code_unit_type_t">
+      code_unit_type_t</a></li>
+  <li><a href="#code_point_type_t">
+      code_point_type_t</a></li>
+  <li><a href="#character_set_type_t">
+      character_set_type_t</a></li>
+  <li><a href="#character_type_t">
+      character_type_t</a></li>
+  <li><a href="#encoding_type_t">
+      encoding_type_t</a></li>
+</ul>
+
+<h3 id="code_unit_type_t">code_unit_type_t</h3>
+
+<p>The <tt>code_unit_type_t</tt> type alias template provides convenient means
+for selecting the associated code unit type of some other type, such as an
+encoding type that satisfies <tt>TextEncoding</tt>.  The aliased type is the
+same as <tt>typename T::code_unit_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using code_unit_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="code_point_type_t">code_point_type_t</h3>
+
+<p>The <tt>code_point_type_t</tt> type alias template provides convenient means
+for selecting the associated code point type of some other type, such as a
+type that satisfies <tt>CharacterSet</tt> or <tt>Character</tt>.  The aliased
+type is the same as <tt>typename T::code_point_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using code_point_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="character_set_type_t">character_set_type_t</h3>
+
+<p>The <tt>character_set_type_t</tt> type alias template provides convenient
+means for selecting the associated character set type of some other type, such
+as a type that satisfies <tt>Character</tt>.  The aliased type is the same as
+<tt>typename T::character_set_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using character_set_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="character_type_t">character_type_t</h3>
+
+<p>The <tt>character_type_t</tt> type alias template provides convenient means
+for selecting the associated character type of some other type, such as a type
+that satisfies <tt>TextEncoding</tt>.  The aliased type is the same as
+<tt>typename T::character_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using character_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="encoding_type_t">encoding_type_t</h3>
+
+<p>The <tt>encoding_type_t</tt> type alias template provides convenient means
+for selecting the associated encoding type of some other type, such as a type
+that satisfies <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, or
+<tt>TextView</tt>.  The aliased type is the same as
+<tt>typename T::encoding_type</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using encoding_type_t /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h2 id="character_sets">Character Sets</h2>
+
+<ul>
+  <li><a href="#class_any_character_set">
+      Class any_character_set</a></li>
+  <li><a href="#class_basic_execution_character_set">
+      Class basic_execution_character_set</a></li>
+  <li><a href="#class_basic_execution_wide_character_set">
+      Class basic_execution_wide_character_set</a></li>
+  <li><a href="#class_unicode_character_set">
+      Class unicode_character_set</a></li>
+  <li><a href="#character_set_type_aliases">
+      Character set type aliases</a></li>
+</ul>
+
+<h3 id="class_any_character_set">Class any_character_set</h3>
+
+<p>The <tt>any_character_set</tt> class provides a generic character set
+type used when a specific character set type is unknown or when the ability to
+switch between specific character sets is required.  This class satisfies the
+<tt>CharacterSet</tt> concept and has an implementation defined
+<tt>code_point_type</tt> that is able to represent code point values from
+all of the implementation provided character set types.
+
+<blockquote class="code">
+<pre><code>
+class any_character_set {
+public:
+  using code_point_type = /* implementation-defined */;
+
+  static const char* get_name() noexcept {
+    return "any_character_set";
+  }
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_basic_execution_character_set">
+  Class basic_execution_character_set</h3>
+
+<p>The <tt>basic_execution_character_set</tt> class represents the
+basic execution character set specified in <tt>[lex.charset]p3</tt> of the
+C++ standard.  This class satisfies the <tt>CharacterSet</tt> concept and
+has a <tt>code_point_type</tt> member type that aliases <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class basic_execution_character_set {
+public:
+  using code_point_type = char;
+
+  static const char* get_name() noexcept {
+    return "basic_execution_character_set";
+  }
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_basic_execution_wide_character_set">
+  Class basic_execution_wide_character_set</h3>
+
+<p>The <tt>basic_execution_wide_character_set</tt> class represents the
+basic execution wide character set specified in <tt>[lex.charset]p3</tt> of
+the C++ standard.  This class satisfies the <tt>CharacterSet</tt> concept
+and has a <tt>code_point_type</tt> member type that aliases
+<tt>wchar_t</tt>.
+
+<blockquote class="code">
+<pre><code>
+class basic_execution_wide_character_set {
+public:
+  using code_point_type = wchar_t;
+
+  static const char* get_name() noexcept {
+    return "basic_execution_wide_character_set";
+  }
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_unicode_character_set">
+  Class unicode_character_set</h3>
+
+<p>The <tt>unicode_character_set</tt> class represents the
+Unicode character set.  This class satisfies the <tt>CharacterSet</tt>
+concept and has a <tt>code_point_type</tt> member type that aliases
+<tt>char32_t</tt>.
+
+<blockquote class="code">
+<pre><code>
+class unicode_character_set {
+public:
+  using code_point_type = char32_t;
+
+  static const char* get_name() noexcept {
+    return "unicode_character_set";
+  }
+};
+</code></pre>
+</blockquote>
+
+<h3 id="character_set_type_aliases">
+  Character set type aliases</h3>
+
+<p>The <tt>execution_character_set</tt>,
+<tt>execution_wide_character_set</tt>, and
+<tt>universal_character_set</tt> type aliases reflect the implementation
+defined execution, wide execution, and universal character sets specified in
+<tt>[lex.charset]p2-3</tt> of the C++ standard.
+
+<p>The character set aliased by <tt>execution_character_set</tt> must be
+a superset of the <tt>basic_execution_character_set</tt> character set.
+This alias refers to the character set that the compiler assumes during
+translation; the character set that the compiler uses when translating
+characters specified by universal-character-name designators in ordinary
+string literals, not the locale sensitive run-time execution character set.
+
+<p>The character set aliased by <tt>execution_wide_character_set</tt> must
+be a superset of the <tt>basic_execution_wide_character_set</tt> character
+set.  This alias refers to the character set that the compiler assumes during
+translation; the character set that the compiler uses when translating
+characters specified by universal-character-name designators in wide string
+literals, not the locale sensitive run-time execution wide character set.
+
+<p>The character set aliased by <tt>universal_character_set</tt> must
+be a superset of the <tt>unicode_character_set</tt> character
+set.
+
+<blockquote class="code">
+<pre><code>
+using execution_character_set = /* implementation-defined */ ;
+using execution_wide_character_set = /* implementation-defined */ ;
+using universal_character_set = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h2 id="character_set_identification">Character Set Identification</h2>
+
+<ul>
+  <li><a href="#class_character_set_id">
+      Class character_set_id</a></li>
+  <li><a href="#get_character_set_id">
+      get_character_set_id</a></li>
+</ul>
+
+<h3 id="class_character_set_id">
+  Class character_set_id</h3>
+
+<p>The <tt>character_set_id</tt> class provides unique, opaque values
+used to identify character sets at run-time.  Values of this type are
+produced by <tt>get_character_set_id()</tt> and can be passed to
+<tt>get_character_set_info()</tt> to obtain character set information.
+Values of this type are copy constructible, copy assignable, equality
+comparable, and strictly totally ordered.
+
+<blockquote class="code">
+<pre><code>
+class character_set_id {
+public:
+  character_set_id() = delete;
+
+  friend bool operator==(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator!=(character_set_id lhs, character_set_id rhs) noexcept;
+
+  friend bool operator&lt;(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator&gt;(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator&lt;=(character_set_id lhs, character_set_id rhs) noexcept;
+  friend bool operator&gt;=(character_set_id lhs, character_set_id rhs) noexcept;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="get_character_set_id">
+  get_character_set_id</h3>
+
+<p><tt>get_character_set_id()</tt> returns a unique, opaque value for
+the chracter set type specified by the template parameter.
+
+<blockquote class="code">
+<pre><code>
+template&lt;CharacterSet CST&gt;
+  inline character_set_id get_character_set_id();
+</code></pre>
+</blockquote>
+
+<h2 id="character_set_information">Character Set Information</h2>
+
+<ul>
+  <li><a href="#class_character_set_info">
+      Class character_set_info</a></li>
+  <li><a href="#get_character_set_info">
+      get_character_set_info</a></li>
+</ul>
+
+<h3 id="class_character_set_info">
+  Class character_set_info</h3>
+
+<p>The <tt>character_set_info</tt> class stores information about a
+character set.  Values of this type are produced by the
+<tt>get_character_set_info()</tt> functions based on a character set
+type or ID.
+
+<blockquote class="code">
+<pre><code>
+class character_set_info {
+public:
+  character_set_info() = delete;
+
+  character_set_id get_id() const noexcept;
+
+  const char* get_name() const noexcept;
+
+private:
+  character_set_id id; // exposition only
+};
+</code></pre>
+</blockquote>
+
+<h3 id="get_character_set_info">
+  get_character_set_info</h3>
+
+<p>The <tt>get_character_set_info()</tt> functions return a reference to a
+<tt>character_set_info</tt> object based on a character set type or ID.
+
+<blockquote class="code">
+<pre><code>
+const character_set_info&amp; get_character_set_info(character_set_id id);
+
+template&lt;CharacterSet CST&gt;
+  inline const character_set_info&amp; get_character_set_info();
+</code></pre>
+</blockquote>
+
+<h2 id="characters">Characters</h2>
+
+<ul>
+  <li><a href="#class_template_character">
+      Class template character</a></li>
+</ul>
+
+<h3 id="class_template_character">
+  Class template character</h3>
+
+<p>Objects of <tt>character</tt> class template specialization type define
+a character via the association of a code point value and a character set.  The
+specialization provided for the <tt>any_character_set</tt> type is used to
+maintain a dynamic character set association while specializations for other
+character sets specify a static association.  These types satisfy the
+<tt>Character</tt> concept and are default constructible, copy
+constructible, copy assignable, and equality comparable.  Member functions
+provide access to the code point and character set ID values for the represented
+character.  Default constructed objects represent a null character using a zero
+initialized code point value.
+
+<p>Objects with different character set type are not equality comparable with
+the exception that objects with a static character set type of
+<tt>any_character_set</tt> are comparable with objects with any static
+character set type.  In this case, objects compare equally if and only if their
+character set ID and code point values match.  Equality comparison between
+objects with different static character set type is not implemented to avoid
+potentially costly unintended implicit transcoding between character sets.
+
+<blockquote class="code">
+<pre><code>
+template&lt;CharacterSet CST&gt;
+class character {
+public:
+  using character_set_type = CST;
+  using code_point_type = code_point_type_t&lt;character_set_type&gt;;
+
+  character() = default;
+  explicit character(code_point_type code_point) noexcept;
+
+  friend bool operator==(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
+  friend bool operator!=(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
+
+  void set_code_point(code_point_type code_point);
+  code_point_type get_code_point() const noexcept;
+
+  static character_set_id get_character_set_id();
+
+private:
+  code_point_type code_point; // exposition only
+};
+
+template&lt;&gt;
+class character&lt;any_character_set&gt; {
+public:
+  using character_set_type = any_character_set;
+  using code_point_type = code_point_type_t&lt;character_set_type&gt;;
+
+  character() = default;
+  explicit character(code_point_type code_point) noexcept;
+  character(character_set_id cs_id, code_point_type code_point) noexcept;
+
+  friend bool operator==(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
+  friend bool operator!=(const character &amp;lhs,
+                         const character &amp;rhs) noexcept;
+
+  void set_code_point(code_point_type code_point);
+  code_point_type get_code_point() const noexcept;
+
+  void set_character_set_id(character_set_id new_cs_id) noexcept;
+  character_set_id get_character_set_id() const noexcept;
+
+private:
+  character_set_id cs_id;     // exposition only
+  code_point_type code_point; // exposition only
+};
+
+template&lt;CharacterSet CST&gt;
+  bool operator==(const character&lt;any_character_set&gt; &amp;lhs,
+                  const character&lt;CST&gt; &amp;rhs);
+template&lt;CharacterSet CST&gt;
+  bool operator==(const character&lt;CST&gt; &amp;lhs,
+                  const character&lt;any_character_set&gt; &amp;rhs);
+template&lt;CharacterSet CST&gt;
+  bool operator!=(const character&lt;any_character_set&gt; &amp;lhs,
+                  const character&lt;CST&gt; &amp;rhs);
+template&lt;CharacterSet CST&gt;
+  bool operator!=(const character&lt;CST&gt; &amp;lhs,
+                  const character&lt;any_character_set&gt; &amp;rhs);
+</code></pre>
+</blockquote>
+
+<h2 id="encodings">Encodings</h2>
+
+<ul>
+  <li><a href="#class_trivial_encoding_state">
+      class trivial_encoding_state</a></li>
+  <li><a href="#class_trivial_encoding_state_transition">
+      class trivial_encoding_state_transition</a></li>
+  <li><a href="#class_basic_execution_character_encoding">
+      Class basic_execution_character_encoding</a></li>
+  <li><a href="#class_basic_execution_wide_character_encoding">
+      Class basic_execution_wide_character_encoding</a></li>
+  <li><a href="#class_iso_10646_wide_character_encoding">
+      Class iso_10646_wide_character_encoding</a></li>
+  <li><a href="#class_utf8_encoding">
+      Class utf8_encoding</a></li>
+  <li><a href="#class_utf8bom_encoding">
+      Class utf8bom_encoding</a></li>
+  <li><a href="#class_utf16_encoding">
+      Class utf16_encoding</a></li>
+  <li><a href="#class_utf16be_encoding">
+      Class utf16be_encoding</a></li>
+  <li><a href="#class_utf16le_encoding">
+      Class utf16le_encoding</a></li>
+  <li><a href="#class_utf16bom_encoding">
+      Class utf16bom_encoding</a></li>
+  <li><a href="#class_utf32_encoding">
+      Class utf32_encoding</a></li>
+  <li><a href="#class_utf32be_encoding">
+      Class utf32be_encoding</a></li>
+  <li><a href="#class_utf32le_encoding">
+      Class utf32le_encoding</a></li>
+  <li><a href="#class_utf32bom_encoding">
+      Class utf32bom_encoding</a></li>
+  <li><a href="#encoding-type-aliases">
+      Encoding type aliases</a></li>
+</ul>
+
+<h3 id="class_trivial_encoding_state">
+  Class trivial_encoding_state</h3>
+
+<p>The <tt>trivial_encoding_state</tt> class is an empty class used by
+stateless encodings to implement the parts of the generic encoding interfaces
+necessary to support stateful encodings.
+
+<blockquote class="code">
+<pre><code>
+class trivial_encoding_state {};
+</code></pre>
+</blockquote>
+
+<h3 id="class_trivial_encoding_state_transition">
+  Class trivial_encoding_state_transition</h3>
+
+<p>The <tt>trivial_encoding_state_transition</tt> class is an empty class
+used by stateless encodings to implement the parts of the generic encoding
+interfaces necessary to support stateful encodings that support non-code-point
+encoding code unit sequences.
+
+<blockquote class="code">
+<pre><code>
+class trivial_encoding_state_transition {};
+</code></pre>
+</blockquote>
+
+<h3 id="class_basic_execution_character_encoding">
+  Class basic_execution_character_encoding</h3>
+
+<p>The <tt>basic_execution_character_encoding</tt> class implements support
+for the encoding used for ordinary string literals limited to support for the
+basic execution character set as defined in <tt>[lex.charset]p3</tt> of
+the C++ standard.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class basic_execution_character_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;basic_execution_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_basic_execution_wide_character_encoding">
+  Class basic_execution_wide_character_encoding</h3>
+
+<p>The <tt>basic_execution_wide_character_encoding</tt> class implements
+support for the encoding used for wide string literals limited to support for
+the basic execution wide-character set as defined in
+<tt>[lex.charset]p3</tt> of the C++ standard.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <tt>wchar_t</tt>.
+
+<blockquote class="code">
+<pre><code>
+class basic_execution_wide_character_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;basic_execution_wide_character_set&gt;;
+  using code_unit_type = wchar_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_iso_10646_wide_character_encoding">
+  Class iso_10646_wide_character_encoding</h3>
+
+<p>The <tt>iso_10646_wide_character_encoding</tt> class is only defined
+when the <tt>__STDC_ISO_10646__</tt> macro is defined.
+
+<p>The <tt>iso_10646_wide_character_encoding</tt> class implements
+support for the encoding used for wide string literals when that encoding
+uses the Unicode character set and <tt>wchar_t</tt> is large enough to
+store the code point values of all characters defined by the version of the
+Unicode standard indicated by the value of the <tt>__STDC_ISO_10646__</tt>
+macro as specified in <tt>[cpp.predefined]p2</tt> of the C++ standard.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <tt>wchar_t</tt>.
+
+<blockquote class="code">
+<pre><code>
+#if defined(__STDC_ISO_10646__)
+class iso_10646_wide_character_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = wchar_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+#endif // __STDC_ISO_10646__
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf8_encoding">
+  Class utf8_encoding</h3>
+
+<p>The <tt>utf8_encoding</tt> class implements support for the Unicode
+UTF-8 encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf8_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf8bom_encoding">
+  Class utf8bom_encoding</h3>
+
+<p>The <tt>utf8bom_encoding</tt> class implements support for the Unicode
+UTF-8 encoding with a byte order mark (BOM).
+
+<p>This encoding is stateful, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char</tt>.
+
+<p>This encoding defines a state transition class that enables forcing or
+suppressing the encoding of a BOM, or influencing whether a decoded BOM
+code unit sequence represents a BOM or a code point.
+
+<blockquote class="code">
+<pre><code>
+class utf8bom_encoding_state {
+  /* implementation-defined */
+};
+
+class utf8bom_encoding_state_transition {
+public:
+  static utf8bom_encoding_state_transition to_initial_state() noexcept;
+  static utf8bom_encoding_state_transition to_bom_written_state() noexcept;
+  static utf8bom_encoding_state_transition to_assume_bom_written_state() noexcept;
+};
+
+class utf8bom_encoding {
+public:
+  using state_type = utf8bom_encoding_state;
+  using state_transition_type = utf8bom_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf16_encoding">
+  Class utf16_encoding</h3>
+
+<p>The <tt>utf16_encoding</tt> class implements support for the Unicode
+UTF-16 encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char16_t</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf16_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char16_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 2;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf16be_encoding">
+  Class utf16be_encoding</h3>
+
+<p>The <tt>utf16be_encoding</tt> class implements support for the Unicode
+UTF-16 big-endian encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf16be_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 2;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf16le_encoding">
+  Class utf16le_encoding</h3>
+
+<p>The <tt>utf16le_encoding</tt> class implements support for the Unicode
+UTF-16 little-endian encoding.
+
+<p>This encoding is stateless, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf16le_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 2;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf16bom_encoding">
+  Class utf16bom_encoding</h3>
+
+<p>The <tt>utf16bom_encoding</tt> class implements support for the Unicode
+UTF-16 encoding with a byte order mark (BOM).
+
+<p>This encoding is stateful, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char</tt>.
+
+<p>This encoding defines a state transition class that enables forcing or
+suppressing the encoding of a BOM, or influencing whether a decoded BOM
+code unit sequence represents a BOM or a code point.
+
+<blockquote class="code">
+<pre><code>
+class utf16bom_encoding_state {
+  /* implementation-defined */
+};
+
+class utf16bom_encoding_state_transition {
+public:
+  static utf16bom_encoding_state_transition to_initial_state() noexcept;
+  static utf16bom_encoding_state_transition to_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_be_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_le_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_assume_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_assume_be_bom_written_state() noexcept;
+  static utf16bom_encoding_state_transition to_assume_le_bom_written_state() noexcept;
+};
+
+class utf16bom_encoding {
+public:
+  using state_type = utf16bom_encoding_state;
+  using state_transition_type = utf16bom_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 2;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf32_encoding">
+  Class utf32_encoding</h3>
+
+<p>The <tt>utf32_encoding</tt> class implements support for the Unicode
+UTF-32 encoding.
+
+<p>This encoding is trivial, stateless, fixed width, supports random access
+decoding, and has a code unit of type <tt>char32_t</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf32_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char32_t;
+
+  static constexpr int min_code_units = 1;
+  static constexpr int max_code_units = 1;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf32be_encoding">
+  Class utf32be_encoding</h3>
+
+<p>The <tt>utf32be_encoding</tt> class implements support for the Unicode
+UTF-32 big-endian encoding.
+
+<p>This encoding is stateless, fixed width, supports random access
+decoding, and has a code unit of type <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf32be_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 4;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf32le_encoding">
+  Class utf32le_encoding</h3>
+
+<p>The <tt>utf32le_encoding</tt> class implements support for the Unicode
+UTF-32 little-endian encoding.
+
+<p>This encoding is stateless, fixed width, supports random access
+decoding, and has a code unit of type <tt>char</tt>.
+
+<blockquote class="code">
+<pre><code>
+class utf32le_encoding {
+public:
+  using state_type = trivial_encoding_state;
+  using state_transition_type = trivial_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 4;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_utf32bom_encoding">
+  Class utf32bom_encoding</h3>
+
+<p>The <tt>utf32bom_encoding</tt> class implements support for the Unicode
+UTF-32 encoding with a byte order mark (BOM).
+
+<p>This encoding is stateful, variable width, supports bidirectional
+decoding, and has a code unit of type <tt>char</tt>.
+
+<p>This encoding defines a state transition class that enables forcing or
+suppressing the encoding of a BOM, or influencing whether a decoded BOM
+code unit sequence represents a BOM or a code point.
+
+<blockquote class="code">
+<pre><code>
+class utf32bom_encoding_state {
+  /* implementation-defined */
+};
+
+class utf32bom_encoding_state_transition {
+public:
+  static utf32bom_encoding_state_transition to_initial_state() noexcept;
+  static utf32bom_encoding_state_transition to_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_be_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_le_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_assume_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_assume_be_bom_written_state() noexcept;
+  static utf32bom_encoding_state_transition to_assume_le_bom_written_state() noexcept;
+};
+
+class utf32bom_encoding {
+public:
+  using state_type = utf32bom_encoding_state;
+  using state_transition_type = utf32bom_encoding_state_transition;
+  using character_type = character&lt;unicode_character_set&gt;;
+  using code_unit_type = char;
+
+  static constexpr int min_code_units = 4;
+  static constexpr int max_code_units = 4;
+
+  static const state_type&amp; initial_state() noexcept;
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode_state_transition(state_type &amp;state,
+                                        CUIT &amp;out,
+                                        const state_transition_type &amp;stt,
+                                        int &amp;encoded_code_units);
+
+  template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
+    static void encode(state_type &amp;state,
+                       CUIT &amp;out,
+                       character_type c,
+                       int &amp;encoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool decode(state_type &amp;state,
+                       CUIT &amp;in_next,
+                       CUST in_end,
+                       character_type &amp;c,
+                       int &amp;decoded_code_units);
+
+  template&lt;CodeUnitIterator CUIT, typename CUST&gt;
+    requires ranges::InputIterator&lt;CUIT&gt;()
+          &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
+          &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
+    static bool rdecode(state_type &amp;state,
+                        CUIT &amp;in_next,
+                        CUST in_end,
+                        character_type &amp;c,
+                        int &amp;decoded_code_units);
+};
+</code></pre>
+</blockquote>
+
+<h3 id="encoding-type-aliases">
+  Encoding type aliases</h3>
+
+<p>The <tt>execution_character_encoding</tt>,
+<tt>execution_wide_character_encoding</tt>,
+<tt>char8_character_encoding</tt>,
+<tt>char16_character_encoding</tt>, and
+<tt>char32_character_encoding</tt> type aliases reflect the implementation
+defined encodings used for execution, wide execution, UTF-8, char16_t, and
+char32_t string literals.
+
+<p>Each of these encodings carries a compatibility requirement with another
+encoding.  Decode compatibility is satisfied when the following criteria is met.
+
+<ol>
+  <li>Text encoded by the compatibility encoding can be decoded by the aliased
+      encoding.</li>
+  <li>Text encoded by the aliased encoding can be decoded by the compatibility
+      encoding when encoded characters are restricted to members of the
+      character set of the compatibility encoding.</li>
+</ol>
+
+<p>These compatibility requirements allow implementation freedom to use
+encodings that provide features beyond the minimum requirements imposed on the
+compatibility encodings by the standard.  For example, the encoding aliased by
+<tt>execution_character_encoding</tt> is allowed to support characters that
+are not members of the character set of the
+<tt>basic_execution_character_encoding</tt>
+
+<p>The encoding aliased by <tt>execution_character_encoding</tt> must be
+decode compatible with the <tt>basic_execution_character_encoding</tt>
+encoding.
+
+<p>The encoding aliased by <tt>execution_wide_character_encoding</tt> must
+be decode compatible with the
+<tt>basic_execution_wide_character_encoding</tt> encoding.
+
+<p>The encoding aliased by <tt>char8_character_encoding</tt> must be
+decode compatible with the <tt>utf8_encoding</tt> encoding.
+
+<p>The encoding aliased by <tt>char16_character_encoding</tt> must be
+decode compatible with the <tt>utf16_encoding</tt> encoding.
+
+<p>The encoding aliased by <tt>char32_character_encoding</tt> must be
+decode compatible with the <tt>utf32_encoding</tt> encoding.
+
+<blockquote class="code">
+<pre><code>
+using execution_character_encoding = /* implementation-defined */ ;
+using execution_wide_character_encoding = /* implementation-defined */ ;
+using char8_character_encoding = /* implementation-defined */ ;
+using char16_character_encoding = /* implementation-defined */ ;
+using char32_character_encoding = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h2 id="text_iterators">Text Iterators</h2>
+
+<ul>
+  <li><a href="#class_template_itext_iterator">
+      Class template itext_iterator</a></li>
+  <li><a href="#class_template_itext_sentinel">
+      Class template itext_sentinel</a></li>
+  <li><a href="#class_template_otext_iterator">
+      Class template otext_iterator</a></li>
+  <li><a href="#make_otext_iterator">
+      make_otext_iterator</a></li>
+</ul>
+
+<h3 id="class_template_itext_iterator">
+  Class template itext_iterator</h3>
+
+<p>Objects of <tt>itext_iterator</tt> class template specialization type
+provide a standard iterator interface for enumerating the characters encoded
+by the associated encoding <tt>ET</tt> in the code unit sequence exposed
+by the associated view.  These types satisfy the <tt>TextIterator</tt>
+concept and are default constructible, copy and move constructible, copy and
+move assignable, and equality comparable.
+
+<p>These types also conditionally satisfy <tt>ranges::ForwardIterator</tt>,
+<tt>ranges::BidirectionalIterator</tt>, and
+<tt>ranges::RandomAccessIterator</tt> depending on traits of the associated
+encoding <tt>ET</tt> and view <tt>VT</tt> as described in the following
+table.
+
+<table border="1">
+  <tr>
+    <th>When <tt>ET</tt> and <tt>ranges::iterator_t&lt;VT&gt;</tt>
+        satisfy ...</th>
+    <th>then <tt>itext_iterator&lt;ET, VT&gt;</tt> satisfies ...</th>
+    <th>and <tt>itext_iterator&lt;ET, VT&gt;::iterator_category</tt> is
+        ...</th>
+  </tr>
+  <tr>
+    <td><tt>TextDecoder</tt></td>
+    <td><tt>ranges::InputIterator</tt></td>
+    <td><tt>std::input_iterator_tag</tt></td>
+  </tr>
+  <tr>
+    <td><tt>TextForwardDecoder</tt></td>
+    <td><tt>ranges::ForwardIterator</tt></td>
+    <td><tt>std::forward_iterator_tag</tt></td>
+  </tr>
+  <tr>
+    <td><tt>TextBidirectionalDecoder</tt></td>
+    <td><tt>ranges::BidirectionalIterator</tt></td>
+    <td><tt>std::bidirectional_iterator_tag</tt></td>
+  </tr>
+  <tr>
+    <td><tt>TextRandomAccessDecoder</tt></td>
+    <td><tt>ranges::RandomAccessIterator</tt></td>
+    <td><tt>std::random_access_iterator_tag</tt></td>
+  </tr>
+</table>
+
+<p>Member functions provide access to the stored encoding state, the underlying
+code unit iterator, and, when <tt>ranges::ForwardIterator</tt> is
+satisified, the underlying code unit range for the current character.  The
+underlying code unit range is returned with an implementation defined type that
+satisfies <tt>ranges::View</tt>.  The <tt>is_ok</tt> member function
+returns true if the iterator is dereferenceable as a result of having
+successfully decoded a code point (This predicate is used to distinguish between
+an input iterator that just successfully decoded the last code point in the code
+unit stream as compared to one that was advanced after having done so; in both
+cases, the underlying code unit input iterator will compare equal to the end of
+the stream iterator).
+
+<blockquote class="code">
+<pre><code>
+template&lt;TextEncoding ET, ranges::View VT&gt;
+  requires TextDecoder&lt;
+             ET,
+             ranges::iterator_t&lt;std::add_const_t&lt;VT&gt;&gt;&gt;()
+class itext_iterator {
+public:
+  using encoding_type = ET;
+  using view_type = VT;
+  using state_type = typename encoding_type::state_type;
+
+  using iterator = ranges::iterator_t&lt;std::add_const_t&lt;view_type&gt;&gt;;
+  using iterator_category = /* implementation-defined */;
+  using value_type = character_type_t&lt;encoding_type&gt;;
+  using reference = value_type;
+  using pointer = std::add_const_t&lt;value_type&gt;*;
+  using difference_type = ranges::difference_type_t&lt;iterator&gt;;
+
+  itext_iterator();
+
+  itext_iterator(state_type state,
+                 const view_type *view,
+                 iterator first);
+
+  reference operator*() const noexcept;
+  pointer operator-&gt;() const noexcept;
+
+  friend bool operator==(const itext_iterator &amp;l, const itext_iterator &amp;r);
+  friend bool operator!=(const itext_iterator &amp;l, const itext_iterator &amp;r);
+
+  friend bool operator&lt;(const itext_iterator &amp;l, const itext_iterator &amp;r)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+  friend bool operator&gt;(const itext_iterator &amp;l, const itext_iterator &amp;r)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+  friend bool operator&lt;=(const itext_iterator &amp;l, const itext_iterator &amp;r)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+  friend bool operator&gt;=(const itext_iterator &amp;l, const itext_iterator &amp;r)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+
+  itext_iterator&amp; operator++();
+  itext_iterator&amp; operator++()
+    requires TextForwardDecoder&lt;encoding_type, iterator&gt;();
+  itext_iterator operator++(int);
+
+  itext_iterator&amp; operator--()
+    requires TextBidirectionalDecoder&lt;encoding_type, iterator&gt;();
+  itext_iterator operator--(int)
+    requires TextBidirectionalDecoder&lt;encoding_type, iterator&gt;();
+
+  itext_iterator&amp; operator+=(difference_type n)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+  itext_iterator&amp; operator-=(difference_type n)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+
+  friend itext_iterator operator+(itext_iterator l, difference_type n)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+  friend itext_iterator operator+(difference_type n, itext_iterator r)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+
+  friend itext_iterator operator-(itext_iterator l, difference_type n)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+  friend difference_type operator-(const itext_iterator &amp;l,
+                                   const itext_iterator &amp;r)
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+
+  reference operator[](difference_type n) const
+    requires TextRandomAccessDecoder&lt;encoding_type, iterator&gt;();
+
+  const state_type&amp; state() const noexcept;
+
+  iterator base() const;
+
+  /* implementation-defined */ base_range() const
+    requires TextDecoder&lt;encoding_type, iterator&gt;()
+          &amp;&amp; ranges::ForwardIterator&lt;iterator&gt;();
+
+  bool is_ok() const noexcept;
+
+private:
+  state_type base_state;  // exposition only
+  iterator base_iterator; // exposition only
+  bool ok;                // exposition only
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_template_itext_sentinel">
+  Class template itext_sentinel</h3>
+
+<p>Objects of <tt>itext_sentinel</tt> class template specialization type
+denote the end of a range of text as delimited by a sentinel object for the
+underlying code unit sequence.  These types satisfy the
+<tt>TextSentinel</tt> concept and are default constructible, copy and move
+constructible, copy and move assignable, and equality comparable.  All objects
+of the same <tt>itext_sentinel</tt> type compare equally.  Member functions
+provide access to the sentinel for the underlying code unit sequence.
+
+<p>Objects of these types are equality comparable to <tt>itext_iterator</tt>
+objects that have matching encoding and view types.
+
+<blockquote class="code">
+<pre><code>
+template&lt;TextEncoding ET, ranges::View VT&gt;
+class itext_sentinel {
+public:
+  using view_type = VT;
+  using sentinel = ranges::sentinel_t&lt;std::add_const_t&lt;view_type&gt;&gt;;
+
+  itext_sentinel() = default;
+
+  itext_sentinel(sentinel s);
+
+  friend bool operator==(const itext_sentinel &amp;l,
+                         const itext_sentinel &amp;r) noexcept;
+  friend bool operator!=(const itext_sentinel &amp;l,
+                         const itext_sentinel &amp;r) noexcept;
+
+  friend bool operator==(const itext_iterator&lt;ET, VT&gt; &amp;ti,
+                         const itext_sentinel &amp;ts);
+  friend bool operator!=(const itext_iterator&lt;ET, VT&gt; &amp;ti,
+                         const itext_sentinel &amp;ts);
+  friend bool operator==(const itext_sentinel &amp;ts,
+                         const itext_iterator&lt;ET, VT&gt; &amp;ti);
+  friend bool operator!=(const itext_sentinel &amp;ts,
+                         const itext_iterator&lt;ET, VT&gt; &amp;ti);
+
+  sentinel base() const;
+
+private:
+  sentinel base_sentinel; // exposition only
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_template_otext_iterator">
+  Class template otext_iterator</h3>
+
+<p>Objects of <tt>otext_iterator</tt> class template specialization type
+provide a standard iterator interface for encoding characters in the form
+implemented by the associated encoding <tt>ET</tt>.  These types satisfy
+the <tt>TextOutputIterator</tt> concept and are default constructible,
+copy and move constructible, and copy and move assignable.
+
+<p>Member functions provide access to the stored encoding state and the
+underlying code unit output iterator.
+
+<blockquote class="code">
+<pre><code>
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; CUIT&gt;
+class otext_iterator {
+public:
+  using encoding_type = ET;
+  using state_type = typename ET::state_type;
+  using state_transition_type = typename ET::state_transition_type;
+
+  using iterator = CUIT;
+  using iterator_category = std::output_iterator_tag;
+  using value_type = character_type_t&lt;encoding_type&gt;;
+  using reference = value_type&amp;;
+  using pointer = value_type*;
+  using difference_type = ranges::difference_type_t&lt;iterator&gt;;
+
+  otext_iterator();
+
+  otext_iterator(state_type state, iterator current);
+
+  otext_iterator&amp; operator*() noexcept;
+
+  otext_iterator&amp; operator++() noexcept;
+  otext_iterator&amp; operator++(int) noexcept;
+
+  otext_iterator&amp; operator=(const state_transition_type &amp;stt);
+  otext_iterator&amp; operator=(const character_type_t&lt;encoding_type&gt; &amp;value);
+
+  const state_type&amp; state() const noexcept;
+
+  iterator base() const;
+
+private:
+  state_type base_state;  // exposition only
+  iterator base_iterator; // exposition only
+};
+</code></pre>
+</blockquote>
+
+<h3 id="make_otext_iterator">
+  make_otext_iterator</h3>
+
+<p>The <tt>make_otext_iterator</tt> functions enable convenient construction
+of <tt>otext_iterator</tt> objects via type deduction of the underlying
+code unit output iterator type.  Overloads are provided to enable construction
+with an explicit encoding state or the implicit encoding dependent initial
+state.
+
+<blockquote class="code">
+<pre><code>
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; IT&gt;
+  auto make_otext_iterator(typename ET::state_type state, IT out)
+  -&gt; otext_iterator&lt;ET, IT&gt;;
+template&lt;TextEncoding ET, CodeUnitOutputIterator&lt;code_unit_type_t&lt;ET&gt;&gt; IT&gt;
+  auto make_otext_iterator(IT out)
+  -&gt; otext_iterator&lt;ET, IT&gt;;
+</code></pre>
+</blockquote>
+
+<h2 id="text_view">Text View</h2>
+
+<ul>
+  <li><a href="#class_template_basic_text_view">
+      Class template basic_text_view</a></li>
+  <li><a href="#text_view_type_aliases">
+      Text view type aliases</a></li>
+  <li><a href="#make_text_view">
+      make_text_view</a></li>
+</ul>
+
+<h3 id="class_template_basic_text_view">
+  Class template basic_text_view</h3>
+
+<p>Objects of <tt>basic_text_view</tt> class template specialization type
+provide a view of an underlying code unit sequence as a sequence of characters.
+These types satisfy the <tt>TextView</tt> concept and are default constructible,
+copy and move constructible, and copy and move assignable.  Member functions
+provide access to the underlying code unit sequence and the initial encoding
+state for the range.
+
+<p>Constructors are provided to construct objects of these types from objects of
+the underlying code unit view type and from iterator and sentinel pairs,
+iterator and difference pairs, and range or <tt>std::basic_string</tt> types for
+which an object of the underlying code unit view type can be constructed.  For
+each of these, overloads are provided to construct the view with an explicit
+encoding state or with an implicit initial encoding state provided by
+the encoding <tt>ET</tt>.
+
+<p>The end of the view is represented with a sentinel type when the end of the
+underlying code unit view is represented with a sentinel type or when the
+encoding <tt>ET</tt> is a stateful encoding; otherwise, the end of the view is
+represented with an iterator of the same type as used for the beginning of the
+view.
+
+<blockquote class="code">
+<pre><code>
+template&lt;TextEncoding ET, ranges::View VT&gt;
+class basic_text_view {
+public:
+  using encoding_type = ET;
+  using view_type = VT;
+  using state_type = typename ET::state_type;
+  using code_unit_iterator = ranges::iterator_t&lt;std::add_const_t&lt;view_type&gt;&gt;;
+  using code_unit_sentinel = ranges::sentinel_t&lt;std::add_const_t&lt;view_type&gt;&gt;;
+  using iterator = itext_iterator&lt;ET, VT&gt;;
+  using sentinel = itext_sentinel&lt;ET, VT&gt;;
+
+  basic_text_view();
+
+  basic_text_view(state_type state,
+                  view_type view)
+    requires ranges::CopyConstructible&lt;view_type&gt;();
+
+  basic_text_view(view_type view)
+    requires ranges::CopyConstructible&lt;view_type&gt;();
+
+  basic_text_view(state_type state,
+                  code_unit_iterator first,
+                  code_unit_sentinel last)
+    requires ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  basic_text_view(code_unit_iterator first,
+                  code_unit_sentinel last)
+    requires ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  basic_text_view(state_type state,
+                  code_unit_iterator first,
+                  ranges::difference_type_t&lt;code_unit_iterator&gt; n)
+    requires ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_iterator&gt;();
+
+  basic_text_view(code_unit_iterator first,
+                  ranges::difference_type_t&lt;code_unit_iterator&gt; n)
+    requires ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_iterator&gt;();
+
+  template&lt;typename charT, typename traits, typename Allocator&gt;
+    basic_text_view(state_type state,
+                    const basic_string&lt;charT, traits, Allocator&gt; &amp;str)
+    requires ranges::Constructible&lt;code_unit_iterator, const charT *&gt;()
+          &amp;&amp; ranges::ConvertibleTo&lt;ranges::difference_type_t&lt;code_unit_iterator&gt;,
+                                   typename basic_string&lt;charT, traits, Allocator&gt;::size_type&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  template&lt;typename charT, typename traits, typename Allocator&gt;
+    basic_text_view(const basic_string&lt;charT, traits, Allocator&gt; &amp;str)
+    requires ranges::Constructible&lt;code_unit_iterator, const charT *&gt;()
+          &amp;&amp; ranges::ConvertibleTo&lt;ranges::difference_type_t&lt;code_unit_iterator&gt;,
+                                   typename basic_string&lt;charT, traits, Allocator&gt;::size_type&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  template&lt;ranges::InputRange Iterable&gt;
+    basic_text_view(state_type state,
+                    const Iterable &amp;iterable)
+    requires ranges::Constructible&lt;code_unit_iterator,
+                                   ranges::iterator_t&lt;const Iterable&gt;&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  template&lt;ranges::InputRange Iterable&gt;
+    basic_text_view(const Iterable &amp;iterable)
+    requires ranges::Constructible&lt;code_unit_iterator,
+                                   ranges::iterator_t&lt;const Iterable&gt;&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  basic_text_view(iterator first, iterator last)
+    requires ranges::Constructible&lt;code_unit_iterator,
+                                   decltype(std::declval&lt;iterator&gt;().base())&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_iterator&gt;();
+
+  basic_text_view(iterator first, sentinel last)
+    requires ranges::Constructible&lt;code_unit_iterator,
+                                   decltype(std::declval&lt;iterator&gt;().base())&gt;()
+          &amp;&amp; ranges::Constructible&lt;view_type,
+                                   code_unit_iterator,
+                                   code_unit_sentinel&gt;();
+
+  const view_type&amp; base() const noexcept;
+  view_type&amp; base() noexcept;
+
+  const state_type&amp; initial_state() const noexcept;
+
+  iterator begin() const;
+  iterator end() const
+    requires std::is_empty&lt;state_type&gt;::value
+          &amp;&amp; ranges::Iterator&lt;code_unit_sentinel&gt;();
+  sentinel end() const
+    requires !std::is_empty&lt;state_type&gt;::value
+          || !ranges::Iterator&lt;code_unit_sentinel&gt;();
+
+private:
+  state_type base_state; // exposition only
+  view_type base_view;   // exposition only
+};
+</code></pre>
+</blockquote>
+
+<h3 id="text_view_type_aliases">
+  Text view type aliases</h3>
+
+<p>The <tt>text_view</tt>, <tt>wtext_view</tt>, <tt>u8text_view</tt>,
+<tt>u16text_view</tt> and <tt>u32text_view</tt> type aliases reference an
+implementation defined specialization of <tt>basic_text_view</tt> for all
+five of the encodings the standard states must be provided.
+
+<p>The implementation defined view type used for the underlying code unit
+view type must satisfy <tt>ranges::View</tt> and provide iterators of pointer
+to the underlying code unit type to contiguous storage.  The intent in
+providing these type aliases is to minimize instantiations of the
+<tt>basic_text_view</tt> and <tt>itext_iterator</tt> class templates by
+encouraging use of common view types with underlying code unit views that
+reference contiguous storage, such as views into objects with a type
+instantiated from <tt>std::basic_string</tt>.  See further discussion in the
+<a href="#view_requirements">View Requirements</a> section.
+
+<p>It is permissible for the <tt>text_view</tt> and <tt>u8text_view</tt> type
+aliases to reference the same type.  This will be the case when the execution
+character encoding is UTF-8.  Attempts to overload functions based on
+<tt>text_view</tt> and <tt>u8text_view</tt> will result in multiple function
+definition errors on such implementations.
+
+<blockquote class="code">
+<pre><code>
+using text_view = basic_text_view&lt;
+          execution_character_encoding,
+          /* implementation-defined */ &gt;;
+using wtext_view = basic_text_view&lt;
+          execution_wide_character_encoding,
+          /* implementation-defined */ &gt;;
+using u8text_view = basic_text_view&lt;
+          char8_character_encoding,
+          /* implementation-defined */ &gt;;
+using u16text_view = basic_text_view&lt;
+          char16_character_encoding,
+          /* implementation-defined */ &gt;;
+using u32text_view = basic_text_view&lt;
+          char32_character_encoding,
+          /* implementation-defined */ &gt;;
+</code></pre>
+</blockquote>
+
+<h3 id="make_text_view">
+  make_text_view</h3>
+
+<p>The <tt>make_text_view</tt> functions enable convenient construction of
+<tt>basic_text_view</tt> objects via implicit selection of a view type for the
+underlying code unit sequence.
+
+<p>When provided iterators or ranges for contiguous storage, these functions
+return a <tt>basic_text_view</tt> specialization type that uses the same
+implementation defined view type as for the <tt>basic_text_view</tt> type
+aliases as discussed in <a href="#text_view_type_aliases">Text view type
+aliases</a>
+
+<p>Overloads are provided to construct <tt>basic_text_view</tt> objects from
+iterator and sentinel pairs, iterator and difference pairs, and range or
+<tt>std::basic_string</tt> objects.  For each of these overloads, additional
+overloads are provided to construct the view with an explicit encoding state
+or with an implicit initial encoding state provided by the encoding
+<tt>ET</tt>.  Each of these overloads requires that the encoding type be
+explicitly specified.
+
+<p>Additional overloads are provided to construct the view from iterator and
+sentinel pairs that satisfy <tt>TextIterator</tt> and objects of a type that
+satisfies <tt>TextView</tt>.  For these overloads, the encoding type is
+deduced and the encoding state is implicitly copied from the arguments.
+
+<p>If <tt>make_text_view</tt> is invoked with an rvalue range, then the lifetime
+of the returned object and all copies of it must end with the full-expression
+that the <tt>make_text_view</tt> invocation is within.  Otherwise, the returned
+object or its copies will hold iterators into a destructed object resulting in
+undefined behavior.
+
+<blockquote class="code">
+<pre><code>
+template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  auto make_text_view(typename ET::state_type state,
+                      IT first, ST last)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  auto make_text_view(IT first, ST last)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
+  auto make_text_view(typename ET::state_type state,
+                      IT first,
+                      ranges::difference_type_t&lt;IT&gt; n)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
+  auto make_text_view(IT first,
+                      ranges::difference_type_t&lt;IT&gt; n)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
+  auto make_text_view(typename ET::state_type state,
+                      const Iterable &amp;iterable)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
+  auto make_text_view(const Iterable &amp;iterable)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
+  auto make_text_view(TIT first, TST last)
+  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;TextView TVT&gt;
+  TVT make_text_view(TVT tv);
+</code></pre>
+</blockquote>
+
+<h2 id="exceptions">Exceptions</h2>
+
+<ul>
+  <li><a href="#class_text_runtime_error">
+      Class text_runtime_error</a></li>
+  <li><a href="#class_text_encode_error">
+      Class text_encode_error</a></li>
+  <li><a href="#class_text_decode_error">
+      Class text_decode_error</a></li>
+  <li><a href="#class_text_encode_overflow_error">
+      Class text_encode_overflow_error</a></li>
+  <li><a href="#class_text_decode_underflow_error">
+      Class text_decode_underflow_error</a></li>
+</ul>
+
+<h3 id="class_text_runtime_error">Class text_runtime_error</h3>
+
+<p>The <tt>text_runtime_error</tt> class defines the base class for the types of
+objects thrown as exceptions to report errors detected during text processing.
+
+<blockquote class="code">
+<pre><code>
+class text_runtime_error : public std::runtime_error
+{
+public:
+  using std::runtime_error::runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_encode_error">Class text_encode_error</h3>
+
+<p>The <tt>text_encode_error</tt> class defines the types of objects thrown as
+exceptions to report errors detected during encoding of a character.  Objects of
+this type are generally thrown in response to an attempt to encode a character
+with an invalid code point value, or to encode an invalid state transition.
+
+<blockquote class="code">
+<pre><code>
+class text_encode_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_decode_error">Class text_decode_error</h3>
+
+<p>The <tt>text_decode_error</tt> class defines the types of objects thrown as
+exceptions to report errors detected during decoding of a code unit sequence.
+Objects of this type are generally thrown in response to an attempt to decode
+an ill-formed code unit sequence, a code unit sequence that specifies an invalid
+code point value, or a code unit sequence that specifies an invalid state
+transition.
+
+<blockquote class="code">
+<pre><code>
+class text_decode_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_encode_overflow_error">Class text_encode_overflow_error</h3>
+
+<p>The <tt>text_encode_overflow_error</tt> class defines the types of objects
+thrown as exceptions to report overflow detected during encoding of a character.
+
+<blockquote class="code">
+<pre><code>
+class text_encode_overflow_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h3 id="class_text_decode_underflow_error">Class text_decode_underflow_error</h3>
+
+<p>The <tt>text_decode_underflow_error</tt> class defines the types of objects
+thrown as exceptions to report undeflow detected during decoding of a code unit
+sequence.
+
+<blockquote class="code">
+<pre><code>
+class text_decode_underflow_error : public text_runtime_error
+{
+public:
+  using text_runtime_error::text_runtime_error;
+};
+</code></pre>
+</blockquote>
+
+<h1 id="acknowledgements">Acknowledgements</h1>
+
+Thank you to the std-proposals community and especially to Zhihao Yuan,
+Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
+
+<h1 id="references">References</h1>
+
+<table id="references">
+  <tr>
+    <td id="ref_cxx11"><sup>[C++11]</sup></td>
+    <td>
+      "Information technology -- Programming languages -- C++", ISO/IEC 14882:2011.<br/>
+      <a href="http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372">
+      http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=50372</a></td>
+  </tr>
+  <tr>
+    <td id="ref_cmcstl2"><sup>[cmcstl2]</sup></td>
+    <td>
+      Casey Carter and Eric Niebler,
+      An implementation of C++ Extensions for Ranges.<br/>
+      <a href="https://github.com/CaseyCarter/cmcstl2">
+      https://github.com/CaseyCarter/cmcstl2</a></td>
+  </tr>
+  <tr>
+    <td id="ref_concepts"><sup>[Concepts]</sup></td>
+    <td>
+      "C++ Extensions for concepts", ISO/IEC technical specification 19217:2015.<br/>
+      <a href="http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031">
+      http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=64031</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n2249"><sup>[N2249]</sup></td>
+    <td>
+      Lawrence Crowl,
+      "New Character Types in C++", N2249, 2007.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n2442"><sup>[N2442]</sup></td>
+    <td>
+      Lawrence Crowl and Beman Dawes,
+      "Raw and Unicode String Literals; Unified Proposal (Rev. 2)", N2442, 2007.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n3350"><sup>[N3350]</sup></td>
+    <td>
+      Jeffrey Yasskin,
+      "A minimal std::range&gt;Iter&gt;", N3350, 2012.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3350.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3350.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_n4560"><sup>[N4560]</sup></td>
+    <td>
+      Eric Niebler and Casey Carter,
+      "Working Draft, C++ Extensions for Ranges", N4560, 2015.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf</a></td>
+  </tr>
+  <tr>
+    <td id="ref_p0184r0"><sup>[P0184R0]</sup></td>
+    <td>
+      Eric Niebler,
+      "Generalizing the Range-Based For Loop", P0184R0, 2016.<br/>
+      <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">
+      http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_text_view"><sup>[Text_view]</sup></td>
+    <td>
+      Tom Honermann,
+      Text_view library.<br/>
+      <a href="https://github.com/tahonermann/text_view">
+      https://github.com/tahonermann/text_view</a></td>
+  </tr>
+  <tr>
+    <td id="ref_unicode"><sup>[Unicode]</sup></td>
+    <td>
+      "Unicode 8.0.0", 2015.<br/>
+      <a href="http://www.unicode.org/versions/Unicode8.0.0">
+      http://www.unicode.org/versions/Unicode8.0.0</a></td>
+  </tr>
+</table>
+
+</body>
