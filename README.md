@@ -130,8 +130,8 @@ This section provides instructions for building [Text_view] and suitable
 versions of its dependencies.
 
 ## Building and installing [gcc]
-[Text_view] is known to build successfully with [gcc] svn revision 232017; the
-top of trunk as of 2015-12-31.  The following commands can be used to perform a
+[Text_view] is known to build successfully with [gcc] svn revision 234230; the
+top of trunk as of 2015-03-15.  The following commands can be used to perform a
 suitable build of that [gcc] revision on Linux.
 
 ```sh
@@ -140,7 +140,7 @@ $ curl -O ftp://ftp.gnu.org/gnu/gmp/gmp-5.1.1.tar.bz2
 $ curl -O ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.2.tar.bz2
 $ curl -O ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.1.tar.gz
 $ cd gcc-trunk-src
-$ svn update 32017  # Optional command to select a known good gcc version
+$ svn update -r 234230  # Optional command to select a known good gcc version
 $ bzip2 -d -c ../gmp-5.1.1.tar.bz2 | tar -xvf -
 $ mv gmp-5.1.1 gmp
 $ bzip2 -d -c ../mpfr-3.1.2.tar.bz2 | tar -xvf -

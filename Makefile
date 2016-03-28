@@ -5,7 +5,7 @@
 # and conditions.
 
 CXX=g++
-CXXFLAGS=-Wall -Werror -Wpedantic -g -std=c++1z -Iinclude -I$(CMCSTL2_INSTALL_PATH)/include
+CXXFLAGS=-Wall -Werror -Wpedantic -g -std=c++1z -fconcepts -Iinclude -I$(CMCSTL2_INSTALL_PATH)/include
 
 .PHONY: all
 all: test examples
