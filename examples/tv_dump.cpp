@@ -11,7 +11,6 @@
 #include <iostream>
 #include <iterator>
 #include <experimental/text_view>
-#include <text_view_detail/range_based_for.hpp>
 
 using namespace std;
 using namespace std::experimental;
@@ -54,12 +53,8 @@ void dump_code_points(
     using CUT = code_unit_type_t<ET>;
     istream_iterator<CUT> ifs_in(ifs), ifs_end;
 
-    // FIXME: The C++11 range-based-for requires that the begin and end types
-    // FIXME: be identical.  The RANGE_BASED_FOR macro is used to work around
-    // FIXME: this limitation.  This limitation will be removed if P0184R0 is
-    // FIXME: adopted.
     auto tv = make_text_view<ET>(ifs_in, ifs_end);
-    RANGE_BASED_FOR (const auto &ch, tv) {
+    for (const auto &ch : tv) {
         auto csid = ch.get_character_set_id();
         cout << "0x" << hex << setw(8) << setfill('0')
              << (uint_least32_t)ch.get_code_point()
