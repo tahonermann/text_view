@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-03-20</td>
+    <td>2016-03-28</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -144,6 +144,8 @@ blockquote.code
 <h1 id="changes_since_p0244r1">Changes Since P0244R1</h1>
 
 <ul>
+  <li>Changes to reflect the range-based for statement enhancements provided
+      by P0184R0 as adopted for C++17.</li>
 </ul>
 
 <h1 id="introduction">Introduction</h1>
@@ -203,10 +205,9 @@ assert(base_it == it.base_range().end());
 </blockquote>
 
 <p>These ranges satisfy the requirements for use in C++11 range-based for
-statements.  This support is currently limited to views constructed for
-stateless encodings as a sentinel type is used as the end iterator for
-stateful encodings.  This limitation will be removed if P0184R0
-<sup><a href="#ref_p0184r0">[P0184R0]</a></sup> is adopted.
+statements with the removed same type restriction for the begin and end
+expressions provided by P0184R0
+<sup><a href="#ref_p0184r0">[P0184R0]</a></sup> as adopted for C++17.
 
 <blockquote class="code">
 <pre><code>

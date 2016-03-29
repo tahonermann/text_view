@@ -84,10 +84,9 @@ assert(base_it == it.base_range().end());
 ```
 
 [Text_view] ranges satisfy the requirements for use in
-[C++11][ISO/IEC 14882:2011] range-based for statements.  This support is
-currently limited to views constructed for stateless [encodings](#encoding)
-as a sentinel is used as the end iterator for stateful [encodings](#encoding).
-This limitation will be removed if [P0184R0] is adopted.
+[C++11][ISO/IEC 14882:2011] range-based for statements with the removed
+same type restriction for the begin and end expressions provided by [P0184R0]
+as adopted for C++17.
 
 ```C++
 for (const auto &ch : tv) {
@@ -131,8 +130,12 @@ versions of its dependencies.
 
 ## Building and installing [gcc]
 [Text_view] is known to build successfully with [gcc] svn revision 234230; the
-top of trunk as of 2015-03-15.  The following commands can be used to perform a
-suitable build of that [gcc] revision on Linux.
+top of trunk as of 2015-03-15.  The minimum [gcc] svn revision is 234191 as
+that revision introduced support for the generalized range-based for statement
+as enhanced by [P0184R0] for C++17.
+
+The following commands can be used to perform a suitable build of that [gcc]
+revision on Linux.
 
 ```sh
 $ svn co svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk-src
