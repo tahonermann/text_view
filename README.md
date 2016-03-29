@@ -134,8 +134,8 @@ top of trunk as of 2015-03-15.  The minimum [gcc] svn revision is 234191 as
 that revision introduced support for the generalized range-based for statement
 as enhanced by [P0184R0] for C++17.
 
-The following commands can be used to perform a suitable build of that [gcc]
-revision on Linux.
+The following commands can be used to perform a suitable build of [gcc] on
+Linux.
 
 ```sh
 $ svn co svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk-src
