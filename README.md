@@ -197,7 +197,7 @@ The following commands suffice to build and run the test programs.  Note that it
 may take several minutes to build the `test-text_view` program.
 
 ```sh
-$ vi setenv-gcc-trunk.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH=.
+$ vi setenv-gcc-trunk.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH.
 $ . ./setenv-gcc-trunk.sh
 $ make
 ```
