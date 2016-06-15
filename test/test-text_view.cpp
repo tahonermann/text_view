@@ -399,7 +399,7 @@ void test_text_encoder_models() {
     static_assert(TextEncoder<
                       execution_wide_character_encoding,
                       wchar_t*>());
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static_assert(TextEncoder<
                       char8_character_encoding,
                       char*>());
@@ -464,7 +464,7 @@ void test_text_decoder_models() {
     static_assert(TextForwardDecoder<
                       execution_wide_character_encoding,
                       wchar_t*>());
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static_assert(TextBidirectionalDecoder<
                       char8_character_encoding,
                       char*>());
@@ -550,7 +550,7 @@ void test_text_iterator_models() {
 #if defined(__STDC_ISO_10646__)
     static_assert(TextIterator<itext_iterator<iso_10646_wide_character_encoding, text_detail::basic_view<wchar_t*>>>());
 #endif
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static_assert(TextIterator<itext_iterator<utf8_encoding, text_detail::basic_view<char*>>>());
     static_assert(TextIterator<itext_iterator<utf8bom_encoding, text_detail::basic_view<char*>>>());
     static_assert(TextIterator<itext_iterator<utf16_encoding, text_detail::basic_view<char16_t*>>>());
@@ -581,7 +581,7 @@ void test_text_sentinel_models() {
                       itext_sentinel<iso_10646_wide_character_encoding, text_detail::basic_view<wchar_t*>>,
                       itext_iterator<iso_10646_wide_character_encoding, text_detail::basic_view<wchar_t*>>>());
 #endif
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static_assert(TextSentinel<
                       itext_sentinel<utf8_encoding, text_detail::basic_view<char*>>,
                       itext_iterator<utf8_encoding, text_detail::basic_view<char*>>>());
@@ -624,7 +624,7 @@ void test_text_output_iterator_models() {
 #if defined(__STDC_ISO_10646__)
     static_assert(TextOutputIterator<otext_iterator<iso_10646_wide_character_encoding, wchar_t*>>());
 #endif
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static_assert(TextOutputIterator<otext_iterator<utf8_encoding, char*>>());
     static_assert(TextOutputIterator<otext_iterator<utf8bom_encoding, char*>>());
     static_assert(TextOutputIterator<otext_iterator<utf16_encoding, char16_t*>>());
@@ -648,7 +648,7 @@ void test_text_view_models() {
     static_assert(TextView<u32text_view>());
     static_assert(TextView<basic_text_view<execution_character_encoding, text_detail::basic_view<char*>>>());
     static_assert(TextView<basic_text_view<execution_wide_character_encoding, text_detail::basic_view<wchar_t*>>>());
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static_assert(TextView<basic_text_view<char8_character_encoding, text_detail::basic_view<char*>>>());
     static_assert(TextView<basic_text_view<char16_character_encoding, text_detail::basic_view<char16_t*>>>());
     static_assert(TextView<basic_text_view<char32_character_encoding, text_detail::basic_view<char32_t*>>>());
@@ -1674,12 +1674,12 @@ void test_u8text_view() {
         { {}, { CT{U't'} },  { u8't'  } } };
 
     // Underlying code unit containers.
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static const char cstr[] = u8"text";
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static const array<char, 4> ary{ u8't', u8'e', u8'x', u8't' };
     static const string str{u8"text"};
-    // FIXME: If N3398 were to be adopted, replace char with char8_t.
+    // FIXME: If P0372R0 were to be adopted, replace char with char8_t.
     static const auto il = { u8't', u8'e', u8'x', u8't' }; // std::initializer_list<char>.
 
     test_construct_text_view<TVT>(

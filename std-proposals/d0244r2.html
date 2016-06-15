@@ -146,6 +146,8 @@ blockquote.code
 <ul>
   <li>Changes to reflect the range-based for statement enhancements provided
       by P0184R0 as adopted for C++17.</li>
+  <li>Updated the FAQ "Why do I have to specify the encoding for string
+      literals?" section and added references to P0372R0.</li>
 </ul>
 
 <h1 id="introduction">Introduction</h1>
@@ -739,11 +741,14 @@ to be explicitly specified via a template argument.  Why?
 array of <tt>const char</tt>.  The library is unable to implicitly determine
 an encoding for the provided string.
 
-<p>If a <tt>char8_t</tt> type were to be added to the type system and UTF-8
-string literals were to be changed to reflect that type (with appropriate
-accommodations for backward compatibility), then it would be possible to
-assume (not infer) an encoding based on type for all five of the encodings the
-standard states must be provided.
+<p>A proposal <sup><a href="#ref_p0372r0">[P0372R0]</a></sup> has been submitted
+to the EWG to add a <tt>char8_t</tt> type and to use it as the type for UTF-8
+string and character literals (with appropriate accommodations for backward
+compatibility).  If P0372R0 <sup><a href="#ref_p0372r0">[P0372R0]</a></sup> (or
+a future revision) were to be adopted, then it would be possible to assume (not
+infer) an encoding based on type for all five of the encodings the standard
+states must be provided, and the requirement to explicitly name the encoding
+for the argument to <tt>make_text_view</tt> could be lifted.
 
 <h2 id="faq_custom_encodings">
     Can I define my own encodings?  If so, How?</h2>
@@ -3533,6 +3538,14 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       "Generalizing the Range-Based For Loop", P0184R0, 2016.<br/>
       <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html">
       http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html</a></td>
+  </tr>
+  <tr>
+    <td id="ref_p0372r0"><sup>[P0372R0]</sup></td>
+    <td>
+      Michael Spencer and Davide C. C. Italiano,
+      "A type for utf-8 data", P0372R0, 2016.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0372r0.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0372r0.html</a></td>
   </tr>
   <tr>
     <td id="ref_text_view"><sup>[Text_view]</sup></td>
