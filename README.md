@@ -119,9 +119,8 @@ for (const auto &ch : tv) {
 # Requirements
 [Text_view] requires a C++ compiler that implements [ISO/IEC technical
 specification 19217:2015, **C++ Extensions for concepts**][ISO/IEC 19217:2015]
-As of 2015-12-31, this specification is only supported by the current
-in-development release of [gcc] that currently self-identifies itself as [gcc]
-version 6.0.0.  Additionally, [Text_view] depends on the [cmcstl2]
+As of 2016-08-26, this specification is only supported by [gcc] release
+6.2.0 or later.  Additionally, [Text_view] depends on the [cmcstl2]
 implementation of the [ranges proposal][N4560] for concept definitions.
 
 # Build and installation
@@ -129,13 +128,11 @@ This section provides instructions for building [Text_view] and suitable
 versions of its dependencies.
 
 ## Building and installing [gcc]
-[Text_view] is known to build successfully with [gcc] svn revision 234230; the
-top of trunk as of 2015-03-15.  The minimum [gcc] svn revision is 234191 as
-that revision introduced support for the generalized range-based for statement
-as enhanced by [P0184R0] for C++17.
-
-The following commands can be used to perform a suitable build of [gcc] on
-Linux.
+[Text_view] requires [gcc] version 6.2.0 or later.  The following commands
+can be used to perform a suitable build of the current in-development release
+of [gcc] on Linux if an installation of [gcc] 6.2.0 or later is not available.
+If you have an installation of [gcc] 6.2.0 or later available, then there is
+no need to build [gcc] yourself.
 
 ```sh
 $ svn co svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk-src
@@ -197,8 +194,8 @@ The following commands suffice to build and run the test programs.  Note that it
 may take several minutes to build the `test-text_view` program.
 
 ```sh
-$ vi setenv-gcc-trunk.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH.
-$ . ./setenv-gcc-trunk.sh
+$ vi setenv.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH.
+$ . ./setenv.sh
 $ make
 ```
 

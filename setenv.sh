@@ -6,7 +6,7 @@
 
 alias cdtv="cd $PWD"
 
-GCC_INSTALL_PATH="$HOME/products/gcc-trunk"
+GCC_INSTALL_PATH="$HOME/products/gcc-6.2.0"
 export GCC_INSTALL_PATH
 
 CMCSTL2_INSTALL_PATH="$HOME/src/cmcstl2-trunk"
