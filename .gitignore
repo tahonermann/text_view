@@ -10,3 +10,5 @@
 bin/
 # Ignore the GNU idutils ID file.
 ID
+# Ignore common CMake build directory
+build/
