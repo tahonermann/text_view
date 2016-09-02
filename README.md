@@ -12,6 +12,8 @@ based character encoding and code point enumeration library.
     (#building-and-installing-cmcstl2)
   - [Building and installing Text_view]
     (#building-and-installing-text_view)
+  - [Building and installing Text_view with CMake]
+    (#building-and-installing-text_view-with-cmake)
 - [Usage](#usage)
   - [Header &lt;experimental/text_view&gt; synopsis]
     (#header-experimentaltext_view-synopsis)
@@ -201,6 +203,26 @@ $ make
 
 If the build succeeds, a few test and utility programs will be present in the
 `bin` directory.
+
+## Building and installing [Text_view] with [CMake]
+Alternatively, [CMake] may be used to build the [Text_view] tests and examples.
+
+To do so, you must pass the paths to [GCC] and [cmcstl2] to `cmake` via
+the `CMAKE_CXX_COMPILER` and `CMCSTL2_INCLUDE_DIR` configuration variables
+respectively. For example
+
+```sh
+$ mkdir build
+$ cd build
+$ cmake .. -DCMAKE_CXX_COMPILER=/path/to/g++-6.2 -DCMCSTL2_INCLUDE_DIR=/path/to/cmcstl2/include
+$ cmake --build .
+```
+
+(There are other ways to pass these paths to CMake, for example via
+environment variables -- see the [CMake] documentation for details.)
+
+If the build succeeds, test and utility programs will be present in the
+`test` and `examples` subdirectories of the build directory.
 
 # Usage
 [Text_view] is currently a header-only library.  To use it in your own code,
@@ -2757,6 +2779,8 @@ encodings such as [Windows code page 1252].
   http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html
 - [Unicode]  
   http://unicode.org
+- [CMake]  
+  https://cmake.org
 
 [Text_view]:
 https://github.com/tahonermann/text_view
@@ -2809,3 +2833,6 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf
 [gcc]:
 https://gcc.gnu.org
 (GCC, the GNU Compiler Collection)
+[cmake]:
+https://cmake.org
+(The CMake build system)
