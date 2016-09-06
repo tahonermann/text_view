@@ -33,6 +33,7 @@ int main() {
         begin(a_utf8_tv),
         end(a_utf8_tv),
         latin_small_letter_o_with_stroke);
+    (void)ti; // Suppress unused variable warning.
     
     // Validate that the code point was found.
     assert(ti != end(a_utf8_tv));

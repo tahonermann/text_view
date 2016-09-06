@@ -704,7 +704,9 @@ void test_forward_encode(
     auto code_unit_it = begin(code_unit_range);
     for (const auto &cum : code_unit_maps) {
         for (auto ecu : cum.code_units) {
+            (void)ecu; // Suppress unused variable warning.
             auto acu = *code_unit_it++;
+            (void)acu; // Suppress unused variable warning.
             assert(ecu == acu);
         }
     }
@@ -763,9 +765,11 @@ void test_forward_decode(
     auto tvit = begin(tv);
     for (const auto &cum : code_unit_maps) {
         for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Decode and advance.
             assert(tvit != end(tv));
             auto tvcp = *tvit;
+            (void)tvcp; // Suppress unused variable warning.
             ++tvit;
             // Validate the decoded character.
             assert(tvcp == c);
@@ -779,9 +783,11 @@ void test_forward_decode(
     tvit = begin(tv);
     for (const auto &cum : code_unit_maps) {
         for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Decode and advance.
             assert(tvit != end(tv));
             auto tvcp = *tvit++;
+            (void)tvcp; // Suppress unused variable warning.
             // Validate the decoded character.
             assert(tvcp == c);
         }
@@ -828,6 +834,7 @@ void test_forward_decode(
         if (cum.characters.empty()) {
             advance(cuit, cum.code_units.size());
         } else for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Validate base code unit iterators.
             assert(tvit.base() == cuit);
             assert(begin(tvit.base_range()) == cuit);
@@ -841,6 +848,7 @@ void test_forward_decode(
             // Decode and advance.
             assert(tvit != end(tv));
             auto tvcp = *tvit;
+            (void)tvcp; // Suppress unused variable warning.
             ++tvit;
             // Validate the decoded character.
             assert(tvcp == c);
@@ -870,6 +878,7 @@ void test_forward_decode(
         if (cum.characters.empty()) {
             advance(cuit, cum.code_units.size());
         } else for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Validate base code unit iterators.
             assert(tvit.base() == cuit);
             assert(begin(tvit.base_range()) == cuit);
@@ -883,6 +892,7 @@ void test_forward_decode(
             // Decode and advance.
             assert(tvit != end(tv));
             auto tvcp = *tvit++;
+            (void)tvcp; // Suppress unused variable warning.
             // Validate the decoded character.
             assert(tvcp == c);
         }
@@ -942,9 +952,11 @@ void test_reverse_decode(
         if (cum.characters.empty()) {
             advance(rcuit, cum.code_units.size());
         } else for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Decode and decrement.
             assert(tvit != begin(tv));
             auto tvcp = *--tvit;
+            (void)tvcp; // Suppress unused variable warning.
             // Validate base code unit iterators.
             assert(end(tvit.base_range()) == rcuit.base());
             advance(rcuit, cum.code_units.size());
@@ -983,10 +995,12 @@ void test_reverse_decode(
         if (cum.characters.empty()) {
             advance(rcuit, cum.code_units.size());
         } else for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Decode and decrement.
             assert(tvit != begin(tv));
             tvit--;
             auto tvcp = *tvit;
+            (void)tvcp; // Suppress unused variable warning.
             // Validate base code unit iterators.
             assert(end(tvit.base_range()) == rcuit.base());
             advance(rcuit, cum.code_units.size());
@@ -1042,6 +1056,7 @@ void test_random_decode(
         if (cum.characters.empty()) {
             advance(cuit, cum.code_units.size());
         } else for (auto c : cum.characters) {
+            (void)c; // Suppress unused variable warning.
             // Validate base code unit iterators.
             assert((tvit+i).base() == cuit);
             assert(begin((tvit+i).base_range()) == cuit);
@@ -1809,6 +1824,7 @@ void test_utf8_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 5);
 }
@@ -1912,6 +1928,7 @@ void test_utf16_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 3);
 }
@@ -1944,6 +1961,7 @@ void test_utf16be_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
 }
@@ -1976,6 +1994,7 @@ void test_utf16le_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
 }
@@ -2114,6 +2133,7 @@ void test_utf32_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 2);
 }
@@ -2146,6 +2166,7 @@ void test_utf32be_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
 }
@@ -2178,6 +2199,7 @@ void test_utf32le_encoding() {
     auto tv = make_text_view<ET>(encoded_string);
     static_assert(ranges::Iterator<decltype(end(tv))>());
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
+    (void)tvit; // Suppress unused variable warning.
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
 }

@@ -47,9 +47,12 @@ int main() {
         CT{0x0064}, // d
         CT{0x0000}  // <nul>
     };
+    (void)expected_code_points; // Suppress unused variable warning.
 
     int code_point_index = 0;
+    (void)code_point_index; // Suppress unused variable warning.
     for (const auto &ch : a_utf8_tv) {
+        (void)ch; // Suppress unused variable warning.
         assert(ch == expected_code_points[code_point_index++]);
     }
     assert(code_point_index == 
