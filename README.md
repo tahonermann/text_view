@@ -12,8 +12,6 @@ based character encoding and code point enumeration library.
     (#building-and-installing-cmcstl2)
   - [Building and installing Text_view]
     (#building-and-installing-text_view)
-  - [Building and installing Text_view with CMake]
-    (#building-and-installing-text_view-with-cmake)
 - [Usage](#usage)
   - [Header &lt;experimental/text_view&gt; synopsis]
     (#header-experimentaltext_view-synopsis)
@@ -187,42 +185,37 @@ currently required to use it.  It is unlikely that [Text_view] will remain a
 header-only library in the future, so at some point, a build and installation
 step will be required.
 
-[Text_view] currently has a simple build system that is hard-coded to look for
-[gcc] and [cmcstl2] at specific locations.  This will change at some point in
-the future, but given the present [gcc] and [cmcstl2] requirements, hasn't been
-a burden.  The build system is only used to build and run a few test programs.
+[Text_view] has a [CMake] based build system sufficient to build and run its
+tests, to validate example code, and to perform a minimal installation following
+established operating system conventions.  By default, files will be installed
+under `/usr/local` on UNIX and UNIX-like systems, and under `C:\Program Files`
+on Windows.  The installation location can be changed by invoking `cmake` with
+a `-DCMAKE_INSTALL_PREFIX=<path>` option.  On UNIX and UNIX-like systems, header
+files will be installed in the `include` directory of the installation
+destination, and other files will be installed under `share/text_view`.  On
+Windows, header files be installed in the `text_view\include` directory of the
+installation destination, and other files will be installed under `text_view`.
 
-The following commands suffice to build and run the test programs.  Note that it
-may take several minutes to build the `test-text_view` program.
+Unless [cmcstl2] is installed to a common location, it will be necessary to
+inform the build where it is installed.  This is typically done by setting the
+`CMCSTL2_INSTALL_PATH` environment variable.
+
+The following commands suffice to build and run tests, build examples, and
+perform an installation.  If the build succeeds, test and example programs will
+be present in the `test` and `examples` subdirectories of the build directory
+(the built tests and examples are not installed), and header files, example
+code, and other miscellaneous files will be present in the installation
+directory.
 
 ```sh
 $ vi setenv.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH.
 $ . ./setenv.sh
-$ make
-```
-
-If the build succeeds, a few test and utility programs will be present in the
-`bin` directory.
-
-## Building and installing [Text_view] with [CMake]
-Alternatively, [CMake] may be used to build the [Text_view] tests and examples.
-
-To do so, you must pass the paths to [GCC] and [cmcstl2] to `cmake` via
-the `CMAKE_CXX_COMPILER` and `CMCSTL2_INCLUDE_DIR` configuration variables
-respectively. For example
-
-```sh
 $ mkdir build
 $ cd build
-$ cmake .. -DCMAKE_CXX_COMPILER=/path/to/g++-6.2 -DCMCSTL2_INCLUDE_DIR=/path/to/cmcstl2/include
-$ cmake --build .
+$ cmake ..
+$ cmake --build . --target install
+$ ctest
 ```
-
-(There are other ways to pass these paths to CMake, for example via
-environment variables -- see the [CMake] documentation for details.)
-
-If the build succeeds, test and utility programs will be present in the
-`test` and `examples` subdirectories of the build directory.
 
 # Usage
 [Text_view] is currently a header-only library.  To use it in your own code,

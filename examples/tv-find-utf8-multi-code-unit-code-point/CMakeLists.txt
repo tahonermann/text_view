@@ -4,7 +4,8 @@
 # LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 # and conditions.
 
-add_executable(test-text-view test-text_view.cpp)
+add_executable(tv-find-utf8-multi-code-unit-code-point
+               tv-find-utf8-multi-code-unit-code-point.cpp)
 
-add_test(NAME test-text-view
-         COMMAND test-text-view)
+add_test(NAME tv-find-utf8-multi-code-unit-code-point
+         COMMAND tv-find-utf8-multi-code-unit-code-point)
