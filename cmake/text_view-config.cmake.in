@@ -1,0 +1,40 @@
+# Copyright (c) 2016, Tom Honermann
+#
+# This file is distributed under the MIT License. See the accompanying file
+# LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
+# and conditions.
+
+cmake_minimum_required(VERSION 3.0.2)
+
+@PACKAGE_INIT@
+
+# Check compiler requirements and set compiler dependent options.
+if(CMAKE_COMPILER_IS_GNUCXX)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.2)
+    message(FATAL_ERROR "GCC version 6.2 or later is required")
+  endif()
+else()
+  message(FATAL_ERROR "Compilers other than GCC are not currently supported")
+endif()
+
+set(CMAKE_MODULE_PATH
+      ${CMAKE_MODULE_PATH}
+      "${CMAKE_CURRENT_LIST_DIR}/modules/")
+
+# Locate dependencies.  Prefer config mode, but fall back to module mode if
+# a package isn't found.
+find_package(CMCSTL2 QUIET NO_MODULE)
+if(NOT CMCSTL2_FOUND)
+  find_package(CMCSTL2 MODULE REQUIRED)
+endif()
+
+# FIXME: Use of the CMake compiler features support would be more appropriate
+# FIXME: here, but support for C++17 and Concepts has not yet been added.
+set(text_view_DEFINITIONS
+      "${text_view_DEFINITIONS} -std=c++17 -fconcepts")
+set(text_view_DEFINITIONS
+      "${text_view_DEFINITIONS} ${CMCSTL2_DEFINITIONS}")
+
+set(text_view_INCLUDE_DIRS
+      ${CMCSTL2_INCLUDE_DIRS}
+      ${PACKAGE_PREFIX_DIR}/include)

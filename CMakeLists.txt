@@ -6,9 +6,11 @@
 
 cmake_minimum_required(VERSION 3.0.2)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
-
 project(text_view CXX)
+
+set(CMAKE_MODULE_PATH
+      ${CMAKE_MODULE_PATH}
+      "${CMAKE_CURRENT_LIST_DIR}/cmake/modules/")
 
 # Enable testing.
 include(CTest)
@@ -18,14 +20,21 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.2)
     message(FATAL_ERROR "GCC version 6.2 or later is required")
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -fconcepts")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wpedantic")
 else()
   message(FATAL_ERROR "Compilers other than GCC are not currently supported")
 endif()
 
-# Locate dependencies.
-find_package(CMCSTL2 REQUIRED)
+# Locate dependencies.  Prefer config mode, but fall back to module mode if
+# a package isn't found.
+find_package(CMCSTL2 QUIET NO_MODULE)
+if(NOT CMCSTL2_FOUND)
+  find_package(CMCSTL2 MODULE REQUIRED)
+endif()
+
+# FIXME: Use of the CMake compiler features support would be more appropriate
+# FIXME: here, but support for C++17 and Concepts has not yet been added.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fconcepts")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wpedantic")
 
 # Set compiler options.
 include_directories(include)
@@ -39,12 +48,20 @@ add_subdirectory(test)
 if(UNIX)
   set(TEXT_VIEW_DESTINATION_INCLUDE include)
   set(TEXT_VIEW_DESTINATION_SHARE share/text_view)
+  set(TEXT_VIEW_DESTINATION_CMAKE share/text_view/cmake)
 elseif(WIN32)
   set(TEXT_VIEW_DESTINATION_INCLUDE text_view/include)
   set(TEXT_VIEW_DESTINATION_SHARE text_view)
+  set(TEXT_VIEW_DESTINATION_CMAKE text_view/cmake)
 else()
   message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
 endif()
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  cmake/text_view-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/text_view-config.cmake
+  INSTALL_DESTINATION ${TEXT_VIEW_DESTINATION_CMAKE})
 
 # Install commands.
 install(
@@ -55,10 +72,6 @@ install(
   DESTINATION ${TEXT_VIEW_DESTINATION_INCLUDE}
   COMPONENT development)
 install(
-  DIRECTORY cmake
-  DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}
-  COMPONENT development)
-install(
   DIRECTORY
     examples/tv-dump
     examples/tv-enumerate-utf8-code-points
@@ -66,3 +79,11 @@ install(
   DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}/examples
   COMPONENT examples
   PATTERN CMakeLists.txt EXCLUDE)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/text_view-config.cmake
+  DESTINATION ${TEXT_VIEW_DESTINATION_CMAKE}
+  COMPONENT development)
+install(
+  FILES cmake/modules/FindCMCSTL2.cmake
+  DESTINATION ${TEXT_VIEW_DESTINATION_CMAKE}/modules
+  COMPONENT development)
