@@ -35,6 +35,7 @@ endif()
 # FIXME: here, but support for C++17 and Concepts has not yet been added.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fconcepts")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wpedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMCSTL2_DEFINITIONS}")
 
 # Set compiler options.
 include_directories(include)
