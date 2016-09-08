@@ -10,10 +10,10 @@ endif()
 
 message("-- Checking for package ${CMAKE_FIND_PACKAGE_NAME}")
 
-find_path(CMCSTL2_INCLUDE_DIRS
-          "experimental/ranges/concepts"
-          PATHS ENV CMCSTL2_INSTALL_PATH
-          PATH_SUFFIXES "/include")
+find_path(
+  CMCSTL2_INCLUDE_DIRS "experimental/ranges/concepts"
+  PATHS ENV CMCSTL2_INSTALL_PATH
+  PATH_SUFFIXES "/include")
 
 if(CMCSTL2_INCLUDE_DIRS)
   set(CMCSTL2_FOUND 1 CACHE BOOL "Package ${CMAKE_FIND_PACKAGE_NAME} found")

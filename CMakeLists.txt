@@ -47,17 +47,22 @@ else()
 endif()
 
 # Install commands.
-install(FILES LICENSE.txt README.md
-        DESTINATION ${TEXT_VIEW_DESTINATION_SHARE})
-install(DIRECTORY include/
-        DESTINATION ${TEXT_VIEW_DESTINATION_INCLUDE}
-        COMPONENT development)
-install(DIRECTORY cmake
-        DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}
-        COMPONENT development)
-install(DIRECTORY examples/tv-dump
-                  examples/tv-enumerate-utf8-code-points
-                  examples/tv-find-utf8-multi-code-unit-code-point
-        DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}/examples
-        COMPONENT examples
-        PATTERN CMakeLists.txt EXCLUDE)
+install(
+  FILES LICENSE.txt README.md
+  DESTINATION ${TEXT_VIEW_DESTINATION_SHARE})
+install(
+  DIRECTORY include/
+  DESTINATION ${TEXT_VIEW_DESTINATION_INCLUDE}
+  COMPONENT development)
+install(
+  DIRECTORY cmake
+  DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}
+  COMPONENT development)
+install(
+  DIRECTORY
+    examples/tv-dump
+    examples/tv-enumerate-utf8-code-points
+    examples/tv-find-utf8-multi-code-unit-code-point
+  DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}/examples
+  COMPONENT examples
+  PATTERN CMakeLists.txt EXCLUDE)

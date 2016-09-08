@@ -6,5 +6,6 @@
 
 add_executable(test-text-view test-text_view.cpp)
 
-add_test(NAME test-text-view
-         COMMAND test-text-view)
+add_test(
+  NAME test-text-view
+  COMMAND test-text-view)
