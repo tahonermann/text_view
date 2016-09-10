@@ -4,6 +4,10 @@
 # LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 # and conditions.
 
+# find_package sets CMCSTL2_FOUND to "0" on each invocation.  A global property
+# is used to retain state in order to avoid re-finding the package in the event
+# of multiple find_package invocations.
+get_property(CMCSTL2_FOUND GLOBAL PROPERTY CMCSTL2_FOUND)
 if(CMCSTL2_FOUND)
   return()
 endif()
@@ -16,7 +20,8 @@ find_path(
   PATH_SUFFIXES "/include")
 
 if(CMCSTL2_INCLUDE_DIRS)
-  set(CMCSTL2_FOUND 1 CACHE BOOL "Package ${CMAKE_FIND_PACKAGE_NAME} found")
+  set_property(GLOBAL PROPERTY CMCSTL2_FOUND 1)
+  set(CMCSTL2_FOUND 1)
 endif()
 
 if(CMCSTL2_FOUND)
