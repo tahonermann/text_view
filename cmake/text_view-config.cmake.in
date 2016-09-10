@@ -30,10 +30,13 @@ endif()
 
 # FIXME: Use of the CMake compiler features support would be more appropriate
 # FIXME: here, but support for C++17 and Concepts has not yet been added.
+set(text_view_COMPILE_OPTIONS
+      ${text_view_COMPILE_OPTIONS} -std=c++17 -fconcepts)
+set(text_view_COMPILE_OPTIONS
+      ${text_view_COMPILE_OPTIONS} ${CMCSTL2_COMPILE_OPTIONS})
+
 set(text_view_DEFINITIONS
-      "${text_view_DEFINITIONS} -std=c++17 -fconcepts")
-set(text_view_DEFINITIONS
-      "${text_view_DEFINITIONS} ${CMCSTL2_DEFINITIONS}")
+      ${text_view_DEFINITIONS} ${CMCSTL2_DEFINITIONS})
 
 set(text_view_INCLUDE_DIRS
       ${CMCSTL2_INCLUDE_DIRS}
