@@ -8,42 +8,16 @@ cmake_minimum_required(VERSION 3.0.2)
 
 project(text_view CXX)
 
-set(CMAKE_MODULE_PATH
-      ${CMAKE_MODULE_PATH}
-      "${CMAKE_CURRENT_LIST_DIR}/cmake/modules/")
-
 # Enable testing.
 include(CTest)
 
-# Check compiler requirements and set compiler dependent options.
-if(CMAKE_COMPILER_IS_GNUCXX)
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.2)
-    message(FATAL_ERROR "GCC version 6.2 or later is required")
-  endif()
-else()
-  message(FATAL_ERROR "Compilers other than GCC are not currently supported")
-endif()
-
-# Locate dependencies.  Prefer config mode, but fall back to module mode if
-# a package isn't found.
-find_package(CMCSTL2 QUIET NO_MODULE)
-if(NOT CMCSTL2_FOUND)
-  find_package(CMCSTL2 MODULE REQUIRED)
-endif()
-
-# FIXME: Use of the CMake compiler features support would be more appropriate
-# FIXME: here, but support for C++17 and Concepts has not yet been added.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fconcepts")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wpedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMCSTL2_DEFINITIONS}")
-
-# Set compiler options.
-include_directories(include)
-include_directories(${CMCSTL2_INCLUDE_DIRS})
+set(CMAKE_MODULE_PATH
+      ${CMAKE_MODULE_PATH}
+      ${CMAKE_CURRENT_LIST_DIR}/cmake/modules/)
 
 # Include sub-directories.
-add_subdirectory(examples)
 add_subdirectory(test)
+add_subdirectory(examples)
 
 # Determine the platform specific installation file layout.
 if(UNIX)
@@ -73,13 +47,9 @@ install(
   DESTINATION ${TEXT_VIEW_DESTINATION_INCLUDE}
   COMPONENT development)
 install(
-  DIRECTORY
-    examples/tv-dump
-    examples/tv-enumerate-utf8-code-points
-    examples/tv-find-utf8-multi-code-unit-code-point
+  DIRECTORY examples/
   DESTINATION ${TEXT_VIEW_DESTINATION_SHARE}/examples
-  COMPONENT examples
-  PATTERN CMakeLists.txt EXCLUDE)
+  COMPONENT examples)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/text_view-config.cmake
   DESTINATION ${TEXT_VIEW_DESTINATION_CMAKE}

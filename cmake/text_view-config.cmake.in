@@ -19,7 +19,7 @@ endif()
 
 set(CMAKE_MODULE_PATH
       ${CMAKE_MODULE_PATH}
-      "${CMAKE_CURRENT_LIST_DIR}/modules/")
+      ${CMAKE_CURRENT_LIST_DIR}/modules/)
 
 # Locate dependencies.  Prefer config mode, but fall back to module mode if
 # a package isn't found.
@@ -31,13 +31,13 @@ endif()
 # FIXME: Use of the CMake compiler features support would be more appropriate
 # FIXME: here, but support for C++17 and Concepts has not yet been added.
 set(text_view_COMPILE_OPTIONS
-      ${text_view_COMPILE_OPTIONS} -std=c++17 -fconcepts)
-set(text_view_COMPILE_OPTIONS
-      ${text_view_COMPILE_OPTIONS} ${CMCSTL2_COMPILE_OPTIONS})
+      -std=c++17 -fconcepts
+      ${CMCSTL2_COMPILE_OPTIONS})
 
 set(text_view_DEFINITIONS
-      ${text_view_DEFINITIONS} ${CMCSTL2_DEFINITIONS})
+      ${CMCSTL2_DEFINITIONS})
 
 set(text_view_INCLUDE_DIRS
       ${CMCSTL2_INCLUDE_DIRS}
-      ${PACKAGE_PREFIX_DIR}/include)
+      ${PACKAGE_PREFIX_DIR}/include
+      CACHE FILE "Text_view include dirs")

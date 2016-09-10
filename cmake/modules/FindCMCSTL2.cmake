@@ -4,10 +4,11 @@
 # LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 # and conditions.
 
-# find_package sets CMCSTL2_FOUND to "0" on each invocation.  A global property
-# is used to retain state in order to avoid re-finding the package in the event
-# of multiple find_package invocations.
+# Global properties are used to retain state in order to avoid re-finding the
+# package in the event of multiple find_package invocations, especially in
+# different directories.
 get_property(CMCSTL2_FOUND GLOBAL PROPERTY CMCSTL2_FOUND)
+get_property(CMCSTL2_INCLUDE_DIRS GLOBAL PROPERTY CMCSTL2_INCLUDE_DIRS)
 if(CMCSTL2_FOUND)
   return()
 endif()
@@ -20,8 +21,9 @@ find_path(
   PATH_SUFFIXES "/include")
 
 if(CMCSTL2_INCLUDE_DIRS)
-  set_property(GLOBAL PROPERTY CMCSTL2_FOUND 1)
+  set_property(GLOBAL PROPERTY CMCSTL2_INCLUDE_DIRS ${CMCSTL2_INCLUDE_DIRS})
   set(CMCSTL2_FOUND 1)
+  set_property(GLOBAL PROPERTY CMCSTL2_FOUND ${CMCSTL2_FOUND})
 endif()
 
 if(CMCSTL2_FOUND)
