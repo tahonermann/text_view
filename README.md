@@ -198,22 +198,54 @@ installation destination, and other files will be installed under `text_view`.
 
 Unless [cmcstl2] is installed to a common location, it will be necessary to
 inform the build where it is installed.  This is typically done by setting the
-`CMCSTL2_INSTALL_PATH` environment variable.
+`CMCSTL2_INSTALL_PATH` environment variable.  As of this writing, [cmcstl2]
+does not provide an installation option, so `CMCSTL2_INSTALL_PATH` should
+specify the location where the [cmcstl2] source resides (the directory that
+contains the [cmcstl2] `include` directory).
 
-The following commands suffice to build and run tests, build examples, and
-perform an installation.  If the build succeeds, test and example programs will
+The following commands suffice to build and run tests and examples, and perform
+an installation.  If the build succeeds, built test and example programs will
 be present in the `test` and `examples` subdirectories of the build directory
-(the built tests and examples are not installed), and header files, example
-code, and other miscellaneous files will be present in the installation
-directory.
+(the built test and example programs are not installed), and header files,
+example code, cmake package configuration modules, and other miscellaneous files
+will be present in the installation directory.
 
 ```sh
 $ vi setenv.sh  # Update GCC_INSTALL_PATH and CMCSTL2_INSTALL_PATH.
 $ . ./setenv.sh
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake .. [-DCMAKE_INSTALL_PREFIX=/path/to/install/to]
 $ cmake --build . --target install
+$ ctest
+```
+
+`check` and `check-install` [CMake] targets are also available for automating
+build and test.  The `check` target performs a build without installation and
+then runs the tests.  The `check-install` target performs a build, runs tests,
+installs to a location within the build directory, and then performs tests
+(verifying that example code builds) on the installation.
+
+The installation includes a [CMake] based build system for building the example
+code.  To build all of the examples, run `cmake` specifying the `examples`
+directory of the installation as the source directory.  Alternatively, each
+example can be built independently by specifying its source directory as the
+source directory in a `cmake` invocation.  If the installation was to a
+non-default installation location (`-DCMAKE_INSTALL_PREFIX` was specified),
+then it may be necessary to set `CMAKE_PREFIX_PATH` to the [Text_view]
+installation location (the location `CMAKE_INSTALL_PREFIX` was set to) or
+`text_view_DIR` to the directory containing the installed
+`text_view-config.cmake` file, so that the [Text_view] package configuration
+file is found.  See the [CMake] documentation for more details.
+
+The following commands suffice to build all of the installed examples.
+
+```sh
+$ cd /path/to/installation/text_view/examples
+$ mkdir build
+$ cd build
+$ cmake .. [-DCMAKE_PREFIX_PATH=/path/to/installation]
+$ cmake --build .
 $ ctest
 ```
 
@@ -225,6 +257,23 @@ locations, and include the `text_view` header file:
 ```C++
 #include <experimental/text_view>
 ```
+
+[Text_view] installations include a [CMake] package configuration file suitable
+for use in [CMake] based projects.  To use it, specify `text_view` as the
+`<package>` argument to `find_package` in your [CMake] file.  The package
+configuration module sets the `text_view_COMPILE_OPTIONS`,
+`text_view_DEFINITIONS`, and `text_view_INCLUDE_DIRS` variables to suitable
+values for use with the [CMake] `target_compile_options`,
+`target_compile_definitions`, and `target_include_directories` commands.  If
+[Text_view] was installed to a non-default installation location
+(`-DCMAKE_INSTALL_PREFIX` was specified), then it may be necessary to set
+`CMAKE_PREFIX_PATH` to the [Text_view] installation location (the location
+`CMAKE_INSTALL_PREFIX` was set to) or `text_view_DIR` to the directory
+containing the installed `text_view-config.cmake` file, so that the
+[Text_view] package configuration file is found.  See the [CMake] documentation
+for more details.  The `CMakeLists.txt` files provided with the installed
+examples exemplify a minimal [CMake] based build system for a downstream
+consumer of [Text_view].
 
 All interfaces intended for public use are declared in the
 `std::experimental::text` namespace.  The `text` namespace is an inline
