@@ -20,6 +20,12 @@ find_path(
   PATHS ENV CMCSTL2_INSTALL_PATH
   PATH_SUFFIXES "/include")
 
+# find_path sets a cached variable, but find modules shouldn't do so according
+# to the cmake-developer documentation.  So, set a normal variable and unset
+# the cache variable.
+set(CMCSTL2_INCLUDE_DIRS ${CMCSTL2_INCLUDE_DIRS})
+unset(CMCSTL2_INCLUDE_DIRS CACHE)
+
 if(CMCSTL2_INCLUDE_DIRS)
   set_property(GLOBAL PROPERTY CMCSTL2_INCLUDE_DIRS ${CMCSTL2_INCLUDE_DIRS})
   set(CMCSTL2_FOUND 1)
