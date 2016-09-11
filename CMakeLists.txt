@@ -32,6 +32,40 @@ else()
   message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
 endif()
 
+# The 'check' target is used to perform a build and then run tests.  This
+# approach is done in lieu of a way to make the CMake generated 'test' target
+# depend on 'all'.
+add_custom_target(
+  check
+  COMMAND ${CMAKE_COMMAND}
+          --build ${CMAKE_BINARY_DIR}
+          --target all
+  COMMAND ${CMAKE_CTEST_COMMAND})
+
+# The 'check-install' target is used to exercise installation and to validate
+# that the examples build and run as expected in the installation location.
+# This target only works on UNIX and UNIX-like systems and with generated
+# 'make' based build systems since it relies on being able to perform an
+# installation to an arbitrary directory by passing DESTDIR=/path/to/install
+# as a command line option when invoking the generated build system.
+add_custom_target(
+  check-install
+  DEPENDS check
+  COMMAND ${CMAKE_COMMAND}
+          --build ${CMAKE_BINARY_DIR}
+          --target install -- DESTDIR=${CMAKE_BINARY_DIR}/install
+  COMMAND ${CMAKE_COMMAND}
+          -B${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_PREFIX}/${TEXT_VIEW_DESTINATION_SHARE}/examples/build
+          -H${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_PREFIX}/${TEXT_VIEW_DESTINATION_SHARE}/examples
+          -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_PREFIX}
+  COMMAND ${CMAKE_COMMAND} --build
+          ${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_PREFIX}/${TEXT_VIEW_DESTINATION_SHARE}/examples/build
+          --target all
+  COMMAND ${CMAKE_COMMAND}
+          -E chdir ${CMAKE_BINARY_DIR}/install/${CMAKE_INSTALL_PREFIX}/${TEXT_VIEW_DESTINATION_SHARE}/examples/build
+          ${CMAKE_CTEST_COMMAND})
+
+# Package configuration module generation commands.
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
   cmake/text_view-config.cmake.in
