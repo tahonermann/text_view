@@ -2,6 +2,26 @@
 A [C++ Concepts][ISO/IEC 19217:2015]
 based character encoding and code point enumeration library.
 
+This project is the reference implementation for proposal [P0244] for the C++ standard.
+
+For discussion of this project, please post and/or subscribe to the
+`text_view@googlegroups.com` group hosted at
+https://groups.google.com/d/forum/text_view
+
+<iframe id="forum_embed"
+  src="javascript:void(0)"
+  scrolling="no"
+  frameborder="0"
+  width="900"
+  height="700">
+</iframe>
+<script type="text/javascript">
+  document.getElementById('forum_embed').src =
+     'https://groups.google.com/forum/embed/?place=forum/text_view'
+     + '&showsearch=true&showpopout=true&showtabs=false'
+     + '&parenturl=' + encodeURIComponent(window.location.href);
+</script> 
+
 - [Overview](#overview)
 - [Current features and limitations](#current-features-and-limitations)
 - [Requirements](#requirements)
@@ -2869,6 +2889,9 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html
 [P0184R0]:
 http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html
 (P0184R0: Generalizing the Range-Based For Loop)
+[P0244]:
+http://wg21.link/p0244
+(P0244: Text_view: A C++ concepts and range based character encoding and code point enumeration library)
 [P0252R0]:
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r0.pdf
 (P0252R0: Operator Dot Wording)
