@@ -1,6 +1,9 @@
 P0372R0: A type for utf-8 data
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0372r0.html
 
+P0353R0: Unicode Encoding Conversions for the Standard Library
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0353r0.html
+
 N4377: C++ Extensions for Concepts
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4377.pdf
 
