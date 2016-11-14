@@ -17,81 +17,107 @@ namespace experimental {
 inline namespace text {
 
 
+namespace text_detail {
+
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
-class otext_iterator
+class otext_iterator_mixin;
+
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+class otext_cursor
     : private ET::state_type
 {
-public:
     using encoding_type = ET;
+    using iterator_type = CUIT;
     using state_type = typename ET::state_type;
     using state_transition_type = typename ET::state_transition_type;
-    using iterator = CUIT;
-    using iterator_category = std::output_iterator_tag;
-    using value_type = character_type_t<encoding_type>;
-    using reference = value_type&;
-    using pointer = value_type*;
-    using difference_type = ranges::difference_type_t<iterator>;
 
-    otext_iterator() = default;
+public:
+    using mixin = otext_iterator_mixin<ET, CUIT>;
 
-    otext_iterator(
+    otext_cursor() = default;
+
+    otext_cursor(
         state_type state,
-        iterator current)
+        iterator_type current)
     :
-        // CWG DR1467.  List-initialization doesn't consider copy constructors
-        // for aggregates.  The state_type base class must be initialized with
-        // an expression-list.
         state_type(state),
-        current{current}
+        current(current)
     {}
 
     const state_type& state() const noexcept {
         return *this;
     }
-
-    iterator base() const {
-        return current;
-    }
-
-    otext_iterator& operator*() noexcept {
-        return *this;
-    }
-
-    otext_iterator& operator++() noexcept {
-        return *this;
-    }
-    otext_iterator& operator++(int) noexcept {
-        return *this;
-    }
-
-    otext_iterator& operator=(
-        const state_transition_type &stt)
-    {
-        iterator tmp{current};
-        int encoded_code_units = 0;
-        encoding_type::encode_state_transition(state(), tmp, stt,
-                                               encoded_code_units);
-        current = tmp;
-        return *this;
-    }
-
-    otext_iterator& operator=(
-        const character_type_t<encoding_type> &value)
-    {
-        iterator tmp{current};
-        int encoded_code_units = 0;
-        encoding_type::encode(state(), tmp, value, encoded_code_units);
-        current = tmp;
-        return *this;
-    }
-
-protected:
     state_type& state() noexcept {
         return *this;
     }
 
-    iterator current;
+    const iterator_type& base() const noexcept {
+        return current;
+    }
+    iterator_type& base() noexcept {
+        return current;
+    }
+
+    void write(const state_transition_type &stt) {
+        iterator_type tmp{current};
+        int encoded_code_units = 0;
+        encoding_type::encode_state_transition(state(), tmp, stt,
+                                               encoded_code_units);
+        current = tmp;
+    }
+
+    void write(const character_type_t<encoding_type> &value) {
+        iterator_type tmp{current};
+        int encoded_code_units = 0;
+        encoding_type::encode(state(), tmp, value, encoded_code_units);
+        current = tmp;
+    }
+
+private:
+    iterator_type current;
 };
+
+
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+class otext_iterator_mixin
+    : protected ranges::basic_mixin<otext_cursor<ET, CUIT>>
+{
+    using iterator_type = CUIT;
+    using cursor_type = otext_cursor<ET, CUIT>;
+    using base_type = ranges::basic_mixin<cursor_type>;
+
+public:
+    using encoding_type = ET;
+    using state_type = typename ET::state_type;
+    using state_transition_type = typename ET::state_transition_type;
+
+    otext_iterator_mixin() = default;
+
+    otext_iterator_mixin(
+        state_type state,
+        iterator_type current)
+    :
+        base_type{cursor_type{state, current}}
+    {}
+
+    const state_type& state() const noexcept {
+        return this->get().state();
+    }
+
+    const iterator_type& base() const noexcept {
+        return this->get().base();
+    }
+};
+
+} // namespace text_detail
+
+
+/*
+ * otext_iterator
+ */
+template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+using otext_iterator =
+    ranges::basic_iterator<text_detail::otext_cursor<ET, CUIT>>;
 
 
 /*

@@ -20,258 +20,175 @@ inline namespace text {
 
 namespace text_detail {
 
-template<typename TextEncoding, typename Iterator>
-struct itext_iterator_category_selector;
-
-template<TextEncoding ET, CodeUnitIterator CUIT>
-requires TextDecoder<ET, CUIT>()
-struct itext_iterator_category_selector<ET, CUIT> {
-    using type = std::input_iterator_tag;
-};
-
-template<TextEncoding ET, CodeUnitIterator CUIT>
-requires TextForwardDecoder<ET, CUIT>()
-struct itext_iterator_category_selector<ET, CUIT> {
-    using type = std::forward_iterator_tag;
-};
-
-template<TextEncoding ET, CodeUnitIterator CUIT>
-requires TextBidirectionalDecoder<ET, CUIT>()
-struct itext_iterator_category_selector<ET, CUIT> {
-    using type = std::bidirectional_iterator_tag;
-};
-
-template<TextEncoding ET, CodeUnitIterator CUIT>
-requires TextRandomAccessDecoder<ET, CUIT>()
-struct itext_iterator_category_selector<ET, CUIT> {
-    using type = std::random_access_iterator_tag;
-};
-
 
 template<TextEncoding ET, ranges::View VT>
-class itext_iterator_base
-    : protected ET::state_type
+class itext_cursor_base
+    : private ET::state_type
 {
-public:
     using encoding_type = ET;
     using view_type = VT;
+    using iterator_type = ranges::iterator_t<std::add_const_t<view_type>>;
     using state_type = typename encoding_type::state_type;
-    using iterator = ranges::iterator_t<std::add_const_t<view_type>>;
-    using iterator_category =
-              typename text_detail::itext_iterator_category_selector<
-                  encoding_type,
-                  iterator>::type;
-    using value_type = character_type_t<encoding_type>;
-    using reference = value_type;
-    using pointer = const value_type*;
-    using difference_type = ranges::difference_type_t<iterator>;
 
-protected:
-    itext_iterator_base() = default;
+public:
+    itext_cursor_base() = default;
 
-    itext_iterator_base(state_type state)
-        // CWG DR1467.  List-initialization doesn't consider copy constructors
-        // for aggregates.  The state_type base class must be initialized with
-        // an expression-list.
-        : state_type(state) {}
+    itext_cursor_base(
+        state_type state,
+        const view_type *view)
+    :
+        state_type(state),
+        view(view)
+    {}
 
+    const state_type& state() const noexcept {
+        return *this;
+    }
     state_type& state() noexcept {
         return *this;
     }
 
-public:
-    const state_type& state() const noexcept {
-        return *this;
+    const view_type* underlying_view() const noexcept {
+        return view;
     }
+
+private:
+    const view_type *view;
 };
 
 template<TextEncoding ET, ranges::View VT>
 requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
-class itext_iterator_data
-    : public itext_iterator_base<ET, VT>
+class itext_cursor_data
+    : public itext_cursor_base<ET, VT>
 {
+    using encoding_type = typename itext_cursor_data::encoding_type;
+    using view_type = typename itext_cursor_data::view_type;
+    using state_type = typename itext_cursor_data::state_type;
+    using iterator_type = typename itext_cursor_data::iterator_type;
+
 public:
-    using encoding_type = typename itext_iterator_data::encoding_type;
-    using view_type = typename itext_iterator_data::view_type;
-    using state_type = typename itext_iterator_data::state_type;
-    using iterator = typename itext_iterator_data::iterator;
+    itext_cursor_data() = default;
 
-protected:
-    itext_iterator_data() = default;
-
-    itext_iterator_data(
+    itext_cursor_data(
         state_type state,
         const view_type *view,
-        iterator current)
+        iterator_type current)
     :
-        itext_iterator_base<ET, VT>{state},
-        view{view},
-        current{current}
+        itext_cursor_base<ET, VT>{state, view},
+        current(current)
     {}
 
-public:
-    iterator base() const {
+    const iterator_type& base() const noexcept {
+        return current;
+    }
+    iterator_type& base() noexcept {
         return current;
     }
 
-protected:
-    const view_type *view;
-    iterator current;
+private:
+    iterator_type current;
 };
 
 template<TextEncoding ET, ranges::View VT>
 requires TextForwardDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
-class itext_iterator_data<ET, VT>
-    : public itext_iterator_base<ET, VT>
+class itext_cursor_data<ET, VT>
+    : public itext_cursor_base<ET, VT>
 {
-public:
-    using encoding_type = typename itext_iterator_data::encoding_type;
-    using view_type = typename itext_iterator_data::view_type;
-    using state_type = typename itext_iterator_data::state_type;
-    using iterator = typename itext_iterator_data::iterator;
-
-protected:
-    itext_iterator_data() = default;
-
-    itext_iterator_data(
-        state_type state,
-        const view_type *view,
-        iterator first)
-    :
-        itext_iterator_base<ET, VT>{state},
-        view{view},
-        current_view{first, first}
-    {}
+    using encoding_type = typename itext_cursor_data::encoding_type;
+    using view_type = typename itext_cursor_data::view_type;
+    using state_type = typename itext_cursor_data::state_type;
+    using iterator_type = typename itext_cursor_data::iterator_type;
 
     struct current_view_type {
         current_view_type()
             : first{}, last{} {}
-        current_view_type(iterator first, iterator last)
+        current_view_type(iterator_type first, iterator_type last)
             : first{first}, last{last} {}
 
-        iterator begin() const { return first; }
-        iterator end() const { return last; }
+        iterator_type begin() const { return first; }
+        iterator_type end() const { return last; }
 
-        iterator first;
-        iterator last;
+        iterator_type first;
+        iterator_type last;
     };
 
 public:
-    iterator base() const {
+    itext_cursor_data() = default;
+
+    itext_cursor_data(
+        state_type state,
+        const view_type *view,
+        iterator_type first)
+    :
+        itext_cursor_base<ET, VT>{state, view},
+        current_view{first, first}
+    {}
+
+    const iterator_type& base() const noexcept {
+        return current_view.first;
+    }
+    iterator_type& base() noexcept {
         return current_view.first;
     }
 
-    const current_view_type& base_range() const {
+    const current_view_type& base_range() const noexcept {
+        return current_view;
+    }
+    current_view_type& base_range() noexcept {
         return current_view;
     }
 
-protected:
-    const view_type *view;
+private:
     current_view_type current_view;
 };
 
-} // namespace text_detail
-
+template<TextEncoding ET, ranges::View VT>
+class itext_iterator_mixin;
 
 template<TextEncoding ET, ranges::View VT>
-requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
-class itext_iterator
-    : public text_detail::itext_iterator_data<ET, VT>
+class itext_cursor
+    : public itext_cursor_data<ET, VT>
 {
-public:
-    using encoding_type = typename itext_iterator::encoding_type;
-    using view_type = typename itext_iterator::view_type;
-    using state_type = typename itext_iterator::state_type;
-    using value_type = typename itext_iterator::value_type;
-    using iterator_category = typename itext_iterator::iterator_category;
-    using iterator = typename itext_iterator::iterator;
-    using pointer = typename itext_iterator::pointer;
-    using reference = typename itext_iterator::reference;
-    using difference_type = typename itext_iterator::difference_type;
+    using encoding_type = typename itext_cursor::encoding_type;
+    using view_type = typename itext_cursor::view_type;
+    using state_type = typename itext_cursor::state_type;
+    using iterator_type = typename itext_cursor::iterator_type;
+    using value_type = character_type_t<encoding_type>;
+    using reference = value_type;
+    using pointer = const value_type*;
+    using difference_type = ranges::difference_type_t<iterator_type>;
 
 public:
-    itext_iterator() = default;
+    using mixin = itext_iterator_mixin<ET, VT>;
 
-    itext_iterator(
+    itext_cursor() = default;
+
+    itext_cursor(
         state_type state,
         const view_type *view,
-        iterator first)
+        iterator_type first)
     :
-        text_detail::itext_iterator_data<ET, VT>{state, view, first}
+        itext_cursor_data<ET, VT>{state, view, first}
     {
-        ++*this;
+        next();
     }
 
-    // Iterators that are not ok include:
-    // - Singular iterators.
-    // - Past the end iterators.
-    // - Iterators for which a decoding error occurred during increment or
-    //   decrement operations.
     bool is_ok() const noexcept {
         return ok;
     }
 
-    reference operator*() const noexcept {
-        return { value };
+    reference read() const noexcept {
+        return value;
     }
-    pointer operator->() const noexcept {
+
+    pointer arrow() const noexcept {
         return &value;
     }
 
-    friend bool operator==(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    {
-        return l.equal(r);
-    }
-    friend bool operator!=(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    {
-        return !(l == r);
-    }
-
-    friend bool operator<(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    requires TextRandomAccessDecoder<
-        encoding_type,
-        iterator>()
-    {
-        return (r - l) > 0;
-    }
-    friend bool operator>(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    requires TextRandomAccessDecoder<
-        encoding_type,
-        iterator>()
-    {
-        return r < l;
-    }
-    friend bool operator<=(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    requires TextRandomAccessDecoder<
-        encoding_type,
-        iterator>()
-    {
-        return !(r < l);
-    }
-    friend bool operator>=(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    requires TextRandomAccessDecoder<
-        encoding_type,
-        iterator>()
-    {
-        return !(l < r);
-    }
-
-    itext_iterator& operator++() {
+    void next() {
         ok = false;
-        iterator tmp_iterator{this->current};
-        auto end(text_detail::adl_end(*this->view));
+        iterator_type tmp_iterator{this->base()};
+        auto end(text_detail::adl_end(*this->underlying_view()));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -281,23 +198,22 @@ public:
                 end,
                 tmp_value,
                 decoded_code_units);
-            this->current = tmp_iterator;
+            this->base() = tmp_iterator;
             if (decoded_code_point) {
                 value = tmp_value;
                 ok = true;
                 break;
             }
         }
-        return *this;
     }
 
-    itext_iterator& operator++()
-        requires TextForwardDecoder<encoding_type, iterator>()
+    void next()
+        requires TextForwardDecoder<encoding_type, iterator_type>()
     {
         ok = false;
-        this->current_view.first = this->current_view.last;
-        iterator tmp_iterator{this->current_view.first};
-        auto end(text_detail::adl_end(*this->view));
+        this->base_range().first = this->base_range().last;
+        iterator_type tmp_iterator{this->base_range().first};
+        auto end(text_detail::adl_end(*this->underlying_view()));
         while (tmp_iterator != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -307,30 +223,24 @@ public:
                 end,
                 tmp_value,
                 decoded_code_units);
-            this->current_view.last = tmp_iterator;
+            this->base_range().last = tmp_iterator;
             if (decoded_code_point) {
                 value = tmp_value;
                 ok = true;
                 break;
             }
-            this->current_view.first = this->current_view.last;
+            this->base_range().first = this->base_range().last;
         }
-        return *this;
     }
 
-    itext_iterator operator++(int) {
-        itext_iterator it{*this};
-        ++*this;
-        return it;
-    }
-
-    itext_iterator& operator--()
-        requires TextBidirectionalDecoder<encoding_type, iterator>()
+    void prev()
+        requires TextBidirectionalDecoder<encoding_type, iterator_type>()
     {
         ok = false;
-        this->current_view.last = this->current_view.first;
-        std::reverse_iterator<iterator> rcurrent{this->current_view.last};
-        std::reverse_iterator<iterator> rend{text_detail::adl_begin(*this->view)};
+        this->base_range().last = this->base_range().first;
+        std::reverse_iterator<iterator_type> rcurrent{this->base_range().last};
+        std::reverse_iterator<iterator_type> rend{
+            text_detail::adl_begin(*this->underlying_view())};
         while (rcurrent != rend) {
             value_type tmp_value;
             int decoded_code_units = 0;
@@ -340,88 +250,38 @@ public:
                 rend,
                 tmp_value,
                 decoded_code_units);
-            this->current_view.first = rcurrent.base();
+            this->base_range().first = rcurrent.base();
             if (decoded_code_point) {
                 value = tmp_value;
                 ok = true;
                 break;
             }
-            this->current_view.last = this->current_view.first;
+            this->base_range().last = this->base_range().first;
         }
-        return *this;
     }
 
-    itext_iterator operator--(int)
-        requires TextBidirectionalDecoder<encoding_type, iterator>()
-    {
-        itext_iterator it{*this};
-        --*this;
-        return it;
-    }
-
-    itext_iterator& operator+=(difference_type n)
-        requires TextRandomAccessDecoder<encoding_type, iterator>()
+    void advance(difference_type n)
+        requires TextRandomAccessDecoder<encoding_type, iterator_type>()
     {
         if (n < 0) {
-            this->current_view.first +=
+            this->base_range().first +=
                 ((n+1) * encoding_type::max_code_units);
-            --*this;
+            prev();
         } else if (n > 0) {
-            this->current_view.last +=
+            this->base_range().last +=
                 ((n-1) * encoding_type::max_code_units);
-            ++*this;
+            next();
         }
-        return *this;
     }
 
-    friend itext_iterator operator+(
-        itext_iterator l,
-        difference_type n)
-    requires TextRandomAccessDecoder<encoding_type, iterator>()
+    difference_type distance_to(const itext_cursor &other) const
+        requires TextRandomAccessDecoder<encoding_type, iterator_type>()
     {
-        return l += n;
-    }
-
-    friend itext_iterator operator+(
-        difference_type n,
-        itext_iterator r)
-    requires TextRandomAccessDecoder<encoding_type, iterator>()
-    {
-        return r += n;
-    }
-
-    itext_iterator& operator-=(difference_type n)
-        requires TextRandomAccessDecoder<encoding_type, iterator>()
-    {
-        return *this += -n;
-    }
-
-    friend itext_iterator operator-(
-        itext_iterator l,
-        difference_type n)
-    requires TextRandomAccessDecoder<encoding_type, iterator>()
-    {
-        return l -= n;
-    }
-
-    friend difference_type operator-(
-        const itext_iterator &l,
-        const itext_iterator &r)
-    requires TextRandomAccessDecoder<encoding_type, iterator>()
-    {
-        return (l.current_view.first - r.current_view.first) /
+        return (other.base_range().first - this->base_range().first) /
                encoding_type::max_code_units;
     }
 
-    reference operator[](
-        difference_type n) const
-    requires TextRandomAccessDecoder<encoding_type, iterator>()
-    {
-        return { *(*this + n) };
-    }
-
-private:
-    bool equal(const itext_iterator &other) const {
+    bool equal(const itext_cursor &other) const {
         // For input iterators, the base iterator corresponds to the next input
         // to be decoded.  Naively checking for base comparison only therefore
         // results in premature matches when the last code point in the input
@@ -433,8 +293,8 @@ private:
         return ok == other.ok
             && (!ok || this->base() == other.base());
     }
-    bool equal(const itext_iterator &other) const
-        requires ranges::ForwardIterator<iterator>()
+    bool equal(const itext_cursor &other) const
+        requires ranges::ForwardIterator<iterator_type>()
     {
         return this->base() == other.base();
     }
@@ -443,6 +303,65 @@ private:
     value_type value = {};
     bool ok = false;
 };
+
+template<TextEncoding ET, ranges::View VT>
+class itext_iterator_mixin
+    : protected ranges::basic_mixin<itext_cursor<ET, VT>>
+{
+    using iterator_type = typename itext_iterator_mixin::iterator_type;
+    using cursor_type = itext_cursor<ET, VT>;
+    using base_type = ranges::basic_mixin<cursor_type>;
+
+public:
+    using encoding_type = ET;
+    using view_type = VT;
+    using state_type = typename ET::state_type;
+
+    itext_iterator_mixin() = default;
+
+    itext_iterator_mixin(
+        state_type state,
+        const view_type *view,
+        iterator_type first)
+    :
+        base_type{cursor_type{state, view, first}}
+    {}
+
+    const state_type& state() const noexcept {
+        return this->get().state();
+    }
+
+    iterator_type base() const noexcept {
+        return this->get().base();
+    }
+
+    auto base_range() const noexcept
+    requires TextDecoder<encoding_type, iterator_type>()
+          && ranges::ForwardIterator<iterator_type>()
+    {
+        return this->get().base_range();
+    }
+
+    // Iterators that are not ok include:
+    // - Singular iterators.
+    // - Past the end iterators.
+    // - Iterators for which a decoding error occurred during increment or
+    //   decrement operations.
+    bool is_ok() const noexcept {
+        return this->get().is_ok();
+    }
+};
+
+} // namespace text_detail
+
+
+/*
+ * itext_iterator
+ */
+template<TextEncoding ET, ranges::View VT>
+requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
+using itext_iterator =
+    ranges::basic_iterator<text_detail::itext_cursor<ET, VT>>;
 
 
 } // inline namespace text
