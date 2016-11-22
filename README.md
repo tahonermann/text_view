@@ -316,9 +316,17 @@ template<typename T, typename I> concept bool TextForwardDecoder();
 template<typename T, typename I> concept bool TextBidirectionalDecoder();
 template<typename T, typename I> concept bool TextRandomAccessDecoder();
 template<typename T> concept bool TextIterator();
-template<typename T> concept bool TextOutputIterator();
 template<typename T, typename I> concept bool TextSentinel();
+template<typename T> concept bool TextOutputIterator();
+template<typename T> concept bool TextInputIterator();
+template<typename T> concept bool TextForwardIterator();
+template<typename T> concept bool TextBidirectionalIterator();
+template<typename T> concept bool TextRandomAccessIterator();
 template<typename T> concept bool TextView();
+template<typename T> concept bool TextInputView();
+template<typename T> concept bool TextForwardView();
+template<typename T> concept bool TextBidirectionalView();
+template<typename T> concept bool TextRandomAccessView();
 
 // character sets:
 class any_character_set;
@@ -505,7 +513,15 @@ class text_decode_underflow_error;
 - [Concept TextIterator](#concept-textiterator)
 - [Concept TextSentinel](#concept-textsentinel)
 - [Concept TextOutputIterator](#concept-textoutputiterator)
+- [Concept TextInputIterator](#concept-textinputiterator)
+- [Concept TextForwardIterator](#concept-textforwarditerator)
+- [Concept TextBidirectionalIterator](#concept-textbidirectionaliterator)
+- [Concept TextRandomAccessIterator](#concept-textrandomaccessiterator)
 - [Concept TextView](#concept-textview)
+- [Concept TextInputView](#concept-textinputview)
+- [Concept TextForwardView](#concept-textforwardview)
+- [Concept TextBidirectionalView](#concept-textbidirectionalview)
+- [Concept TextRandomAccessView](#concept-textrandomaccessview)
 
 ### Concept CodeUnit
 The `CodeUnit` concept specifies requirements for a type usable as the
@@ -813,6 +829,50 @@ template<typename T> concept bool TextOutputIterator() {
 }
 ```
 
+### Concept TextInputIterator
+The `TextInputIterator` concept refines `TextIterator` with a requirement that
+the type also satisfy `ranges::InputIterator`.
+
+```C++
+template<typename T> concept bool TextInputIterator() {
+  return TextIterator<T>()
+      && ranges::InputIterator<T>();
+}
+```
+
+### Concept TextForwardIterator
+The `TextForwardIterator` concept refines `TextInputIterator` with a requirement
+that the type also satisfy `ranges::ForwardIterator`.
+
+```C++
+template<typename T> concept bool TextForwardIterator() {
+  return TextInputIterator<T>()
+      && ranges::ForwardIterator<T>();
+}
+```
+
+### Concept TextBidirectionalIterator
+The `TextBidirectionalIterator` concept refines `TextForwardIterator` with a
+requirement that the type also satisfy `ranges::BidirectionalIterator`.
+
+```C++
+template<typename T> concept bool TextBidirectionalIterator() {
+  return TextForwardIterator<T>()
+      && ranges::BidirectionalIterator<T>();
+}
+```
+
+### Concept TextRandomAccessIterator
+The `TextRandomAccessIterator` concept refines `TextBidirectionalIterator` with
+a requirement that the type also satisfy `ranges::RandomAccessIterator`.
+
+```C++
+template<typename T> concept bool TextRandomAccessIterator() {
+  return TextBidirectionalIterator<T>()
+      && ranges::RandomAccessIterator<T>();
+}
+```
+
 ### Concept TextView
 The `TextView` concept specifies requirements of types that provide view access
 to an underlying [code unit](#code-unit) range.  Such types satisy
@@ -842,6 +902,51 @@ template<typename T> concept bool TextView() {
            { ct.initial_state() } noexcept
                -> const typename T::state_type&;
          };
+}
+```
+
+### Concept TextInputView
+The `TextInputView` concept refines `TextView` with a requirement that the
+view's iterator type also satisfy `TextInputIterator`.
+
+```C++
+template<typename T> concept bool TextInputView() {
+  return TextView<T>()
+      && TextInputIterator<ranges::iterator_t<T>>();
+}
+```
+
+### Concept TextForwardView
+The `TextForwardView` concept refines `TextInputView` with a requirement that
+the view's iterator type also satisfy `TextForwardIterator`.
+
+```C++
+template<typename T> concept bool TextForwardView() {
+  return TextInputView<T>()
+      && TextForwardIterator<ranges::iterator_t<T>>();
+}
+```
+
+### Concept TextBidirectionalView
+The `TextBidirectionalView` concept refines `TextForwardView` with a requirement
+that the view's iterator type also satisfy `TextBidirectionalIterator`.
+
+```C++
+template<typename T> concept bool TextBidirectionalView() {
+  return TextForwardView<T>()
+      && TextBidirectionalIterator<ranges::iterator_t<T>>();
+}
+```
+
+### Concept TextRandomAccessView
+The `TextRandomAccessView` concept refines `TextBidirectionalView` with a
+requirement that the view's iterator type also satisfy
+`TextRandomAccessIterator`.
+
+```C++
+template<typename T> concept bool TextRandomAccessView() {
+  return TextBidirectionalView<T>()
+      && TextRandomAccessIterator<ranges::iterator_t<T>>();
 }
 ```
 
