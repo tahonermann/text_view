@@ -144,6 +144,8 @@ blockquote.code
 <h1 id="changes_since_p0244r1">Changes Since P0244R1</h1>
 
 <ul>
+  <li>Added concepts for text iterators and views to allow specifying iterator
+      category constraints more conveniently.</li>
   <li>Changes to reflect the range-based for statement enhancements provided
       by P0184R0 as adopted for C++17.</li>
   <li>Updated the FAQ "Why do I have to specify the encoding for string
@@ -850,8 +852,16 @@ template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder();
 template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder();
 template&lt;typename T&gt; concept bool TextIterator();
 template&lt;typename T&gt; concept bool TextOutputIterator();
+template&lt;typename T&gt; concept bool TextInputIterator();
+template&lt;typename T&gt; concept bool TextForwardIterator();
+template&lt;typename T&gt; concept bool TextBidirectionalIterator();
+template&lt;typename T&gt; concept bool TextRandomAccessIterator();
 template&lt;typename T, typename I&gt; concept bool TextSentinel();
 template&lt;typename T&gt; concept bool TextView();
+template&lt;typename T&gt; concept bool TextInputView();
+template&lt;typename T&gt; concept bool TextForwardView();
+template&lt;typename T&gt; concept bool TextBidirectionalView();
+template&lt;typename T&gt; concept bool TextRandomAccessView();
 
 // character sets:
 class any_character_set;
@@ -1056,8 +1066,24 @@ class text_decode_underflow_error;
       Concept TextSentinel</a></li>
   <li><a href="#concept_textoutputiterator">
       Concept TextOutputIterator</a></li>
+  <li><a href="#concept_textinputiterator">
+      Concept TextInputIterator</a></li>
+  <li><a href="#concept_textforwarditerator">
+      Concept TextForwardIterator</a></li>
+  <li><a href="#concept_textbidirectionaliterator">
+      Concept TextBidirectionalIterator</a></li>
+  <li><a href="#concept_textrandomaccessiterator">
+      Concept TextRandomAccessIterator</a></li>
   <li><a href="#concept_textview">
       Concept TextView</a></li>
+  <li><a href="#concept_textinputview">
+      Concept TextInputView</a></li>
+  <li><a href="#concept_textforwardview">
+      Concept TextForwardView</a></li>
+  <li><a href="#concept_textbidirectionalview">
+      Concept TextBidirectionalView</a></li>
+  <li><a href="#concept_textrandomaccessview">
+      Concept TextRandomAccessView</a></li>
 </ul>
 
 <h3 id="concept_codeunit">
@@ -1445,6 +1471,68 @@ template&lt;typename T&gt; concept bool TextOutputIterator() {
 </code></pre>
 </blockquote>
 
+<h3 id="concept_textinputiterator">
+      Concept TextInputIterator</h3>
+
+<p>The <tt>TextInputIterator</tt> concept refines <tt>TextIterator</tt> with
+a requirement that the type also satisfy <tt>ranges::InputIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextInputIterator() {
+  return TextIterator&lt;T&gt;()
+      &amp;&amp; ranges::InputIterator&lt;T&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textforwarditerator">
+      Concept TextForwardIterator</h3>
+
+<p>The <tt>TextForwardIterator</tt> concept refines <tt>TextInputIterator</tt>
+with a requirement that the type also satisfy <tt>ranges::ForwardIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextForwardIterator() {
+  return TextInputIterator&lt;T&gt;()
+      &amp;&amp; ranges::ForwardIterator&lt;T&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textbidirectionaliterator">
+      Concept TextBidirectionalIterator</h3>
+
+<p>The <tt>TextBidirectionalIterator</tt> concept refines
+<tt>TextForwardIterator</tt> with a requirement that the type also satisfy
+<tt>ranges::BidirectionalIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextBidirectionalIterator() {
+  return TextForwardIterator&lt;T&gt;()
+      &amp;&amp; ranges::BidirectionalIterator&lt;T&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textrandomaccessiterator">
+      Concept TextRandomAccessIterator</h3>
+
+<p>The <tt>TextRandomAccessIterator</tt> concept refines
+<tt>TextBidirectionalIterator</tt> with a requirement that the type also satisfy
+<tt>ranges::RandomAccessIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextRandomAccessIterator() {
+  return TextBidirectionalIterator&lt;T&gt;()
+      &amp;&amp; ranges::RandomAccessIterator&lt;T&gt;();
+}
+</code></pre>
+</blockquote>
+
 <h3 id="concept_textview">
       Concept TextView</h3>
 
@@ -1464,12 +1552,12 @@ must exceed the lifetime of referencing <tt>TextView</tt> objects.
 <pre><code>
 template&lt;typename T&gt; concept bool TextView() {
   return ranges::View&lt;T&gt;()
-      R&amp; TextIterator&lt;ranges::iterator_t&lt;T&gt;&gt;()
+      &amp;&amp; TextIterator&lt;ranges::iterator_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
       &amp;&amp; ranges::View&lt;typename T::view_type&gt;()
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
       &amp;&amp; CodeUnitIterator&lt;code_unit_iterator_t&lt;T&gt;&gt;()
-      R&amp; requires (T t, const T ct) {
+      &amp;&amp; requires (T t, const T ct) {
            { t.base() } noexcept
                -&gt; typename T::view_type&amp;;
            { ct.base() } noexcept
@@ -1477,6 +1565,70 @@ template&lt;typename T&gt; concept bool TextView() {
            { ct.initial_state() } noexcept
                -&gt; const typename T::state_type&amp;;
          };
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textinputview">
+      Concept TextInputView</h3>
+
+<p>The <tt>TextInputView</tt> concept refines <tt>TextView</tt> with a
+requirement that the view's iterator type also satisfy
+<tt>TextInputIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextInputView() {
+  return TextView&lt;T&gt;()
+      &amp;&amp; TextInputIterator&lt;ranges::iterator_t&lt;T&gt;&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textforwardview">
+      Concept TextForwardView</h3>
+
+<p>The <tt>TextForwardView</tt> concept refines <tt>TextInputView</tt> with a
+requirement that the view's iterator type also satisfy
+<tt>TextForwardIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextForwardView() {
+  return TextInputView&lt;T&gt;()
+      &amp;&amp; TextForwardIterator&lt;ranges::iterator_t&lt;T&gt;&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textbidirectionalview">
+      Concept TextBidirectionalView</h3>
+
+<p>The <tt>TextBidirectionalView</tt> concept refines <tt>TextForwardView</tt>
+with a requirement that the view's iterator type also satisfy
+<tt>TextBidirectionalIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextBidirectionalView() {
+  return TextForwardView&lt;T&gt;()
+      &amp;&amp; TextBidirectionalIterator&lt;ranges::iterator_t&lt;T&gt;&gt;();
+}
+</code></pre>
+</blockquote>
+
+<h3 id="concept_textrandomaccessview">
+      Concept TextRandomAccessView</h3>
+
+<p>The <tt>TextRandomAccessView</tt> concept refines
+<tt>TextBidirectionalView</tt> with a requirement that the view's iterator type
+also satisfy <tt>TextRandomAccessIterator</tt>.
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt; concept bool TextRandomAccessView() {
+  return TextBidirectionalView&lt;T&gt;()
+      &amp;&amp; TextRandomAccessIterator&lt;ranges::iterator_t&lt;T&gt;&gt;();
 }
 </code></pre>
 </blockquote>
