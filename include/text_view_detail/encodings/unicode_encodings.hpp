@@ -48,7 +48,7 @@ struct iso_10646_wide_character_encoding
 /*
  * Unicode UTF-8 character encodings
  */
-// FIXME: If P0372R0 were to be adopted, replace char with char8_t.
+// FIXME: If P0482 were to be adopted, replace char with char8_t.
 struct utf8_encoding
     : public text_detail::utf8_codec<
                  character<unicode_character_set>,
@@ -60,7 +60,7 @@ struct utf8_encoding
     }
 };
 
-// FIXME: If P0372R0 were to be adopted, replace char with char8_t.
+// FIXME: If P0482 were to be adopted, replace char with char8_t.
 struct utf8bom_encoding
     : public text_detail::utf8bom_codec<
                  character<unicode_character_set>,

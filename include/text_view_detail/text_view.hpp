@@ -261,7 +261,7 @@ using text_view = basic_text_view<
 using wtext_view = basic_text_view<
           execution_wide_character_encoding,
           text_detail::basic_view<const wchar_t*>>;
-// FIXME: If P0372R0 were to be adopted, replace char with char8_t.
+// FIXME: If P0482 were to be adopted, replace char with char8_t.
 using u8text_view = basic_text_view<
           char8_character_encoding,
           text_detail::basic_view<const char*>>;
@@ -277,7 +277,7 @@ using u32text_view = basic_text_view<
  * make_text_view
  */
 
-// FIXME: If P0372R0 were to be adopted, add make_text_view() overloads that
+// FIXME: If P0482 were to be adopted, add make_text_view() overloads that
 // FIXME: accept a reference to array of char, char8_t, char16_t, char32_t, or
 // FIXME: wchar_t as the range type and deduce the encoding type based on the
 // FIXME: array element type.  This would enable calling make_text_view() with
