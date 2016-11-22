@@ -160,6 +160,8 @@ class itext_cursor
 
 public:
     using mixin = itext_iterator_mixin<ET, VT>;
+    using single_pass =
+        std::integral_constant<bool, !ranges::ForwardIterator<iterator_type>()>;
 
     itext_cursor() = default;
 
@@ -231,6 +233,14 @@ public:
             }
             this->base_range().first = this->base_range().last;
         }
+    }
+
+    itext_cursor post_increment()
+        requires ! TextForwardDecoder<encoding_type, iterator_type>()
+    {
+        itext_cursor tmp = *this;
+        next();
+        return tmp;
     }
 
     void prev()
@@ -326,6 +336,8 @@ public:
     :
         base_type{cursor_type{state, view, first}}
     {}
+
+    using base_type::base_type;
 
     const state_type& state() const noexcept {
         return this->get().state();

@@ -754,8 +754,7 @@ void test_forward_encode(
 // post increment iteration and iterator equality comparisons can be tested.
 template<
     ranges::InputRange RT,
-    TextView TVT>
-requires ranges::InputIterator<ranges::iterator_t<TVT>>()
+    TextInputView TVT>
 void test_forward_decode(
     const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
@@ -812,8 +811,7 @@ void test_forward_decode(
 // bidirectional, or random access iterators for this test.
 template<
     ranges::ForwardRange RT,
-    TextView TVT>
-requires ranges::ForwardIterator<ranges::iterator_t<TVT>>()
+    TextForwardView TVT>
 void test_forward_decode(
     const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
@@ -925,8 +923,7 @@ void test_forward_decode(
 // bidirectional or random access iterators for this test.
 template<
     ranges::BidirectionalRange RT,
-    TextView TVT>
-requires ranges::BidirectionalIterator<ranges::iterator_t<TVT>>()
+    TextBidirectionalView TVT>
 void test_reverse_decode(
     const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
@@ -1033,8 +1030,7 @@ void test_reverse_decode(
 // access iterators for this test.
 template<
     ranges::RandomAccessRange RT,
-    TextView TVT>
-requires ranges::RandomAccessIterator<ranges::iterator_t<TVT>>()
+    TextRandomAccessView TVT>
 void test_random_decode(
     const code_unit_map_sequence<encoding_type_t<TVT>> &code_unit_maps,
     const RT &code_unit_range,
@@ -1138,6 +1134,8 @@ void test_forward_encoding(
         output_iterator<decltype(begin(container)), code_unit_type>;
     base_iterator_type base_iterator(begin(container));
     auto it = make_otext_iterator<ET>(base_iterator);
+    static_assert(TextOutputIterator<decltype(it)>(),"");
+    static_assert(! TextForwardIterator<decltype(it)>(),"");
     test_forward_encode(code_unit_maps, container, it);
     }
 
@@ -1149,6 +1147,8 @@ void test_forward_encoding(
         num_code_units,
         code_unit_type{});
     auto it = make_otext_iterator<ET>(begin(container));
+    static_assert(TextOutputIterator<decltype(it)>(),"");
+    static_assert(! TextForwardIterator<decltype(it)>(),"");
     test_forward_encode(code_unit_maps, container, it);
     }
 
@@ -1160,6 +1160,8 @@ void test_forward_encoding(
         num_code_units,
         code_unit_type{});
     auto it = make_otext_iterator<ET>(begin(container));
+    static_assert(TextOutputIterator<decltype(it)>(),"");
+    static_assert(! TextForwardIterator<decltype(it)>(),"");
     test_forward_encode(code_unit_maps, container, it);
     }
 
@@ -1167,6 +1169,8 @@ void test_forward_encoding(
     {
     vector<code_unit_type> container(num_code_units);
     auto it = make_otext_iterator<ET>(begin(container));
+    static_assert(TextOutputIterator<decltype(it)>(),"");
+    static_assert(! TextForwardIterator<decltype(it)>(),"");
     test_forward_encode(code_unit_maps, container, it);
     }
 
@@ -1183,6 +1187,8 @@ void test_forward_encoding(
     auto input_container =
         input_range_view<forward_list<code_unit_type>>{container};
     auto tv = make_text_view<ET>(input_container);
+    static_assert(TextInputView<decltype(tv)>(),"");
+    static_assert(! TextForwardView<decltype(tv)>(),"");
     test_forward_decode(code_unit_maps, input_container, tv);
     }
 
@@ -1196,6 +1202,8 @@ void test_forward_encoding(
         }
     }
     auto tv = make_text_view<ET>(container);
+    static_assert(TextForwardView<decltype(tv)>(),"");
+    static_assert(! TextBidirectionalView<decltype(tv)>(),"");
     test_forward_decode(code_unit_maps, container, tv);
     }
 
@@ -1208,6 +1216,8 @@ void test_forward_encoding(
         }
     }
     auto tv = make_text_view<ET>(container);
+    static_assert(TextForwardView<decltype(tv)>(),"");
+    static_assert(! TextRandomAccessView<decltype(tv)>(),"");
     test_forward_decode(code_unit_maps, container, tv);
     }
 
@@ -1220,6 +1230,7 @@ void test_forward_encoding(
         }
     }
     auto tv = make_text_view<ET>(container);
+    static_assert(TextForwardView<decltype(tv)>(),"");
     test_forward_decode(code_unit_maps, container, tv);
     }
 
@@ -1233,6 +1244,7 @@ void test_forward_encoding(
     }
     iterable_view<decltype(container)> iv_container{container};
     auto tv = make_text_view<ET>(iv_container);
+    static_assert(TextInputView<decltype(tv)>(),"");
     test_forward_decode(code_unit_maps, iv_container, tv);
     }
 }
@@ -1260,6 +1272,8 @@ void test_bidirectional_encoding(
         }
     }
     auto tv = make_text_view<ET>(container);
+    static_assert(TextBidirectionalView<decltype(tv)>(),"");
+    static_assert(! TextRandomAccessView<decltype(tv)>(),"");
     test_reverse_decode(code_unit_maps, container, tv);
     }
 
@@ -1272,6 +1286,7 @@ void test_bidirectional_encoding(
         }
     }
     auto tv = make_text_view<ET>(container);
+    static_assert(TextBidirectionalView<decltype(tv)>(),"");
     test_reverse_decode(code_unit_maps, container, tv);
     }
 
@@ -1285,6 +1300,7 @@ void test_bidirectional_encoding(
     }
     iterable_view<decltype(container)> iv_container{container};
     auto tv = make_text_view<ET>(iv_container);
+    static_assert(TextBidirectionalView<decltype(tv)>(),"");
     test_reverse_decode(code_unit_maps, iv_container, tv);
     }
 }
@@ -1310,6 +1326,7 @@ void test_random_access_encoding(
         }
     }
     auto tv = make_text_view<ET>(container);
+    static_assert(TextRandomAccessView<decltype(tv)>(),"");
     test_random_decode(code_unit_maps, container, tv);
     }
 }
