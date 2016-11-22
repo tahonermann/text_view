@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-03-28</td>
+    <td>2016-11-22</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -147,7 +147,10 @@ blockquote.code
   <li>Changes to reflect the range-based for statement enhancements provided
       by P0184R0 as adopted for C++17.</li>
   <li>Updated the FAQ "Why do I have to specify the encoding for string
-      literals?" section and added references to P0372R0.</li>
+      literals?" section and added references to
+      <a title="char8_t: A type for UTF-8 characters and strings"
+         href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
+      P0482R0</a>.</li>
 </ul>
 
 <h1 id="introduction">Introduction</h1>
@@ -741,10 +744,16 @@ to be explicitly specified via a template argument.  Why?
 array of <tt>const char</tt>.  The library is unable to implicitly determine
 an encoding for the provided string.
 
-<p>A proposal <sup><a href="#ref_p0372r0">[P0372R0]</a></sup> has been submitted
+<p>A
+<a title="char8_t: A type for UTF-8 characters and strings"
+   href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
+proposal</a> <sup><a href="#ref_p0482r0">[P0482R0]</a></sup> has been submitted
 to the EWG to add a <tt>char8_t</tt> type and to use it as the type for UTF-8
 string and character literals (with appropriate accommodations for backward
-compatibility).  If P0372R0 <sup><a href="#ref_p0372r0">[P0372R0]</a></sup> (or
+compatibility).  If
+<a title="char8_t: A type for UTF-8 characters and strings"
+   href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
+P0482R0</a> <sup><a href="#ref_p0482r0">[P0482R0]</a></sup> (or
 a future revision) were to be adopted, then it would be possible to assume (not
 infer) an encoding based on type for all five of the encodings the standard
 states must be provided, and the requirement to explicitly name the encoding
@@ -3540,12 +3549,12 @@ Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
       http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0184r0.html</a></td>
   </tr>
   <tr>
-    <td id="ref_p0372r0"><sup>[P0372R0]</sup></td>
+    <td id="ref_p0482r0"><sup>[P0482R0]</sup></td>
     <td>
-      Michael Spencer and Davide C. C. Italiano,
-      "A type for utf-8 data", P0372R0, 2016.<br/>
-      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0372r0.html">
-      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0372r0.html</a></td>
+      Tom Honermann,
+      "char8_t: A type for UTF-8 characters and strings", P0482R0, 2016.<br/>
+      <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
+      http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html</a></td>
   </tr>
   <tr>
     <td id="ref_text_view"><sup>[Text_view]</sup></td>
