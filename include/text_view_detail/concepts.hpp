@@ -293,6 +293,46 @@ concept bool TextOutputIterator() {
 
 
 /*
+ * Text input iterator concept
+ */
+template<typename T>
+concept bool TextInputIterator() {
+    return TextIterator<T>()
+        && ranges::InputIterator<T>();
+}
+
+
+/*
+ * Text forward iterator concept
+ */
+template<typename T>
+concept bool TextForwardIterator() {
+    return TextInputIterator<T>()
+        && ranges::ForwardIterator<T>();
+}
+
+
+/*
+ * Text bidirectional iterator concept
+ */
+template<typename T>
+concept bool TextBidirectionalIterator() {
+    return TextForwardIterator<T>()
+        && ranges::BidirectionalIterator<T>();
+}
+
+
+/*
+ * Text random access iterator concept
+ */
+template<typename T>
+concept bool TextRandomAccessIterator() {
+    return TextBidirectionalIterator<T>()
+        && ranges::RandomAccessIterator<T>();
+}
+
+
+/*
  * Text view concept
  */
 template<typename T>
@@ -311,6 +351,46 @@ concept bool TextView() {
                { ct.initial_state() } noexcept
                    -> const typename T::state_type&;
            };
+}
+
+
+/*
+ * Text input view concept
+ */
+template<typename T>
+concept bool TextInputView() {
+    return TextView<T>()
+        && TextInputIterator<ranges::iterator_t<T>>();
+}
+
+
+/*
+ * Text forward view concept
+ */
+template<typename T>
+concept bool TextForwardView() {
+    return TextInputView<T>()
+        && TextForwardIterator<ranges::iterator_t<T>>();
+}
+
+
+/*
+ * Text bidirectional view concept
+ */
+template<typename T>
+concept bool TextBidirectionalView() {
+    return TextForwardView<T>()
+        && TextBidirectionalIterator<ranges::iterator_t<T>>();
+}
+
+
+/*
+ * Text random access view concept
+ */
+template<typename T>
+concept bool TextRandomAccessView() {
+    return TextBidirectionalView<T>()
+        && TextRandomAccessIterator<ranges::iterator_t<T>>();
 }
 
 
