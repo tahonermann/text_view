@@ -11,6 +11,7 @@
 #include <experimental/ranges/iterator>
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/subobject.hpp>
 
 
 namespace std {
@@ -23,8 +24,9 @@ namespace text_detail {
 
 template<TextEncoding ET, ranges::View VT>
 class itext_cursor_base
-    : private ET::state_type
+    : private subobject<typename ET::state_type>
 {
+    using base_type = subobject<typename ET::state_type>;
     using encoding_type = ET;
     using view_type = VT;
     using iterator_type = ranges::iterator_t<std::add_const_t<view_type>>;
@@ -37,15 +39,15 @@ public:
         state_type state,
         const view_type *view)
     :
-        state_type(state),
+        base_type{state},
         view(view)
     {}
 
     const state_type& state() const noexcept {
-        return *this;
+        return base_type::get();
     }
     state_type& state() noexcept {
-        return *this;
+        return base_type::get();
     }
 
     const view_type* underlying_view() const noexcept {

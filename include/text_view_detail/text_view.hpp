@@ -18,6 +18,7 @@
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/itext_iterator.hpp>
 #include <text_view_detail/itext_sentinel.hpp>
+#include <text_view_detail/subobject.hpp>
 
 
 namespace std {
@@ -31,8 +32,10 @@ inline namespace text {
 // FIXME: derive from view_base to make this explicit.
 template<TextEncoding ET, ranges::View VT>
 class basic_text_view
-    : private ET::state_type
+    : private text_detail::subobject<typename ET::state_type>
 {
+    using base_type = text_detail::subobject<typename ET::state_type>;
+
 public:
     using encoding_type = ET;
     using view_type = VT;
@@ -56,10 +59,7 @@ public:
         view_type view)
     requires ranges::CopyConstructible<view_type>()
     :
-        // CWG DR1467.  List-initialization doesn't consider copy constructors
-        // for aggregates.  The state_type base class must be initialized with
-        // an expression-list.
-        state_type(state),
+        base_type{state},
         view{view}
     {}
 
@@ -81,10 +81,7 @@ public:
     requires ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_sentinel>()
     :
-        // CWG DR1467.  List-initialization doesn't consider copy constructors
-        // for aggregates.  The state_type base class must be initialized with
-        // an expression-list.
-        state_type(state),
+        base_type{state},
         view{first, last}
     {}
 
@@ -230,7 +227,7 @@ public:
     }
 
     const state_type& initial_state() const noexcept {
-        return *this;
+        return base_type::get();
     }
 
     iterator begin() const {

@@ -10,6 +10,7 @@
 
 #include <experimental/ranges/iterator>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/subobject.hpp>
 
 
 namespace std {
@@ -24,8 +25,9 @@ class otext_iterator_mixin;
 
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
 class otext_cursor
-    : private ET::state_type
+    : private subobject<typename ET::state_type>
 {
+    using base_type = subobject<typename ET::state_type>;
     using encoding_type = ET;
     using iterator_type = CUIT;
     using state_type = typename ET::state_type;
@@ -40,15 +42,15 @@ public:
         state_type state,
         iterator_type current)
     :
-        state_type(state),
+        base_type{state},
         current(current)
     {}
 
     const state_type& state() const noexcept {
-        return *this;
+        return base_type::get();
     }
     state_type& state() noexcept {
-        return *this;
+        return base_type::get();
     }
 
     const iterator_type& base() const noexcept {
