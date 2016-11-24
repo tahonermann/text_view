@@ -619,24 +619,22 @@ template<typename T, typename V> concept bool CodeUnitOutputIterator() {
 
 ### Concept TextEncodingState
 The `TextEncodingState` concept specifies requirements of types that hold
-[encoding](#encoding) state.  Such types are default constructible and copyable.
+[encoding](#encoding) state.  Such types are semiregular.
 
 ```C++
 template<typename T> concept bool TextEncodingState() {
-  return ranges::DefaultConstructible<T>()
-      && ranges::Copyable<T>();
+  return ranges::Semiregular<T>();
 }
 ```
 
 ### Concept TextEncodingStateTransition
 The `TextEncodingStateTransition` concept specifies requirements of types
-that hold [encoding](#encoding) state transitions.  Such types are default
-constructible and copyable.
+that hold [encoding](#encoding) state transitions.  Such types are
+semiregular.
 
 ```C++
 template<typename T> concept bool TextEncodingStateTransition() {
-  return ranges::DefaultConstructible<T>()
-      && ranges::Copyable<T>();
+  return ranges::Semiregular<T>();
 }
 ```
 

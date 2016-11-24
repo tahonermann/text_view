@@ -128,8 +128,7 @@ concept bool CodeUnitOutputIterator() {
  */
 template<typename T>
 concept bool TextEncodingState() {
-    return ranges::DefaultConstructible<T>()
-        && ranges::Copyable<T>();
+    return ranges::Semiregular<T>();
 }
 
 
@@ -138,8 +137,7 @@ concept bool TextEncodingState() {
  */
 template<typename T>
 concept bool TextEncodingStateTransition() {
-    return ranges::DefaultConstructible<T>()
-        && ranges::Copyable<T>();
+    return ranges::Semiregular<T>();
 }
 
 

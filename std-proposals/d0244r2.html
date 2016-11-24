@@ -1222,13 +1222,12 @@ template&lt;typename T, typename V&gt; concept bool CodeUnitOutputIterator() {
       Concept TextEncodingState</h3>
 
 <p>The <tt>TextEncodingState</tt> concept specifies requirements of types
-that hold encoding state.  Such types are default constructible and copyable.
+that hold encoding state.  Such types are semiregular.
 
 <blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextEncodingState() {
-  return ranges::DefaultConstructible&lt;T&gt;()
-      &amp;&amp; ranges::Copyable&lt;T&gt;();
+  return ranges::Semiregular&lt;T&gt;();
 }
 </code></pre>
 </blockquote>
@@ -1237,14 +1236,12 @@ template&lt;typename T&gt; concept bool TextEncodingState() {
       Concept TextEncodingStateTransition</h3>
 
 <p>The <tt>TextEncodingStateTransition</tt> concept specifies requirements
-of types that hold encoding state transitions.  Such types are default
-constructible and copyable.
+of types that hold encoding state transitions.  Such types are semiregular.
 
 <blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextEncodingStateTransition() {
-  return ranges::DefaultConstructible&lt;T&gt;()
-      &amp;&amp; ranges::Copyable&lt;T&gt;();
+  return ranges::Semiregular&lt;T&gt;();
 }
 </code></pre>
 </blockquote>
