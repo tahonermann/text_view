@@ -1644,6 +1644,11 @@ void test_text_view() {
         ary,
         str,
         il);
+
+    auto tv = make_text_view(cstr);
+    static_assert(std::is_same<
+                      encoding_type_t<decltype(tv)>,
+                      execution_character_encoding>::value);
 }
 
 void test_wtext_view() {
@@ -1685,6 +1690,11 @@ void test_wtext_view() {
         ary,
         str,
         il);
+
+    auto tv = make_text_view(cstr);
+    static_assert(std::is_same<
+                      encoding_type_t<decltype(tv)>,
+                      execution_wide_character_encoding>::value);
 }
 
 void test_u8text_view() {
@@ -1729,6 +1739,15 @@ void test_u8text_view() {
         ary,
         str,
         il);
+
+#if 0
+    // FIXME: Enable testing implicit assumption of the char8 encoding if
+    // FIXME: P0482 were to be adopted.
+    auto tv = make_text_view(cstr);
+    static_assert(std::is_same<
+                      encoding_type_t<decltype(tv)>,
+                      char8_character_encoding>::value);
+#endif
 }
 
 void test_u16text_view() {
@@ -1770,6 +1789,11 @@ void test_u16text_view() {
         ary,
         str,
         il);
+
+    auto tv = make_text_view(cstr);
+    static_assert(std::is_same<
+                      encoding_type_t<decltype(tv)>,
+                      char16_character_encoding>::value);
 }
 
 void test_u32text_view() {
@@ -1811,6 +1835,11 @@ void test_u32text_view() {
         ary,
         str,
         il);
+
+    auto tv = make_text_view(cstr);
+    static_assert(std::is_same<
+                      encoding_type_t<decltype(tv)>,
+                      char32_character_encoding>::value);
 }
 
 void test_utf8_encoding() {

@@ -10,6 +10,7 @@
 
 #include <experimental/ranges/iterator>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/default_encoding.hpp>
 #include <text_view_detail/subobject.hpp>
 
 
@@ -125,8 +126,9 @@ using otext_iterator =
 /*
  * make_otext_iterator
  */
-// Overload to construct an output text iterator from an output iterator and
-// and an explicitly specified initial encoding state.
+// Overload to construct an output text iterator for an explicitly specified
+// encoding from an output iterator and and an explicitly specified initial
+// encoding state.
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
 auto make_otext_iterator(
     typename ET::state_type state,
@@ -135,8 +137,8 @@ auto make_otext_iterator(
     return otext_iterator<ET, IT>{state, out};
 }
 
-// Overload to construct an output text iterator from an output iterator and
-// and an implicit initial encoding state.
+// Overload to construct an output text iterator for an explicitly specified
+// encoding from an output iterator and and an implicit initial encoding state.
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
 auto make_otext_iterator(
     IT out)

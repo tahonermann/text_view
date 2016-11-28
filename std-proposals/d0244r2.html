@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-11-22</td>
+    <td>2016-11-28</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -105,7 +105,7 @@ blockquote.code
       FAQ</a></li>
   <ul>
     <li><a href="#faq_explicit_encodings">
-        Why do I have to specify the encoding for string literals?</a></li>
+        Why do I have to specify the encoding for UTF-8 string literals?</a></li>
     <li><a href="#faq_custom_encodings">
         Can I define my own encodings?  If so, How?</a></li>
   </ul>
@@ -144,15 +144,18 @@ blockquote.code
 <h1 id="changes_since_p0244r1">Changes Since P0244R1</h1>
 
 <ul>
-  <li>Added concepts for text iterators and views to allow specifying iterator
-      category constraints more conveniently.</li>
-  <li>Changes to reflect the range-based for statement enhancements provided
-      by P0184R0 as adopted for C++17.</li>
-  <li>Updated the FAQ "Why do I have to specify the encoding for string
+  <li>Added default_encoding_type_t to allow assuming an encoding type based on
+      code unit type.  Added corresponding <tt>make_text_view</tt> overloads.
+      </li>
+  <li>Updated the FAQ "Why do I have to specify the encoding for UTF-8 string
       literals?" section and added references to
       <a title="char8_t: A type for UTF-8 characters and strings"
          href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
       P0482R0</a>.</li>
+  <li>Added concepts for text iterators and views to allow specifying iterator
+      category constraints more conveniently.</li>
+  <li>Changes to reflect the range-based for statement enhancements provided
+      by P0184R0 as adopted for C++17.</li>
 </ul>
 
 <h1 id="introduction">Introduction</h1>
@@ -221,6 +224,20 @@ expressions provided by P0184R0
 for (const auto&amp; ch : tv) {
   ...
 }
+</code></pre>
+</blockquote>
+
+<p><tt>make_text_view</tt> overloads are provided that assume an encoding based
+on code unit type for code unit types that imply an encoding.  Note that it is
+currently not possible to assume an encoding for UTF-8 string literals.  See the
+<a href="#faq_explicit_encodings">FAQ entry</a> regarding this for more details.
+
+<blockquote class="code">
+<pre><code>
+auto char_tv = make_text_view("text");
+static_assert(std::is_same&lt;
+                  encoding_type_t&lt;decltype(char_tv)&gt;,
+                  execution_character_encoding&gt;::value);
 </code></pre>
 </blockquote>
 
@@ -729,7 +746,7 @@ clusters.
 <h1 id="faq">FAQ</h1>
 
 <h2 id="faq_explicit_encodings">
-    Why do I have to specify the encoding for string literals?</h2>
+    Why do I have to specify the encoding for UTF-8 string literals?</h2>
 
 <p>This question refers to code like this:
 <blockquote class="code">
@@ -744,7 +761,9 @@ to be explicitly specified via a template argument.  Why?
 
 <p>The answer is that ordinary and UTF-8 string literals have the same type;
 array of <tt>const char</tt>.  The library is unable to implicitly determine
-an encoding for the provided string.
+that the provided string is UTF-8 encoded.  At present, ranges that use
+<tt>char</tt> are assumed to be encoded per the
+<tt>execution_character_encoding</tt> (which may or may not be UTF-8).
 
 <p>A
 <a title="char8_t: A type for UTF-8 characters and strings"
@@ -757,9 +776,10 @@ compatibility).  If
    href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
 P0482R0</a> <sup><a href="#ref_p0482r0">[P0482R0]</a></sup> (or
 a future revision) were to be adopted, then it would be possible to assume (not
-infer) an encoding based on type for all five of the encodings the standard
-states must be provided, and the requirement to explicitly name the encoding
-for the argument to <tt>make_text_view</tt> could be lifted.
+infer) an encoding based on code unit type for all five of the encodings the
+standard states must be provided, and the requirement to explicitly name the
+encoding for calls to <tt>make_text_view</tt> with UTF-8 string literals could
+be lifted.
 
 <h2 id="faq_custom_encodings">
     Can I define my own encodings?  If so, How?</h2>
@@ -897,7 +917,9 @@ template&lt;typename T&gt;
 template&lt;typename T&gt;
   using character_type_t = /* implementation-defined */ ;
 template&lt;typename T&gt;
-  using encoding_type_t /* implementation-defined */ ;
+  using encoding_type_t = /* implementation-defined */ ;
+template&lt;typename T&gt;
+  using default_encoding_type_t = /* implementation-defined */ ;
 
 // characters:
 template&lt;CharacterSet CST&gt; class character;
@@ -991,25 +1013,67 @@ using u32text_view = basic_text_view&lt;char32_character_encoding,
 template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
   auto make_text_view(typename ET::state_type state, IT first, ST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;::state_type state,
+                      IT first,
+                      ST last)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
   auto make_text_view(IT first, ST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(IT first, ST last)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
   auto make_text_view(typename ET::state_type state,
                       IT first,
                       typename std::make_unsigned&lt;ranges::difference_type_t&lt;IT&gt;&gt;::type n)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;ranges::ForwardIterator IT&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(typename typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;::state_type state,
+                      IT first,
+                      typename std::make_unsigned&lt;ranges::difference_type_t&lt;IT&gt;&gt;::type n)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
   auto make_text_view(IT first,
                       typename std::make_unsigned&lt;ranges::difference_type_t&lt;IT&gt;&gt;::type n)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;ranges::ForwardIterator IT&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(IT first,
+                      typename std::make_unsigned&lt;ranges::difference_type_t&lt;IT&gt;&gt;::type n)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
   auto make_text_view(typename ET::state_type state,
                       const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;ranges::InputRange Iterable&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
+  }
+  auto make_text_view(typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;::state_type state,
+                      const Iterable &iterable)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
   auto make_text_view(const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+template&lt;ranges::InputRange Iterable&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
+  }
+  auto make_text_view(const Iterable &iterable)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
   auto make_text_view(TIT first, TST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
@@ -1643,6 +1707,8 @@ template&lt;typename T&gt; concept bool TextRandomAccessView() {
       character_type_t</a></li>
   <li><a href="#encoding_type_t">
       encoding_type_t</a></li>
+  <li><a href="#default_encoding_type_t">
+      default_encoding_type_t</a></li>
 </ul>
 
 <h3 id="code_unit_type_t">code_unit_type_t</h3>
@@ -1712,7 +1778,46 @@ that satisfies <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, or
 <blockquote class="code">
 <pre><code>
 template&lt;typename T&gt;
-  using encoding_type_t /* implementation-defined */ ;
+  using encoding_type_t = /* implementation-defined */ ;
+</code></pre>
+</blockquote>
+
+<h3 id="default_encoding_type_t">default_encoding_type_t</h3>
+
+<p>The <tt>default_encoding_type_t</tt> type alias template resolves to the
+default encoding type, if any, for a given type, such as a type that
+satisfies <tt>CodeUnit</tt>.  Specializations are provided for the following
+cv-unqualified and reference removed fundamental types.  Otherwise, the alias
+will attempt to resolve against a <tt>default_encoding_type</tt> member type.
+
+<table border="1">
+  <tr>
+    <th>When <tt>std::remove_cv_t&lt;std::remove_reference_t&lt;T&gt;&gt;</tt>
+        is ...</th>
+    <th>the default encoding is ...</th>
+  </tr>
+  <tr>
+    <td><tt>char</tt></td>
+    <td><tt>execution_character_encoding</tt></td>
+  </tr>
+  <tr>
+    <td><tt>wchar_t</tt></td>
+    <td><tt>execution_wide_character_encoding</tt></td>
+  </tr>
+  <tr>
+    <td><tt>char16_t</tt></td>
+    <td><tt>char16_character_encoding</tt></td>
+  </tr>
+  <tr>
+    <td><tt>char32_t</tt></td>
+    <td><tt>char32_character_encoding</tt></td>
+  </tr>
+</table>
+
+<blockquote class="code">
+<pre><code>
+template&lt;typename T&gt;
+  using default_encoding_type_t = /* implementation-defined */ ;
 </code></pre>
 </blockquote>
 
@@ -3497,9 +3602,26 @@ template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt
                       IT first, ST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 
+template&lt;ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;::state_type state,
+                      IT first,
+                      ST last)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
+
 template&lt;TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
   auto make_text_view(IT first, ST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;ranges::InputIterator IT, ranges::Sentinel&lt;IT&gt; ST&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(IT first,
+                      ST last)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
 
 template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
   auto make_text_view(typename ET::state_type state,
@@ -3507,23 +3629,56 @@ template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
                       ranges::difference_type_t&lt;IT&gt; n)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 
+template&lt;ranges::ForwardIterator IT&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;::state_type state,
+                      IT first,
+                      ranges::difference_type_t&lt;IT&gt; n)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
+
 template&lt;TextEncoding ET, ranges::ForwardIterator IT&gt;
   auto make_text_view(IT first,
                       ranges::difference_type_t&lt;IT&gt; n)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+
+template&lt;ranges::ForwardIterator IT&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;;
+  }
+  auto make_text_view(IT first,
+                      ranges::difference_type_t&lt;IT&gt; n)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;IT&gt;&gt;, /* implementation-defined */ &gt;;
 
 template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
   auto make_text_view(typename ET::state_type state,
                       const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 
+template&lt;ranges::InputRange Iterable&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
+  }
+  auto make_text_view(typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;RT&gt;&gt;&gt;::state_type state,
+                      const RT &range)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
+
 template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
   auto make_text_view(const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 
+template&lt;ranges::InputRange Iterable&gt;
+  requires requires () {
+    typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
+  }
+  auto make_text_view(
+    const RT &range)
+  -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
+
 template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
   auto make_text_view(TIT first, TST last)
-  -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
+  -&gt; basic_text_view&lt;encoding_type_t&lt;TIT&gt;, /* implementation-defined */ &gt;;
 
 template&lt;TextView TVT&gt;
   TVT make_text_view(TVT tv);

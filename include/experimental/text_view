@@ -17,6 +17,7 @@
 #include <text_view_detail/trivial_encoding_state.hpp>
 #include <text_view_detail/codecs.hpp>
 #include <text_view_detail/encodings.hpp>
+#include <text_view_detail/default_encoding.hpp>
 #include <text_view_detail/itext_iterator.hpp>
 #include <text_view_detail/itext_sentinel.hpp>
 #include <text_view_detail/otext_iterator.hpp>
