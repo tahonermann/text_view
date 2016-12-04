@@ -48,29 +48,27 @@ public:
 
     // The default constructor produces a text view with a singular range.  An
     // object produced with this constructor may only be assigned to or
-    // destroyed.  Note that the default constructor will be defined as deleted
-    // if either state_type or view_type is not default constructible.
+    // destroyed.
     basic_text_view() = default;
 
     // Overload to initialize a text view from an object of the underlying code
-    // unit view type and an explicitly specified initial encoding state.  This
-    // overload requires that view_type be copy constructible.
+    // unit view type and an explicitly specified initial encoding state.
     basic_text_view(
         state_type state,
         view_type view)
-    requires ranges::CopyConstructible<view_type>()
     :
-        base_type{state},
-        view{view}
+        base_type{std::move(state)},
+        view{std::move(view)}
     {}
 
     // Overload to initialize a text view from an object of the underlying code
-    // unit view type and an implicit initial encoding state.  This overload
-    // requires that view_type be copy constructible.
+    // unit view type and an implicit initial encoding state.
     basic_text_view(
         view_type view)
-    requires ranges::CopyConstructible<view_type>()
-    : basic_text_view{encoding_type::initial_state(), view} {}
+    :
+        base_type{encoding_type::initial_state()},
+        view{std::move(view)}
+    {}
 
     // Overload to initialize a text view from an InputIterator and Sentinel
     // pair, and an explicitly specified initial encoding state.  This overload
@@ -80,10 +78,10 @@ public:
         code_unit_iterator first,
         code_unit_sentinel last)
     requires ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
+                 view_type, code_unit_iterator&&, code_unit_sentinel&&>()
     :
-        base_type{state},
-        view{first, last}
+        base_type{std::move(state)},
+        view{std::move(first), std::move(last)}
     {}
 
     // Overload to initialize a text view from an InputIterator and Sentinel
@@ -93,8 +91,11 @@ public:
         code_unit_iterator first,
         code_unit_sentinel last)
     requires ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view{encoding_type::initial_state(), first, last} {}
+                 view_type, code_unit_iterator&&, code_unit_sentinel&&>()
+    :
+        base_type{encoding_type::initial_state()},
+        view{std::move(first), std::move(last)}
+    {}
 
     // Overload to initialize a text view from an InputIterator and count pair,
     // and an explicitly specified initial encoding state.  This overload
@@ -105,7 +106,10 @@ public:
         ranges::difference_type_t<code_unit_iterator> n)
     requires ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_iterator>()
-    : basic_text_view{state, first, std::next(first, n)} {}
+    :
+        base_type{std::move(state)},
+        view{first, std::next(first, n)}
+    {}
 
     // Overload to initialize a text view from an InputIterator and count pair,
     // and an implicit initial encoding state.  This overload requires that
@@ -115,7 +119,10 @@ public:
         ranges::difference_type_t<code_unit_iterator> n)
     requires ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_iterator>()
-    : basic_text_view{first, std::next(first, n)} {}
+    :
+        base_type{encoding_type::initial_state()},
+        view{first, std::next(first, n)}
+    {}
 
     // Overload to initialize a text view with an explicitly specified initial
     // encoding state and a basic_string specialization.  This overload requires
@@ -143,9 +150,11 @@ public:
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view{state,
-                      str.c_str(),
-                      ranges::difference_type_t<code_unit_iterator>(str.size())} {}
+    :
+        basic_text_view{std::move(state),
+                        str.c_str(),
+                        ranges::difference_type_t<code_unit_iterator>(str.size())}
+    {}
 
     // Overload to initialize a text view with an implicitly specified initial
     // encoding state and a basic_string specialization.  See the above comments
@@ -160,8 +169,10 @@ public:
                  typename basic_string<charT, traits, Allocator>::size_type>()
           && ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view{str.c_str(),
-                      ranges::difference_type_t<code_unit_iterator>(str.size())} {}
+    :
+        basic_text_view{str.c_str(),
+                        ranges::difference_type_t<code_unit_iterator>(str.size())}
+    {}
 
     // Overload to initialize a text view with an explicitly specified initial
     // encoding state and an InputIterator and Sentinel extracted from a
@@ -178,9 +189,10 @@ public:
                  code_unit_iterator, ranges::iterator_t<const RT>>()
           && ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view(state,
-                      text_detail::adl_begin(range),
-                      text_detail::adl_end(range))
+    :
+        basic_text_view(std::move(state),
+                        text_detail::adl_begin(range),
+                        text_detail::adl_end(range))
     {}
 
     // Overload to initialize a text view with an implicitly specified initial
@@ -194,7 +206,10 @@ public:
                  code_unit_iterator, ranges::iterator_t<const RT>>()
           && ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view(text_detail::adl_begin(range), text_detail::adl_end(range)) {}
+    :
+        basic_text_view(text_detail::adl_begin(range),
+                        text_detail::adl_end(range))
+    {}
 
     // Overload to initialize a text view from a text iterator pair.
     // The initial encoding state is inferred from the first iterator.
@@ -206,7 +221,9 @@ public:
                  decltype(std::declval<iterator>().base())>()
           && ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_iterator>()
-    : basic_text_view{first.state(), first.base(), last.base()} {}
+    :
+        basic_text_view{first.state(), first.base(), last.base()}
+    {}
 
     // Overload to initialize a text view from a text iterator/sentinel pair.
     // The initial encoding state is inferred from the first iterator.
@@ -218,7 +235,9 @@ public:
                  decltype(std::declval<iterator>().base())>()
           && ranges::Constructible<
                  view_type, code_unit_iterator, code_unit_sentinel>()
-    : basic_text_view{first.state(), first.base(), last.base()} {}
+    :
+        basic_text_view{first.state(), first.base(), last.base()}
+    {}
 
     const view_type& base() const noexcept {
         return view;
@@ -284,7 +303,9 @@ auto make_text_view(
     ST last)
 {
     using view_type = text_detail::basic_view<IT, ST>;
-    return basic_text_view<ET, view_type>{state, first, last};
+    return basic_text_view<ET, view_type>{std::move(state),
+                                          std::move(first),
+                                          std::move(last)};
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -301,7 +322,9 @@ auto make_text_view(
     ST last)
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
-    return make_text_view<ET>(state, first, last);
+    return make_text_view<ET>(std::move(state),
+                              std::move(first),
+                              std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -312,10 +335,9 @@ auto make_text_view(
     IT first,
     ST last)
 {
-    return make_text_view<ET>(
-               ET::initial_state(),
-               first,
-               last);
+    using view_type = text_detail::basic_view<IT, ST>;
+    return basic_text_view<ET, view_type>{std::move(first),
+                                          std::move(last)};
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -330,10 +352,8 @@ auto make_text_view(
     ST last)
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
-    return make_text_view<ET>(
-               ET::initial_state(),
-               first,
-               last);
+    return make_text_view<ET>(std::move(first),
+                              std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -345,10 +365,10 @@ auto make_text_view(
     IT first,
     ranges::difference_type_t<IT> n)
 {
-    return make_text_view<ET>(
-               state,
-               first,
-               std::next(first, n));
+    auto last = std::next(first, n);
+    return make_text_view<ET>(std::move(state),
+                              std::move(first),
+                              std::move(last));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -365,10 +385,10 @@ auto make_text_view(
     ranges::difference_type_t<IT> n)
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
-    return make_text_view<ET>(
-               state,
-               first,
-               std::next(first, n));
+    auto last = std::next(first, n);
+    return make_text_view<ET>(std::move(state),
+                              std::move(first),
+                              std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -379,9 +399,9 @@ auto make_text_view(
     IT first,
     ranges::difference_type_t<IT> n)
 {
-    return make_text_view<ET>(
-               first,
-               std::next(first, n));
+    auto last = std::next(first, n);
+    return make_text_view<ET>(std::move(first),
+                              std::move(last));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -396,9 +416,9 @@ auto make_text_view(
     ranges::difference_type_t<IT> n)
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
-    return make_text_view<ET>(
-               first,
-               std::next(first, n));
+    auto last = std::next(first, n);
+    return make_text_view<ET>(std::move(first),
+                              std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -409,10 +429,9 @@ auto make_text_view(
     typename ET::state_type state,
     const RT &range)
 {
-    return make_text_view<ET>(
-               state,
-               text_detail::adl_begin(range),
-               text_detail::adl_end(range));
+    return make_text_view<ET>(std::move(state),
+                              text_detail::adl_begin(range),
+                              text_detail::adl_end(range));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -430,10 +449,9 @@ auto make_text_view(
 {
     using ET =
         default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>;
-    return make_text_view<ET>(
-               state,
-               text_detail::adl_begin(range),
-               text_detail::adl_end(range));
+    return make_text_view<ET>(std::move(state),
+                              text_detail::adl_begin(range),
+                              text_detail::adl_end(range));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -442,9 +460,8 @@ template<TextEncoding ET, ranges::InputRange RT>
 auto make_text_view(
     const RT &range)
 {
-    return make_text_view<ET>(
-               text_detail::adl_begin(range),
-               text_detail::adl_end(range));
+    return make_text_view<ET>(text_detail::adl_begin(range),
+                              text_detail::adl_end(range));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -459,9 +476,8 @@ auto make_text_view(
 {
     using ET =
         default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>;
-    return make_text_view<ET>(
-               text_detail::adl_begin(range),
-               text_detail::adl_end(range));
+    return make_text_view<ET>(text_detail::adl_begin(range),
+                              text_detail::adl_end(range));
 }
 
 // Overload to construct a text view from a text iterator and sentinel pair.
@@ -472,10 +488,9 @@ auto make_text_view(
     TST last)
 {
     using ET = encoding_type_t<TIT>;
-    return make_text_view<ET>(
-               first.state(),
-               first.base(),
-               last.base());
+    return make_text_view<ET>(first.state(),
+                              first.base(),
+                              last.base());
 }
 
 // Overload to construct a text view from an existing text view.

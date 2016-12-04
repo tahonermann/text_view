@@ -2547,24 +2547,22 @@ public:
   basic_text_view();
 
   basic_text_view(state_type state,
-                  view_type view)
-    requires ranges::CopyConstructible<view_type>();
+                  view_type view);
 
-  basic_text_view(view_type view)
-    requires ranges::CopyConstructible<view_type>();
+  basic_text_view(view_type view);
 
   basic_text_view(state_type state,
                   code_unit_iterator first,
                   code_unit_sentinel last)
     requires ranges::Constructible<view_type,
-                                   code_unit_iterator,
-                                   code_unit_sentinel>();
+                                   code_unit_iterator&&,
+                                   code_unit_sentinel&&>();
 
   basic_text_view(code_unit_iterator first,
                   code_unit_sentinel last)
     requires ranges::Constructible<view_type,
-                                   code_unit_iterator,
-                                   code_unit_sentinel>();
+                                   code_unit_iterator&&,
+                                   code_unit_sentinel&&>();
 
   basic_text_view(state_type state,
                   code_unit_iterator first,

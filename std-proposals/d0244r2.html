@@ -1063,7 +1063,7 @@ template&lt;ranges::InputRange Iterable&gt;
     typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
   }
   auto make_text_view(typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;::state_type state,
-                      const Iterable &iterable)
+                      const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextEncoding ET, ranges::InputRange Iterable&gt;
   auto make_text_view(const Iterable &amp;iterable)
@@ -1072,7 +1072,7 @@ template&lt;ranges::InputRange Iterable&gt;
   requires requires () {
     typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
   }
-  auto make_text_view(const Iterable &iterable)
+  auto make_text_view(const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
 template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
   auto make_text_view(TIT first, TST last)
@@ -3417,24 +3417,22 @@ public:
   basic_text_view();
 
   basic_text_view(state_type state,
-                  view_type view)
-    requires ranges::CopyConstructible&lt;view_type&gt;();
+                  view_type view);
 
-  basic_text_view(view_type view)
-    requires ranges::CopyConstructible&lt;view_type&gt;();
+  basic_text_view(view_type view);
 
   basic_text_view(state_type state,
                   code_unit_iterator first,
                   code_unit_sentinel last)
     requires ranges::Constructible&lt;view_type,
-                                   code_unit_iterator,
-                                   code_unit_sentinel&gt;();
+                                   code_unit_iterator&amp;&amp;,
+                                   code_unit_sentinel&amp;&amp;&gt;();
 
   basic_text_view(code_unit_iterator first,
                   code_unit_sentinel last)
     requires ranges::Constructible&lt;view_type,
-                                   code_unit_iterator,
-                                   code_unit_sentinel&gt;();
+                                   code_unit_iterator&amp;&amp;,
+                                   code_unit_sentinel&amp;&amp;&gt;();
 
   basic_text_view(state_type state,
                   code_unit_iterator first,
@@ -3673,7 +3671,7 @@ template&lt;ranges::InputRange Iterable&gt;
     typename default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;;
   }
   auto make_text_view(
-    const RT &range)
+    const RT &amp;range)
   -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
 
 template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;

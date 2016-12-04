@@ -43,8 +43,8 @@ public:
         state_type state,
         iterator_type current)
     :
-        base_type{state},
-        current(current)
+        base_type{std::move(state)},
+        current(std::move(current))
     {}
 
     const state_type& state() const noexcept {
@@ -100,7 +100,7 @@ public:
         state_type state,
         iterator_type current)
     :
-        base_type{cursor_type{state, current}}
+        base_type{cursor_type{std::move(state), std::move(current)}}
     {}
 
     const state_type& state() const noexcept {
@@ -134,7 +134,7 @@ auto make_otext_iterator(
     typename ET::state_type state,
     IT out)
 {
-    return otext_iterator<ET, IT>{state, out};
+    return otext_iterator<ET, IT>{std::move(state), std::move(out)};
 }
 
 // Overload to construct an output text iterator for an explicitly specified
@@ -143,7 +143,7 @@ template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
 auto make_otext_iterator(
     IT out)
 {
-    return otext_iterator<ET, IT>{ET::initial_state(), out};
+    return otext_iterator<ET, IT>{ET::initial_state(), std::move(out)};
 }
 
 

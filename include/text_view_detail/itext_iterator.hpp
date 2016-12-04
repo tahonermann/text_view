@@ -39,7 +39,7 @@ public:
         state_type state,
         const view_type *view)
     :
-        base_type{state},
+        base_type{std::move(state)},
         view(view)
     {}
 
@@ -76,8 +76,8 @@ public:
         const view_type *view,
         iterator_type current)
     :
-        itext_cursor_base<ET, VT>{state, view},
-        current(current)
+        itext_cursor_base<ET, VT>{std::move(state), view},
+        current(std::move(current))
     {}
 
     const iterator_type& base() const noexcept {
@@ -122,7 +122,7 @@ public:
         const view_type *view,
         iterator_type first)
     :
-        itext_cursor_base<ET, VT>{state, view},
+        itext_cursor_base<ET, VT>{std::move(state), view},
         current_view{first, first}
     {}
 
@@ -172,7 +172,7 @@ public:
         const view_type *view,
         iterator_type first)
     :
-        itext_cursor_data<ET, VT>{state, view, first}
+        itext_cursor_data<ET, VT>{std::move(state), view, std::move(first)}
     {
         next();
     }
@@ -336,7 +336,7 @@ public:
         const view_type *view,
         iterator_type first)
     :
-        base_type{cursor_type{state, view, first}}
+        base_type{cursor_type{std::move(state), view, std::move(first)}}
     {}
 
     using base_type::base_type;
