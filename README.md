@@ -2534,7 +2534,7 @@ as used for the beginning of the view.
 
 ```C++
 template<TextEncoding ET, ranges::View VT>
-class basic_text_view {
+class basic_text_view : public ranges::view_base {
 public:
   using encoding_type = ET;
   using view_type = VT;

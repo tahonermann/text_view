@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-11-28</td>
+    <td>2016-12-04</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -154,6 +154,10 @@ blockquote.code
       P0482R0</a>.</li>
   <li>Added concepts for text iterators and views to allow specifying iterator
       category constraints more conveniently.</li>
+  <li>Updated view types to derive from ranges::view_base.</li>
+  <li>Updated a few basic_text_view constructors to require underlying view
+      construction from pairs of rvalue iterators.  This was done so that
+      implementations can make use of move semantics to forward arguments.</li>
   <li>Changes to reflect the range-based for statement enhancements provided
       by P0184R0 as adopted for C++17.</li>
 </ul>
@@ -3404,7 +3408,7 @@ view.
 <blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET, ranges::View VT&gt;
-class basic_text_view {
+class basic_text_view : public ranges::view_base {
 public:
   using encoding_type = ET;
   using view_type = VT;

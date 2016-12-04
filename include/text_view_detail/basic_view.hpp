@@ -17,7 +17,8 @@ inline namespace text {
 namespace text_detail {
 
 template<ranges::Iterator IT, ranges::Sentinel<IT> ST = IT>
-class basic_view {
+class basic_view : public ranges::view_base
+{
 public:
     basic_view() = default;
     basic_view(IT first, ST last)

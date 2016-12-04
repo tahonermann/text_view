@@ -27,13 +27,10 @@ namespace experimental {
 inline namespace text {
 
 
-// FIXME: N4569 specifies a view_base class that is used as a base class to
-// FIXME: explicitly specify that a class models the View concept.
-// FIXME: basic_text_view models the View concept, and so could (should?)
-// FIXME: derive from view_base to make this explicit.
 template<TextEncoding ET, ranges::View VT>
 class basic_text_view
-    : private text_detail::subobject<typename ET::state_type>
+    : private text_detail::subobject<typename ET::state_type>,
+      public ranges::view_base
 {
     using base_type = text_detail::subobject<typename ET::state_type>;
 
