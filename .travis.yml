@@ -40,7 +40,7 @@ install:
   - export PATH="$TRAVIS_BUILD_DIR/cache/cmake/bin:$PATH"
   - |
     if [ "!" -f cache/last_known_good_cmcstl2_commit ]; then
-      echo "7d64bffd2ecb54ad39e120578b79dddf52106a95" > cache/last_known_good_cmcstl2_commit
+      echo "b704dadecd0ae2fc11289e35b37d234d9c8eb644" > cache/last_known_good_cmcstl2_commit
     fi
   - travis_retry git clone https://github.com/CaseyCarter/cmcstl2.git cmcstl2
   - |

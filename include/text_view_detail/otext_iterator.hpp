@@ -103,6 +103,8 @@ public:
         base_type{cursor_type{std::move(state), std::move(current)}}
     {}
 
+    using base_type::base_type;
+
     const state_type& state() const noexcept {
         return this->get().state();
     }
