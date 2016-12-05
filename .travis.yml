@@ -56,7 +56,7 @@ before_script:
   - export CXX="$COMPILER"
   - which "$CXX"
   - $CXX --version
-  - echo "cmcstl2 commit: $(git -C cmcstl2 rev-parse HEAD)"
+  - "echo \"cmcstl2 commit: $(git -C cmcstl2 rev-parse HEAD)\""
 
 script:
   - mkdir build
