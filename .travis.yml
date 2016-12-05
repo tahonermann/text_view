@@ -1,0 +1,53 @@
+# Copyright (c) 2016, Tom Honermann
+#
+# This file is distributed under the MIT License. See the accompanying file
+# LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
+# and conditions.
+
+sudo: false
+language: cpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-6
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      env: COMPILER=g++-6 BUILD_TYPE=RELEASE
+    - os: linux
+      compiler: gcc
+      env: COMPILER=g++-6 BUILD_TYPE=DEBUG
+
+cache:
+  directories:
+    - cache
+
+install:
+  - |
+    if [ "!" -x cache/cmake/bin/cmake ]; then
+      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
+      mkdir -p cache/cmake
+      travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C cache/cmake
+    fi
+  - export PATH="$TRAVIS_BUILD_DIR/cache/cmake/bin:$PATH"
+  - travis_retry git clone --depth 1 https://github.com/CaseyCarter/cmcstl2.git cmcstl2 || exit 1
+  - export CMCSTL2_INSTALL_PATH="$TRAVIS_BUILD_DIR/cmcstl2"
+
+before_script:
+  - uname -a
+  - which cmake
+  - cmake --version
+  - export CXX="$COMPILER"
+  - which "$CXX"
+  - "$CXX" --version
+
+script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE="$BUILD_TYPE" ..
+  - cmake --build . --config "$BUILD_TYPE" --target check-install
