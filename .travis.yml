@@ -44,7 +44,7 @@ before_script:
   - cmake --version
   - export CXX="$COMPILER"
   - which "$CXX"
-  - "$CXX" --version
+  - ${CXX} --version
 
 script:
   - mkdir build
