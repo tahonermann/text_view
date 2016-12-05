@@ -42,7 +42,7 @@ install:
     if [ "!" -f cache/last_known_good_cmcstl2_commit ]; then
       echo "7d64bffd2ecb54ad39e120578b79dddf52106a95" > cache/last_known_good_cmcstl2_commit
     fi
-  - travis_retry git clone --depth 1 https://github.com/CaseyCarter/cmcstl2.git cmcstl2 || exit 1
+  - travis_retry git clone https://github.com/CaseyCarter/cmcstl2.git cmcstl2
   - |
     if [ -n "$BUILD_LAST_KNOWN_GOOD_CMCSTL2" ]; then
       git -C cmcstl2 checkout $(cat cache/last_known_good_cmcstl2_commit)
