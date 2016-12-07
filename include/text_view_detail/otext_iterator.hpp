@@ -76,6 +76,33 @@ public:
         current = tmp;
     }
 
+    void next() noexcept
+    {}
+
+    auto post_increment() noexcept {
+        class proxy
+        {
+        public:
+            proxy(otext_cursor& self) noexcept
+                : self_(self)
+            {}
+            proxy& operator*() noexcept {
+                return *this;
+            }
+            proxy& operator=(const state_transition_type &stt) {
+                self_.write(stt);
+                return *this;
+            }
+            proxy& operator=(const character_type_t<encoding_type> &value) {
+                self_.write(value);
+                return *this;
+            }
+        private:
+            otext_cursor& self_;
+        };
+        return proxy{*this};
+    }
+
 private:
     iterator_type current;
 };
