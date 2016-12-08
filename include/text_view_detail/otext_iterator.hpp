@@ -22,9 +22,6 @@ inline namespace text {
 namespace text_detail {
 
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
-class otext_iterator_mixin;
-
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
 class otext_cursor
     : private subobject<typename ET::state_type>
 {
@@ -35,7 +32,36 @@ class otext_cursor
     using state_transition_type = typename ET::state_transition_type;
 
 public:
-    using mixin = otext_iterator_mixin<ET, CUIT>;
+    using difference_type = ranges::difference_type_t<iterator_type>;
+
+    class mixin
+        : protected ranges::basic_mixin<otext_cursor>
+    {
+        using base_type = ranges::basic_mixin<otext_cursor>;
+    public:
+        using encoding_type = typename otext_cursor::encoding_type;
+        using state_type = typename otext_cursor::state_type;
+        using state_transition_type = typename otext_cursor::state_transition_type;
+
+        mixin() = default;
+
+        mixin(
+            state_type state,
+            iterator_type current)
+        :
+            base_type{otext_cursor{std::move(state), std::move(current)}}
+        {}
+
+        using base_type::base_type;
+
+        const state_type& state() const noexcept {
+            return this->get().state();
+        }
+
+        const iterator_type& base() const noexcept {
+            return this->get().current;
+        }
+    };
 
     otext_cursor() = default;
 
@@ -54,13 +80,6 @@ public:
         return base_type::get();
     }
 
-    const iterator_type& base() const noexcept {
-        return current;
-    }
-    iterator_type& base() noexcept {
-        return current;
-    }
-
     void write(const state_transition_type &stt) {
         iterator_type tmp{current};
         int encoded_code_units = 0;
@@ -76,42 +95,35 @@ public:
         current = tmp;
     }
 
-private:
-    iterator_type current;
-};
-
-
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
-class otext_iterator_mixin
-    : protected ranges::basic_mixin<otext_cursor<ET, CUIT>>
-{
-    using iterator_type = CUIT;
-    using cursor_type = otext_cursor<ET, CUIT>;
-    using base_type = ranges::basic_mixin<cursor_type>;
-
-public:
-    using encoding_type = ET;
-    using state_type = typename ET::state_type;
-    using state_transition_type = typename ET::state_transition_type;
-
-    otext_iterator_mixin() = default;
-
-    otext_iterator_mixin(
-        state_type state,
-        iterator_type current)
-    :
-        base_type{cursor_type{std::move(state), std::move(current)}}
+    void next() noexcept
     {}
 
-    using base_type::base_type;
-
-    const state_type& state() const noexcept {
-        return this->get().state();
+    auto post_increment() noexcept {
+        class proxy
+        {
+        public:
+            proxy(otext_cursor& self) noexcept
+                : self_(self)
+            {}
+            proxy& operator*() noexcept {
+                return *this;
+            }
+            proxy& operator=(const state_transition_type &stt) {
+                self_.write(stt);
+                return *this;
+            }
+            proxy& operator=(const character_type_t<encoding_type> &value) {
+                self_.write(value);
+                return *this;
+            }
+        private:
+            otext_cursor& self_;
+        };
+        return proxy{*this};
     }
 
-    const iterator_type& base() const noexcept {
-        return this->get().base();
-    }
+private:
+    iterator_type current;
 };
 
 } // namespace text_detail

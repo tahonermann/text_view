@@ -12,3 +12,4 @@ bin/
 ID
 # Ignore common CMake build directory
 build/
+.vscode/
