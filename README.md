@@ -2379,7 +2379,7 @@ public:
 
   const state_type& state() const noexcept;
 
-  iterator base() const;
+  const iterator& base() const;
 
   /* implementation-defined */ base_range() const
     requires TextDecoder<encoding_type, iterator>()
@@ -2432,7 +2432,7 @@ public:
   friend bool operator!=(const itext_sentinel &ts,
                          const itext_iterator<ET, VT> &ti);
 
-  sentinel base() const;
+  const sentinel& base() const;
 
 private:
   sentinel base_sentinel; // exposition only
@@ -2479,7 +2479,7 @@ public:
 
   const state_type& state() const noexcept;
 
-  iterator base() const;
+  const iterator& base() const;
 
 private:
   state_type base_state;  // exposition only

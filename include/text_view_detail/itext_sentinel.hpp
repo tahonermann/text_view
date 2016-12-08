@@ -69,7 +69,7 @@ public:
         return !(ts == ti);
     }
 
-    sentinel base() const {
+    const sentinel& base() const {
         return s;
     }
 

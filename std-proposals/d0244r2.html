@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-12-04</td>
+    <td>2016-12-08</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -154,6 +154,9 @@ blockquote.code
       P0482R0</a>.</li>
   <li>Added concepts for text iterators and views to allow specifying iterator
       category constraints more conveniently.</li>
+  <li>Updated the <tt>base</tt> member functions of <tt>itext_iterator</tt>,
+      <tt>itext_sentinel</tt>, and <tt>otext_iterator</tt> to return const
+      references rather than copies.</li>
   <li>Updated view types to derive from ranges::view_base.</li>
   <li>Updated a few basic_text_view constructors to require underlying view
       construction from pairs of rvalue iterators.  This was done so that
@@ -3235,7 +3238,7 @@ public:
 
   const state_type&amp; state() const noexcept;
 
-  iterator base() const;
+  const iterator&amp; base() const;
 
   /* implementation-defined */ base_range() const
     requires TextDecoder&lt;encoding_type, iterator&gt;()
@@ -3291,7 +3294,7 @@ public:
   friend bool operator!=(const itext_sentinel &amp;ts,
                          const itext_iterator&lt;ET, VT&gt; &amp;ti);
 
-  sentinel base() const;
+  const sentinel&amp; base() const;
 
 private:
   sentinel base_sentinel; // exposition only
@@ -3341,7 +3344,7 @@ public:
 
   const state_type&amp; state() const noexcept;
 
-  iterator base() const;
+  const iterator&amp; base() const;
 
 private:
   state_type base_state;  // exposition only

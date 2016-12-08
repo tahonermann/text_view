@@ -186,11 +186,11 @@ public:
             return this->get().state();
         }
 
-        iterator_type base() const noexcept {
+        const iterator_type& base() const noexcept {
             return this->get().base();
         }
 
-        auto base_range() const noexcept
+        decltype(auto) base_range() const noexcept
         requires TextDecoder<encoding_type, iterator_type>()
               && ranges::ForwardIterator<iterator_type>()
         {
