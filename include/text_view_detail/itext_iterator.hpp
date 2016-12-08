@@ -145,9 +145,6 @@ private:
 };
 
 template<TextEncoding ET, ranges::View VT>
-class itext_iterator_mixin;
-
-template<TextEncoding ET, ranges::View VT>
 class itext_cursor
     : public itext_cursor_data<ET, VT>
 {
@@ -161,9 +158,54 @@ class itext_cursor
     using difference_type = ranges::difference_type_t<iterator_type>;
 
 public:
-    using mixin = itext_iterator_mixin<ET, VT>;
     using single_pass =
         std::integral_constant<bool, !ranges::ForwardIterator<iterator_type>()>;
+
+    class mixin
+        : protected ranges::basic_mixin<itext_cursor>
+    {
+        using base_type = ranges::basic_mixin<itext_cursor>;
+    public:
+        using encoding_type = typename itext_cursor::encoding_type;
+        using view_type = typename itext_cursor::view_type;
+        using state_type = typename itext_cursor::state_type;
+
+        mixin() = default;
+
+        mixin(
+            state_type state,
+            const view_type *view,
+            iterator_type first)
+        :
+            base_type{itext_cursor{std::move(state), view, std::move(first)}}
+        {}
+
+        using base_type::base_type;
+
+        const state_type& state() const noexcept {
+            return this->get().state();
+        }
+
+        iterator_type base() const noexcept {
+            return this->get().base();
+        }
+
+        auto base_range() const noexcept
+        requires TextDecoder<encoding_type, iterator_type>()
+              && ranges::ForwardIterator<iterator_type>()
+        {
+            return this->get().base_range();
+        }
+
+        // Iterators that are not ok include:
+        // - Singular iterators.
+        // - Past the end iterators.
+        // - Iterators for which a decoding error occurred during increment or
+        //   decrement operations.
+        bool is_ok() const noexcept {
+            return this->get().is_ok();
+        }
+    };
 
     itext_cursor() = default;
 
@@ -314,56 +356,6 @@ public:
 private:
     value_type value = {};
     bool ok = false;
-};
-
-template<TextEncoding ET, ranges::View VT>
-class itext_iterator_mixin
-    : protected ranges::basic_mixin<itext_cursor<ET, VT>>
-{
-    using iterator_type = typename itext_iterator_mixin::iterator_type;
-    using cursor_type = itext_cursor<ET, VT>;
-    using base_type = ranges::basic_mixin<cursor_type>;
-
-public:
-    using encoding_type = ET;
-    using view_type = VT;
-    using state_type = typename ET::state_type;
-
-    itext_iterator_mixin() = default;
-
-    itext_iterator_mixin(
-        state_type state,
-        const view_type *view,
-        iterator_type first)
-    :
-        base_type{cursor_type{std::move(state), view, std::move(first)}}
-    {}
-
-    using base_type::base_type;
-
-    const state_type& state() const noexcept {
-        return this->get().state();
-    }
-
-    iterator_type base() const noexcept {
-        return this->get().base();
-    }
-
-    auto base_range() const noexcept
-    requires TextDecoder<encoding_type, iterator_type>()
-          && ranges::ForwardIterator<iterator_type>()
-    {
-        return this->get().base_range();
-    }
-
-    // Iterators that are not ok include:
-    // - Singular iterators.
-    // - Past the end iterators.
-    // - Iterators for which a decoding error occurred during increment or
-    //   decrement operations.
-    bool is_ok() const noexcept {
-        return this->get().is_ok();
-    }
 };
 
 } // namespace text_detail
