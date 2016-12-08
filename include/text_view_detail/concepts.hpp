@@ -87,7 +87,6 @@ template<typename T>
 concept bool Character() {
     return CharacterSet<character_set_type_t<T>>()
         && ranges::Regular<T>()
-        && ranges::Copyable<T>()
         && requires (T t,
                      const T ct,
                      code_point_type_t<character_set_type_t<T>> cp)
