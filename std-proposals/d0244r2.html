@@ -154,6 +154,9 @@ blockquote.code
       P0482R0</a>.</li>
   <li>Added concepts for text iterators and views to allow specifying iterator
       category constraints more conveniently.</li>
+  <li>Updated the <tt>Character</tt> concept to remove the redundant
+      <tt>Copyable</tt> requirement; <tt>Regular</tt> subsumes
+      <tt>Copyable</tt>.  Thanks to Casey Carter for spotting this.</li>
   <li>Updated the <tt>base</tt> member functions of <tt>itext_iterator</tt>,
       <tt>itext_sentinel</tt>, and <tt>otext_iterator</tt> to return const
       references rather than copies.</li>
@@ -1242,7 +1245,6 @@ character.  Types that satisfy <tt>Character</tt> are regular and copyable.
 <pre><code>
 template&lt;typename T&gt; concept bool Character() {
   return ranges::Regular&lt;T&gt;()
-      &amp;&amp; ranges::Copyable&lt;T&gt;()
       &amp;&amp; CharacterSet&lt;character_set_type_t&lt;T&gt;&gt;()
       &amp;&amp; requires (T t,
                            const T ct,
@@ -3789,8 +3791,12 @@ public:
 
 <h1 id="acknowledgements">Acknowledgements</h1>
 
-Thank you to the std-proposals community and especially to Zhihao Yuan,
-Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their design feedback.
+<p>Thank you to the std-proposals community and especially to Zhihao Yuan,
+Jeffrey Yasskin, Thiago Macieira, and Nicol Bolas for their initial design
+feedback.
+
+<p>Thank you to Eric Niebler and Casey Carter for the amazing work they've done
+designing and advancing the Ranges proposal!
 
 <h1 id="references">References</h1>
 
