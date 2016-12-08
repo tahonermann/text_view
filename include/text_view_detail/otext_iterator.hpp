@@ -99,25 +99,24 @@ public:
     {}
 
     auto post_increment() noexcept {
-        class proxy
-        {
+        class proxy {
         public:
             proxy(otext_cursor& self) noexcept
-                : self_(self)
+                : self(self)
             {}
             proxy& operator*() noexcept {
                 return *this;
             }
             proxy& operator=(const state_transition_type &stt) {
-                self_.write(stt);
+                self.write(stt);
                 return *this;
             }
             proxy& operator=(const character_type_t<encoding_type> &value) {
-                self_.write(value);
+                self.write(value);
                 return *this;
             }
         private:
-            otext_cursor& self_;
+            otext_cursor& self;
         };
         return proxy{*this};
     }
