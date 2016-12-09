@@ -31,6 +31,35 @@ class otext_cursor
     using state_type = typename ET::state_type;
     using state_transition_type = typename ET::state_transition_type;
 
+    class post_increment_proxy {
+        friend class otext_cursor;
+    public:
+        post_increment_proxy(otext_cursor& self) noexcept
+            : self(self)
+        {}
+
+        post_increment_proxy& operator*() noexcept {
+            return *this;
+        }
+
+        post_increment_proxy& operator=(
+            const state_transition_type &stt)
+        {
+            self.write(stt);
+            return *this;
+        }
+
+        post_increment_proxy& operator=(
+            const character_type_t<encoding_type> &value)
+        {
+            self.write(value);
+            return *this;
+        }
+
+    private:
+        otext_cursor& self;
+    };
+
 public:
     using difference_type = ranges::difference_type_t<iterator_type>;
 
@@ -50,6 +79,12 @@ public:
             iterator_type current)
         :
             base_type{otext_cursor{std::move(state), std::move(current)}}
+        {}
+
+        mixin(
+            const post_increment_proxy &p)
+        :
+            base_type{p.self}
         {}
 
         using base_type::base_type;
@@ -99,26 +134,7 @@ public:
     {}
 
     auto post_increment() noexcept {
-        class proxy {
-        public:
-            proxy(otext_cursor& self) noexcept
-                : self(self)
-            {}
-            proxy& operator*() noexcept {
-                return *this;
-            }
-            proxy& operator=(const state_transition_type &stt) {
-                self.write(stt);
-                return *this;
-            }
-            proxy& operator=(const character_type_t<encoding_type> &value) {
-                self.write(value);
-                return *this;
-            }
-        private:
-            otext_cursor& self;
-        };
-        return proxy{*this};
+        return post_increment_proxy{*this};
     }
 
 private:
