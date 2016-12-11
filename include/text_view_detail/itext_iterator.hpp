@@ -11,6 +11,7 @@
 #include <experimental/ranges/iterator>
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/iterator_preserve.hpp>
 #include <text_view_detail/subobject.hpp>
 
 
@@ -157,6 +158,22 @@ class itext_cursor
     using pointer = const value_type*;
     using difference_type = ranges::difference_type_t<iterator_type>;
 
+    class post_increment_proxy {
+        friend class itext_cursor;
+    public:
+        post_increment_proxy(itext_cursor& self) noexcept
+            : self(self), value(self.value)
+        {}
+
+        reference operator*() const noexcept {
+            return value;
+        }
+
+    private:
+        itext_cursor& self;
+        value_type value;
+    };
+
 public:
     using single_pass =
         std::integral_constant<bool, !ranges::ForwardIterator<iterator_type>()>;
@@ -179,6 +196,14 @@ public:
         :
             base_type{itext_cursor{std::move(state), view, std::move(first)}}
         {}
+
+        mixin(
+            const post_increment_proxy &p)
+        :
+            base_type{p.self}
+        {
+            this->value = p.value;
+        }
 
         using base_type::base_type;
 
@@ -233,18 +258,18 @@ public:
 
     void next() {
         ok = false;
-        iterator_type tmp_iterator{this->base()};
+        auto preserved_base = make_iterator_preserve(this->base());
         auto end(text_detail::adl_end(*this->underlying_view()));
-        while (tmp_iterator != end) {
+        while (preserved_base.get() != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
             bool decoded_code_point = encoding_type::decode(
                 this->state(),
-                tmp_iterator,
+                preserved_base.get(),
                 end,
                 tmp_value,
                 decoded_code_units);
-            this->base() = tmp_iterator;
+            preserved_base.update();
             if (decoded_code_point) {
                 value = tmp_value;
                 ok = true;
@@ -279,12 +304,17 @@ public:
         }
     }
 
-    itext_cursor post_increment()
+    // For input iterators, a proxy is returned for post increment operations
+    // that limits further operations to dereferences and explicit conversions
+    // to a copy of the iterator.  This is done to prevent possibly unintended
+    // usage of a copy of the stored input iterator that would otherwise
+    // invalidate the stored iterator.
+    auto post_increment()
         requires ! TextForwardDecoder<encoding_type, iterator_type>()
     {
-        itext_cursor tmp = *this;
+        post_increment_proxy proxy{*this};
         next();
-        return tmp;
+        return proxy;
     }
 
     void prev()

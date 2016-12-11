@@ -11,6 +11,7 @@
 #include <experimental/ranges/iterator>
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/default_encoding.hpp>
+#include <text_view_detail/iterator_preserve.hpp>
 #include <text_view_detail/subobject.hpp>
 
 
@@ -116,18 +117,25 @@ public:
     }
 
     void write(const state_transition_type &stt) {
-        iterator_type tmp{current};
+        // Preserve current so that it remains unmutated in the event that
+        // encode_state_transition() throws an exception (unless it is an
+        // actual output iterator).
+        auto preserved_current = make_iterator_preserve(current);
         int encoded_code_units = 0;
-        encoding_type::encode_state_transition(state(), tmp, stt,
-                                               encoded_code_units);
-        current = tmp;
+        encoding_type::encode_state_transition(
+            state(), preserved_current.get(), stt, encoded_code_units);
+        preserved_current.update();
     }
 
     void write(const character_type_t<encoding_type> &value) {
-        iterator_type tmp{current};
+        // Preserve current so that it remains unmutated in the event that
+        // encode_state_transition() throws an exception (unless it is an
+        // actual output iterator).
+        auto preserved_current = make_iterator_preserve(current);
         int encoded_code_units = 0;
-        encoding_type::encode(state(), tmp, value, encoded_code_units);
-        current = tmp;
+        encoding_type::encode(
+            state(), preserved_current.get(), value, encoded_code_units);
+        preserved_current.update();
     }
 
     void next() noexcept
