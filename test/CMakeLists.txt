@@ -27,3 +27,21 @@ include(CTest)
 add_test(
   NAME test-text-view
   COMMAND test-text-view)
+
+add_executable(
+  test-subobject
+  test-subobject.cpp)
+target_compile_options(
+  test-subobject
+  PRIVATE ${text_view_COMPILE_OPTIONS})
+target_compile_definitions(
+  test-subobject
+  PRIVATE ${text_view_DEFINITIONS})
+target_include_directories(
+  test-subobject
+  PRIVATE ${text_view_INCLUDE_DIRS})
+
+include(CTest)
+add_test(
+  NAME test-subobject
+  COMMAND test-subobject)
