@@ -32,7 +32,7 @@ using namespace std;
 using namespace std::experimental;
 
 
-// Nagative concept checks for use in static assertions.
+// Negative concept checks for use in static assertions.
 template<template<typename...> typename T, typename ...Ts>
 concept bool NotATextView() {
     return ! TextView<T<Ts...>>();
