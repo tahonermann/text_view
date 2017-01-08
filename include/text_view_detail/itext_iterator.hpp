@@ -216,8 +216,7 @@ public:
         }
 
         decltype(auto) base_range() const noexcept
-        requires TextDecoder<encoding_type, iterator_type>()
-              && ranges::ForwardIterator<iterator_type>()
+        requires TextForwardDecoder<encoding_type, iterator_type>()
         {
             return this->get().base_range();
         }
