@@ -479,7 +479,7 @@ auto make_text_view(
 
 // Overload to construct a text view from a text iterator and sentinel pair.
 // The initial encoding state is inferred from the first iterator.
-template<TextIterator TIT, TextSentinel<TIT> TST>
+template<TextInputIterator TIT, TextSentinel<TIT> TST>
 auto make_text_view(
     TIT first,
     TST last)

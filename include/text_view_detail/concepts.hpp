@@ -254,7 +254,6 @@ concept bool TextRandomAccessDecoder() {
 template<typename T>
 concept bool TextIterator() {
     return ranges::Iterator<T>()
-        && Character<ranges::value_type_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
         && TextEncodingState<typename T::state_type>()
         && requires (const T ct) {
@@ -279,13 +278,8 @@ concept bool TextSentinel() {
  */
 template<typename T>
 concept bool TextOutputIterator() {
-    return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
-        && TextEncoding<encoding_type_t<T>>()
-        && TextEncodingState<typename T::state_type>()
-        && requires (const T ct) {
-               { ct.state() } noexcept
-                   -> const typename encoding_type_t<T>::state_type&;
-           };
+    return TextIterator<T>()
+        && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>();
 }
 
 
@@ -295,7 +289,8 @@ concept bool TextOutputIterator() {
 template<typename T>
 concept bool TextInputIterator() {
     return TextIterator<T>()
-        && ranges::InputIterator<T>();
+        && ranges::InputIterator<T>()
+        && Character<ranges::value_type_t<T>>();
 }
 
 

@@ -521,7 +521,7 @@ template<ranges::InputRange Iterable>
   }
   auto make_text_view(const Iterable &iterable)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>, /* implementation-defined */ >;
-template<TextIterator TIT, TextSentinel<TIT> TST>
+template<TextInputIterator TIT, TextSentinel<TIT> TST>
   auto make_text_view(TIT first, TST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
 template<TextView TVT>
@@ -820,17 +820,14 @@ template<typename T, typename I> concept bool TextRandomAccessDecoder() {
 ```
 
 ### Concept TextIterator
-The `TextIterator` concept specifies requirements of types that are used to
-iterator over [characters](#character) in an [encoded](#encoding) sequence of
-[code units](#code-unit).  [Encoding](#encoding) state is held in each iterator
-instance as needed to decode the [code unit](#code-unit) sequence and is made
-accessible via non-static member functions.  The value type of a
-`TextIterator` satisfies `Character`.
+The `TextIterator` concept specifies requirements of iterator types that are
+used to encode and decode [characters](#character) as an [encoded](#encoding)
+sequence of [code units](#code-unit).  [Encoding](#encoding) state is held in
+each iterator instance and is made accessible via non-static member functions.
 
 ```C++
 template<typename T> concept bool TextIterator() {
   return ranges::Iterator<T>()
-      && Character<ranges::value_type_t<T>>()
       && TextEncoding<encoding_type_t<T>>()
       && TextEncodingState<typename T::state_type>()
       && requires (const T ct) {
@@ -854,32 +851,28 @@ template<typename T, typename I> concept bool TextSentinel() {
 ```
 
 ### Concept TextOutputIterator
-The `TextOutputIterator` concept specifies requirements of types that are used
-to [encode](#encoding) [characters](#character) as a sequence of
-[code units](#code-unit).  [Encoding](#encoding) state is held in each iterator
-instance as needed to encode the [code unit](#code-unit) sequence and is made
-accessible via non-static member functions.
+The `TextOutputIterator` concept refines `TextIterator` with a requirement that
+the type also satisfy `ranges::OutputIterator` for the character type of the
+associated encoding.
 
 ```C++
 template<typename T> concept bool TextOutputIterator() {
-  return ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
-      && TextEncoding<encoding_type_t<T>>()
-      && TextEncodingState<typename T::state_type>()
-      && requires (const T ct) {
-           { ct.state() } noexcept
-               -> const typename encoding_type_t<T>::state_type&;
-         };
+  return TextIterator<I>();
+      && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>();
 }
 ```
 
 ### Concept TextInputIterator
 The `TextInputIterator` concept refines `TextIterator` with a requirement that
-the type also satisfy `ranges::InputIterator`.
+the type also satisfy `ranges::InputIterator` and that the iterator value type
+satisfy `Character`.
+
 
 ```C++
 template<typename T> concept bool TextInputIterator() {
   return TextIterator<T>()
-      && ranges::InputIterator<T>();
+      && ranges::InputIterator<T>()
+      && Character<ranges::value_type_t<T>>();
 }
 ```
 
@@ -918,7 +911,7 @@ template<typename T> concept bool TextRandomAccessIterator() {
 
 ### Concept TextView
 The `TextView` concept specifies requirements of types that provide view access
-to an underlying [code unit](#code-unit) range.  Such types satisy
+to an underlying [code unit](#code-unit) range.  Such types satisfy
 `ranges::View`, provide iterators that satisfy `TextIterator`, define member
 types that identify the [encoding](#encoding), encoding state, and underlying
 [code unit](#code-unit) range and iterator types.  Non-static member functions
@@ -1054,8 +1047,8 @@ template<typename T>
 
 The `encoding_type_t` type alias template provides convenient means for
 selecting the associated [encoding](#encoding) type of some other type, such
-as a type that satisfies `TextIterator`, `TextOutputIterator`, or `TextView`.
-The aliased type is the same as `typename T::encoding_type`.
+as a type that satisfies `TextIterator` or `TextView`.  The aliased type is the
+same as `typename T::encoding_type`.
 
 ```C++
 template<typename T>
@@ -2271,7 +2264,7 @@ Objects of `itext_iterator` class template specialization type provide a
 standard iterator interface for enumerating the [characters](#character) encoded
 by the associated [encoding](#encoding) `ET` in the [code unit](#code-unit)
 sequence exposed by the associated view.  These types satisfy the
-`TextIterator` concept and are default constructible, copy and move
+`TextInputIterator` concept and are default constructible, copy and move
 constructible, copy and move assignable, and equality comparable.
 
 These types also conditionally satisfy `ranges::ForwardIterator`,
@@ -2708,9 +2701,10 @@ state provided by the [encoding](#encoding) `ET`.  Each of these overloads
 requires that the [encoding](#encoding) type be explicitly specified.
 
 Additional overloads are provided to construct the view from iterator and
-sentinel pairs that satisfy `TextIterator` and objects of a type that satisfies
-`TextView`.  For these overloads, the [encoding](#encoding) type is deduced and
-the [encoding](#encoding) state is implicitly copied from the arguments.
+sentinel pairs that satisfy `TextInputIterator` and objects of a type that
+satisfies `TextView`.  For these overloads, the [encoding](#encoding) type is
+deduced and the [encoding](#encoding) state is implicitly copied from the
+arguments.
 
 If `make_text_view` is invoked with an rvalue range, then the lifetime of the
 returned object and all copies of it must end with the full-expression that the
@@ -2798,7 +2792,7 @@ template<ranges::InputRange Iterable>
     const RT &range)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>, /* implementation-defined */ >;
 
-template<TextIterator TIT, TextSentinel<TIT> TST>
+template<TextInputIterator TIT, TextSentinel<TIT> TST>
   auto make_text_view(TIT first, TST last)
   -> basic_text_view<encoding_type_t<TIT>, /* implementation-defined */ >;
 

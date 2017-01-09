@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2016-12-08</td>
+    <td>2017-01-08</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -154,6 +154,11 @@ blockquote.code
       P0482R0</a>.</li>
   <li>Added concepts for text iterators and views to allow specifying iterator
       category constraints more conveniently.</li>
+  <li>Updated the <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, and
+      <tt>TextInputIterator</tt> to allow <tt>TextOutputIterator</tt> to refine
+      <tt>TextIterator</tt>.  The requirement for a text iterator's value type
+      to satisfy <tt>Character</tt> has been moved to
+      <tt>TextInputIterator</tt>.
   <li>Updated the <tt>Character</tt> concept to remove the redundant
       <tt>Copyable</tt> requirement; <tt>Regular</tt> subsumes
       <tt>Copyable</tt>.  Thanks to Casey Carter for spotting this.</li>
@@ -1084,7 +1089,7 @@ template&lt;ranges::InputRange Iterable&gt;
   }
   auto make_text_view(const Iterable &amp;iterable)
   -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
-template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
+template&lt;TextInputIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
   auto make_text_view(TIT first, TST last)
   -&gt; basic_text_view&lt;ET, /* implementation-defined */ &gt;;
 template&lt;TextView TVT&gt;
@@ -1480,17 +1485,15 @@ template&lt;typename T, typename I&gt; concept bool TextRandomAccessDecoder() {
 <h3 id="concept_textiterator">
       Concept TextIterator</h3>
 
-<p>The <tt>TextIterator</tt> concept specifies requirements of types that
-are used to iterator over characters in an encoded sequence of code units.
-Encoding state is held in each iterator instance as needed to decode the code
-unit sequence and is made accessible via non-static member functions.  The value
-type of a <tt>TextIterator</tt> satisfies <tt>Character</tt>.
+<p>The <tt>TextIterator</tt> concept specifies requirements of iterator types
+that are used to encode and decode characters as an encoded sequence of code
+units.  Encoding state is held in each iterator instance and is made accessible
+via non-static member functions.
 
 <blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextIterator() {
   return ranges::Iterator&lt;T&gt;()
-      &amp;&amp; Character&lt;ranges::value_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
       &amp;&amp; requires (const T ct) {
@@ -1522,21 +1525,15 @@ template&lt;typename T, typename I&gt; concept bool TextSentinel() {
 <h3 id="concept_textoutputiterator">
       Concept TextOutputIterator</h3>
 
-<p>The <tt>TextOutputIterator</tt> concept specifies requirements of types
-that are used to encode characters as a sequence of code units.  Encoding state
-is held in each iterator instance as needed to encode the code unit sequence
-and is made accessible via non-static member functions.
+<p>The <tt>TextOutputIterator</tt> concept refines <tt>TextIterator</tt> with
+a requirement that the type also satisfy <tt>ranges::OutputIterator</tt> for
+the character type of the associated encoding.
 
 <blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextOutputIterator() {
-  return ranges::OutputIterator&lt;T, character_type_t&lt;encoding_type_t&lt;T&gt;&gt;&gt;()
-      &amp;&amp; TextEncoding&lt;encoding_type_t&lt;T&gt;&gt;()
-      &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
-      &amp;&amp; requires (const T ct) {
-           { ct.state() } noexcept
-               -&gt; const typename encoding_type_t&lt;T&gt;::state_type&amp;;
-         };
+  return TextIterator&lt;T&gt;()
+      &amp;&amp; ranges::OutputIterator&lt;T, character_type_t&lt;encoding_type_t&lt;T&gt;&gt;&gt;();
 }
 </code></pre>
 </blockquote>
@@ -1545,13 +1542,15 @@ template&lt;typename T&gt; concept bool TextOutputIterator() {
       Concept TextInputIterator</h3>
 
 <p>The <tt>TextInputIterator</tt> concept refines <tt>TextIterator</tt> with
-a requirement that the type also satisfy <tt>ranges::InputIterator</tt>.
+a requirement that the type also satisfy <tt>ranges::InputIterator</tt> and
+that the iterator value type satisfy <tt>Character</tt>.
 
 <blockquote class="code">
 <pre><code>
 template&lt;typename T&gt; concept bool TextInputIterator() {
   return TextIterator&lt;T&gt;()
-      &amp;&amp; ranges::InputIterator&lt;T&gt;();
+      &amp;&amp; ranges::InputIterator&lt;T&gt;()
+      &amp;&amp; Character&lt;ranges::value_type_t&lt;T&gt;&gt;();
 }
 </code></pre>
 </blockquote>
@@ -1607,7 +1606,7 @@ template&lt;typename T&gt; concept bool TextRandomAccessIterator() {
       Concept TextView</h3>
 
 <p>The <tt>TextView</tt> concept specifies requirements of types that
-provide view access to an underlying code unit range.  Such types satisy
+provide view access to an underlying code unit range.  Such types satisfy
 <tt>ranges::View</tt>, provide iterators that satisfy
 <tt>TextIterator</tt>, define member types that identify the encoding,
 encoding state, and underlying code unit range and iterator types.  Non-static
@@ -1780,9 +1779,8 @@ template&lt;typename T&gt;
 
 <p>The <tt>encoding_type_t</tt> type alias template provides convenient means
 for selecting the associated encoding type of some other type, such as a type
-that satisfies <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, or
-<tt>TextView</tt>.  The aliased type is the same as
-<tt>typename T::encoding_type</tt>.
+that satisfies <tt>TextIterator</tt> or <tt>TextView</tt>.  The aliased type
+is the same as <tt>typename T::encoding_type</tt>.
 
 <blockquote class="code">
 <pre><code>
@@ -3117,7 +3115,7 @@ using char32_character_encoding = /* implementation-defined */ ;
 <p>Objects of <tt>itext_iterator</tt> class template specialization type
 provide a standard iterator interface for enumerating the characters encoded
 by the associated encoding <tt>ET</tt> in the code unit sequence exposed
-by the associated view.  These types satisfy the <tt>TextIterator</tt>
+by the associated view.  These types satisfy the <tt>TextInputIterator</tt>
 concept and are default constructible, copy and move constructible, copy and
 move assignable, and equality comparable.
 
@@ -3592,8 +3590,8 @@ or with an implicit initial encoding state provided by the encoding
 explicitly specified.
 
 <p>Additional overloads are provided to construct the view from iterator and
-sentinel pairs that satisfy <tt>TextIterator</tt> and objects of a type that
-satisfies <tt>TextView</tt>.  For these overloads, the encoding type is
+sentinel pairs that satisfy <tt>TextInputIterator</tt> and objects of a type
+that satisfies <tt>TextView</tt>.  For these overloads, the encoding type is
 deduced and the encoding state is implicitly copied from the arguments.
 
 <p>If <tt>make_text_view</tt> is invoked with an rvalue range, then the lifetime
@@ -3683,7 +3681,7 @@ template&lt;ranges::InputRange Iterable&gt;
     const RT &amp;range)
   -&gt; basic_text_view&lt;default_encoding_type_t&lt;ranges::value_type_t&lt;ranges::iterator_t&lt;Iterable&gt;&gt;&gt;, /* implementation-defined */ &gt;;
 
-template&lt;TextIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
+template&lt;TextInputIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
   auto make_text_view(TIT first, TST last)
   -&gt; basic_text_view&lt;encoding_type_t&lt;TIT&gt;, /* implementation-defined */ &gt;;
 
