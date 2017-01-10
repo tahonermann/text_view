@@ -1351,7 +1351,7 @@ void test_construct_text_view(
         ary_length> &ary,
     const String &str,
     const initializer_list<
-        const code_unit_type_t<encoding_type_t<TVT>>> &il)
+        code_unit_type_t<encoding_type_t<TVT>>> &il)
 {
     using ET = encoding_type_t<TVT>;
     using VT = typename TVT::view_type;
@@ -1505,7 +1505,7 @@ void test_make_text_view(
     const code_unit_type_t<ET> (&cstr)[cstr_length],
     const array<code_unit_type_t<ET>, ary_length> &ary,
     const String &str,
-    const initializer_list<const code_unit_type_t<ET>> &il)
+    const initializer_list<code_unit_type_t<ET>> &il)
 {
     // Test construction with an explicit initial state and an iterator pair.
     test_text_view(code_unit_maps_without_terminator,
@@ -1620,7 +1620,9 @@ void test_text_view() {
     static const char cstr[] = "text";
     static const array<char, 4> ary{ { 't', 'e', 'x', 't' } };
     static const string str{"text"};
-    static const auto il = { 't', 'e', 'x', 't' }; // std::initializer_list<char>.
+    // FIXME: gcc incorrectly deduces a const qualified value type for
+    // FIXME: std::initializer_list for const qualified variable declarations.
+    static /*const*/ auto il = { 't', 'e', 'x', 't' }; // std::initializer_list<char>.
 
     test_construct_text_view<TVT>(
         code_unit_maps_with_terminator,
@@ -1666,7 +1668,9 @@ void test_wtext_view() {
     static const wchar_t cstr[] = L"text";
     static const array<wchar_t, 4> ary{ { L't', L'e', L'x', L't' } };
     static const wstring str{L"text"};
-    static const auto il = { L't', L'e', L'x', L't' }; // std::initializer_list<wchar_t>.
+    // FIXME: gcc incorrectly deduces a const qualified value type for
+    // FIXME: std::initializer_list for const qualified variable declarations.
+    static /*const*/ auto il = { L't', L'e', L'x', L't' }; // std::initializer_list<wchar_t>.
 
     test_construct_text_view<TVT>(
         code_unit_maps_with_terminator,
@@ -1715,7 +1719,9 @@ void test_u8text_view() {
     static const array<char, 4> ary{ { u8't', u8'e', u8'x', u8't' } };
     static const string str{u8"text"};
     // FIXME: If P0482 were to be adopted, replace char with char8_t.
-    static const auto il = { u8't', u8'e', u8'x', u8't' }; // std::initializer_list<char>.
+    // FIXME: gcc incorrectly deduces a const qualified value type for
+    // FIXME: std::initializer_list for const qualified variable declarations.
+    static /*const*/ auto il = { u8't', u8'e', u8'x', u8't' }; // std::initializer_list<char>.
 
     test_construct_text_view<TVT>(
         code_unit_maps_with_terminator,
@@ -1765,7 +1771,9 @@ void test_u16text_view() {
     static const char16_t cstr[] = u"text";
     static const array<char16_t, 4> ary{ { u't', u'e', u'x', u't' } };
     static const u16string str{u"text"};
-    static const auto il = { u't', u'e', u'x', u't' }; // std::initializer_list<char16_t>.
+    // FIXME: gcc incorrectly deduces a const qualified value type for
+    // FIXME: std::initializer_list for const qualified variable declarations.
+    static /*const*/ auto il = { u't', u'e', u'x', u't' }; // std::initializer_list<char16_t>.
 
     test_construct_text_view<TVT>(
         code_unit_maps_with_terminator,
@@ -1811,7 +1819,9 @@ void test_u32text_view() {
     static const char32_t cstr[] = U"text";
     static const array<char32_t, 4> ary{ { U't', U'e', U'x', U't' } };
     static const u32string str{U"text"};
-    static const auto il = { U't', U'e', U'x', U't' }; // std::initializer_list<char32_t>.
+    // FIXME: gcc incorrectly deduces a const qualified value type for
+    // FIXME: std::initializer_list for const qualified variable declarations.
+    static /*const*/ auto il = { U't', U'e', U'x', U't' }; // std::initializer_list<char32_t>.
 
     test_construct_text_view<TVT>(
         code_unit_maps_with_terminator,
