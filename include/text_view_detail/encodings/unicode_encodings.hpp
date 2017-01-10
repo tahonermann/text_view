@@ -38,7 +38,7 @@ struct iso_10646_wide_character_encoding
                  wchar_t>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -55,7 +55,7 @@ struct utf8_encoding
                  char>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -82,7 +82,7 @@ struct utf16_encoding
                  char16_t>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -93,7 +93,7 @@ struct utf16be_encoding
                  char>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -104,7 +104,7 @@ struct utf16le_encoding
                  char>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -130,7 +130,7 @@ struct utf32_encoding
                  char32_t>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -141,7 +141,7 @@ struct utf32be_encoding
                  char>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -152,7 +152,7 @@ struct utf32le_encoding
                  char>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };

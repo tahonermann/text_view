@@ -27,7 +27,7 @@ struct basic_execution_character_encoding
                  char>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
@@ -42,7 +42,7 @@ struct basic_execution_wide_character_encoding
                  wchar_t>
 {
     static const state_type& initial_state() noexcept {
-        static const state_type state;
+        static const state_type state{};
         return state;
     }
 };
