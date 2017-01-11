@@ -7,24 +7,52 @@
 sudo: false
 language: cpp
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-6
-
 matrix:
   include:
+    # Last known good cmcstl2 commit:
     - os: linux
+      addons: &gcc6
+        apt:
+          packages:
+            - g++-6
+          sources:
+            - ubuntu-toolchain-r-test
       compiler: gcc
       env: COMPILER=g++-6 BUILD_TYPE=RELEASE BUILD_LAST_KNOWN_GOOD_CMCSTL2=1
+
+    # Linux, gcc 6:
     - os: linux
+      addons: *gcc6
       compiler: gcc
       env: COMPILER=g++-6 BUILD_TYPE=RELEASE
     - os: linux
+      addons: *gcc6
       compiler: gcc
       env: COMPILER=g++-6 BUILD_TYPE=DEBUG
+
+    # Linux, clang 3.6:
+    # - os: linux
+    #   addons: &clang36
+    #     apt:
+    #       packages:
+    #         - clang-3.6
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - llvm-toolchain-precise-3.6
+    #   compiler: clang
+    #   env: COMPILER=clang++-3.6 BUILD_TYPE=RELEASE
+    # - os: linux
+    #   addons: *clang36
+    #   compiler: clang
+    #   env: COMPILER=clang++-3.6 BUILD_TYPE=DEBUG
+
+    # Mac OS X, clang (default version):
+    # - os: osx
+    #   compiler: clang
+    #   env: COMPILER=clang++ BUILD_TYPE=DEBUG
+    # - os: osx
+    #   compiler: clang
+    #   env: COMPILER=clang++ BUILD_TYPE=DEBUG
 
 cache:
   directories:
@@ -32,12 +60,18 @@ cache:
 
 install:
   - |
-    if [ "!" -x cache/cmake/bin/cmake ]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
-      mkdir -p cache/cmake
-      travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C cache/cmake
+    if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+      if [ "!" -x cache/cmake/bin/cmake ]; then
+        CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
+        mkdir -p cache/cmake
+        travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C cache/cmake
+      fi
+      export PATH="$TRAVIS_BUILD_DIR/cache/cmake/bin:$PATH"
+    elif [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+      if "!" brew ls --version cmake; then
+        brew install cmake
+      fi
     fi
-  - export PATH="$TRAVIS_BUILD_DIR/cache/cmake/bin:$PATH"
   - |
     if [ "!" -f cache/last_known_good_cmcstl2_commit ]; then
       echo "b704dadecd0ae2fc11289e35b37d234d9c8eb644" > cache/last_known_good_cmcstl2_commit
@@ -54,7 +88,8 @@ before_script:
   - which cmake
   - cmake --version
   - export CXX="$COMPILER"
-  - which "$CXX"
+  - echo "CXX=$CXX"
+  - which $CXX
   - $CXX --version
   - "echo \"cmcstl2 commit: $(git -C cmcstl2 rev-parse HEAD)\""
 
