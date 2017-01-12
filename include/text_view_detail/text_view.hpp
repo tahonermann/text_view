@@ -319,9 +319,9 @@ auto make_text_view(
     ST last)
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
-    return make_text_view<ET>(std::move(state),
-                              std::move(first),
-                              std::move(last));
+    return text::make_text_view<ET>(std::move(state),
+                                    std::move(first),
+                                    std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -349,8 +349,8 @@ auto make_text_view(
     ST last)
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
-    return make_text_view<ET>(std::move(first),
-                              std::move(last));
+    return text::make_text_view<ET>(std::move(first),
+                                    std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -363,9 +363,9 @@ auto make_text_view(
     ranges::difference_type_t<IT> n)
 {
     auto last = std::next(first, n);
-    return make_text_view<ET>(std::move(state),
-                              std::move(first),
-                              std::move(last));
+    return text::make_text_view<ET>(std::move(state),
+                                    std::move(first),
+                                    std::move(last));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -383,9 +383,9 @@ auto make_text_view(
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
     auto last = std::next(first, n);
-    return make_text_view<ET>(std::move(state),
-                              std::move(first),
-                              std::move(last));
+    return text::make_text_view<ET>(std::move(state),
+                                    std::move(first),
+                                    std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -397,8 +397,8 @@ auto make_text_view(
     ranges::difference_type_t<IT> n)
 {
     auto last = std::next(first, n);
-    return make_text_view<ET>(std::move(first),
-                              std::move(last));
+    return text::make_text_view<ET>(std::move(first),
+                                    std::move(last));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -414,8 +414,8 @@ auto make_text_view(
 {
     using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
     auto last = std::next(first, n);
-    return make_text_view<ET>(std::move(first),
-                              std::move(last));
+    return text::make_text_view<ET>(std::move(first),
+                                    std::move(last));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -426,9 +426,9 @@ auto make_text_view(
     typename ET::state_type state,
     const RT &range)
 {
-    return make_text_view<ET>(std::move(state),
-                              text_detail::adl_begin(range),
-                              text_detail::adl_end(range));
+    return text::make_text_view<ET>(std::move(state),
+                                    text_detail::adl_begin(range),
+                                    text_detail::adl_end(range));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -446,9 +446,9 @@ auto make_text_view(
 {
     using ET =
         default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>;
-    return make_text_view<ET>(std::move(state),
-                              text_detail::adl_begin(range),
-                              text_detail::adl_end(range));
+    return text::make_text_view<ET>(std::move(state),
+                                    text_detail::adl_begin(range),
+                                    text_detail::adl_end(range));
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
@@ -457,8 +457,8 @@ template<TextEncoding ET, ranges::InputRange RT>
 auto make_text_view(
     const RT &range)
 {
-    return make_text_view<ET>(text_detail::adl_begin(range),
-                              text_detail::adl_end(range));
+    return text::make_text_view<ET>(text_detail::adl_begin(range),
+                                    text_detail::adl_end(range));
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
@@ -473,8 +473,8 @@ auto make_text_view(
 {
     using ET =
         default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>;
-    return make_text_view<ET>(text_detail::adl_begin(range),
-                              text_detail::adl_end(range));
+    return text::make_text_view<ET>(text_detail::adl_begin(range),
+                                    text_detail::adl_end(range));
 }
 
 // Overload to construct a text view from a text iterator and sentinel pair.
@@ -485,9 +485,9 @@ auto make_text_view(
     TST last)
 {
     using ET = encoding_type_t<TIT>;
-    return make_text_view<ET>(first.state(),
-                              first.base(),
-                              last.base());
+    return text::make_text_view<ET>(first.state(),
+                                    first.base(),
+                                    last.base());
 }
 
 // Overload to construct a text view from an existing text view.
