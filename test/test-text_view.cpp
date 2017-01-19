@@ -26,6 +26,7 @@
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/advance_to.hpp>
 #include <text_view_detail/riterator.hpp>
+#include <text_view_detail/to_array.hpp>
 
 
 using namespace std;
@@ -1336,26 +1337,23 @@ void test_text_view(
 }
 
 template<
-    TextView TVT,
-    size_t cstr_length,
-    size_t ary_length,
-    typename String>
+    TextEncoding ET,
+    size_t cstr_length>
 void test_construct_text_view(
-    const code_unit_map_sequence<encoding_type_t<TVT>>
-        &code_unit_maps_with_terminator,
-    const code_unit_map_sequence<encoding_type_t<TVT>>
-        &code_unit_maps_without_terminator,
-    const code_unit_type_t<encoding_type_t<TVT>> (&cstr)[cstr_length],
-    const array<
-        code_unit_type_t<encoding_type_t<TVT>>,
-        ary_length> &ary,
-    const String &str,
-    const initializer_list<
-        code_unit_type_t<encoding_type_t<TVT>>> &il)
+    const code_unit_map_sequence<ET> &code_unit_maps_with_terminator,
+    const code_unit_map_sequence<ET> &code_unit_maps_without_terminator,
+    const code_unit_type_t<ET> (&cstr)[cstr_length],
+    const initializer_list<code_unit_type_t<ET>> &il)
 {
-    using ET = encoding_type_t<TVT>;
-    using VT = typename TVT::view_type;
-    using CUMS = code_unit_map_sequence<encoding_type_t<TVT>>;
+    using CUT = code_unit_type_t<ET>;
+    using VT = text_detail::basic_view<const CUT*>;
+    using TVT = basic_text_view<ET, VT>;
+    using CUMS = code_unit_map_sequence<ET>;
+
+    // Construct a std::string to test.
+    const basic_string<CUT> str{
+        text_detail::adl_begin(cstr),
+        text_detail::adl_end(cstr)};
 
     // Note: copy-initialization is used in these tests to ensure these forms
     // are valid for function arguments.  list-initialization is used to ensure
@@ -1363,167 +1361,164 @@ void test_construct_text_view(
 
     // Test initialization via the default constructor.
     TVT tv1 = {};
-    test_text_view<TVT>(CUMS{}, VT{}, tv1);
+    test_text_view(CUMS{}, VT{}, tv1);
 
     // Test initialization with an explicit initial state and underlying range.
     TVT tv2 = {ET::initial_state(), VT{&cstr[0], &cstr[cstr_length]}};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv2);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv2);
 
     // Test initialization with an implicit initial state and underlying range.
     TVT tv3 = {VT{&cstr[0], &cstr[cstr_length]}};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv3);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv3);
 
     // Test initialization with an explicit initial state and an iterator pair.
     TVT tv4 = {ET::initial_state(), &cstr[0], &cstr[cstr_length]};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv4);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv4);
 
     // Test initialization with an implicit initial state and an iterator pair.
     TVT tv5 = {&cstr[0], &cstr[cstr_length]};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv5);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv5);
 
     // Test initialization with an explicit initial state and a sized iterator range.
     TVT tv6 = {ET::initial_state(), &cstr[0], cstr_length};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv6);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv6);
 
     // Test initialization with an implicit initial state and a sized iterator range.
     TVT tv7 = {&cstr[0], cstr_length};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv7);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv7);
 
     // Test initialization with an explicit initial state and a std::string.
     TVT tv8 = {ET::initial_state(), str};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        VT{str.c_str(), str.c_str() + str.size()},
-                        tv8);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{str.c_str(), str.c_str() + str.size()},
+                   tv8);
 
     // Test initialization with an implicit initial state and a std::string.
     TVT tv9 = {str};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        VT{str.c_str(), str.c_str() + str.size()},
-                        tv9);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{str.c_str(), str.c_str() + str.size()},
+                   tv9);
 
     // Test initialization with an explicit initial state and an array.
     TVT tv10 = {ET::initial_state(), cstr};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv10);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv10);
 
     // Test initialization with an implicit initial state and an array.
     TVT tv11 = {cstr};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv11);
-
-    // Test initialization with an explicit initial state and a std::array.
-    TVT tv12 = {ET::initial_state(), ary};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        ary,
-                        tv12);
-
-    // Test initialization with an implicit initial state and a std::array.
-    TVT tv13 = {ary};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        ary,
-                        tv13);
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv11);
 
     // Test initialization with an explicit initial state and a std::initializer_list.
-    TVT tv14 = {ET::initial_state(), il};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        il,
-                        tv14);
+    TVT tv12 = {ET::initial_state(), il};
+    test_text_view(code_unit_maps_without_terminator,
+                   il,
+                   tv12);
 
     // Test initialization with an implicit initial state and a std::initializer_list.
-    TVT tv15 = {il};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        il,
-                        tv15);
+    TVT tv13 = {il};
+    test_text_view(code_unit_maps_without_terminator,
+                   il,
+                   tv13);
 
     // Test initialization with an explicit initial state and result of make_cstr_view().
-    TVT tv16 = {ET::initial_state(), make_cstr_view(cstr)};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        make_cstr_view(cstr),
-                        tv16);
+    TVT tv14 = {ET::initial_state(), make_cstr_view(cstr)};
+    test_text_view(code_unit_maps_without_terminator,
+                   make_cstr_view(cstr),
+                   tv14);
                              
     // Test initialization with an implicit initial state and result of make_cstr_view().
-    TVT tv17 = {make_cstr_view(cstr)};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        make_cstr_view(cstr),
-                        tv17);
+    TVT tv15 = {make_cstr_view(cstr)};
+    test_text_view(code_unit_maps_without_terminator,
+                   make_cstr_view(cstr),
+                   tv15);
 
     // Test initialization with a text iterator/sentinel pair.
-    TVT tv18 = {begin(tv17), end(tv17)};
-    test_text_view<TVT>(code_unit_maps_without_terminator,
-                        VT{begin(begin(tv17).base_range()), end(end(tv17).base_range())},
-                        tv18);
+    TVT tv16 = {begin(tv15), end(tv15)};
+    test_text_view(code_unit_maps_without_terminator,
+                   VT{begin(begin(tv15).base_range()), end(end(tv15).base_range())},
+                   tv16);
                              
     // Test initialization via the copy constructor.
-    TVT tv19 = {tv2}; // Note: used to test move construction below.
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv19);
+    TVT tv17 = {tv2}; // Note: used to test move construction below.
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv17);
                              
     // Test initialization via the move constructor.
-    TVT tv20 = {move(tv19)};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv20);
+    TVT tv18 = {move(tv17)};
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv18);
 
     // Test copy assignment.
-    TVT tv21; // Note: used to test move assignment below.
-    tv21 = {tv2};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv21);
+    TVT tv19; // Note: used to test move assignment below.
+    tv19 = {tv2};
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv19);
 
     // Test move assignment.
-    TVT tv22;
-    tv22 = {move(tv21)};
-    test_text_view<TVT>(code_unit_maps_with_terminator,
-                        VT{&cstr[0], &cstr[cstr_length]},
-                        tv22);
+    TVT tv20;
+    tv20 = {move(tv19)};
+    test_text_view(code_unit_maps_with_terminator,
+                   VT{&cstr[0], &cstr[cstr_length]},
+                   tv20);
 }
 
 template<
     TextEncoding ET,
-    size_t cstr_length,
-    size_t ary_length,
-    typename String>
+    size_t cstr_length>
 void test_make_text_view(
     const code_unit_map_sequence<ET> &code_unit_maps_with_terminator,
     const code_unit_map_sequence<ET> &code_unit_maps_without_terminator,
     const code_unit_type_t<ET> (&cstr)[cstr_length],
-    const array<code_unit_type_t<ET>, ary_length> &ary,
-    const String &str,
     const initializer_list<code_unit_type_t<ET>> &il)
 {
+    // Construct a std::string to test.
+    const basic_string<code_unit_type_t<ET>> str{
+        text_detail::adl_begin(cstr),
+        text_detail::adl_end(cstr)};
+
+    // Construct a std::vector to test.
+    const vector<code_unit_type_t<ET>> vec{
+        text_detail::adl_begin(cstr),
+        text_detail::adl_end(cstr)};
+
+    // Construct a std::array code unit sequence to test.
+    const auto ary = text_detail::to_array(cstr);
+
     // Test construction with an explicit initial state and an iterator pair.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view<ET>(ET::initial_state(), begin(ary), end(ary)));
 
     // Test construction with an implicit initial state and an iterator pair.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view<ET>(begin(ary), end(ary)));
 
     // Test construction with an explicit initial state and a sized iterator range.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view<ET>(ET::initial_state(), begin(ary), ary.size()));
 
     // Test construction with an implicit initial state and a sized iterator range.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view<ET>(begin(ary), ary.size()));
 
@@ -1538,24 +1533,34 @@ void test_make_text_view(
                    make_text_view<ET>(cstr));
 
     // Test construction with an explicit initial state and a std::array.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view<ET>(ET::initial_state(), ary));
 
     // Test construction with an implicit initial state and a std::array.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view<ET>(ary));
 
     // Test construction with an explicit initial state and a std::string.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    str,
                    make_text_view<ET>(ET::initial_state(), str));
 
     // Test construction with an implicit initial state and a std::string.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    str,
                    make_text_view<ET>(str));
+
+    // Test construction with an explicit initial state and a std::vector.
+    test_text_view(code_unit_maps_with_terminator,
+                   vec,
+                   make_text_view<ET>(ET::initial_state(), vec));
+
+    // Test construction with an implicit initial state and a std::vector.
+    test_text_view(code_unit_maps_with_terminator,
+                   vec,
+                   make_text_view<ET>(vec));
 
     // Test construction with an explicit initial state and a std::initializer_list.
     test_text_view(code_unit_maps_without_terminator,
@@ -1578,29 +1583,30 @@ void test_make_text_view(
                    make_text_view<ET>(make_cstr_view(cstr)));
 
     // Test construction via the copy constructor.  Note that an explicit
-    // encoding is not specified in the make_text_view call.
+    // encoding is not specified in the make_text_view call passed as an
+    // argument to test_text_view.
     auto tv1 = make_text_view<ET>(ary);
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view(tv1));
 
     // Test construction via the move constructor.  Note that an explicit
-    // encoding is not specified in the make_text_view call.
+    // encoding is not specified in the make_text_view call passed as an
+    // argument to test_text_view.
     auto tv2 = tv1;
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view(move(tv2)));
 
     // Test construction with a text iterator pair.  Note that an explicit
     // encoding is not specified in the make_text_view call.
-    test_text_view(code_unit_maps_without_terminator,
+    test_text_view(code_unit_maps_with_terminator,
                    ary,
                    make_text_view(begin(tv1), end(tv1)));
 }
 
 void test_text_view() {
-    using TVT = text_view;
-    using ET = encoding_type_t<TVT>;
+    using ET = execution_character_encoding;
     using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1618,26 +1624,20 @@ void test_text_view() {
 
     // Underlying code unit containers.
     static const char cstr[] = "text";
-    static const array<char, 4> ary{ { 't', 'e', 'x', 't' } };
-    static const string str{"text"};
     // FIXME: gcc incorrectly deduces a const qualified value type for
     // FIXME: std::initializer_list for const qualified variable declarations.
     static /*const*/ auto il = { 't', 'e', 'x', 't' }; // std::initializer_list<char>.
 
-    test_construct_text_view<TVT>(
+    test_construct_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     test_make_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     auto tv = make_text_view(cstr);
@@ -1647,8 +1647,7 @@ void test_text_view() {
 }
 
 void test_wtext_view() {
-    using TVT = wtext_view;
-    using ET = encoding_type_t<TVT>;
+    using ET = execution_wide_character_encoding;
     using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1666,26 +1665,20 @@ void test_wtext_view() {
 
     // Underlying code unit containers.
     static const wchar_t cstr[] = L"text";
-    static const array<wchar_t, 4> ary{ { L't', L'e', L'x', L't' } };
-    static const wstring str{L"text"};
     // FIXME: gcc incorrectly deduces a const qualified value type for
     // FIXME: std::initializer_list for const qualified variable declarations.
     static /*const*/ auto il = { L't', L'e', L'x', L't' }; // std::initializer_list<wchar_t>.
 
-    test_construct_text_view<TVT>(
+    test_construct_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     test_make_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     auto tv = make_text_view(cstr);
@@ -1695,8 +1688,7 @@ void test_wtext_view() {
 }
 
 void test_u8text_view() {
-    using TVT = u8text_view;
-    using ET = encoding_type_t<TVT>;
+    using ET = char8_character_encoding;
     using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1716,27 +1708,20 @@ void test_u8text_view() {
     // FIXME: If P0482 were to be adopted, replace char with char8_t.
     static const char cstr[] = u8"text";
     // FIXME: If P0482 were to be adopted, replace char with char8_t.
-    static const array<char, 4> ary{ { u8't', u8'e', u8'x', u8't' } };
-    static const string str{u8"text"};
-    // FIXME: If P0482 were to be adopted, replace char with char8_t.
     // FIXME: gcc incorrectly deduces a const qualified value type for
     // FIXME: std::initializer_list for const qualified variable declarations.
     static /*const*/ auto il = { u8't', u8'e', u8'x', u8't' }; // std::initializer_list<char>.
 
-    test_construct_text_view<TVT>(
+    test_construct_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     test_make_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
 #if 0
@@ -1750,8 +1735,7 @@ void test_u8text_view() {
 }
 
 void test_u16text_view() {
-    using TVT = u16text_view;
-    using ET = encoding_type_t<TVT>;
+    using ET = char16_character_encoding;
     using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1769,26 +1753,20 @@ void test_u16text_view() {
 
     // Underlying code unit containers.
     static const char16_t cstr[] = u"text";
-    static const array<char16_t, 4> ary{ { u't', u'e', u'x', u't' } };
-    static const u16string str{u"text"};
     // FIXME: gcc incorrectly deduces a const qualified value type for
     // FIXME: std::initializer_list for const qualified variable declarations.
     static /*const*/ auto il = { u't', u'e', u'x', u't' }; // std::initializer_list<char16_t>.
 
-    test_construct_text_view<TVT>(
+    test_construct_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     test_make_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     auto tv = make_text_view(cstr);
@@ -1798,8 +1776,7 @@ void test_u16text_view() {
 }
 
 void test_u32text_view() {
-    using TVT = u32text_view;
-    using ET = encoding_type_t<TVT>;
+    using ET = char32_character_encoding;
     using CT = character_type_t<ET>;
     using CUMS = code_unit_map_sequence<ET>;
 
@@ -1817,26 +1794,20 @@ void test_u32text_view() {
 
     // Underlying code unit containers.
     static const char32_t cstr[] = U"text";
-    static const array<char32_t, 4> ary{ { U't', U'e', U'x', U't' } };
-    static const u32string str{U"text"};
     // FIXME: gcc incorrectly deduces a const qualified value type for
     // FIXME: std::initializer_list for const qualified variable declarations.
     static /*const*/ auto il = { U't', U'e', U'x', U't' }; // std::initializer_list<char32_t>.
 
-    test_construct_text_view<TVT>(
+    test_construct_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     test_make_text_view<ET>(
         code_unit_maps_with_terminator,
         code_unit_maps_without_terminator,
         cstr,
-        ary,
-        str,
         il);
 
     auto tv = make_text_view(cstr);
