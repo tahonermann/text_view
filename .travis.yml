@@ -18,7 +18,9 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       compiler: gcc
-      env: COMPILER=g++-6 BUILD_TYPE=RELEASE BUILD_LAST_KNOWN_GOOD_CMCSTL2=1
+      env: COMPILER=g++-6
+           BUILD_TYPE=RELEASE
+           LAST_KNOWN_GOOD_CMCSTL2=b704dadecd0ae2fc11289e35b37d234d9c8eb644
 
     # Linux, gcc 6:
     - os: linux
@@ -72,14 +74,10 @@ install:
         brew install cmake
       fi
     fi
-  - |
-    if [ "!" -f cache/last_known_good_cmcstl2_commit ]; then
-      echo "b704dadecd0ae2fc11289e35b37d234d9c8eb644" > cache/last_known_good_cmcstl2_commit
-    fi
   - travis_retry git clone https://github.com/CaseyCarter/cmcstl2.git cmcstl2
   - |
-    if [ -n "$BUILD_LAST_KNOWN_GOOD_CMCSTL2" ]; then
-      git -C cmcstl2 checkout $(cat cache/last_known_good_cmcstl2_commit)
+    if [ -n "$LAST_KNOWN_GOOD_CMCSTL2" ]; then
+      git -C cmcstl2 checkout $LAST_KNOWN_GOOD_CMCSTL2
     fi
   - export CMCSTL2_INSTALL_PATH="$TRAVIS_BUILD_DIR/cmcstl2"
 
@@ -97,9 +95,3 @@ script:
   - mkdir build
   - (cd build && cmake -DCMAKE_BUILD_TYPE="$BUILD_TYPE" ..)
   - (cd build && cmake --build . --config "$BUILD_TYPE" --target check-install)
-
-after_success:
-  - |
-    if [ -z "$BUILD_LAST_KNOWN_GOOD_CMCSTL2" ]; then
-      git -C cmcstl2 rev-parse HEAD > cache/last_known_good_cmcstl2_commit
-    fi
