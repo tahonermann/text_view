@@ -1,10 +1,17 @@
-Travis CI Build Status: [![Travis Build Status](https://travis-ci.org/tahonermann/text_view.svg?branch=master)](https://travis-ci.org/tahonermann/text_view)
+[![Travis Build Status](https://travis-ci.org/tahonermann/text_view.svg?branch=master)](https://travis-ci.org/tahonermann/text_view)
+Travis CI (Linux:gcc)
 
 # [Text_view]
 A [C++ Concepts][ISO/IEC 19217:2015]
 based character encoding and code point enumeration library.
 
-This project is the reference implementation for proposal [P0244] for the C++ standard.
+This project is the reference implementation for proposal [P0244] for the C++
+standard.
+
+This port of [Text_view] requires a C++17 conforming compiler that implements
+[ISO/IEC technical specification 19217:2015, **C++ Extensions for concepts**
+][ISO/IEC 19217:2015].  A port of [Text_view] that builds with C++11 conforming
+compilers is available at [Text_view for range-v3][Text_view-range-v3].
 
 For discussion of this project, please post and/or subscribe to the
 `text_view@googlegroups.com` group hosted at
@@ -3019,6 +3026,8 @@ encodings such as [Windows code page 1252].
 # References
 - [Text_view]  
   https://github.com/tahonermann/text_view
+- [Text_view-range-v3]
+  https://github.com/tahonermann/text_view-range-v3
 - [cmcstl2]
   https://github.com/CaseyCarter/cmcstl2
 - [ISO/IEC technical specification 19217:2015, C++ Extensions for concepts][ISO/IEC 19217:2015]  
@@ -3043,6 +3052,9 @@ encodings such as [Windows code page 1252].
 [Text_view]:
 https://github.com/tahonermann/text_view
 (Text_view library)
+[Text_view-range-v3]:
+https://github.com/tahonermann/text_view-range-v3
+(Text_view for range-v3)
 [cmcstl2]:
 https://github.com/CaseyCarter/cmcstl2
 (An implementation of C++ Extensions for Ranges)
