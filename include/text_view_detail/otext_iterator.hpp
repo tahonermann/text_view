@@ -4,8 +4,8 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-#ifndef TEXT_VIEW_TEXT_OITERATOR_HPP // {
-#define TEXT_VIEW_TEXT_OITERATOR_HPP
+#ifndef TEXT_VIEW_OTEXT_ITERATOR_HPP // {
+#define TEXT_VIEW_OTEXT_ITERATOR_HPP
 
 
 #include <experimental/ranges/iterator>
