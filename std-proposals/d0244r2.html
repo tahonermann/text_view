@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2017-01-08</td>
+    <td>2017-01-27</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -165,6 +165,7 @@ blockquote.code
   <li>Updated the <tt>base</tt> member functions of <tt>itext_iterator</tt>,
       <tt>itext_sentinel</tt>, and <tt>otext_iterator</tt> to return const
       references rather than copies.</li>
+  <li>Added some missing noexcept specifiers.</li>
   <li>Updated view types to derive from ranges::view_base.</li>
   <li>Updated a few basic_text_view constructors to require underlying view
       construction from pairs of rvalue iterators.  This was done so that
@@ -3238,9 +3239,9 @@ public:
 
   const state_type&amp; state() const noexcept;
 
-  const iterator&amp; base() const;
+  const iterator&amp; base() const noexcept;
 
-  /* implementation-defined */ base_range() const
+  /* implementation-defined */ base_range() const noexcept
     requires TextDecoder&lt;encoding_type, iterator&gt;()
           &amp;&amp; ranges::ForwardIterator&lt;iterator&gt;();
 
@@ -3294,7 +3295,7 @@ public:
   friend bool operator!=(const itext_sentinel &amp;ts,
                          const itext_iterator&lt;ET, VT&gt; &amp;ti);
 
-  const sentinel&amp; base() const;
+  const sentinel&amp; base() const noexcept;
 
 private:
   sentinel base_sentinel; // exposition only
@@ -3334,7 +3335,7 @@ public:
 
   otext_iterator(state_type state, iterator current);
 
-  otext_iterator&amp; operator*() noexcept;
+  otext_iterator&amp; operator*() const noexcept;
 
   otext_iterator&amp; operator++() noexcept;
   otext_iterator&amp; operator++(int) noexcept;
@@ -3344,7 +3345,7 @@ public:
 
   const state_type&amp; state() const noexcept;
 
-  const iterator&amp; base() const;
+  const iterator&amp; base() const noexcept;
 
 private:
   state_type base_state;  // exposition only

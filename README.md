@@ -2378,9 +2378,9 @@ public:
 
   const state_type& state() const noexcept;
 
-  const iterator& base() const;
+  const iterator& base() const noexcept;
 
-  /* implementation-defined */ base_range() const
+  /* implementation-defined */ base_range() const noexcept
     requires TextDecoder<encoding_type, iterator>()
           && ranges::ForwardIterator<iterator>();
 
@@ -2431,7 +2431,7 @@ public:
   friend bool operator!=(const itext_sentinel &ts,
                          const itext_iterator<ET, VT> &ti);
 
-  const sentinel& base() const;
+  const sentinel& base() const noexcept;
 
 private:
   sentinel base_sentinel; // exposition only
@@ -2468,7 +2468,7 @@ public:
 
   otext_iterator(state_type state, iterator current);
 
-  otext_iterator& operator*() noexcept;
+  otext_iterator& operator*() const noexcept;
 
   otext_iterator& operator++() noexcept;
   otext_iterator& operator++(int) noexcept;
@@ -2478,7 +2478,7 @@ public:
 
   const state_type& state() const noexcept;
 
-  const iterator& base() const;
+  const iterator& base() const noexcept;
 
 private:
   state_type base_state;  // exposition only
