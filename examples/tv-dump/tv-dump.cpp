@@ -50,6 +50,16 @@ template<TextEncoding ET>
 void dump_code_points(
     ifstream &ifs)
 {
+    struct ios_flags_preserver {
+        ios_flags_preserver(ostream &os) : os(os), flags(os.flags()) {}
+        ~ios_flags_preserver() { os.flags(flags); }
+    private:
+        ostream &os;
+        ios_base::fmtflags flags;
+    };
+
+    ios_flags_preserver ifp{cout};
+
     using CUT = code_unit_type_t<ET>;
     istream_iterator<CUT> ifs_in(ifs), ifs_end;
 
