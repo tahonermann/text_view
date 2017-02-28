@@ -30,21 +30,6 @@ public:
         : s{s} {}
 
     friend bool operator==(
-        const itext_sentinel &l,
-        const itext_sentinel &r) noexcept
-    {
-        // Sentinels always compare equal regardless of any internal state.
-        // See N4128, 10.1 "Sentinel Equality".
-        return true;
-    }
-    friend bool operator!=(
-        const itext_sentinel &l,
-        const itext_sentinel &r) noexcept
-    {
-        return !(l == r);
-    }
-
-    friend bool operator==(
         const itext_iterator<ET, VT> &ti,
         const itext_sentinel &ts)
     {

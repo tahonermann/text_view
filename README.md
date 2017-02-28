@@ -2417,11 +2417,6 @@ public:
 
   itext_sentinel(sentinel s);
 
-  friend bool operator==(const itext_sentinel &l,
-                         const itext_sentinel &r) noexcept;
-  friend bool operator!=(const itext_sentinel &l,
-                         const itext_sentinel &r) noexcept;
-
   friend bool operator==(const itext_iterator<ET, VT> &ti,
                          const itext_sentinel &ts);
   friend bool operator!=(const itext_iterator<ET, VT> &ti,

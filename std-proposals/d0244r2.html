@@ -165,6 +165,9 @@ blockquote.code
   <li>Updated the <tt>base</tt> member functions of <tt>itext_iterator</tt>,
       <tt>itext_sentinel</tt>, and <tt>otext_iterator</tt> to return const
       references rather than copies.</li>
+  <li>Removed equality comparison operators for <tt>itext_sentinel</tt>.
+      Equality comparison requirements for sentinels was removed from the Ranges
+      proposal in N4569.</li>
   <li>Added some missing noexcept specifiers.</li>
   <li>Updated view types to derive from ranges::view_base.</li>
   <li>Updated a few basic_text_view constructors to require underlying view
@@ -3280,11 +3283,6 @@ public:
   itext_sentinel() = default;
 
   itext_sentinel(sentinel s);
-
-  friend bool operator==(const itext_sentinel &amp;l,
-                         const itext_sentinel &amp;r) noexcept;
-  friend bool operator!=(const itext_sentinel &amp;l,
-                         const itext_sentinel &amp;r) noexcept;
 
   friend bool operator==(const itext_iterator&lt;ET, VT&gt; &amp;ti,
                          const itext_sentinel &amp;ts);
