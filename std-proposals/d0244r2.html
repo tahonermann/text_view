@@ -3265,9 +3265,8 @@ private:
 denote the end of a range of text as delimited by a sentinel object for the
 underlying code unit sequence.  These types satisfy the
 <tt>TextSentinel</tt> concept and are default constructible, copy and move
-constructible, copy and move assignable, and equality comparable.  All objects
-of the same <tt>itext_sentinel</tt> type compare equally.  Member functions
-provide access to the sentinel for the underlying code unit sequence.
+constructible, and copy and move assignable.  Member functions provide access
+to the sentinel for the underlying code unit sequence.
 
 <p>Objects of these types are equality comparable to <tt>itext_iterator</tt>
 objects that have matching encoding and view types.

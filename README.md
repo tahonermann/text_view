@@ -2398,10 +2398,9 @@ private:
 Objects of `itext_sentinel` class template specialization type denote the end
 of a range of text as delimited by a sentinel object for the underlying
 [code unit](#code-unit) sequence.  These types satisfy the `TextSentinel`
-concept and are default constructible, copy and move constructible, copy and
-move assignable, and equality comparable.  All objects of the same
-`itext_sentinel` type compare equally.  Member functions provide access to the
-sentinel for the underlying [code unit](#code-unit) sequence.
+concept and are default constructible, copy and move constructible, and copy and
+move assignable.  Member functions provide access to the sentinel for the
+underlying [code unit](#code-unit) sequence.
 
 Objects of these types are equality comparable to `itext_iterator` objects that
 have matching [encoding](#encoding) and view types.
