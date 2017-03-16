@@ -164,7 +164,7 @@ using otext_iterator =
  * make_otext_iterator
  */
 // Overload to construct an output text iterator for an explicitly specified
-// encoding from an output iterator and and an explicitly specified initial
+// encoding from an output iterator and an explicitly specified initial
 // encoding state.
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
 auto make_otext_iterator(
@@ -175,7 +175,7 @@ auto make_otext_iterator(
 }
 
 // Overload to construct an output text iterator for an explicitly specified
-// encoding from an output iterator and and an implicit initial encoding state.
+// encoding from an output iterator and an implicit initial encoding state.
 template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
 auto make_otext_iterator(
     IT out)
