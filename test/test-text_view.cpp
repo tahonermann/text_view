@@ -4,7 +4,7 @@
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
 // and conditions.
 
-// Ensure assert is enabled regardless of build type
+// Ensure assert is enabled regardless of build type.
 #if defined(NDEBUG)
 #undef NDEBUG
 #endif
@@ -721,7 +721,7 @@ void test_forward_encode(
 
 // Test forward encoding of the state transitions and characters present in
 // 'code_unit_maps' and ensure that the encoded code units match.  'it' is
-// expected to be i forward, bidirectional, or random access terator for this
+// expected to be a forward, bidirectional, or random access iterator for this
 // test.  Characters are encoded via 'it' which must write the resulting code
 // units to the container reflected by 'code_unit_range'.
 template<
