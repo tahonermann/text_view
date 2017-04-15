@@ -11,6 +11,24 @@ project(test-text-view CXX)
 find_package(text_view REQUIRED)
 
 add_executable(
+  test-encodings
+  test-encodings.cpp)
+target_compile_options(
+  test-encodings
+  PRIVATE ${text_view_COMPILE_OPTIONS})
+target_compile_definitions(
+  test-encodings
+  PRIVATE ${text_view_DEFINITIONS})
+target_include_directories(
+  test-encodings
+  PRIVATE ${text_view_INCLUDE_DIRS})
+
+include(CTest)
+add_test(
+  NAME test-encodings
+  COMMAND test-encodings)
+
+add_executable(
   test-models
   test-models.cpp)
 target_compile_options(
@@ -27,24 +45,6 @@ include(CTest)
 add_test(
   NAME test-models
   COMMAND test-models)
-
-add_executable(
-  test-text-view
-  test-text_view.cpp)
-target_compile_options(
-  test-text-view
-  PRIVATE ${text_view_COMPILE_OPTIONS})
-target_compile_definitions(
-  test-text-view
-  PRIVATE ${text_view_DEFINITIONS})
-target_include_directories(
-  test-text-view
-  PRIVATE ${text_view_INCLUDE_DIRS})
-
-include(CTest)
-add_test(
-  NAME test-text-view
-  COMMAND test-text-view)
 
 add_executable(
   test-subobject
