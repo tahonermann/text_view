@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.0.2)
 
-project(tv-dump CXX)
+project(text_view_examples_tv-dump CXX)
 
 find_package(text_view REQUIRED)
 
