@@ -8,20 +8,12 @@ cmake_minimum_required(VERSION 3.0.2)
 
 project(text_view_test CXX)
 
-find_package(text_view REQUIRED)
-
 add_executable(
   test-encodings
   test-encodings.cpp)
-target_compile_options(
+target_link_libraries(
   test-encodings
-  PRIVATE ${text_view_COMPILE_OPTIONS})
-target_compile_definitions(
-  test-encodings
-  PRIVATE ${text_view_DEFINITIONS})
-target_include_directories(
-  test-encodings
-  PRIVATE ${text_view_INCLUDE_DIRS})
+  PRIVATE text-view)
 
 include(CTest)
 add_test(
@@ -31,15 +23,9 @@ add_test(
 add_executable(
   test-models
   test-models.cpp)
-target_compile_options(
+target_link_libraries(
   test-models
-  PRIVATE ${text_view_COMPILE_OPTIONS})
-target_compile_definitions(
-  test-models
-  PRIVATE ${text_view_DEFINITIONS})
-target_include_directories(
-  test-models
-  PRIVATE ${text_view_INCLUDE_DIRS})
+  PRIVATE text-view)
 
 include(CTest)
 add_test(
@@ -49,15 +35,9 @@ add_test(
 add_executable(
   test-subobject
   test-subobject.cpp)
-target_compile_options(
+target_link_libraries(
   test-subobject
-  PRIVATE ${text_view_COMPILE_OPTIONS})
-target_compile_definitions(
-  test-subobject
-  PRIVATE ${text_view_DEFINITIONS})
-target_include_directories(
-  test-subobject
-  PRIVATE ${text_view_INCLUDE_DIRS})
+  PRIVATE text-view)
 
 include(CTest)
 add_test(

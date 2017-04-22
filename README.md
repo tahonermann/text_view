@@ -271,20 +271,22 @@ locations, and include the `text_view` header file:
 
 [Text_view] installations include a [CMake] package configuration file suitable
 for use in [CMake] based projects.  To use it, specify `text_view` as the
-`<package>` argument to `find_package` in your [CMake] file.  The package
-configuration module sets the `text_view_COMPILE_OPTIONS`,
-`text_view_DEFINITIONS`, and `text_view_INCLUDE_DIRS` variables to suitable
-values for use with the [CMake] `target_compile_options`,
-`target_compile_definitions`, and `target_include_directories` commands.  If
-[Text_view] was installed to a non-default installation location
-(`-DCMAKE_INSTALL_PREFIX` was specified), then it may be necessary to set
-`CMAKE_PREFIX_PATH` to the [Text_view] installation location (the location
-`CMAKE_INSTALL_PREFIX` was set to) or `text_view_DIR` to the directory
-containing the installed `text_view-config.cmake` file, so that the
-[Text_view] package configuration file is found.  See the [CMake] documentation
-for more details.  The `CMakeLists.txt` files provided with the installed
-examples exemplify a minimal [CMake] based build system for a downstream
-consumer of [Text_view].
+`<package>` argument to `find_package` in your [CMake] file and add invocations
+of `target_link_libraries` for each relevant target with the `<lib>` argument
+set to `text-view`.  This will automatically apply compiler and linker options
+required to use [Text_view] to each target.  See the `CMakeLists.txt` files for
+the utilities under the `examples` directory for reference.  If [Text_view] was
+installed to a non-default installation location (`-DCMAKE_INSTALL_PREFIX` was
+specified), then it may be necessary to set `CMAKE_PREFIX_PATH` to the
+[Text_view] installation location (the location `CMAKE_INSTALL_PREFIX` was set
+to) or `text_view_DIR` to the directory containing the installed
+`text_view-config.cmake` file, so that the [Text_view] package configuration
+file is found.  It is also possible to use the build directory as a
+(non-relocatable) installation directory by setting The `CMAKE_PREFIX_PATH`
+or `text_view_DIR` variables appropriately.  See the [CMake] documentation for
+more details.  The `CMakeLists.txt` files provided with the installed examples
+exemplify a minimal [CMake] based build system for a downstream consumer of
+[Text_view].
 
 All interfaces intended for public use are declared in the
 `std::experimental::text` namespace.  The `text` namespace is an inline
