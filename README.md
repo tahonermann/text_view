@@ -21,15 +21,11 @@ https://groups.google.com/d/forum/text_view
 - [Current features and limitations](#current-features-and-limitations)
 - [Requirements](#requirements)
 - [Build and installation](#build-and-installation)
-  - [Building and installing gcc]
-    (#building-and-installing-gcc)
-  - [Building and installing cmcstl2]
-    (#building-and-installing-cmcstl2)
-  - [Building and installing Text_view]
-    (#building-and-installing-text_view)
+  - [Building and installing gcc](#building-and-installing-gcc)
+  - [Building and installing cmcstl2](#building-and-installing-cmcstl2)
+  - [Building and installing Text_view](#building-and-installing-text_view)
 - [Usage](#usage)
-  - [Header &lt;experimental/text_view&gt; synopsis]
-    (#header-experimentaltext_view-synopsis)
+  - [Header &lt;experimental/text_view&gt; synopsis](#header-experimentaltext_view-synopsis)
   - [Concepts](#concepts)
   - [Type traits](#type-traits)
   - [Character sets](#character-sets)
@@ -555,8 +551,7 @@ class text_decode_underflow_error;
 - [Concept CodeUnitIterator](#concept-codeunititerator)
 - [Concept CodeUnitOutputIterator](#concept-codeunitoutputiterator)
 - [Concept TextEncodingState](#concept-textencodingstate)
-- [Concept TextEncodingStateTransition]
-  (#concept-textencodingstatetransition)
+- [Concept TextEncodingStateTransition](#concept-textencodingstatetransition)
 - [Concept TextEncoding](#concept-textencoding)
 - [Concept TextEncoder](#concept-textencoder)
 - [Concept TextDecoder](#concept-textdecoder)
@@ -1085,10 +1080,8 @@ template<typename T>
 ## Character sets
 
 - [Class any_character_set](#class-any_character_set)
-- [Class basic_execution_character_set]
-  (#class-basic_execution_character_set)
-- [Class basic_execution_wide_character_set]
-  (#class-basic_execution_wide_character_set)
+- [Class basic_execution_character_set](#class-basic_execution_character_set)
+- [Class basic_execution_wide_character_set](#class-basic_execution_wide_character_set)
 - [Class unicode_character_set](#class-unicode_character_set)
 - [Character set type aliases](#character-set-type-aliases)
 
@@ -1377,14 +1370,10 @@ template<CharacterSet CST>
 ## Encodings
 
 - [class trivial_encoding_state](#class-trivial_encoding_state)
-- [class trivial_encoding_state_transition]
-  (#class-trivial_encoding_state_transition)
-- [Class basic_execution_character_encoding]
-  (#class-basic_execution_character_encoding)
-- [Class basic_execution_wide_character_encoding]
-  (#class-basic_execution_wide_character_encoding)
-- [Class iso_10646_wide_character_encoding]
-  (#class-iso_10646_wide_character_encoding)
+- [class trivial_encoding_state_transition](#class-trivial_encoding_state_transition)
+- [Class basic_execution_character_encoding](#class-basic_execution_character_encoding)
+- [Class basic_execution_wide_character_encoding](#class-basic_execution_wide_character_encoding)
+- [Class iso_10646_wide_character_encoding](#class-iso_10646_wide_character_encoding)
 - [Class utf8_encoding](#class-utf8_encoding)
 - [Class utf8bom_encoding](#class-utf8bom_encoding)
 - [Class utf16_encoding](#class-utf16_encoding)
@@ -3081,7 +3070,7 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html
 (N2249: New Character Types in C++)
 [N2442]:
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm
-(N2442: Raw and Unicode String Literals; Unified Proposal (Rev. 2))
+(N2442: Raw and Unicode String Literals; Unified Proposal \(Rev. 2\))
 [N4560]:
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf
 (N4560: Working Draft, C++ Extensions for Ranges)
