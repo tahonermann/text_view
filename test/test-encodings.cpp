@@ -1046,7 +1046,7 @@ void test_construct_text_view(
     test_text_view(code_unit_maps_without_terminator,
                    make_cstr_view(cstr),
                    tv14);
-                             
+
     // Test initialization with an implicit initial state and result of make_cstr_view().
     TVT tv15 = {make_cstr_view(cstr)};
     test_text_view(code_unit_maps_without_terminator,
@@ -1058,13 +1058,13 @@ void test_construct_text_view(
     test_text_view(code_unit_maps_without_terminator,
                    VT{begin(begin(tv15).base_range()), end(end(tv15).base_range())},
                    tv16);
-                             
+
     // Test initialization via the copy constructor.
     TVT tv17 = {tv2}; // Note: used to test move construction below.
     test_text_view(code_unit_maps_with_terminator,
                    VT{&cstr[0], &cstr[cstr_length]},
                    tv17);
-                             
+
     // Test initialization via the move constructor.
     TVT tv18 = {move(tv17)};
     test_text_view(code_unit_maps_with_terminator,
