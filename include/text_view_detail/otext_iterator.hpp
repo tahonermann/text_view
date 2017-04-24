@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -122,9 +122,12 @@ public:
         // actual output iterator).
         auto preserved_current = make_iterator_preserve(current);
         int encoded_code_units = 0;
-        encoding_type::encode_state_transition(
+        encode_status es = encoding_type::encode_state_transition(
             state(), preserved_current.get(), stt, encoded_code_units);
         preserved_current.update();
+        if (error_occurred(es)) {
+            throw text_encode_error{es};
+        }
     }
 
     void write(const character_type_t<encoding_type> &value) {
@@ -133,9 +136,12 @@ public:
         // actual output iterator).
         auto preserved_current = make_iterator_preserve(current);
         int encoded_code_units = 0;
-        encoding_type::encode(
+        encode_status es = encoding_type::encode(
             state(), preserved_current.get(), value, encoded_code_units);
         preserved_current.update();
+        if (error_occurred(es)) {
+            throw text_encode_error{es};
+        }
     }
 
     void next() noexcept

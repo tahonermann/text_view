@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -134,14 +134,14 @@ struct text_encoding_archetype_template
     static const state_type& initial_state() noexcept;
 
     template<CodeUnitOutputIterator<code_unit_type> CUIT>
-    static void encode_state_transition(
+    static encode_status encode_state_transition(
         state_type &state,
         CUIT &out,
         const state_transition_type &stt,
         int &encoded_code_units);
 
     template<CodeUnitOutputIterator<code_unit_type> CUIT>
-    static void encode(
+    static encode_status encode(
         state_type &state,
         CUIT &out,
         character_type c,
@@ -151,7 +151,7 @@ struct text_encoding_archetype_template
     requires ranges::InputIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
-    static bool decode(
+    static decode_status decode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -162,7 +162,7 @@ struct text_encoding_archetype_template
     requires ranges::InputIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
-    static bool rdecode(
+    static decode_status rdecode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,

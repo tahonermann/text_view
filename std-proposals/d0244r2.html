@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2017-01-27</td>
+    <td>2017-04-23</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -132,6 +132,8 @@ blockquote.code
         Text Iterators</a></li>
     <li><a href="#text_view">
         Text View</a></li>
+    <li><a href="#error_status">
+        Error Status</a></li>
     <li><a href="#exceptions">
         Exceptions</a></li>
   </ul>
@@ -152,6 +154,31 @@ blockquote.code
       <a title="char8_t: A type for UTF-8 characters and strings"
          href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
       P0482R0</a>.</li>
+  <li>Reworked error handling:
+    <ul>
+      <li>Added the <tt>encode_status</tt> and <tt>decode_status</tt> enum
+          classes to support error handling without exceptions.</li>
+      <li>Modified the <tt>encode_state_transition</tt> and <tt>encode</tt>
+          member functions required by the <tt>TextEncoder</tt> concept to
+          return a value of type <tt>encode_status</tt> rather than
+          <tt>void</tt>.</li>
+      <li>Modified the <tt>decode</tt> and <tt>rdecode</tt> member functions
+          required by the <tt>TextDecoder</tt> and
+          <tt>TextBidirectionalDecoder</tt> concepts to return a value of type
+          <tt>decode_status</tt> rather than <tt>bool</tt>.  A return value of
+          <tt>decode_status::no_error</tt> corresponds to a prior return of
+          <tt>true</tt> and a value of <tt>decode_status::no_character</tt>
+          corresponds to a prior return of <tt>false</tt>.</li>
+      <li>Renamed the <tt>text_runtime_error</tt> exception class to
+          <tt>text_error</tt>.</li>
+      <li>Modified the <tt>text_encode_error</tt> and <tt>text_decode_error</tt>
+          classes to require an <tt>encode_status</tt> or <tt>decode_status</tt>
+          value on construction and to make it available via a
+          <tt>status_code</tt> member function.</li>
+      <li>Removed the <tt>text_encode_overflow_error</tt> and
+          <tt>text_decode_underflow_error</tt> exception classes.</li>
+    </ul>
+  </li>
   <li>Added concepts for text iterators and views to allow specifying iterator
       category constraints more conveniently.</li>
   <li>Updated the <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, and
@@ -830,36 +857,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -1099,12 +1126,29 @@ template&lt;TextInputIterator TIT, TextSentinel&lt;TIT&gt; TST&gt;
 template&lt;TextView TVT&gt;
   TVT make_text_view(TVT tv);
 
+// error handling:
+enum class encode_status : int {
+  no_error = /* implementation-defined */,
+  invalid_character = /* implementation-defined */,
+  invalid_state_transition = /* implementation-defined */
+};
+enum class decode_status : int {
+  no_error = /* implementation-defined */,
+  no_character = /* implementation-defined */,
+  invalid_code_unit_sequence = /* implementation-defined */,
+  underflow = /* implementation-defined */
+};
+constexpr inline bool status_ok(encode_status es) noexcept;
+constexpr inline bool status_ok(decode_status ds) noexcept;
+constexpr inline bool error_occurred(encode_status es) noexcept;
+constexpr inline bool error_occurred(decode_status ds) noexcept;
+const char* status_message(encode_status es) noexcept;
+const char* status_message(decode_status ds) noexcept;
+
 // exception classes:
-class text_runtime_error;
+class text_error;
 class text_encode_error;
 class text_decode_error;
-class text_encode_overflow_error;
-class text_decode_underflow_error;
 
 } // inline namespace text
 } // namespace experimental
@@ -1378,7 +1422,8 @@ template&lt;typename T, typename I&gt; concept bool TextEncoder() {
            typename T::state_transition_type stt,
            int &amp;encoded_code_units)
          {
-           T::encode_state_transition(state, out, stt, encoded_code_units);
+           { T::encode_state_transition(state, out, stt, encoded_code_units) }
+             -&gt; encode_status;
          }
       &amp;&amp; requires (
            typename T::state_type &amp;state,
@@ -1386,7 +1431,8 @@ template&lt;typename T, typename I&gt; concept bool TextEncoder() {
            character_type_t&lt;T&gt; c,
            int &amp;encoded_code_units)
          {
-           T::encode(state, out, c, encoded_code_units);
+           { T::encode(state, out, c, encoded_code_units) }
+             -&gt; encode_status;
          };
 }
 </code></pre>
@@ -1415,7 +1461,8 @@ template&lt;typename T, typename I&gt; concept bool TextDecoder() {
            character_type_t&lt;T&gt; &amp;c,
            int &amp;decoded_code_units)
          {
-           { T::decode(state, in_next, in_end, c, decoded_code_units) } -&gt; bool;
+           { T::decode(state, in_next, in_end, c, decoded_code_units) }
+             -&gt; decode_status;
          };
 }
 </code></pre>
@@ -1459,7 +1506,8 @@ template&lt;typename T, typename I&gt; concept bool TextBidirectionalDecoder() {
            character_type_t&lt;T&gt; &amp;c,
            int &amp;decoded_code_units)
          {
-           { T::rdecode(state, in_next, in_end, c, decoded_code_units) } -&gt; bool;
+           { T::rdecode(state, in_next, in_end, c, decoded_code_units) }
+             -&gt; decode_status;
          };
 }
 </code></pre>
@@ -2250,36 +2298,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2310,36 +2358,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2376,36 +2424,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 #endif // __STDC_ISO_10646__
 </code></pre>
@@ -2435,36 +2483,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2508,36 +2556,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;std::make_unsigned_t&lt;code_unit_type&gt;&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2566,36 +2614,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2624,36 +2672,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2682,36 +2730,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2759,36 +2807,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2817,36 +2865,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2875,36 +2923,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -2933,36 +2981,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -3010,36 +3058,36 @@ public:
   static const state_type&amp; initial_state() noexcept;
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode_state_transition(state_type &amp;state,
-                                        CUIT &amp;out,
-                                        const state_transition_type &amp;stt,
-                                        int &amp;encoded_code_units);
+    static encode_status encode_state_transition(state_type &amp;state,
+                                                 CUIT &amp;out,
+                                                 const state_transition_type &amp;stt,
+                                                 int &amp;encoded_code_units);
 
   template&lt;CodeUnitOutputIterator&lt;code_unit_type&gt; CUIT&gt;
-    static void encode(state_type &amp;state,
-                       CUIT &amp;out,
-                       character_type c,
-                       int &amp;encoded_code_units);
+    static encode_status encode(state_type &amp;state,
+                                CUIT &amp;out,
+                                character_type c,
+                                int &amp;encoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool decode(state_type &amp;state,
-                       CUIT &amp;in_next,
-                       CUST in_end,
-                       character_type &amp;c,
-                       int &amp;decoded_code_units);
+    static decode_status decode(state_type &amp;state,
+                                CUIT &amp;in_next,
+                                CUST in_end,
+                                character_type &amp;c,
+                                int &amp;decoded_code_units);
 
   template&lt;CodeUnitIterator CUIT, typename CUST&gt;
     requires ranges::InputIterator&lt;CUIT&gt;()
           &amp;&amp; ranges::Convertible&lt;ranges::value_type_t&lt;CUIT&gt;, code_unit_type&gt;()
           &amp;&amp; ranges::Sentinel&lt;CUST, CUIT&gt;()
-    static bool rdecode(state_type &amp;state,
-                        CUIT &amp;in_next,
-                        CUST in_end,
-                        character_type &amp;c,
-                        int &amp;decoded_code_units);
+    static decode_status rdecode(state_type &amp;state,
+                                 CUIT &amp;in_next,
+                                 CUST in_end,
+                                 character_type &amp;c,
+                                 int &amp;decoded_code_units);
 };
 </code></pre>
 </blockquote>
@@ -3688,29 +3736,135 @@ template&lt;TextView TVT&gt;
 </code></pre>
 </blockquote>
 
+<h2 id="error_status">Error Status</h2>
+
+<ul>
+  <li><a href="#enum_encode_status">
+      Enum encode_status</a></li>
+  <li><a href="#enum_decode_status">
+      Enum decode_status</a></li>
+  <li><a href="#status_ok">
+      status_ok</a></li>
+  <li><a href="#error_occurred">
+      error_occurred</a></li>
+  <li><a href="#status_message">
+      status_message</a></li>
+</ul>
+
+<h3 id="enum_encode_status">Enum encode_status</h3>
+
+<p>The <tt>encode_status</tt> enumeration type defines enumerators used to
+report errors that occur during text encoding operations.
+
+<p>The <tt>no_error</tt> enumerator indicates that no error has occurred.
+
+<p>The <tt>invalid_character</tt> enumerator indicates that an attempt was made
+to encode a character that was not valid for the encoding.
+
+<p>The <tt>invalid_state_transition</tt> enumerator indicates that an attempt
+was made to encode a state transition that was not valid for the encoding.
+
+<blockquote class="code">
+<pre><code>
+enum class encode_status : int {
+  no_error = /* implementation-defined */,
+  invalid_character = /* implementation-defined */,
+  invalid_state_transition = /* implementation-defined */
+};
+</code></pre>
+</blockquote>
+
+<h3 id="enum_decode_status">Enum decode_status</h3>
+
+<p>The <tt>decode_status</tt> enumeration type defines enumerators used to
+report errors that occur during text decoding operations.
+
+<p>The <tt>no_error</tt> enumerator indicates that no error has occurred.
+
+<p>The <tt>no_character</tt> enumerator indicates that no error has occurred,
+but that no character was decoded for a code unit sequence.  This typically
+indicates that the code unit sequence represents an encoding state transition
+such as for an escape sequence or byte order marker.
+
+<p>The <tt>invalid_code_unit_sequence</tt> enumerator indicates that an attempt
+was made to decode an invalid code unit sequence.
+
+<p>The <tt>underflow</tt> enumerator indicates that the end of the input range
+was encountered before a complete code unit sequence was decoded.
+
+<blockquote class="code">
+<pre><code>
+enum class decode_status : int {
+  no_error = /* implementation-defined */,
+  no_character = /* implementation-defined */,
+  invalid_code_unit_sequence = /* implementation-defined */,
+  underflow = /* implementation-defined */
+};
+</code></pre>
+</blockquote>
+
+<h3 id="status_ok">status_ok</h3>
+
+<p>The <tt>status_ok</tt> function returns <tt>true</tt> if the
+<tt>encode_status</tt> argument value is <tt>encode_status::no_error</tt> or if
+the <tt>decode_status</tt> argument is either of <tt>decode_status::no_error</tt>
+or <tt>decode_status::no_character</tt>.  <tt>false</tt> is returned for all
+other values.
+
+<blockquote class="code">
+<pre><code>
+constexpr inline bool status_ok(encode_status es) noexcept;
+constexpr inline bool status_ok(decode_status ds) noexcept;
+</code></pre>
+</blockquote>
+
+<h3 id="error_occurred">error_occurred</h3>
+
+<p>The <tt>error_occurred</tt> function returns <tt>false</tt> if the
+<tt>encode_status</tt> argument value is <tt>encode_status::no_error</tt> or if
+the <tt>decode_status</tt> argument is either of <tt>decode_status::no_error</tt>
+or <tt>decode_status::no_character</tt>.  <tt>true</tt> is returned for all
+other values.
+
+<blockquote class="code">
+<pre><code>
+constexpr inline bool error_occurred(encode_status es) noexcept;
+constexpr inline bool error_occurred(decode_status ds) noexcept;
+</code></pre>
+</blockquote>
+
+<h3 id="status_message">status_message</h3>
+
+<p>The <tt>status_message</tt> function returns a pointer to a statically
+allocated string containing a short description of the value of the
+<tt>encode_status</tt> or <tt>decode_status</tt> argument.
+
+<blockquote class="code">
+<pre><code>
+const char* status_message(encode_status es) noexcept;
+const char* status_message(decode_status ds) noexcept;
+</code></pre>
+</blockquote>
+
 <h2 id="exceptions">Exceptions</h2>
 
 <ul>
-  <li><a href="#class_text_runtime_error">
-      Class text_runtime_error</a></li>
+  <li><a href="#class_text_error">
+      Class text_error</a></li>
   <li><a href="#class_text_encode_error">
       Class text_encode_error</a></li>
   <li><a href="#class_text_decode_error">
       Class text_decode_error</a></li>
-  <li><a href="#class_text_encode_overflow_error">
-      Class text_encode_overflow_error</a></li>
-  <li><a href="#class_text_decode_underflow_error">
-      Class text_decode_underflow_error</a></li>
 </ul>
 
-<h3 id="class_text_runtime_error">Class text_runtime_error</h3>
+<h3 id="class_text_error">Class text_error</h3>
 
-<p>The <tt>text_runtime_error</tt> class defines the base class for the types of
+<p>The <tt>text_error</tt> class defines the base class for the types of
 objects thrown as exceptions to report errors detected during text processing.
 
 <blockquote class="code">
 <pre><code>
-class text_runtime_error : public std::runtime_error
+class text_error : public std::runtime_error
 {
 public:
   using std::runtime_error::runtime_error;
@@ -3727,10 +3881,15 @@ with an invalid code point value, or to encode an invalid state transition.
 
 <blockquote class="code">
 <pre><code>
-class text_encode_error : public text_runtime_error
+class text_encode_error : public text_error
 {
 public:
-  using text_runtime_error::text_runtime_error;
+  explicit text_encode_error(encode_status es) noexcept;
+
+  const encode_status&amp; status_code() const noexcept;
+
+private:
+  encode_status es; // exposition only
 };
 </code></pre>
 </blockquote>
@@ -3746,41 +3905,15 @@ transition.
 
 <blockquote class="code">
 <pre><code>
-class text_decode_error : public text_runtime_error
+class text_decode_error : public text_error
 {
 public:
-  using text_runtime_error::text_runtime_error;
-};
-</code></pre>
-</blockquote>
+  explicit text_decode_error(decode_status ds) noexcept;
 
-<h3 id="class_text_encode_overflow_error">Class text_encode_overflow_error</h3>
+  const decode_status&amp; status_code() const noexcept;
 
-<p>The <tt>text_encode_overflow_error</tt> class defines the types of objects
-thrown as exceptions to report overflow detected during encoding of a character.
-
-<blockquote class="code">
-<pre><code>
-class text_encode_overflow_error : public text_runtime_error
-{
-public:
-  using text_runtime_error::text_runtime_error;
-};
-</code></pre>
-</blockquote>
-
-<h3 id="class_text_decode_underflow_error">Class text_decode_underflow_error</h3>
-
-<p>The <tt>text_decode_underflow_error</tt> class defines the types of objects
-thrown as exceptions to report undeflow detected during decoding of a code unit
-sequence.
-
-<blockquote class="code">
-<pre><code>
-class text_decode_underflow_error : public text_runtime_error
-{
-public:
-  using text_runtime_error::text_runtime_error;
+private:
+  decode_status ds; // exposition only
 };
 </code></pre>
 </blockquote>

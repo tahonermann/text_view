@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -11,7 +11,7 @@
 #include <climits>
 #include <cstdint>
 #include <text_view_detail/concepts.hpp>
-#include <text_view_detail/exceptions.hpp>
+#include <text_view_detail/error_status.hpp>
 #include <text_view_detail/character.hpp>
 #include <text_view_detail/trivial_encoding_state.hpp>
 
@@ -35,17 +35,19 @@ public:
     static_assert(sizeof(code_unit_type) * CHAR_BIT >= 8);
 
     template<CodeUnitOutputIterator<code_unit_type> CUIT>
-    static void encode_state_transition(
+    static encode_status encode_state_transition(
         state_type &state,
         CUIT &out,
         const state_transition_type &stt,
         int &encoded_code_units)
     {
         encoded_code_units = 0;
+
+        return encode_status::no_error;
     }
 
     template<CodeUnitOutputIterator<code_unit_type> CUIT>
-    static void encode(
+    static encode_status encode(
         state_type &state,
         CUIT &out,
         character_type c,
@@ -70,13 +72,15 @@ public:
         ++encoded_code_units;
         *out++ = octet4;
         ++encoded_code_units;
+
+        return encode_status::no_error;
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
-    static bool decode(
+    static decode_status decode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -90,19 +94,19 @@ public:
         code_point_type cp;
 
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type octet1 = *in_next++;
         ++decoded_code_units;
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type octet2 = *in_next++;
         ++decoded_code_units;
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type octet3 = *in_next++;
         ++decoded_code_units;
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type octet4 = *in_next++;
         ++decoded_code_units;
 
@@ -111,14 +115,15 @@ public:
            | ((octet3 & 0xFF) << 16)
            | ((octet4 & 0xFF) << 24);
         c.set_code_point(cp);
-        return true;
+
+        return decode_status::no_error;
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
-    static bool rdecode(
+    static decode_status rdecode(
         state_type &state,
         CUIT &in_next,
         CUST in_end,
@@ -132,19 +137,19 @@ public:
         code_point_type cp;
 
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type roctet1 = *in_next++;
         ++decoded_code_units;
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type roctet2 = *in_next++;
         ++decoded_code_units;
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type roctet3 = *in_next++;
         ++decoded_code_units;
         if (in_next == in_end)
-            throw text_decode_underflow_error("text decode underflow error");
+            return decode_status::underflow;
         code_unit_type roctet4 = *in_next++;
         ++decoded_code_units;
 
@@ -153,7 +158,8 @@ public:
            | ((roctet2 & 0xFF) << 16)
            | ((roctet1 & 0xFF) << 24);
         c.set_code_point(cp);
-        return true;
+
+        return decode_status::no_error;
     }
 };
 

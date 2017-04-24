@@ -39,10 +39,12 @@ unset(text_view_INCLUDE_DIR)
 # Determine the platform specific installation file layout.
 if(UNIX)
   set(TEXT_VIEW_DESTINATION_INCLUDE include)
+  set(TEXT_VIEW_DESTINATION_LIB lib)
   set(TEXT_VIEW_DESTINATION_SHARE share/text_view)
   set(TEXT_VIEW_DESTINATION_CMAKE share/text_view/cmake)
 elseif(WIN32)
   set(TEXT_VIEW_DESTINATION_INCLUDE text_view/include)
+  set(TEXT_VIEW_DESTINATION_LIB text_view/lib)
   set(TEXT_VIEW_DESTINATION_SHARE text_view)
   set(TEXT_VIEW_DESTINATION_CMAKE text_view/cmake)
 else()
@@ -50,7 +52,7 @@ else()
 endif()
 
 # Include sub-directories.
-add_subdirectory(include)
+add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(examples)
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -10,6 +10,7 @@
 
 #include <experimental/ranges/concepts>
 #include <experimental/ranges/type_traits>
+#include <text_view_detail/error_status.hpp>
 #include <text_view_detail/traits.hpp>
 #include <text_view_detail/character_set_id.hpp>
 
@@ -173,7 +174,9 @@ concept bool TextEncoder() {
                typename T::state_transition_type stt,
                int &encoded_code_units)
            {
-               T::encode_state_transition(state, out, stt, encoded_code_units);
+               { T::encode_state_transition(
+                     state, out, stt, encoded_code_units) }
+                 -> encode_status;
            }
         && requires (
                typename T::state_type &state,
@@ -181,7 +184,9 @@ concept bool TextEncoder() {
                character_type_t<T> c,
                int &encoded_code_units)
            {
-               T::encode(state, out, c, encoded_code_units);
+               { T::encode(
+                     state, out, c, encoded_code_units) }
+                 -> encode_status;
            };
 }
 
@@ -202,7 +207,9 @@ concept bool TextDecoder() {
                character_type_t<T> &c,
                int &decoded_code_units)
            {
-               { T::decode(state, in_next, in_end, c, decoded_code_units) } -> bool;
+               { T::decode(
+                     state, in_next, in_end, c, decoded_code_units) }
+                 -> decode_status;
            };
 }
 
@@ -231,7 +238,9 @@ concept bool TextBidirectionalDecoder() {
                character_type_t<T> &c,
                int &decoded_code_units)
            {
-               { T::rdecode(state, in_next, in_end, c, decoded_code_units) } -> bool;
+               { T::rdecode(
+                     state, in_next, in_end, c, decoded_code_units) }
+                 -> decode_status;
            };
 }
 

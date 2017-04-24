@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -8,6 +8,7 @@
 #define TEXT_VIEW_EXCEPTIONS_HPP
 
 
+#include <text_view_detail/error_status.hpp>
 #include <stdexcept>
 
 
@@ -19,7 +20,7 @@ inline namespace text {
 /*
  * Text runtime error
  */
-class text_runtime_error
+class text_error
     : public std::runtime_error
 {
 public:
@@ -31,10 +32,20 @@ public:
  * Text encode error
  */
 class text_encode_error
-    : public text_runtime_error
+    : public text_error
 {
 public:
-    using text_runtime_error::text_runtime_error;
+    explicit text_encode_error(encode_status es) noexcept
+        : text_error(status_message(es)),
+          es(es)
+        {}
+
+    const encode_status& status_code() const noexcept {
+        return es;
+    }
+
+private:
+    encode_status es;
 };
 
 
@@ -42,32 +53,20 @@ public:
  * Text decode error
  */
 class text_decode_error
-    : public text_runtime_error
+    : public text_error
 {
 public:
-    using text_runtime_error::text_runtime_error;
-};
+    explicit text_decode_error(decode_status ds) noexcept
+        : text_error(status_message(ds)),
+          ds(ds)
+        {}
 
+    const decode_status& status_code() const noexcept {
+        return ds;
+    }
 
-/*
- * Text encode underflow error
- */
-class text_encode_overflow_error
-    : public text_runtime_error
-{
-public:
-    using text_runtime_error::text_runtime_error;
-};
-
-
-/*
- * Text decode underflow error
- */
-class text_decode_underflow_error
-    : public text_runtime_error
-{
-public:
-    using text_runtime_error::text_runtime_error;
+private:
+    decode_status ds;
 };
 
 

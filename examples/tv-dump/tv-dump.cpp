@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -69,7 +69,7 @@ void dump_code_points(
     ios_format_preserver ifp{cout};
 
     using CUT = code_unit_type_t<ET>;
-    istream_iterator<CUT> ifs_in(ifs), ifs_end;
+    ranges::istream_iterator<CUT> ifs_in(ifs), ifs_end;
 
     auto tv = make_text_view<ET>(ifs_in, ifs_end);
     for (const auto &ch : tv) {
@@ -187,8 +187,8 @@ int main(
             usage(cerr, argv[0]);
             return exit_user_error;
         }
-    } catch (const text_runtime_error &tre) {
-        cerr << "error: " << tre.what() << endl;
+    } catch (const text_error &te) {
+        cerr << "error: " << te.what() << endl;
         return exit_failure;
     }
 
