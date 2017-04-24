@@ -192,11 +192,6 @@ $ git checkout b704dadecd0ae2fc11289e35b37d234d9c8eb644
 ```
 
 ## Building and installing [Text_view]
-[Text_view] is currently a header-only library, so no build or installation is
-currently required to use it.  It is unlikely that [Text_view] will remain a
-header-only library in the future, so at some point, a build and installation
-step will be required.
-
 [Text_view] has a [CMake] based build system sufficient to build and run its
 tests, to validate example code, and to perform a minimal installation following
 established operating system conventions.  By default, files will be installed
@@ -262,9 +257,11 @@ $ ctest
 ```
 
 # Usage
-[Text_view] is currently a header-only library.  To use it in your own code,
-add include paths for the `text_view/include` and [cmcstl2] installation
-locations, and include the `text_view` header file:
+To use [Text_view] in your own code, perform a build and installation as
+described above, add include paths for the `text_view/include` and [cmcstl2]
+installation locations, add a library search path for the `text_view/lib`
+directory, include the `text_view` header file in your sources, and link the
+[text_view] library with your executable.
 
 ```C++
 #include <experimental/text_view>
