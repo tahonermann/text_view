@@ -69,7 +69,7 @@ void dump_code_points(
     ios_format_preserver ifp{cout};
 
     using CUT = code_unit_type_t<ET>;
-    ranges::istream_iterator<CUT> ifs_in(ifs), ifs_end;
+    ranges::istream_iterator<CUT> ifs_in{ifs}, ifs_end{};
 
     auto tv = make_text_view<ET>(ifs_in, ifs_end);
     for (const auto &ch : tv) {

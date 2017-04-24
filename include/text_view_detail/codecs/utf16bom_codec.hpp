@@ -215,7 +215,7 @@ public:
             encode_status es = encode_state_transition(
                 state, out, state_transition_type::to_bom_written_state(),
                 encoded_code_units);
-            assert(es == encode_status::no_error);
+            (void)es; assert(es == encode_status::no_error);
         }
 
         encode_status return_value;
