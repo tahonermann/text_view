@@ -92,7 +92,7 @@ concept bool Character() {
                      const T ct,
                      code_point_type_t<character_set_type_t<T>> cp)
            {
-               t.set_code_point(cp);
+               { t.set_code_point(cp) } noexcept;
                { ct.get_code_point() } noexcept
                    -> code_point_type_t<character_set_type_t<T>>;
                { ct.get_character_set_id() }

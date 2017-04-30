@@ -650,7 +650,7 @@ template<typename T> concept bool Character() {
                    const T ct,
                    code_point_type_t<character_set_type_t<T>> cp)
          {
-           t.set_code_point(cp);
+           { t.set_code_point(cp) } noexcept;
            { ct.get_code_point() } noexcept
                -> code_point_type_t<character_set_type_t<T>>;
            { ct.get_character_set_id() }
@@ -1339,7 +1339,7 @@ public:
   friend bool operator!=(const character &lhs,
                          const character &rhs) noexcept;
 
-  void set_code_point(code_point_type code_point);
+  void set_code_point(code_point_type code_point) noexcept;
   code_point_type get_code_point() const noexcept;
 
   static character_set_id get_character_set_id();
@@ -1363,7 +1363,7 @@ public:
   friend bool operator!=(const character &lhs,
                          const character &rhs) noexcept;
 
-  void set_code_point(code_point_type code_point);
+  void set_code_point(code_point_type code_point) noexcept;
   code_point_type get_code_point() const noexcept;
 
   void set_character_set_id(character_set_id new_cs_id) noexcept;
@@ -1440,6 +1440,11 @@ the C++ standard.
 This [encoding](#encoding) is trivial, stateless, fixed width, supports
 random access decoding, and has a [code unit](#code-unit) of type `char`.
 
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
+
 ```C++
 class basic_execution_character_encoding {
 public:
@@ -1458,12 +1463,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1473,7 +1480,8 @@ public:
                                 CUIT &in_next,
                                 CUST in_end,
                                 character_type &c,
-                                int &decoded_code_units)
+                                int &decoded_code_units
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1483,7 +1491,8 @@ public:
                                  CUIT &in_next,
                                  CUST in_end,
                                  character_type &c,
-                                 int &decoded_code_units)
+                                 int &decoded_code_units
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1496,6 +1505,11 @@ the C++ standard.
 
 This [encoding](#encoding) is trivial, stateless, fixed width, supports
 random access decoding, and has a [code unit](#code-unit) of type `wchar_t`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class basic_execution_wide_character_encoding {
@@ -1515,12 +1529,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1531,6 +1547,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1541,6 +1558,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1559,6 +1577,11 @@ indicated by the value of the `__STDC_ISO_10646__` macro as specified in
 
 This [encoding](#encoding) is trivial, stateless, fixed width, supports random
 access decoding, and has a [code unit](#code-unit) of type `wchar_t`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 #if defined(__STDC_ISO_10646__)
@@ -1579,12 +1602,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1595,6 +1620,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1605,6 +1631,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 #endif // __STDC_ISO_10646__
 ```
@@ -1616,6 +1643,11 @@ The `utf8_encoding` class implements support for the [Unicode] UTF-8
 
 This [encoding](#encoding) is stateless, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf8_encoding {
@@ -1635,12 +1667,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1651,6 +1685,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1661,6 +1696,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1671,6 +1707,11 @@ The `utf8bom_encoding` class implements support for the [Unicode] UTF-8
 
 This [encoding](#encoding) is stateful, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 This [encoding](#encoding) defines a state transition class that enables
 forcing or suppressing the encoding of a BOM, or influencing whether a decoded
@@ -1706,12 +1747,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<std::make_unsigned_t<code_unit_type>> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1722,6 +1765,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1732,6 +1776,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1742,6 +1787,11 @@ The `utf16_encoding` class implements support for the [Unicode] UTF-16
 
 This [encoding](#encoding) is stateless, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char16_t`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf16_encoding {
@@ -1761,12 +1811,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1777,6 +1829,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1787,6 +1840,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1797,6 +1851,11 @@ big-endian [encoding](#encoding).
 
 This [encoding](#encoding) is stateless, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf16be_encoding {
@@ -1816,12 +1875,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1832,6 +1893,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1842,6 +1904,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1852,6 +1915,11 @@ little-endian [encoding](#encoding).
 
 This [encoding](#encoding) is stateless, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf16le_encoding {
@@ -1871,12 +1939,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1887,6 +1957,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1897,6 +1968,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1907,6 +1979,11 @@ The `utf16bom_encoding_state` class implements support for the [Unicode] UTF-16
 
 This [encoding](#encoding) is stateful, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 This [encoding](#encoding) defines a state transition class that enables
 forcing or suppressing the encoding of a BOM, or influencing whether a decoded
@@ -1946,12 +2023,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1962,6 +2041,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -1972,6 +2052,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -1982,6 +2063,11 @@ The `utf32_encoding` class implements support for the [Unicode] UTF-32
 
 This [encoding](#encoding) is trivial, stateless, fixed width, supports
 random access decoding, and has a [code unit](#code-unit) of type `char32_t`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf32_encoding {
@@ -2001,12 +2087,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2017,6 +2105,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2027,6 +2116,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -2037,6 +2127,11 @@ big-endian [encoding](#encoding).
 
 This [encoding](#encoding) is stateless, fixed width, supports random access
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf32be_encoding {
@@ -2056,12 +2151,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2072,6 +2169,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2082,6 +2180,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -2092,6 +2191,11 @@ little-endian [encoding](#encoding).
 
 This [encoding](#encoding) is stateless, fixed width, supports random access
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 ```C++
 class utf32le_encoding {
@@ -2111,12 +2215,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2127,6 +2233,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2137,6 +2244,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 
@@ -2147,6 +2255,11 @@ The `utf32bom_encoding` class implements support for the [Unicode] UTF-32
 
 This [encoding](#encoding) is stateful, variable width, supports bidirectional
 decoding, and has a [code unit](#code-unit) of type `char`.
+
+Errors that occur during encoding and decoding operations are reported via
+the `encode_status` and `decode_status` return types.  Exceptions are not
+directly thrown, but may propagate from operations performed on the
+dependent code unit iterator.
 
 This [encoding](#encoding) defines a state transition class that enables
 forcing or suppressing the encoding of a BOM, or influencing whether a decoded
@@ -2186,12 +2299,14 @@ public:
                                                  CUIT &out,
                                                  const state_transition_type &stt,
                                                  int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(state_type &state,
                                 CUIT &out,
                                 character_type c,
                                 int &encoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2202,6 +2317,7 @@ public:
                                 CUST in_end,
                                 character_type &c,
                                 int &decoded_code_units)
+    noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -2212,6 +2328,7 @@ public:
                                  CUST in_end,
                                  character_type &c,
                                  int &decoded_code_units)
+    noexcept(/* implementation defined */);
 };
 ```
 

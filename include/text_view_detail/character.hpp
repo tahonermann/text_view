@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -40,7 +40,7 @@ public:
         return !(l == r);
     }
 
-    void set_code_point(code_point_type code_point) {
+    void set_code_point(code_point_type code_point) noexcept {
         this->code_point = code_point;
     }
     code_point_type get_code_point() const noexcept {
@@ -85,7 +85,7 @@ public:
         return !(l == r);
     }
 
-    void set_code_point(code_point_type code_point) {
+    void set_code_point(code_point_type code_point) noexcept {
         this->code_point = code_point;
     }
     code_point_type get_code_point() const noexcept {

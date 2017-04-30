@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <climits>
+#include <text_view_detail/codecs/codec_util.hpp>
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/error_status.hpp>
 #include <text_view_detail/codecs/utf16be_codec.hpp>
@@ -124,6 +125,7 @@ public:
     using state_transition_type = utf16bom_encoding_state_transition;
     using character_type = CT;
     using code_unit_type = CUT;
+    using unsigned_code_unit_type = std::make_unsigned_t<code_unit_type>;
     static constexpr int min_code_units = 2;
     static constexpr int max_code_units = 4;
 
@@ -135,11 +137,9 @@ public:
         CUIT &out,
         const state_transition_type &stt,
         int &encoded_code_units)
-    {   
+    noexcept(text_detail::NoExceptOutputIterator<CUIT, unsigned_code_unit_type>())
+    {
         encoded_code_units = 0;
-
-        using unsigned_code_unit_type =
-            std::make_unsigned_t<code_unit_type>;
 
         if (stt.state_transition == state_transition_type::to_initial) {
             // Transition to initial state from any state.
@@ -208,6 +208,7 @@ public:
         CUIT &out,
         character_type c,
         int &encoded_code_units)
+    noexcept(text_detail::NoExceptOutputIterator<CUIT, unsigned_code_unit_type>())
     {
         encoded_code_units = 0;
 
@@ -226,14 +227,10 @@ public:
 
             utf16_state_type discarded_utf16_state;
             int utf16_encoded_code_units = 0;
-            try {
-                return_value = utf16_codec::encode(
-                    discarded_utf16_state, out, c, utf16_encoded_code_units);
-            } catch(...) {
-                encoded_code_units += utf16_encoded_code_units;
-                throw;
-            }
-            encoded_code_units += utf16_encoded_code_units;
+            text_detail::delayed_increment<int>
+                di{encoded_code_units, utf16_encoded_code_units};
+            return_value = utf16_codec::encode(
+                discarded_utf16_state, out, c, utf16_encoded_code_units);
         } else {
             using utf16_codec = utf16le_codec<CT, CUT>;
             using utf16_state_type = typename utf16_codec::state_type;
@@ -241,14 +238,10 @@ public:
 
             utf16_state_type discarded_utf16_state;
             int utf16_encoded_code_units = 0;
-            try {
-                return_value = utf16_codec::encode(
-                    discarded_utf16_state, out, c, utf16_encoded_code_units);
-            } catch(...) {
-                encoded_code_units += utf16_encoded_code_units;
-                throw;
-            }
-            encoded_code_units += utf16_encoded_code_units;
+            text_detail::delayed_increment<int>
+                di{encoded_code_units, utf16_encoded_code_units};
+            return_value = utf16_codec::encode(
+                discarded_utf16_state, out, c, utf16_encoded_code_units);
         }
 
         return return_value;
@@ -264,6 +257,7 @@ public:
         CUST in_end,
         character_type &c,
         int &decoded_code_units)
+    noexcept(text_detail::NoExceptInputIterator<CUIT, CUST>())
     {
         decoded_code_units = 0;
 
@@ -323,6 +317,7 @@ public:
         CUST in_end,
         character_type &c,
         int &decoded_code_units)
+    noexcept(text_detail::NoExceptInputIterator<CUIT, CUST>())
     {
         decoded_code_units = 0;
 

@@ -1211,6 +1211,39 @@ void test_make_text_view(
                    make_text_view(begin(tv1), end(tv1)));
 }
 
+template<TextEncoding ET>
+void test_noexcept_encoding() {
+    using ST = typename ET::state_type;
+    using STT = typename ET::state_transition_type;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
+
+    // Validate that encode and decode operations are non-throwing when used
+    // with non-throwing code unit iterators.
+    static_assert(noexcept(ET::encode_state_transition(
+        std::declval<ST&>(),
+        std::declval<CUT*&>(),
+        std::declval<STT>(),
+        std::declval<int&>())));
+    static_assert(noexcept(ET::encode(
+        std::declval<ST&>(),
+        std::declval<CUT*&>(),
+        std::declval<CT>(),
+        std::declval<int&>())));
+    static_assert(noexcept(ET::decode(
+        std::declval<ST&>(),
+        std::declval<CUT*&>(),
+        std::declval<CUT*>(),
+        std::declval<CT&>(),
+        std::declval<int&>())));
+    static_assert(noexcept(ET::rdecode(
+        std::declval<ST&>(),
+        std::declval<CUT*&>(),
+        std::declval<CUT*>(),
+        std::declval<CT&>(),
+        std::declval<int&>())));
+}
+
 void test_text_view() {
     using ET = execution_character_encoding;
     using CT = character_type_t<ET>;
@@ -1452,6 +1485,8 @@ void test_utf8_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 5);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf8bom_encoding() {
@@ -1529,6 +1564,8 @@ void test_utf8bom_encoding() {
     assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 8);
     assert(end(tvit.base_range()) == begin(encoded_string_bom) + 11);
     }
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf16_encoding() {
@@ -1555,6 +1592,8 @@ void test_utf16_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 3);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf16be_encoding() {
@@ -1587,6 +1626,8 @@ void test_utf16be_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf16le_encoding() {
@@ -1619,6 +1660,8 @@ void test_utf16le_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf16bom_encoding() {
@@ -1731,6 +1774,8 @@ void test_utf16bom_encoding() {
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 8);
     assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 10);
     }
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf32_encoding() {
@@ -1757,6 +1802,8 @@ void test_utf32_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 2);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf32be_encoding() {
@@ -1789,6 +1836,8 @@ void test_utf32be_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf32le_encoding() {
@@ -1821,6 +1870,8 @@ void test_utf32le_encoding() {
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
+
+    test_noexcept_encoding<ET>();
 }
 
 void test_utf32bom_encoding() {
@@ -1933,6 +1984,8 @@ void test_utf32bom_encoding() {
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 12);
     assert(end(tvit.base_range()) == begin(encoded_string_le_bom) + 16);
     }
+
+    test_noexcept_encoding<ET>();
 }
 
 int main() {

@@ -56,8 +56,8 @@ public:
     using character_set_type = CST;
     using code_point_type = code_point_type_t<CST>;
 
-    character_archetype_template();
-    character_archetype_template(code_point_type cp);
+    character_archetype_template() noexcept;
+    character_archetype_template(code_point_type cp) noexcept;
 
     friend bool operator==(
         const character_archetype_template &l,
@@ -138,14 +138,14 @@ struct text_encoding_archetype_template
         state_type &state,
         CUIT &out,
         const state_transition_type &stt,
-        int &encoded_code_units);
+        int &encoded_code_units) noexcept;
 
     template<CodeUnitOutputIterator<code_unit_type> CUIT>
     static encode_status encode(
         state_type &state,
         CUIT &out,
         character_type c,
-        int &encoded_code_units);
+        int &encoded_code_units) noexcept;
 
     template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -156,7 +156,7 @@ struct text_encoding_archetype_template
         CUIT &in_next,
         CUST in_end,
         character_type &c,
-        int &decoded_code_units);
+        int &decoded_code_units) noexcept;
 
     template<CodeUnitIterator CUIT, typename CUST>
     requires ranges::InputIterator<CUIT>()
@@ -167,7 +167,7 @@ struct text_encoding_archetype_template
         CUIT &in_next,
         CUST in_end,
         character_type &c,
-        int &decoded_code_units);
+        int &decoded_code_units) noexcept;
 };
 using text_encoding_archetype = text_encoding_archetype_template<
                                     text_encoding_state_archetype,
