@@ -691,8 +691,10 @@ void test_random_decode(
            == begin(tv));
     assert(-num_characters + text_detail::advance_to(begin(tv), end(tv))
            == begin(tv));
-    assert(text_detail::advance_to(begin(tv), end(tv))[-num_characters]
-           == *begin(tv));
+    if (num_characters > 0) {
+        assert(text_detail::advance_to(begin(tv), end(tv))[-num_characters]
+               == *begin(tv));
+    }
     tvit = begin(tv);
     tvit += num_characters;
     assert(tvit == end(tv));
