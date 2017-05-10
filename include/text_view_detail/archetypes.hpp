@@ -10,6 +10,7 @@
 
 #include <experimental/ranges/concepts>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/error_policy.hpp>
 
 
 namespace std {
@@ -41,6 +42,7 @@ struct character_set_archetype_template
 {
     using code_point_type = CPT;
     static const char* get_name() noexcept;
+    static code_point_type get_substitution_code_point() noexcept;
 };
 using character_set_archetype =
           character_set_archetype_template<code_point_archetype>;
@@ -179,10 +181,14 @@ using text_encoding_archetype = text_encoding_archetype_template<
 /*
  * Text iterator archetype
  */
-template<TextEncoding ET, CodeUnitIterator CUIT>
+template<
+    TextEncoding ET,
+    CodeUnitIterator CUIT,
+    TextErrorPolicy TEP = text_default_error_policy>
 class text_iterator_archetype_template {
 public:
     using encoding_type = ET;
+    using error_policy = TEP;
     using state_type = typename ET::state_type;
     using iterator = CUIT;
     using iterator_category = ranges::iterator_category_t<iterator>;
@@ -197,6 +203,8 @@ public:
     const state_type& state() const noexcept;
     state_type& state() noexcept;
     iterator base() const;
+    bool error_occurred() const noexcept;
+    decode_status get_error() const noexcept;
     iterator begin() const;
     iterator end() const;
     reference operator*() const noexcept;
@@ -277,10 +285,14 @@ using text_iterator_archetype = text_iterator_archetype_template<
 /*
  * Text output iterator archetype
  */
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+template<
+    TextEncoding ET,
+    CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT,
+    TextErrorPolicy TEP = text_default_error_policy>
 class text_output_iterator_archetype_template {
 public:
     using encoding_type = ET;
+    using error_policy = TEP;
     using state_type = typename ET::state_type;
     using iterator = CUIT;
     using iterator_category = ranges::iterator_category_t<iterator>;
@@ -295,6 +307,8 @@ public:
     const state_type& state() const noexcept;
     state_type& state() noexcept;
     iterator base() const;
+    bool error_occurred() const noexcept;
+    encode_status get_error() const noexcept;
     reference operator*() const noexcept;
     text_output_iterator_archetype_template& operator++();
     text_output_iterator_archetype_template operator++(int);
@@ -307,11 +321,15 @@ using text_output_iterator_archetype = text_output_iterator_archetype_template<
 /*
  * Text view archetype
  */
-template<TextEncoding ET, ranges::View VT>
+template<
+    TextEncoding ET,
+    ranges::View VT,
+    TextErrorPolicy TEP = text_default_error_policy>
 class text_view_archetype_template {
 public:
     using view_type = VT;
     using encoding_type = ET;
+    using error_policy = TEP;
     using state_type = typename ET::state_type;
     using code_unit_iterator = ranges::iterator_t<VT>;
     using iterator = text_iterator_archetype_template<ET, code_unit_iterator>;

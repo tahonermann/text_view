@@ -17,6 +17,7 @@
 #include <text_view_detail/basic_view.hpp>
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/default_encoding.hpp>
+#include <text_view_detail/error_policy.hpp>
 #include <text_view_detail/itext_iterator.hpp>
 #include <text_view_detail/itext_sentinel.hpp>
 #include <text_view_detail/subobject.hpp>
@@ -27,7 +28,10 @@ namespace experimental {
 inline namespace text {
 
 
-template<TextEncoding ET, ranges::View VT>
+template<
+    TextEncoding ET,
+    ranges::View VT,
+    TextErrorPolicy TEP = text_default_error_policy>
 class basic_text_view
     : private text_detail::subobject<typename ET::state_type>,
       public ranges::view_base
@@ -37,11 +41,12 @@ class basic_text_view
 public:
     using encoding_type = ET;
     using view_type = VT;
+    using error_policy = TEP;
     using state_type = typename ET::state_type;
     using code_unit_iterator = ranges::iterator_t<std::add_const_t<view_type>>;
     using code_unit_sentinel = ranges::sentinel_t<std::add_const_t<view_type>>;
-    using iterator = itext_iterator<ET, VT>;
-    using sentinel = itext_sentinel<ET, VT>;
+    using iterator = itext_iterator<ET, VT, TEP>;
+    using sentinel = itext_sentinel<ET, VT, TEP>;
 
     // The default constructor produces a text view with a singular range.  An
     // object produced with this constructor may only be assigned to or
@@ -291,9 +296,31 @@ using u32text_view = basic_text_view<
  * make_text_view
  */
 // Overload to construct a text view for an explicitly specified encoding type
-// from an InputIterator and Sentinel pair, and an explicitly specified initial
-// encoding state.
-template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+// and error policy from an InputIterator and Sentinel pair, and an explicitly
+// specified initial encoding state.
+template<
+    TextEncoding ET,
+    TextErrorPolicy TEP,
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
+auto make_text_view(
+    typename ET::state_type state,
+    IT first,
+    ST last)
+{
+    using view_type = text_detail::basic_view<IT, ST>;
+    return basic_text_view<ET, view_type, TEP>{std::move(state),
+                                               std::move(first),
+                                               std::move(last)};
+}
+
+// Overload to construct a text view for an explicitly specified encoding type
+// and an implicitly specified error policy from an InputIterator and Sentinel
+// pair, and an explicitly specified initial encoding state.
+template<
+    TextEncoding ET,
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
 auto make_text_view(
     typename ET::state_type state,
     IT first,
@@ -306,9 +333,33 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
-// from an InputIterator and Sentinel pair, and an explicitly specified initial
-// encoding state.
-template<ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+// and explicitly specified error policy from an InputIterator and Sentinel
+// pair, and an explicitly specified initial encoding state.
+template<
+    TextErrorPolicy TEP,
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
+requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+}
+auto make_text_view(
+    typename default_encoding_type_t<
+        ranges::value_type_t<IT>>::state_type state,
+    IT first,
+    ST last)
+{
+    using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
+    return text::make_text_view<ET, TEP>(std::move(state),
+                                         std::move(first),
+                                         std::move(last));
+}
+
+// Overload to construct a text view for an implicitly assumed encoding type
+// and error policy from an InputIterator and Sentinel pair, and an explicitly
+// specified initial encoding state.
+template<
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
 requires requires () {
     typename default_encoding_type_t<ranges::value_type_t<IT>>;
 }
@@ -325,9 +376,29 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
-// from an InputIterator and Sentinel pair, and an implicit initial encoding
-// state.
-template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+// and error policy from an InputIterator and Sentinel pair, and an implicit
+// initial encoding state.
+template<
+    TextEncoding ET,
+    TextErrorPolicy TEP,
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
+auto make_text_view(
+    IT first,
+    ST last)
+{
+    using view_type = text_detail::basic_view<IT, ST>;
+    return basic_text_view<ET, view_type, TEP>{std::move(first),
+                                               std::move(last)};
+}
+
+// Overload to construct a text view for an explicitly specified encoding type
+// and an implicitly specified error policy from an InputIterator and Sentinel
+// pair, and an implicit initial encoding state.
+template<
+    TextEncoding ET,
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
 auto make_text_view(
     IT first,
     ST last)
@@ -338,9 +409,30 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
-// from an InputIterator and Sentinel pair, and an implicit initial encoding
-// state.
-template<ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+// and explicitly specified error policy from an InputIterator and Sentinel
+// pair, and an implicit initial encoding state.
+template<
+    TextErrorPolicy TEP,
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
+requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+}
+auto make_text_view(
+    IT first,
+    ST last)
+{
+    using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
+    return text::make_text_view<ET, TEP>(std::move(first),
+                                         std::move(last));
+}
+
+// Overload to construct a text view for an implicitly assumed encoding type
+// and error policy from an InputIterator and Sentinel pair, and an implicit
+// initial encoding state.
+template<
+    ranges::InputIterator IT,
+    ranges::Sentinel<IT> ST>
 requires requires () {
     typename default_encoding_type_t<ranges::value_type_t<IT>>;
 }
@@ -354,9 +446,29 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
-// from a ForwardIterator and count pair, and an explicitly specified initial
-// encoding state.
-template<TextEncoding ET, ranges::ForwardIterator IT>
+// and error policy from a ForwardIterator and count pair, and an explicitly
+// specified initial encoding state.
+template<
+    TextEncoding ET,
+    TextErrorPolicy TEP,
+    ranges::ForwardIterator IT>
+auto make_text_view(
+    typename ET::state_type state,
+    IT first,
+    ranges::difference_type_t<IT> n)
+{
+    auto last = std::next(first, n);
+    return text::make_text_view<ET, TEP>(std::move(state),
+                                         std::move(first),
+                                         std::move(last));
+}
+
+// Overload to construct a text view for an explicitly specified encoding type
+// and implicitly assumed error policy from a ForwardIterator and count pair,
+// and an explicitly specified initial encoding state.
+template<
+    TextEncoding ET,
+    ranges::ForwardIterator IT>
 auto make_text_view(
     typename ET::state_type state,
     IT first,
@@ -369,9 +481,32 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
-// from a ForwardIterator and count pair, and an explicitly specified initial
-// encoding state.
-template<ranges::ForwardIterator IT>
+// and explicitly specified error policy from a ForwardIterator and count pair,
+// and an explicitly specified initial encoding state.
+template<
+    TextErrorPolicy TEP,
+    ranges::ForwardIterator IT>
+requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+}
+auto make_text_view(
+    typename default_encoding_type_t<
+        ranges::value_type_t<IT>>::state_type state,
+    IT first,
+    ranges::difference_type_t<IT> n)
+{
+    using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
+    auto last = std::next(first, n);
+    return text::make_text_view<ET, TEP>(std::move(state),
+                                         std::move(first),
+                                         std::move(last));
+}
+
+// Overload to construct a text view for an implicitly assumed encoding type
+// and error policy from a ForwardIterator and count pair, and an explicitly
+// specified initial encoding state.
+template<
+    ranges::ForwardIterator IT>
 requires requires () {
     typename default_encoding_type_t<ranges::value_type_t<IT>>;
 }
@@ -389,9 +524,27 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
-// from a ForwardIterator and count pair, and an implicit initial encoding
-// state.
-template<TextEncoding ET, ranges::ForwardIterator IT>
+// and error policy from a ForwardIterator and count pair, and an implicit
+// initial encoding state.
+template<
+    TextEncoding ET,
+    TextErrorPolicy TEP,
+    ranges::ForwardIterator IT>
+auto make_text_view(
+    IT first,
+    ranges::difference_type_t<IT> n)
+{
+    auto last = std::next(first, n);
+    return text::make_text_view<ET, TEP>(std::move(first),
+                                         std::move(last));
+}
+
+// Overload to construct a text view for an explicitly specified encoding type
+// and implicitly assumed error policy from a ForwardIterator and count pair,
+// and an implicit initial encoding state.
+template<
+    TextEncoding ET,
+    ranges::ForwardIterator IT>
 auto make_text_view(
     IT first,
     ranges::difference_type_t<IT> n)
@@ -402,9 +555,29 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
-// from a ForwardIterator and count pair, and an implicit initial encoding
-// state.
-template<ranges::ForwardIterator IT>
+// and explicitly specified error policy from a ForwardIterator and count pair,
+// and an implicit initial encoding state.
+template<
+    TextErrorPolicy TEP,
+    ranges::ForwardIterator IT>
+requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+}
+auto make_text_view(
+    IT first,
+    ranges::difference_type_t<IT> n)
+{
+    using ET = default_encoding_type_t<ranges::value_type_t<IT>>;
+    auto last = std::next(first, n);
+    return text::make_text_view<ET, TEP>(std::move(first),
+                                         std::move(last));
+}
+
+// Overload to construct a text view for an implicitly assumed encoding type
+// and error policy from a ForwardIterator and count pair, and an implicit
+// initial encoding state.
+template<
+    ranges::ForwardIterator IT>
 requires requires () {
     typename default_encoding_type_t<ranges::value_type_t<IT>>;
 }
@@ -419,9 +592,27 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
-// from an InputRange const reference and an explicitly specified initial
-// encoding state.
-template<TextEncoding ET, ranges::InputRange RT>
+// and error policy from an InputRange const reference and an explicitly
+// specified initial encoding state.
+template<
+    TextEncoding ET,
+    TextErrorPolicy TEP,
+    ranges::InputRange RT>
+auto make_text_view(
+    typename ET::state_type state,
+    const RT &range)
+{
+    return text::make_text_view<ET, TEP>(std::move(state),
+                                         text_detail::adl_begin(range),
+                                         text_detail::adl_end(range));
+}
+
+// Overload to construct a text view for an explicitly specified encoding type
+// and implicitly assumed error policy from an InputRange const reference and
+// an explicitly specified initial encoding state.
+template<
+    TextEncoding ET,
+    ranges::InputRange RT>
 auto make_text_view(
     typename ET::state_type state,
     const RT &range)
@@ -432,9 +623,32 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
-// from an InputRange const reference and an explicitly specified initial
-// encoding state.
-template<ranges::InputRange RT>
+// and explicitly specified error policy from an InputRange const reference
+// and an explicitly specified initial encoding state.
+template<
+    TextErrorPolicy TEP,
+    ranges::InputRange RT>
+requires requires () {
+    typename default_encoding_type_t<
+        ranges::value_type_t<ranges::iterator_t<RT>>>;
+}
+auto make_text_view(
+    typename default_encoding_type_t<
+        ranges::value_type_t<ranges::iterator_t<RT>>>::state_type state,
+    const RT &range)
+{
+    using ET =
+        default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>;
+    return text::make_text_view<ET, TEP>(std::move(state),
+                                         text_detail::adl_begin(range),
+                                         text_detail::adl_end(range));
+}
+
+// Overload to construct a text view for an implicitly assumed encoding type
+// and error policy from an InputRange const reference and an explicitly
+// specified initial encoding state.
+template<
+    ranges::InputRange RT>
 requires requires () {
     typename default_encoding_type_t<
         ranges::value_type_t<ranges::iterator_t<RT>>>;
@@ -452,8 +666,25 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an explicitly specified encoding type
-// from an InputRange const reference and an implicit initial encoding state.
-template<TextEncoding ET, ranges::InputRange RT>
+// and error policy from an InputRange const reference and an implicit initial
+// encoding state.
+template<
+    TextEncoding ET,
+    TextErrorPolicy TEP,
+    ranges::InputRange RT>
+auto make_text_view(
+    const RT &range)
+{
+    return text::make_text_view<ET, TEP>(text_detail::adl_begin(range),
+                                         text_detail::adl_end(range));
+}
+
+// Overload to construct a text view for an explicitly specified encoding type
+// and implicitly assumed error policy from an InputRange const reference and
+// an implicit initial encoding state.
+template<
+    TextEncoding ET,
+    ranges::InputRange RT>
 auto make_text_view(
     const RT &range)
 {
@@ -462,8 +693,29 @@ auto make_text_view(
 }
 
 // Overload to construct a text view for an implicitly assumed encoding type
-// from an InputRange const reference and an implicit initial encoding state.
-template<ranges::InputRange RT>
+// and explicitly specified error policy from an InputRange const reference
+// and an implicit initial encoding state.
+template<
+    TextErrorPolicy TEP,
+    ranges::InputRange RT>
+requires requires () {
+    typename default_encoding_type_t<
+        ranges::value_type_t<ranges::iterator_t<RT>>>;
+}
+auto make_text_view(
+    const RT &range)
+{
+    using ET =
+        default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>;
+    return text::make_text_view<ET, TEP>(text_detail::adl_begin(range),
+                                         text_detail::adl_end(range));
+}
+
+// Overload to construct a text view for an implicitly assumed encoding type
+// and error policy from an InputRange const reference and an implicit initial
+// encoding state.
+template<
+    ranges::InputRange RT>
 requires requires () {
     typename default_encoding_type_t<
         ranges::value_type_t<ranges::iterator_t<RT>>>;
@@ -477,9 +729,29 @@ auto make_text_view(
                                     text_detail::adl_end(range));
 }
 
-// Overload to construct a text view from a text iterator and sentinel pair.
-// The initial encoding state is inferred from the first iterator.
-template<TextInputIterator TIT, TextSentinel<TIT> TST>
+// Overload to construct a text view with an explicitly specified error policy
+// from a text iterator and sentinel pair.  The initial encoding state is
+// inferred from the first iterator.
+template<
+    TextErrorPolicy TEP,
+    TextInputIterator TIT,
+    TextSentinel<TIT> TST>
+auto make_text_view(
+    TIT first,
+    TST last)
+{
+    using ET = encoding_type_t<TIT>;
+    return text::make_text_view<ET, TEP>(first.state(),
+                                         first.base(),
+                                         last.base());
+}
+
+// Overload to construct a text view with an implicitly assumed error policy
+// from a text iterator and sentinel pair.  The initial encoding state is
+// inferred from the first iterator.
+template<
+    TextInputIterator TIT,
+    TextSentinel<TIT> TST>
 auto make_text_view(
     TIT first,
     TST last)
@@ -490,7 +762,20 @@ auto make_text_view(
                                     last.base());
 }
 
-// Overload to construct a text view from an existing text view.
+// Overload to construct a text view with an explicitly specified error policy
+// from an existing text view.
+template<
+    TextErrorPolicy TEP,
+    TextView TVT>
+auto make_text_view(
+    TVT tv)
+{
+    return text::make_text_view<TEP>(text_detail::adl_begin(tv),
+                                     text_detail::adl_end(tv));
+}
+
+// Overload to construct a text view with an implicitly assumed error policy
+// from an existing text view.
 template<TextView TVT>
 auto make_text_view(
     TVT tv)

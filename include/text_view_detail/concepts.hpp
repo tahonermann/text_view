@@ -13,6 +13,7 @@
 #include <text_view_detail/error_status.hpp>
 #include <text_view_detail/traits.hpp>
 #include <text_view_detail/character_set_id.hpp>
+#include <text_view_detail/error_policy.hpp>
 
 
 namespace std {
@@ -74,10 +75,12 @@ concept bool CodePoint() {
  */
 template<typename T>
 concept bool CharacterSet() {
-    return requires () {
+    return CodePoint<code_point_type_t<T>>()
+        && requires () {
                { T::get_name() } noexcept -> const char *;
-           }
-        && CodePoint<code_point_type_t<T>>();
+               { T::get_substitution_code_point() } noexcept
+                   -> code_point_type_t<T>;
+           };
 }
 
 
@@ -138,6 +141,17 @@ concept bool TextEncodingState() {
 template<typename T>
 concept bool TextEncodingStateTransition() {
     return ranges::Semiregular<T>();
+}
+
+
+/*
+ * Text error policy concept
+ */
+template<typename T>
+concept bool TextErrorPolicy() {
+    return ranges::Semiregular<T>()
+        && ranges::DerivedFrom<T, text_error_policy>()
+        && !ranges::Same<std::remove_cv_t<T>, text_error_policy>();
 }
 
 
@@ -264,10 +278,13 @@ template<typename T>
 concept bool TextIterator() {
     return ranges::Iterator<T>()
         && TextEncoding<encoding_type_t<T>>()
+        && TextErrorPolicy<typename T::error_policy>()
         && TextEncodingState<typename T::state_type>()
         && requires (const T ct) {
                { ct.state() } noexcept
                    -> const typename encoding_type_t<T>::state_type&;
+               { ct.error_occurred() } noexcept
+                   -> bool;
            };
 }
 
@@ -278,7 +295,8 @@ concept bool TextIterator() {
 template<typename T, typename I>
 concept bool TextSentinel() {
     return ranges::Sentinel<T, I>()
-        && TextIterator<I>();
+        && TextIterator<I>()
+        && TextErrorPolicy<typename T::error_policy>();
 }
 
 
@@ -288,7 +306,11 @@ concept bool TextSentinel() {
 template<typename T>
 concept bool TextOutputIterator() {
     return TextIterator<T>()
-        && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>();
+        && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
+        && requires (const T ct) {
+               { ct.get_error() } noexcept
+                   -> encode_status;
+           };
 }
 
 
@@ -299,7 +321,11 @@ template<typename T>
 concept bool TextInputIterator() {
     return TextIterator<T>()
         && ranges::InputIterator<T>()
-        && Character<ranges::value_type_t<T>>();
+        && Character<ranges::value_type_t<T>>()
+        && requires (const T ct) {
+               { ct.get_error() } noexcept
+                   -> decode_status;
+           };
 }
 
 
@@ -342,6 +368,7 @@ concept bool TextView() {
         && TextIterator<ranges::iterator_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
         && ranges::View<typename T::view_type>()
+        && TextErrorPolicy<typename T::error_policy>()
         && TextEncodingState<typename T::state_type>()
         && CodeUnitIterator<typename T::code_unit_iterator>()
         && requires (T t, const T ct) {

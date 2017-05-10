@@ -8,9 +8,11 @@
 #define TEXT_VIEW_ITEXT_ITERATOR_HPP
 
 
+#include <cassert>
 #include <experimental/ranges/iterator>
 #include <text_view_detail/adl_customization.hpp>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/error_policy.hpp>
 #include <text_view_detail/exceptions.hpp>
 #include <text_view_detail/iterator_preserve.hpp>
 #include <text_view_detail/subobject.hpp>
@@ -37,10 +39,8 @@ public:
         have_character = true;
     }
     character_type& get_character() {
-        if (have_character) {
-            return u.c;
-        }
-        throw text_decode_error{u.ds};
+        assert(have_character);
+        return u.c;
     }
     const character_type& get_character() const {
         return const_cast<character_or_error*>(this)->get_character();
@@ -184,12 +184,16 @@ private:
     current_view_type current_view;
 };
 
-template<TextEncoding ET, ranges::View VT>
+template<
+    TextEncoding ET,
+    ranges::View VT,
+    TextErrorPolicy TEP>
 class itext_cursor
     : public itext_cursor_data<ET, VT>
 {
     using encoding_type = typename itext_cursor::encoding_type;
     using view_type = typename itext_cursor::view_type;
+    using error_policy = TEP;
     using state_type = typename itext_cursor::state_type;
     using iterator_type = typename itext_cursor::iterator_type;
     using value_type = character_type_t<encoding_type>;
@@ -205,10 +209,10 @@ class itext_cursor
         {}
 
         reference operator*() const {
-            return value.get_character();
+            return self.dereference(value);
         }
         pointer operator->() const {
-            return &value.get_character();
+            return &self.dereference(value);
         }
 
     private:
@@ -227,6 +231,7 @@ public:
     public:
         using encoding_type = typename itext_cursor::encoding_type;
         using view_type = typename itext_cursor::view_type;
+        using error_policy = typename itext_cursor::error_policy;
         using state_type = typename itext_cursor::state_type;
 
         mixin() = default;
@@ -263,11 +268,17 @@ public:
             return this->get().base_range();
         }
 
+        bool error_occurred() const noexcept {
+            return this->get().error_occurred();
+        }
+
+        decode_status get_error() const noexcept {
+            return this->get().get_error();
+        }
+
         // Iterators that are not ok include:
         // - Singular iterators.
         // - Past the end iterators.
-        // - Iterators for which a decoding error occurred during increment or
-        //   decrement operations.
         bool is_ok() const noexcept {
             return this->get().is_ok();
         }
@@ -285,16 +296,24 @@ public:
         next();
     }
 
+    bool error_occurred() const noexcept {
+        return text::error_occurred(value.get_error());
+    }
+
+    decode_status get_error() const noexcept {
+        return value.get_error();
+    }
+
     bool is_ok() const noexcept {
         return ok;
     }
 
     reference read() const {
-        return value.get_character();
+        return dereference(value);
     }
 
     pointer arrow() const {
-        return &value.get_character();
+        return &dereference(value);
     }
 
     void next() {
@@ -311,8 +330,10 @@ public:
                 tmp_value,
                 decoded_code_units);
             preserved_base.update();
-            if (error_occurred(ds)) {
+            if (text::error_occurred(ds)) {
                 value.set_error(ds);
+                ok = true;
+                break;
             }
             else if (ds == decode_status::no_error) {
                 value.set_character(tmp_value);
@@ -339,8 +360,10 @@ public:
                 tmp_value,
                 decoded_code_units);
             this->base_range().last = tmp_iterator;
-            if (error_occurred(ds)) {
+            if (text::error_occurred(ds)) {
                 value.set_error(ds);
+                ok = true;
+                break;
             }
             else if (ds == decode_status::no_error) {
                 value.set_character(tmp_value);
@@ -382,8 +405,10 @@ public:
                 tmp_value,
                 decoded_code_units);
             this->base_range().first = rcurrent.base();
-            if (error_occurred(ds)) {
+            if (text::error_occurred(ds)) {
                 value.set_error(ds);
+                ok = true;
+                break;
             }
             else if (ds == decode_status::no_error) {
                 value.set_character(tmp_value);
@@ -434,6 +459,31 @@ public:
     }
 
 private:
+    static const value_type& dereference(
+        const character_or_error<encoding_type> &coe)
+    {
+        if (coe.has_character()) {
+            return coe.get_character();
+        }
+        if (std::is_base_of<
+                text_permissive_error_policy,
+                error_policy
+            >::value)
+        {
+            // Permissive error policy: return the substitution
+            // character.
+            using CT = character_type_t<encoding_type>;
+            using CST = character_set_type_t<CT>;
+            // FIXME: Character doesn't require constructibility with a
+            // FIXME: code point.
+            static CT c{CST::get_substitution_code_point()};
+            return c;
+        } else {
+            // Strict error policy: throw an exception.
+            throw text_decode_error{coe.get_error()};
+        }
+    }
+
     character_or_error<encoding_type> value;
     bool ok = false;
 };
@@ -444,10 +494,13 @@ private:
 /*
  * itext_iterator
  */
-template<TextEncoding ET, ranges::View VT>
+template<
+    TextEncoding ET,
+    ranges::View VT,
+    TextErrorPolicy TEP = text_default_error_policy>
 requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
 using itext_iterator =
-    ranges::basic_iterator<text_detail::itext_cursor<ET, VT>>;
+    ranges::basic_iterator<text_detail::itext_cursor<ET, VT, TEP>>;
 
 
 } // inline namespace text

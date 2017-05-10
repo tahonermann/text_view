@@ -27,6 +27,9 @@ https://groups.google.com/d/forum/text_view
 - [Usage](#usage)
   - [Header &lt;experimental/text_view&gt; synopsis](#header-experimentaltext_view-synopsis)
   - [Concepts](#concepts)
+  - [Error Policies](#error-policies)
+  - [Error Status](#error-status)
+  - [Exceptions](#exceptions)
   - [Type traits](#type-traits)
   - [Character sets](#character-sets)
   - [Character set identification](#character-set-identification)
@@ -35,8 +38,6 @@ https://groups.google.com/d/forum/text_view
   - [Encodings](#encodings)
   - [Text iterators](#text-iterators)
   - [Text view](#text-view)
-  - [Error Status](#error-status)
-  - [Exceptions](#exceptions)
 - [Supported Encodings](#supported-encodings)
 - [Terminology](#terminology)
   - [Code Unit](#code-unit)
@@ -314,6 +315,7 @@ template<typename T> concept bool CodeUnitIterator();
 template<typename T, typename V> concept bool CodeUnitOutputIterator();
 template<typename T> concept bool TextEncodingState();
 template<typename T> concept bool TextEncodingStateTransition();
+template<typename T> concept bool TextErrorPolicy();
 template<typename T> concept bool TextEncoding();
 template<typename T, typename I> concept bool TextEncoder();
 template<typename T, typename I> concept bool TextDecoder();
@@ -332,6 +334,36 @@ template<typename T> concept bool TextInputView();
 template<typename T> concept bool TextForwardView();
 template<typename T> concept bool TextBidirectionalView();
 template<typename T> concept bool TextRandomAccessView();
+
+// error policies:
+class text_error_policy;
+class text_strict_error_policy;
+class text_permissive_error_policy;
+using text_default_error_policy = text_strict_error_policy;
+
+// error handling:
+enum class encode_status : int {
+  no_error = /* implementation-defined */,
+  invalid_character = /* implementation-defined */,
+  invalid_state_transition = /* implementation-defined */
+};
+enum class decode_status : int {
+  no_error = /* implementation-defined */,
+  no_character = /* implementation-defined */,
+  invalid_code_unit_sequence = /* implementation-defined */,
+  underflow = /* implementation-defined */
+};
+constexpr inline bool status_ok(encode_status es) noexcept;
+constexpr inline bool status_ok(decode_status ds) noexcept;
+constexpr inline bool error_occurred(encode_status es) noexcept;
+constexpr inline bool error_occurred(decode_status ds) noexcept;
+const char* status_message(encode_status es) noexcept;
+const char* status_message(decode_status ds) noexcept;
+
+// exception classes:
+class text_error;
+class text_encode_error;
+class text_decode_error;
 
 // character sets:
 class any_character_set;
@@ -423,28 +455,48 @@ using char16_character_encoding = /* implementation-defined */ ;
 using char32_character_encoding = /* implementation-defined */ ;
 
 // itext_iterator:
-template<TextEncoding ET, ranges::View VT>
+template<TextEncoding ET,
+         ranges::View VT,
+         TextErrorPolicy TEP = text_default_error_policy>
   requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
   class itext_iterator;
 
 // itext_sentinel:
-template<TextEncoding ET, ranges::View VT>
+template<TextEncoding ET,
+         ranges::View VT,
+         TextErrorPolicy TEP = text_default_error_policy>
   class itext_sentinel;
 
 // otext_iterator:
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+template<TextEncoding ET,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT,
+         TextErrorPolicy TEP = text_default_error_policy>
   class otext_iterator;
 
 // otext_iterator factory functions:
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
   auto make_otext_iterator(typename ET::state_type state, IT out)
   -> otext_iterator<ET, IT>;
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+template<TextEncoding ET,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(typename ET::state_type state, IT out)
+  -> otext_iterator<ET, IT>;
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(IT out)
+  -> otext_iterator<ET, IT>;
+template<TextEncoding ET,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
   auto make_otext_iterator(IT out)
   -> otext_iterator<ET, IT>;
 
 // basic_text_view:
-template<TextEncoding ET, ranges::View VT>
+template<TextEncoding ET,
+         ranges::View VT,
+         TextErrorPolicy TEP = text_default_error_policy>
   class basic_text_view;
 
 // basic_text_view type aliases:
@@ -530,30 +582,6 @@ template<TextInputIterator TIT, TextSentinel<TIT> TST>
 template<TextView TVT>
   TVT make_text_view(TVT tv);
 
-// error handling:
-enum class encode_status : int {
-  no_error = /* implementation-defined */,
-  invalid_character = /* implementation-defined */,
-  invalid_state_transition = /* implementation-defined */
-};
-enum class decode_status : int {
-  no_error = /* implementation-defined */,
-  no_character = /* implementation-defined */,
-  invalid_code_unit_sequence = /* implementation-defined */,
-  underflow = /* implementation-defined */
-};
-constexpr inline bool status_ok(encode_status es) noexcept;
-constexpr inline bool status_ok(decode_status ds) noexcept;
-constexpr inline bool error_occurred(encode_status es) noexcept;
-constexpr inline bool error_occurred(decode_status ds) noexcept;
-const char* status_message(encode_status es) noexcept;
-const char* status_message(decode_status ds) noexcept;
-
-// exception classes:
-class text_error;
-class text_encode_error;
-class text_decode_error;
-
 } // inline namespace text
 } // namespace experimental
 } // namespace std
@@ -569,6 +597,7 @@ class text_decode_error;
 - [Concept CodeUnitOutputIterator](#concept-codeunitoutputiterator)
 - [Concept TextEncodingState](#concept-textencodingstate)
 - [Concept TextEncodingStateTransition](#concept-textencodingstatetransition)
+- [Concept TextErrorPolicy](#concept-texterrorpolicy)
 - [Concept TextEncoding](#concept-textencoding)
 - [Concept TextEncoder](#concept-textencoder)
 - [Concept TextDecoder](#concept-textdecoder)
@@ -623,14 +652,18 @@ template<typename T> concept bool CodePoint() {
 ### Concept CharacterSet
 The `CharacterSet` concept specifies requirements for a type that describes
 a [character set](#character-set).  Such a type has a member typedef-name
-declaration for a type that satisfies `CodePoint` and a static member function
-that returns a name for the [character set](#character-set).
+declaration for a type that satisfies `CodePoint`, a static member function
+that returns a name for the [character set](#character-set), and a static
+member function that returns a code point value to be used to construct a
+substitution character to stand in when errors occur during encoding and
+decoding operations when the permissive error policy is in effect.
 
 ```C++
 template<typename T> concept bool CharacterSet() {
   return CodePoint<code_point_type_t<T>>()
       && requires () {
            { T::get_name() } noexcept -> const char *;
+           { T::get_substitution_code_point() } noexcept -> code_point_type_t<T>;
          };
 }
 ```
@@ -699,6 +732,19 @@ semiregular.
 ```C++
 template<typename T> concept bool TextEncodingStateTransition() {
   return ranges::Semiregular<T>();
+}
+```
+
+### Concept TextErrorPolicy
+The `TextErrorPolicy` concept specifies requirements of types used
+to specify error handling policies.  Such types are semiregular class types
+that derive from class `text_error_policy`.
+
+```C++
+template<typename T> concept bool TextErrorPolicy() {
+  return ranges::Semiregular<T>()
+      && ranges::DerivedFrom<T, text_error_policy>()
+      && !ranges::Same<std::remove_cv_t<T>, text_error_policy>();
 }
 ```
 
@@ -845,17 +891,21 @@ template<typename T, typename I> concept bool TextRandomAccessDecoder() {
 ### Concept TextIterator
 The `TextIterator` concept specifies requirements of iterator types that are
 used to encode and decode [characters](#character) as an [encoded](#encoding)
-sequence of [code units](#code-unit).  [Encoding](#encoding) state is held in
-each iterator instance and is made accessible via non-static member functions.
+sequence of [code units](#code-unit).  [Encoding](#encoding) state and error
+indication is held in each iterator instance and is made accessible via
+non-static member functions.
 
 ```C++
 template<typename T> concept bool TextIterator() {
   return ranges::Iterator<T>()
       && TextEncoding<encoding_type_t<T>>()
+      && TextErrorPolicy<typename T::error_policy>()
       && TextEncodingState<typename T::state_type>()
       && requires (const T ct) {
            { ct.state() } noexcept
                -> const typename encoding_type_t<T>::state_type&;
+           { ct.error_occurred() } noexcept
+               -> bool;
          };
 }
 ```
@@ -869,33 +919,43 @@ satisfies `TextIterator` also satisfies `TextSentinel<T>` there by enabling
 ```C++
 template<typename T, typename I> concept bool TextSentinel() {
   return ranges::Sentinel<T, I>()
-      && TextIterator<I>();
+      && TextIterator<I>()
+      && TextErrorPolicy<typename T::error_policy>();
 }
 ```
 
 ### Concept TextOutputIterator
 The `TextOutputIterator` concept refines `TextIterator` with a requirement that
 the type also satisfy `ranges::OutputIterator` for the character type of the
-associated encoding.
+associated encoding and that a member function be provided for retrieving error
+information.
 
 ```C++
 template<typename T> concept bool TextOutputIterator() {
   return TextIterator<I>();
-      && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>();
+      && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
+      && requires (const T ct) {
+           { ct.get_error() } noexcept
+               -> encode_status;
+         };
 }
 ```
 
 ### Concept TextInputIterator
-The `TextInputIterator` concept refines `TextIterator` with a requirement that
-the type also satisfy `ranges::InputIterator` and that the iterator value type
-satisfy `Character`.
-
+The `TextInputIterator` concept refines `TextIterator` with requirements that
+the type also satisfy `ranges::InputIterator`, that the iterator value type
+satisfy `Character`, and that a member function be provided for retrieving error
+information.
 
 ```C++
 template<typename T> concept bool TextInputIterator() {
   return TextIterator<T>()
       && ranges::InputIterator<T>()
-      && Character<ranges::value_type_t<T>>();
+      && Character<ranges::value_type_t<T>>()
+      && requires (const T ct) {
+           { ct.get_error() } noexcept
+               -> decode_status;
+         };
 }
 ```
 
@@ -951,6 +1011,7 @@ template<typename T> concept bool TextView() {
       R& TextIterator<ranges::iterator_t<T>>()
       && TextEncoding<encoding_type_t<T>>()
       && ranges::View<typename T::view_type>()
+      && TextErrorPolicy<typename T::error_policy>()
       && TextEncodingState<typename T::state_type>()
       && CodeUnitIterator<code_unit_iterator_t<T>>()
       R& requires (T t, const T ct) {
@@ -1007,6 +1068,209 @@ template<typename T> concept bool TextRandomAccessView() {
   return TextBidirectionalView<T>()
       && TextRandomAccessIterator<ranges::iterator_t<T>>();
 }
+```
+
+## Error Policies
+
+- [Class text_error_policy](#class-text_error_policy)
+- [Class text_strict_error_policy](#class-text_strict_error_policy)
+- [Class text_permissive_error_policy](#class-text_permissive_error_policy)
+- [Alias text_default_error_policy](#alias-text_default_error_policy)
+
+### Class text_error_policy
+
+Class `text_error_policy` is a base class from which all text error policy
+classes must derive.
+
+```C++
+class text_error_policy {};
+```
+
+### Class text_strict_error_policy
+
+The `text_strict_error_policy` class is a policy class that specifies that
+exceptions be thrown for errors that occur during encoding and decoding
+operations initiated through text iterators.  This class satisfies
+`TextErrorPolicy`.
+
+```C++
+class text_strict_error_policy : public text_error_policy {};
+```
+
+### Class text_permissive_error_policy
+
+The `class_text_permissive_error_policy` class is a policy class that specifies
+that substitution characters such as the Unicode replacement character
+`U+FFFD` be substituted in place of errors that occur during encoding and
+decoding operations initiated through text iterators.  This class satisfies
+`TextErrorPolicy`.
+
+```C++
+class text_permissive_error_policy : public text_error_policy {};
+```
+
+### Alias text_default_error_policy
+
+The `text_default_error_policy` alias specifies the default text error policy.
+Conforming implementations must alias this to `text_strict_error_policy`, but
+may have options to select an alternative default policy for environments that
+do not support exceptions.  The referred class shall satisfy `TextErrorPolicy`.
+
+```C++
+using text_default_error_policy = text_strict_error_policy;
+```
+
+## Error Status
+
+- [Enum encode_status](#enum-encode_status)
+- [Enum decode_status](#enum-decode_status)
+- [status_ok](#status_ok)
+- [error_occurred](#error_occurred)
+- [status_message](#status_message)
+
+### Enum encode_status
+
+The `encode_status` enumeration type defines enumerators used to report errors
+that occur during text encoding operations.
+
+The `no_error` enumerator indicates that no error has occurred.
+
+The `invalid_character` enumerator indicates that an attempt was made to encode
+a character that was not valid for the encoding.
+
+The `invalid_state_transition` enumerator indicates that an attempt was made to
+encode a state transition that was not valid for the encoding.
+
+```C++
+enum class encode_status : int {
+  no_error = /* implementation-defined */,
+  invalid_character = /* implementation-defined */,
+  invalid_state_transition = /* implementation-defined */
+};
+```
+
+### Enum decode_status
+
+The `decode_status` enumeration type defines enumerators used to report errors
+that occur during text decoding operations.
+
+The `no_error` enumerator indicates that no error has occurred.
+
+The `no_character` enumerator indicates that no error has occurred, but that no
+character was decoded for a code unit sequence.  This typically indicates that
+the code unit sequence represents an encoding state transition such as for an
+escape sequence or byte order marker.
+
+The `invalid_code_unit_sequence` enumerator indicates that an attempt was made
+to decode an invalid code unit sequence.
+
+The `underflow` enumerator indicates that the end of the input range was
+encountered before a complete code unit sequence was decoded.
+
+```C++
+enum class decode_status : int {
+  no_error = /* implementation-defined */,
+  no_character = /* implementation-defined */,
+  invalid_code_unit_sequence = /* implementation-defined */,
+  underflow = /* implementation-defined */
+};
+```
+
+### status_ok
+
+The `status_ok` function returns `true` if the `encode_status` argument value
+is `encode_status::no_error` or if the `decode_status` argument is either of
+`decode_status::no_error` or `decode_status::no_character`.  `false` is
+returned for all other values.
+
+```C++
+constexpr inline bool status_ok(encode_status es) noexcept;
+constexpr inline bool status_ok(decode_status ds) noexcept;
+```
+
+### error_occurred
+
+The `error_occurred` function returns `false` if the `encode_status` argument
+value is `encode_status::no_error` or if the `decode_status` argument is either
+of `decode_status::no_error` or `decode_status::no_character`.  `true` is
+returned for all other values.
+
+```C++
+constexpr inline bool error_occurred(encode_status es) noexcept;
+constexpr inline bool error_occurred(decode_status ds) noexcept;
+```
+
+### status_message
+
+The `status_message` function returns a pointer to a statically allocated
+string containing a short description of the value of the `encode_status` or
+`decode_status` argument.
+
+```C++
+const char* status_message(encode_status es) noexcept;
+const char* status_message(decode_status ds) noexcept;
+```
+
+## Exceptions
+
+- [Class text_error](#class-text_error)
+- [Class text_encode_error](#class-text_encode_error)
+- [Class text_decode_error](#class-text_decode_error)
+
+### Class text_error
+
+The `text_error` class defines the base class for the types of objects
+thrown as exceptions to report errors detected during text processing.
+
+```C++
+class text_error : public std::runtime_error
+{
+public:
+  using std::runtime_error::runtime_error;
+};
+```
+
+### Class text_encode_error
+
+The `text_encode_error` class defines the types of objects thrown as exceptions
+to report errors detected during encoding of a [character](#character).  Objects
+of this type are generally thrown in response to an attempt to encode a
+[character](#character) with an invalid [code point](#code-point) value, or to
+encode an invalid state transition.
+
+```C++
+class text_encode_error : public text_error
+{
+public:
+  explicit text_encode_error(encode_status es) noexcept;
+
+  const encode_status& status_code() const noexcept;
+
+private:
+  encode_status es; // exposition only
+};
+```
+
+### Class text_decode_error
+
+The `text_decode_error` class defines the types of objects thrown as exceptions
+to report errors detected during decoding of a [code unit](#code-unit) sequence.
+Objects of this type are generally thrown in response to an attempt to decode
+an ill-formed [code unit](#code-unit) sequence, a [code unit](#code-unit)
+sequence that specifies an invalid [code point](#code-point) value, or a
+[code unit](#code-unit) sequence that specifies an invalid state transition.
+
+```C++
+class text_decode_error : public text_error
+{
+public:
+  explicit text_decode_error(decode_status ds) noexcept;
+
+  const decode_status& status_code() const noexcept;
+
+private:
+  decode_status ds; // exposition only
+};
 ```
 
 ## Type traits
@@ -1114,7 +1378,9 @@ when the ability to switch between specific [character sets](#character-set)
 is required.  This class satisfies the `CharacterSet` concept and has an
 implementation defined `code_point_type` that is able to represent
 [code point](#code-point) values from all of the implementation provided
-[character set](#character-set) types.
+[character set](#character-set) types.  The code point returned by
+`get_substitution_code_point` is implementation defined.
+
 
 ```C++
 class any_character_set {
@@ -1124,6 +1390,8 @@ public:
   static const char* get_name() noexcept {
     return "any_character_set";
   }
+
+  static constexpr code_point_type get_substitution_code_point() noexcept;
 };
 ```
 
@@ -1132,7 +1400,9 @@ public:
 The `basic_execution_character_set` class represents the basic execution
 character set specified in `[lex.charset]p3` of the [C++11][ISO/IEC 14882:2011]
 standard.  This class satisfies the `CharacterSet` concept and has a
-`code_point_type` member type that aliases `char`.
+`code_point_type` member type that aliases `char`.  The code point returned by
+`get_substitution_code_point` is the code point for the `'?'` character.
+
 
 ```C++
 class basic_execution_character_set {
@@ -1142,6 +1412,8 @@ public:
   static const char* get_name() noexcept {
     return "basic_execution_character_set";
   }
+
+  static constexpr code_point_type get_substitution_code_point() noexcept;
 };
 ```
 
@@ -1150,7 +1422,10 @@ public:
 The `basic_execution_wide_character_set` class represents the basic execution
 wide character set specified in `[lex.charset]p3` of the
 [C++11][ISO/IEC 14882:2011] standard.  This class satisfies the `CharacterSet`
-concept and has a `code_point_type` member type that aliases `wchar_t`.
+concept and has a `code_point_type` member type that aliases `wchar_t`.  The
+code point returned by `get_substitution_code_point` is the code point for the
+`L'?'` character.
+
 
 ```C++
 class basic_execution_wide_character_set {
@@ -1160,6 +1435,8 @@ public:
   static const char* get_name() noexcept {
     return "basic_execution_wide_character_set";
   }
+
+  static constexpr code_point_type get_substitution_code_point() noexcept;
 };
 ```
 
@@ -1168,6 +1445,9 @@ public:
 The `unicode_character_set` class represents the [Unicode]
 [character sets](#character-set).  This class satisfies the `CharacterSet`
 concept and has a `code_point_type` member type that aliases `char32_t`.
+The code point returned by `get_substitution_code_point` is the `U+FFFD`
+Unicode replacement character.
+
 
 ```C++
 class unicode_character_set {
@@ -1177,6 +1457,8 @@ public:
   static const char* get_name() noexcept {
     return "unicode_character_set";
   }
+
+  static constexpr code_point_type get_substitution_code_point() noexcept;
 };
 ```
 
@@ -2426,6 +2708,12 @@ successfully decoded the last [code point](#code-point) in the
 done so; in both cases, the underlying [code unit](#code-unit) input iterator
 will compare equal to the end of the stream iterator).
 
+The `error_occurred` and `get_error` member functions enable retrieving
+information about errors that occurred during decoding operations.  if a call
+to `error_occurred` returns `false`, then it is guaranteed that a dereference
+operation will not throw an exception; assuming a non-singular iterator that is
+not past the end.
+
 `itext_iterator` is a [proxy iterator][P0022R1] since the value type is computed
 and a meaningful reference type cannot be provided for the dereference and
 subscript operators.  The `reference` member type is an alias of an
@@ -2436,7 +2724,9 @@ Note: Implementation of a reference proxy would be simplified if the
 [operator dot proposal][P0252R0] is adopted.
 
 ```C++
-template<TextEncoding ET, ranges::View VT>
+template<TextEncoding ET,
+         ranges::View VT,
+         TextErrorPolicy TEP = text_default_error_policy>
   requires TextDecoder<
              ET,
              ranges::iterator_t<std::add_const_t<VT>>>()
@@ -2444,6 +2734,7 @@ class itext_iterator {
 public:
   using encoding_type = ET;
   using view_type = VT;
+  using error_policy = TEP;
   using state_type = typename encoding_type::state_type;
 
   using iterator = ranges::iterator_t<std::add_const_t<view_type>>;
@@ -2511,6 +2802,9 @@ public:
     requires TextDecoder<encoding_type, iterator>()
           && ranges::ForwardIterator<iterator>();
 
+  bool error_occurred() const noexcept;
+  decode_status get_error() const noexcept;
+
   bool is_ok() const noexcept;
 
 private:
@@ -2533,24 +2827,27 @@ Objects of these types are equality comparable to `itext_iterator` objects that
 have matching [encoding](#encoding) and view types.
 
 ```C++
-template<TextEncoding ET, ranges::View VT>
+template<TextEncoding ET,
+         ranges::View VT,
+         TextErrorPolicy TEP = text_default_error_policy>
 class itext_sentinel {
 public:
   using view_type = VT;
+  using error_policy = TEP;
   using sentinel = ranges::sentinel_t<std::add_const_t<view_type>>;
 
   itext_sentinel() = default;
 
   itext_sentinel(sentinel s);
 
-  friend bool operator==(const itext_iterator<ET, VT> &ti,
+  friend bool operator==(const itext_iterator<ET, VT, TEP> &ti,
                          const itext_sentinel &ts);
-  friend bool operator!=(const itext_iterator<ET, VT> &ti,
+  friend bool operator!=(const itext_iterator<ET, VT, TEP> &ti,
                          const itext_sentinel &ts);
   friend bool operator==(const itext_sentinel &ts,
-                         const itext_iterator<ET, VT> &ti);
+                         const itext_iterator<ET, VT, TEP> &ti);
   friend bool operator!=(const itext_sentinel &ts,
-                         const itext_iterator<ET, VT> &ti);
+                         const itext_iterator<ET, VT, TEP> &ti);
 
   const sentinel& base() const noexcept;
 
@@ -2570,11 +2867,17 @@ constructible, and copy and move assignable.
 Member functions provide access to the stored encoding state and the underlying
 [code unit](#code-unit) output iterator.
 
+The `error_occurred` and `get_error` member functions enable retrieving
+information about errors that occurred during encoding operations.
+
 ```C++
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT>
+template<TextEncoding ET,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> CUIT,
+         TextErrorPolicy TEP = text_default_error_policy>
 class otext_iterator {
 public:
   using encoding_type = ET;
+  using error_policy = TEP;
   using state_type = typename ET::state_type;
   using state_transition_type = typename ET::state_transition_type;
 
@@ -2601,6 +2904,9 @@ public:
 
   const iterator& base() const noexcept;
 
+  bool error_occurred() const noexcept;
+  encode_status get_error() const noexcept;
+
 private:
   state_type base_state;  // exposition only
   iterator base_iterator; // exposition only
@@ -2616,10 +2922,22 @@ construction with an explicit [encoding](#encoding) state or the implicit
 [encoding](#encoding) dependent initial state.
 
 ```C++
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
   auto make_otext_iterator(typename ET::state_type state, IT out)
   -> otext_iterator<ET, IT>;
-template<TextEncoding ET, CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+template<TextEncoding ET,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(typename ET::state_type state, IT out)
+  -> otext_iterator<ET, IT>;
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
+  auto make_otext_iterator(IT out)
+  -> otext_iterator<ET, IT>;
+template<TextEncoding ET,
+         CodeUnitOutputIterator<code_unit_type_t<ET>> IT>
   auto make_otext_iterator(IT out)
   -> otext_iterator<ET, IT>;
 ```
@@ -2655,16 +2973,19 @@ otherwise, the end of the view is represented with an iterator of the same type
 as used for the beginning of the view.
 
 ```C++
-template<TextEncoding ET, ranges::View VT>
+template<TextEncoding ET,
+         ranges::View VT,
+         TextErrorPolicy TEP = text_default_error_policy>
 class basic_text_view : public ranges::view_base {
 public:
   using encoding_type = ET;
   using view_type = VT;
+  using error_policy = TEP;
   using state_type = typename ET::state_type;
   using code_unit_iterator = ranges::iterator_t<std::add_const_t<view_type>>;
   using code_unit_sentinel = ranges::sentinel_t<std::add_const_t<view_type>>;
-  using iterator = itext_iterator<ET, VT>;
-  using sentinel = itext_sentinel<ET, VT>;
+  using iterator = itext_iterator<ET, VT, TEP>;
+  using sentinel = itext_sentinel<ET, VT, TEP>;
 
   basic_text_view();
 
@@ -2841,12 +3162,24 @@ copies will hold iterators into a destructed object resulting in undefined
 behavior.
 
 ```C++
-template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
   auto make_text_view(typename ET::state_type state,
                       IT first, ST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET,
+         ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
+  auto make_text_view(typename ET::state_type state,
+                      IT first, ST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
   requires requires () {
     typename default_encoding_type_t<ranges::value_type_t<IT>>;
   }
@@ -2855,11 +3188,32 @@ template<ranges::InputIterator IT, ranges::Sentinel<IT> ST>
                       ST last)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
 
-template<TextEncoding ET, ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
+  requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+  }
+  auto make_text_view(typename default_encoding_type_t<ranges::value_type_t<IT>>::state_type state,
+                      IT first,
+                      ST last)
+  -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
+
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
   auto make_text_view(IT first, ST last)
   -> basic_text_view<ET, /* implementation-defined */ >;
 
-template<ranges::InputIterator IT, ranges::Sentinel<IT> ST>
+template<TextEncoding ET,
+         ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
+  auto make_text_view(IT first, ST last)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
   requires requires () {
     typename default_encoding_type_t<ranges::value_type_t<IT>>;
   }
@@ -2867,11 +3221,39 @@ template<ranges::InputIterator IT, ranges::Sentinel<IT> ST>
                       ST last)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
 
-template<TextEncoding ET, ranges::ForwardIterator IT>
+template<ranges::InputIterator IT,
+         ranges::Sentinel<IT> ST>
+  requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+  }
+  auto make_text_view(IT first,
+                      ST last)
+  -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
+
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         ranges::ForwardIterator IT>
   auto make_text_view(typename ET::state_type state,
                       IT first,
                       ranges::difference_type_t<IT> n)
   -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextEncoding ET,
+         ranges::ForwardIterator IT>
+  auto make_text_view(typename ET::state_type state,
+                      IT first,
+                      ranges::difference_type_t<IT> n)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         ranges::ForwardIterator IT>
+  requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+  }
+  auto make_text_view(typename default_encoding_type_t<ranges::value_type_t<IT>>::state_type state,
+                      IT first,
+                      ranges::difference_type_t<IT> n)
+  -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
 
 template<ranges::ForwardIterator IT>
   requires requires () {
@@ -2882,10 +3264,27 @@ template<ranges::ForwardIterator IT>
                       ranges::difference_type_t<IT> n)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
 
-template<TextEncoding ET, ranges::ForwardIterator IT>
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         ranges::ForwardIterator IT>
   auto make_text_view(IT first,
                       ranges::difference_type_t<IT> n)
   -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextEncoding ET,
+         ranges::ForwardIterator IT>
+  auto make_text_view(IT first,
+                      ranges::difference_type_t<IT> n)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         ranges::ForwardIterator IT>
+  requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<IT>>;
+  }
+  auto make_text_view(IT first,
+                      ranges::difference_type_t<IT> n)
+  -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
 
 template<ranges::ForwardIterator IT>
   requires requires () {
@@ -2895,10 +3294,27 @@ template<ranges::ForwardIterator IT>
                       ranges::difference_type_t<IT> n)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<IT>>, /* implementation-defined */ >;
 
-template<TextEncoding ET, ranges::InputRange Iterable>
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         ranges::InputRange Iterable>
   auto make_text_view(typename ET::state_type state,
                       const Iterable &iterable)
   -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextEncoding ET,
+         ranges::InputRange Iterable>
+  auto make_text_view(typename ET::state_type state,
+                      const Iterable &iterable)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         ranges::InputRange Iterable>
+  requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>;
+  }
+  auto make_text_view(typename default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<RT>>>::state_type state,
+                      const RT &range)
+  -> basic_text_view<default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>, /* implementation-defined */ >;
 
 template<ranges::InputRange Iterable>
   requires requires () {
@@ -2908,9 +3324,25 @@ template<ranges::InputRange Iterable>
                       const RT &range)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>, /* implementation-defined */ >;
 
-template<TextEncoding ET, ranges::InputRange Iterable>
+template<TextEncoding ET,
+         TextErrorPolicy TEP,
+         ranges::InputRange Iterable>
   auto make_text_view(const Iterable &iterable)
   -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextEncoding ET,
+         ranges::InputRange Iterable>
+  auto make_text_view(const Iterable &iterable)
+  -> basic_text_view<ET, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         ranges::InputRange Iterable>
+  requires requires () {
+    typename default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>;
+  }
+  auto make_text_view(
+    const RT &range)
+  -> basic_text_view<default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>, /* implementation-defined */ >;
 
 template<ranges::InputRange Iterable>
   requires requires () {
@@ -2920,165 +3352,23 @@ template<ranges::InputRange Iterable>
     const RT &range)
   -> basic_text_view<default_encoding_type_t<ranges::value_type_t<ranges::iterator_t<Iterable>>>, /* implementation-defined */ >;
 
-template<TextInputIterator TIT, TextSentinel<TIT> TST>
+template<TextErrorPolicy TEP,
+         TextInputIterator TIT,
+         TextSentinel<TIT> TST>
   auto make_text_view(TIT first, TST last)
   -> basic_text_view<encoding_type_t<TIT>, /* implementation-defined */ >;
 
+template<TextInputIterator TIT,
+         TextSentinel<TIT> TST>
+  auto make_text_view(TIT first, TST last)
+  -> basic_text_view<encoding_type_t<TIT>, /* implementation-defined */ >;
+
+template<TextErrorPolicy TEP,
+         TextView TVT>
+  TVT make_text_view(TVT tv);
+
 template<TextView TVT>
   TVT make_text_view(TVT tv);
-```
-
-## Error Status
-
-- [Enum encode_status](#enum-encode_status)
-- [Enum decode_status](#enum-decode_status)
-- [status_ok](#status_ok)
-- [error_occurred](#error_occurred)
-- [status_message](#status_message)
-
-### Enum encode_status
-
-The `encode_status` enumeration type defines enumerators used to report errors
-that occur during text encoding operations.
-
-The `no_error` enumerator indicates that no error has occurred.
-
-The `invalid_character` enumerator indicates that an attempt was made to encode
-a character that was not valid for the encoding.
-
-The `invalid_state_transition` enumerator indicates that an attempt was made to
-encode a state transition that was not valid for the encoding.
-
-```C++
-enum class encode_status : int {
-  no_error = /* implementation-defined */,
-  invalid_character = /* implementation-defined */,
-  invalid_state_transition = /* implementation-defined */
-};
-```
-
-### Enum decode_status
-
-The `decode_status` enumeration type defines enumerators used to report errors
-that occur during text decoding operations.
-
-The `no_error` enumerator indicates that no error has occurred.
-
-The `no_character` enumerator indicates that no error has occurred, but that no
-character was decoded for a code unit sequence.  This typically indicates that
-the code unit sequence represents an encoding state transition such as for an
-escape sequence or byte order marker.
-
-The `invalid_code_unit_sequence` enumerator indicates that an attempt was made
-to decode an invalid code unit sequence.
-
-The `underflow` enumerator indicates that the end of the input range was
-encountered before a complete code unit sequence was decoded.
-
-```C++
-enum class decode_status : int {
-  no_error = /* implementation-defined */,
-  no_character = /* implementation-defined */,
-  invalid_code_unit_sequence = /* implementation-defined */,
-  underflow = /* implementation-defined */
-};
-```
-
-### status_ok
-
-The `status_ok` function returns `true` if the `encode_status` argument value
-is `encode_status::no_error` or if the `decode_status` argument is either of
-`decode_status::no_error` or `decode_status::no_character`.  `false` is
-returned for all other values.
-
-```C++
-constexpr inline bool status_ok(encode_status es) noexcept;
-constexpr inline bool status_ok(decode_status ds) noexcept;
-```
-
-### error_occurred
-
-The `error_occurred` function returns `false` if the `encode_status` argument
-value is `encode_status::no_error` or if the `decode_status` argument is either
-of `decode_status::no_error` or `decode_status::no_character`.  `true` is
-returned for all other values.
-
-```C++
-constexpr inline bool error_occurred(encode_status es) noexcept;
-constexpr inline bool error_occurred(decode_status ds) noexcept;
-```
-
-### status_message
-
-The `status_message` function returns a pointer to a statically allocated
-string containing a short description of the value of the `encode_status` or
-`decode_status` argument.
-
-```C++
-const char* status_message(encode_status es) noexcept;
-const char* status_message(decode_status ds) noexcept;
-```
-
-## Exceptions
-
-- [Class text_error](#class-text_error)
-- [Class text_encode_error](#class-text_encode_error)
-- [Class text_decode_error](#class-text_decode_error)
-
-### Class text_error
-
-The `text_error` class defines the base class for the types of objects
-thrown as exceptions to report errors detected during text processing.
-
-```C++
-class text_error : public std::runtime_error
-{
-public:
-  using std::runtime_error::runtime_error;
-};
-```
-
-### Class text_encode_error
-
-The `text_encode_error` class defines the types of objects thrown as exceptions
-to report errors detected during encoding of a [character](#character).  Objects
-of this type are generally thrown in response to an attempt to encode a
-[character](#character) with an invalid [code point](#code-point) value, or to
-encode an invalid state transition.
-
-```C++
-class text_encode_error : public text_error
-{
-public:
-  explicit text_encode_error(encode_status es) noexcept;
-
-  const encode_status& status_code() const noexcept;
-
-private:
-  encode_status es; // exposition only
-};
-```
-
-### Class text_decode_error
-
-The `text_decode_error` class defines the types of objects thrown as exceptions
-to report errors detected during decoding of a [code unit](#code-unit) sequence.
-Objects of this type are generally thrown in response to an attempt to decode
-an ill-formed [code unit](#code-unit) sequence, a [code unit](#code-unit)
-sequence that specifies an invalid [code point](#code-point) value, or a
-[code unit](#code-unit) sequence that specifies an invalid state transition.
-
-```C++
-class text_decode_error : public text_error
-{
-public:
-  explicit text_decode_error(decode_status ds) noexcept;
-
-  const decode_status& status_code() const noexcept;
-
-private:
-  decode_status ds; // exposition only
-};
 ```
 
 # Supported Encodings

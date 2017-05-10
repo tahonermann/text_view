@@ -21,6 +21,13 @@ concept bool InvalidSpecialization() {
 }
 
 
+void test_error_policy_models() {
+    static_assert(! TextErrorPolicy<text_error_policy>());
+    static_assert(TextErrorPolicy<text_strict_error_policy>());
+    static_assert(TextErrorPolicy<text_permissive_error_policy>());
+    static_assert(TextErrorPolicy<text_default_error_policy>());
+}
+
 void test_code_unit_models() {
     // Archetypes
     static_assert(CodeUnit<code_unit_archetype>());
@@ -409,6 +416,7 @@ void test_text_view_models() {
 }
 
 int main() {
+    test_error_policy_models();
     test_code_unit_models();
     test_code_point_models();
     test_character_set_models();

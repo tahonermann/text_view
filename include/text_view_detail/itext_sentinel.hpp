@@ -10,6 +10,7 @@
 
 #include <experimental/ranges/iterator>
 #include <text_view_detail/concepts.hpp>
+#include <text_view_detail/error_policy.hpp>
 #include <text_view_detail/itext_iterator.hpp>
 
 
@@ -18,10 +19,14 @@ namespace experimental {
 inline namespace text {
 
 
-template<TextEncoding ET, ranges::View VT>
+template<
+    TextEncoding ET,
+    ranges::View VT,
+    TextErrorPolicy TEP = text_default_error_policy>
 class itext_sentinel {
 public:
     using view_type = VT;
+    using error_policy = TEP;
     using sentinel = ranges::sentinel_t<std::add_const_t<VT>>;
 
     itext_sentinel() = default;
@@ -30,26 +35,26 @@ public:
         : s{s} {}
 
     friend bool operator==(
-        const itext_iterator<ET, VT> &ti,
+        const itext_iterator<ET, VT, TEP> &ti,
         const itext_sentinel &ts)
     {
         return ts.equal(ti);
     }
     friend bool operator!=(
-        const itext_iterator<ET, VT> &ti,
+        const itext_iterator<ET, VT, TEP> &ti,
         const itext_sentinel &ts)
     {
         return !(ti == ts);
     }
     friend bool operator==(
         const itext_sentinel &ts,
-        const itext_iterator<ET, VT> &ti)
+        const itext_iterator<ET, VT, TEP> &ti)
     {
         return ti == ts;
     }
     friend bool operator!=(
         const itext_sentinel &ts,
-        const itext_iterator<ET, VT> &ti)
+        const itext_iterator<ET, VT, TEP> &ti)
     {
         return !(ts == ti);
     }
@@ -59,7 +64,7 @@ public:
     }
 
 private:
-    bool equal(const itext_iterator<ET, VT> &ti) const {
+    bool equal(const itext_iterator<ET, VT, TEP> &ti) const {
         // For input iterators, the base iterator corresponds to the next input
         // to be decoded.  Naively checking for base comparison only therefore
         // results in premature matches when the last code point in the input
@@ -71,7 +76,7 @@ private:
         return ti.base() == base()
             && ! ti.is_ok();
     }
-    bool equal(const itext_iterator<ET, VT> &ti) const
+    bool equal(const itext_iterator<ET, VT, TEP> &ti) const
         requires ranges::ForwardIterator<decltype(ti.base())>()
     {
         return ti.base() == base();
