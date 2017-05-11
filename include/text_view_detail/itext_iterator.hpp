@@ -474,8 +474,6 @@ private:
             // character.
             using CT = character_type_t<encoding_type>;
             using CST = character_set_type_t<CT>;
-            // FIXME: Character doesn't require constructibility with a
-            // FIXME: code point.
             static CT c{CST::get_substitution_code_point()};
             return c;
         } else {
