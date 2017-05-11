@@ -1413,8 +1413,8 @@ template&lt;typename T&gt; concept bool Character() {
       &amp;&amp; ranges::Constructible&lt;T, code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt;&gt;()
       &amp;&amp; CharacterSet&lt;character_set_type_t&lt;T&gt;&gt;()
       &amp;&amp; requires (T t,
-                           const T ct,
-                           code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt; cp)
+                   const T ct,
+                   code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt; cp)
          {
            { t.set_code_point(cp) } noexcept;
            { ct.get_code_point() } noexcept
