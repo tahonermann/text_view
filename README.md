@@ -678,6 +678,7 @@ Types that satisfy `Character` are regular and copyable.
 ```C++
 template<typename T> concept bool Character() {
   return ranges::Regular<T>()
+      && ranges::Constructible<T, code_point_type_t<character_set_type_t<T>>>()
       && CharacterSet<character_set_type_t<T>>()
       && requires (T t,
                    const T ct,

@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2017-05-10</td>
+    <td>2017-05-11</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -202,6 +202,8 @@ blockquote.code
       <tt>basic_execution_character_set</tt>,
       <tt>basic_execution_wide_character_set</tt>, and
       <tt>unicode_character_set</tt>.
+  <li>Updated the <tt>Character</tt> concept to require constructibility from
+      a code point type.</li>
   <li>Added concepts for text iterators and views to allow specifying iterator
       category constraints more conveniently.</li>
   <li>Updated the <tt>TextIterator</tt>, <tt>TextOutputIterator</tt>, and
@@ -1408,6 +1410,7 @@ character.  Types that satisfy <tt>Character</tt> are regular and copyable.
 <pre><code>
 template&lt;typename T&gt; concept bool Character() {
   return ranges::Regular&lt;T&gt;()
+      &amp;&amp; ranges::Constructible&lt;T, code_point_type_t&lt;character_set_type_t&lt;T&gt;&gt;&gt;()
       &amp;&amp; CharacterSet&lt;character_set_type_t&lt;T&gt;&gt;()
       &amp;&amp; requires (T t,
                            const T ct,
