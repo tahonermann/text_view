@@ -373,31 +373,62 @@ void test_forward_decode(
     const RT &code_unit_range,
     TVT tv)
 {
-    // Validate pre-increment iteration.
+    // Validate pre-increment iteration with dereference.
     auto tvit = begin(tv);
     for (const auto &cum : code_unit_maps) {
         for (auto c : cum.characters) {
             // Decode and advance.
             assert(tvit != end(tv));
-            auto tvcp = *tvit;
+            auto tvc = *tvit;
             ++tvit;
             // Validate the decoded character.
-            assert(tvcp == c);
+            assert(tvc == c);
         }
     }
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
     assert(tvit == end(tv));
 
-    // Validate post-increment iteration.
+    // Validate pre-increment iteration with class member access.
     tvit = begin(tv);
     for (const auto &cum : code_unit_maps) {
         for (auto c : cum.characters) {
             // Decode and advance.
             assert(tvit != end(tv));
-            auto tvcp = *tvit++;
+            auto tvcp = tvit->get_code_point();
+            ++tvit;
+            // Validate the decoded code point.
+            assert(tvcp == c.get_code_point());
+        }
+    }
+    // Validate base code unit iterators.
+    assert(tvit.base() == end(code_unit_range));
+    assert(tvit == end(tv));
+
+    // Validate post-increment iteration with dereference.
+    tvit = begin(tv);
+    for (const auto &cum : code_unit_maps) {
+        for (auto c : cum.characters) {
+            // Decode and advance.
+            assert(tvit != end(tv));
+            auto tvc = *tvit++;
             // Validate the decoded character.
-            assert(tvcp == c);
+            assert(tvc == c);
+        }
+    }
+    // Validate base code unit iterators.
+    assert(tvit.base() == end(code_unit_range));
+    assert(tvit == end(tv));
+
+    // Validate post-increment iteration with class member access.
+    tvit = begin(tv);
+    for (const auto &cum : code_unit_maps) {
+        for (auto c : cum.characters) {
+            // Decode and advance.
+            assert(tvit != end(tv));
+            auto tvcp = tvit++->get_code_point();
+            // Validate the decoded code point.
+            assert(tvcp == c.get_code_point());
         }
     }
     // Validate base code unit iterators.
@@ -453,10 +484,11 @@ void test_forward_decode(
                 begin(cum.code_units)));
             // Decode and advance.
             assert(tvit != end(tv));
-            auto tvcp = *tvit;
+            auto tvc = *tvit;
+            assert(tvc.get_code_point() == tvit->get_code_point());
             ++tvit;
             // Validate the decoded character.
-            assert(tvcp == c);
+            assert(tvc == c);
         }
     }
     // Validate iteration to the end.
@@ -495,9 +527,11 @@ void test_forward_decode(
                 begin(cum.code_units)));
             // Decode and advance.
             assert(tvit != end(tv));
-            auto tvcp = *tvit++;
+            auto tvit2 = tvit;
+            auto tvc = *tvit++;
+            assert(tvc.get_code_point() == tvit2++->get_code_point());
             // Validate the decoded character.
-            assert(tvcp == c);
+            assert(tvc == c);
         }
     }
     // Validate iteration to the end.
@@ -556,7 +590,9 @@ void test_reverse_decode(
         } else for (auto c : cum.characters) {
             // Decode and decrement.
             assert(tvit != begin(tv));
-            auto tvcp = *--tvit;
+            auto tvit2 = tvit;
+            auto tvc = *--tvit;
+            assert(tvc.get_code_point() == (--tvit2)->get_code_point());
             // Validate base code unit iterators.
             assert(end(tvit.base_range()) == rcuit.base());
             advance(rcuit, cum.code_units.size());
@@ -568,7 +604,7 @@ void test_reverse_decode(
                 end(tvit.base_range()),
                 begin(cum.code_units)));
             // Validate the decoded character.
-            assert(tvcp == c);
+            assert(tvc == c);
         }
     }
     // Validate iteration to the beginning.
@@ -598,7 +634,8 @@ void test_reverse_decode(
             // Decode and decrement.
             assert(tvit != begin(tv));
             tvit--;
-            auto tvcp = *tvit;
+            auto tvc = *tvit;
+            assert(tvc.get_code_point() == tvit->get_code_point());
             // Validate base code unit iterators.
             assert(end(tvit.base_range()) == rcuit.base());
             advance(rcuit, cum.code_units.size());
@@ -610,19 +647,13 @@ void test_reverse_decode(
                 end(tvit.base_range()),
                 begin(cum.code_units)));
             // Validate the decoded character.
-            assert(tvcp == c);
+            assert(tvc == c);
         }
     }
     // Validate iteration to the beginning.
     assert(tvit == begin(tv));
     assert(rcuit == text_detail::rend(code_unit_range));
 }
-
-// Test reverse decoding of the code unit sequence present in the
-// 'code_unit_range' range using the 'tv' text view of that range.  The
-// 'code_unit_maps' sequence provides the state transitions, characters, and
-// code unit sequences to compare against.  'tv' is expected to provide
-// bidirectional or random access iterators for this test.
 
 // Test random access decoding of the code unit sequence present in the
 // 'code_unit_range' range using the 'tv' text view of that range.  The
