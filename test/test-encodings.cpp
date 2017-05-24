@@ -27,6 +27,7 @@
 #include <text_view_detail/advance_to.hpp>
 #include <text_view_detail/riterator.hpp>
 #include <text_view_detail/to_array.hpp>
+#include "test_adapters.hpp"
 
 
 using namespace std;
@@ -67,198 +68,6 @@ int character_count(const code_unit_map_sequence<ET> &code_unit_maps) {
     }
     return result;
 }
-
-// Input iterator model.  The standard doesn't provide input iterator types that
-// don't also satisfy forward iterator requirements or impose additional
-// requirements.  istream_iterator, for example, requires a char_traits
-// specialization for its character type.
-template<ranges::InputIterator IT>
-class input_iterator
-    : public iterator<
-                 input_iterator_tag,
-                 typename iterator_traits<IT>::value_type,
-                 typename iterator_traits<IT>::difference_type,
-                 typename iterator_traits<IT>::pointer,
-                 typename iterator_traits<IT>::reference>
-{
-public:
-    input_iterator() = default;
-    input_iterator(IT it) : it(it) {}
-
-    friend bool operator==(
-        const input_iterator &l,
-        const input_iterator &r)
-    {
-        return l.it == r.it;
-    }
-    friend bool operator!=(
-        const input_iterator &l,
-        const input_iterator &r)
-    {
-        return !(l == r);
-    }
-
-    auto operator*() const -> typename iterator_traits<IT>::reference {
-        return *it;
-    }
-
-    auto operator++() -> input_iterator& {
-        ++it;
-        return *this;
-    }
-    auto operator++(int) -> input_iterator {
-        input_iterator tmp{*this};
-        ++*this;
-        return tmp;
-    }
-
-private:
-    IT it;
-};
-
-
-// Output iterator model.  The standard doesn't provide output iterator types
-// that don't also satisfy forward iterator requirements or impose additional
-// requirements.  ostream_iterator, for example, requires a char_traits
-// specialization for its character type.
-template<
-    typename IT,
-    typename T>
-requires ranges::OutputIterator<IT, T>()
-class output_iterator
-    : public iterator<
-                 output_iterator_tag,
-                 typename iterator_traits<IT>::value_type,
-                 typename iterator_traits<IT>::difference_type,
-                 typename iterator_traits<IT>::pointer,
-                 typename iterator_traits<IT>::reference>
-{
-public:
-    output_iterator() = default;
-    output_iterator(IT it) : it(it) {}
-
-    auto operator*() -> output_iterator& {
-        return *this;
-    }
-    void operator=(const T& t) {
-        *it = t;
-    }
-
-    auto operator++() -> output_iterator& {
-        ++it;
-        return *this;
-    }
-    auto operator++(int) -> output_iterator {
-        output_iterator tmp{*this};
-        ++*this;
-        return tmp;
-    }
-
-private:
-    IT it;
-};
-
-
-// View model.  The standard doesn't provide a container type with input
-// iterators that aren't also forward, bidirectional, or random access
-// iterators.  input_range_view is used to provide wrapped input iterators
-// for another container type.
-template<ranges::InputRange RT>
-class input_range_view {
-public:
-    input_range_view() = default;
-    input_range_view(RT &r) : r(&r) {}
-
-    auto begin() const
-        -> input_iterator<decltype(text_detail::adl_begin(declval<const RT>()))>
-    {
-        return input_iterator<
-            decltype(text_detail::adl_begin(declval<const RT>()))>{text_detail::adl_begin(*r)};
-    }
-    auto end() const
-        -> input_iterator<decltype(text_detail::adl_end(declval<const RT>()))>
-    {
-        return input_iterator<
-            decltype(text_detail::adl_end(declval<const RT>()))>{text_detail::adl_end(*r)};
-    }
-
-private:
-    RT *r;
-};
-
-
-// Range model with different return types for begin() and end().
-template<ranges::InputRange RT>
-class iterable_view {
-public:
-    using range_type = RT;
-    using iterator = ranges::iterator_t<std::add_const_t<RT>>;
-
-    class sentinel {
-    public:
-        sentinel() = default;
-        explicit sentinel(iterator i) : i{i} {}
-
-        friend bool operator==(
-            const sentinel &l,
-            const sentinel &r)
-        {
-            // Sentinels always compare equal regardless of any internal state.
-            // See N4128, 10.1 "Sentinel Equality".
-            return true;
-        }
-        friend bool operator!=(
-            const sentinel &l,
-            const sentinel &r)
-        {
-            return !(l == r);
-        }
-
-        friend bool operator==(
-            const iterator &i,
-            const sentinel &s)
-        {
-            return i == s.i;
-        }
-        friend bool operator!=(
-            const iterator &i,
-            const sentinel &s)
-        {
-            return !(i == s);
-        }
-        friend bool operator==(
-            const sentinel &s,
-            const iterator &i)
-        {
-            return i == s;
-        }
-        friend bool operator!=(
-            const sentinel &s,
-            const iterator &i)
-        {
-            return !(s == i);
-        }
-
-        iterator base() const {
-            return i;
-        }
-
-    private:
-        iterator i;
-    };
-
-    iterable_view(range_type &r) : r{r} {}
-
-    iterator begin() const {
-        return text_detail::adl_begin(r);
-    }
-    sentinel end() const {
-        return sentinel{text_detail::adl_end(r)};
-    }
-
-private:
-    range_type &r;
-};
 
 
 // Constructs a view from an array reference (that may correspond to a string
@@ -764,7 +573,7 @@ void test_forward_encoding(
         num_code_units,
         code_unit_type{});
     using base_iterator_type =
-        output_iterator<decltype(begin(container)), code_unit_type>;
+        output_iterator_adapter<decltype(begin(container)), code_unit_type>;
     base_iterator_type base_iterator(begin(container));
     auto it = make_otext_iterator<ET>(base_iterator);
     static_assert(TextOutputIterator<decltype(it)>(),"");
@@ -818,7 +627,7 @@ void test_forward_encoding(
         }
     }
     auto input_container =
-        input_range_view<forward_list<code_unit_type>>{container};
+        input_range_view_adapter<forward_list<code_unit_type>>{container};
     auto tv = make_text_view<ET>(input_container);
     static_assert(TextInputView<decltype(tv)>(),"");
     static_assert(! TextForwardView<decltype(tv)>(),"");
@@ -875,7 +684,7 @@ void test_forward_encoding(
             container.push_back(cu);
         }
     }
-    iterable_view<decltype(container)> iv_container{container};
+    iterable_view_adapter<decltype(container)> iv_container{container};
     auto tv = make_text_view<ET>(iv_container);
     static_assert(TextInputView<decltype(tv)>(),"");
     test_forward_decode(code_unit_maps, iv_container, tv);
@@ -931,7 +740,7 @@ void test_bidirectional_encoding(
             container.push_back(cu);
         }
     }
-    iterable_view<decltype(container)> iv_container{container};
+    iterable_view_adapter<decltype(container)> iv_container{container};
     auto tv = make_text_view<ET>(iv_container);
     static_assert(TextBidirectionalView<decltype(tv)>(),"");
     test_reverse_decode(code_unit_maps, iv_container, tv);
