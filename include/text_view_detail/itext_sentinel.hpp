@@ -32,7 +32,7 @@ public:
     itext_sentinel() = default;
 
     itext_sentinel(sentinel s)
-        : s{s} {}
+        : s(std::move(s)) {}
 
     friend bool operator==(
         const itext_iterator<ET, VT, TEP> &ti,
