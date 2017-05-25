@@ -32,6 +32,13 @@ private:
     ST last = {};
 };
 
+
+template<ranges::Iterator IT, ranges::Sentinel<IT> ST>
+auto make_basic_view(IT first, ST last) {
+    return basic_view<IT, ST>{std::move(first), std::move(last)};
+}
+
+
 } // namespace text_detail
 } // inline namespace text
 } // namespace experimental
