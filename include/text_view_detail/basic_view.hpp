@@ -8,6 +8,7 @@
 #define TEXT_VIEW_BASIC_VIEW_HPP
 
 
+#include <utility>
 #include <experimental/ranges/concepts>
 
 
@@ -20,9 +21,24 @@ template<ranges::Iterator IT, ranges::Sentinel<IT> ST = IT>
 class basic_view : public ranges::view_base
 {
 public:
+    using iterator = IT;
+    using sentinel = ST;
+
     basic_view() = default;
     basic_view(IT first, ST last)
         : first{first}, last{last} {}
+
+    template<typename IT2, typename ST2>
+    requires ranges::Constructible<IT, IT2&&>()
+          && ranges::Constructible<ST, ST2&&>()
+    basic_view(IT2 first, ST2 last)
+        : first(std::move(first)), last(std::move(last)) {}
+
+    template<typename IT2, typename ST2>
+    requires ranges::Constructible<IT, IT2&&>()
+          && ranges::Constructible<ST, ST2&&>()
+    basic_view(const basic_view<IT2, ST2> &o)
+        : first(o.begin()), last(o.end()) {}
 
     IT begin() const { return first; }
     ST end() const { return last; }
