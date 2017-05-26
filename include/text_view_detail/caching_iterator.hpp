@@ -59,13 +59,13 @@ class caching_cursor
         std::deque<value_type> cache;
     };
 
-    template<typename> friend class caching_iterator_sentinel;
-
 public:
     class mixin
         : protected ranges::basic_mixin<caching_cursor>
     {
         using base_type = ranges::basic_mixin<caching_cursor>;
+
+        template<typename> friend class caching_iterator_sentinel;
     public:
         mixin() = default;
 
@@ -90,6 +90,14 @@ public:
 
         void clear_cache() const {
             return this->get().clear_cache();
+        }
+
+    private:
+        std::size_t position() const {
+            return this->get().position;
+        }
+        std::size_t cache_size() const {
+            return this->get().current_data->cache.size();
         }
     };
 
@@ -222,8 +230,8 @@ private:
     template<ranges::InputIterator I>
     requires ranges::Sentinel<S, I>()
     bool equal(const caching_iterator<I> &ci) const {
-        return ci.position == ci.current_data->cache.size()
-            && ci.current_data->current == s;
+        return ci.position() == ci.cache_size()
+            && ci.base() == s;
     }
 
     sentinel s;
