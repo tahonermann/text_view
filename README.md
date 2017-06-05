@@ -1016,8 +1016,6 @@ template<typename T> concept bool TextView() {
       && TextEncodingState<typename T::state_type>()
       && CodeUnitIterator<code_unit_iterator_t<T>>()
       R& requires (T t, const T ct) {
-           { t.base() } noexcept
-               -> typename T::view_type&;
            { ct.base() } noexcept
                -> const typename T::view_type&;
            { ct.initial_state() } noexcept
@@ -3072,7 +3070,6 @@ public:
                                    code_unit_sentinel>();
 
   const view_type& base() const noexcept;
-  view_type& base() noexcept;
 
   const state_type& initial_state() const noexcept;
 

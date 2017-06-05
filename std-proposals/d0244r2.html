@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2017-05-11</td>
+    <td>2017-06-05</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -211,6 +211,9 @@ blockquote.code
       to refine <tt>TextIterator</tt>.  The requirement for a text iterator's
       value type to satisfy <tt>Character</tt> has been moved to
       <tt>TextInputIterator</tt>.
+  <li>Removed the requirement for non-const access to the underlying view
+      via a <tt>base()</tt> member function for <tt>TextView</tt>; removed
+      the corresponding member function from <tt>basic_text_view</tt>.
   <li>Updated the <tt>Character</tt> concept to remove the redundant
       <tt>Copyable</tt> requirement; <tt>Regular</tt> subsumes
       <tt>Copyable</tt>.  Thanks to Casey Carter for spotting this.</li>
@@ -1824,8 +1827,6 @@ template&lt;typename T&gt; concept bool TextView() {
       &amp;&amp; TextEncodingState&lt;typename T::state_type&gt;()
       &amp;&amp; CodeUnitIterator&lt;code_unit_iterator_t&lt;T&gt;&gt;()
       &amp;&amp; requires (T t, const T ct) {
-           { t.base() } noexcept
-               -&gt; typename T::view_type&amp;;
            { ct.base() } noexcept
                -&gt; const typename T::view_type&amp;;
            { ct.initial_state() } noexcept
@@ -4115,7 +4116,6 @@ public:
                                    code_unit_sentinel&gt;();
 
   const view_type&amp; base() const noexcept;
-  view_type&amp; base() noexcept;
 
   const state_type&amp; initial_state() const noexcept;
 

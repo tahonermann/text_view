@@ -337,7 +337,6 @@ public:
     text_view_archetype_template();
     text_view_archetype_template(const state_type &initial_state, VT r);
     const VT& base() const noexcept;
-    VT& base() noexcept;
     const state_type& initial_state() const noexcept;
     state_type& initial_state() noexcept;
     iterator begin() const;

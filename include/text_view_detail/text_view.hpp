@@ -244,9 +244,6 @@ public:
     const view_type& base() const noexcept {
         return view;
     }
-    view_type& base() noexcept {
-        return view;
-    }
 
     const state_type& initial_state() const noexcept {
         return base_type::get();

@@ -373,8 +373,6 @@ concept bool TextView() {
         && TextEncodingState<typename T::state_type>()
         && CodeUnitIterator<typename T::code_unit_iterator>()
         && requires (T t, const T ct) {
-               { t.base() } noexcept
-                   -> typename T::view_type&;
                { ct.base() } noexcept
                    -> const typename T::view_type&;
                { ct.initial_state() } noexcept
