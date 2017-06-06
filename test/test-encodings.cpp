@@ -186,6 +186,11 @@ void test_forward_decode(
     auto tvit = begin(tv);
     for (const auto &cum : code_unit_maps) {
         for (auto c : cum.characters) {
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin(tvit.base_range()),
+                end(tvit.base_range()),
+                begin(cum.code_units)));
             // Decode and advance.
             assert(tvit != end(tv));
             auto tvc = *tvit;
@@ -194,14 +199,21 @@ void test_forward_decode(
             assert(tvc == c);
         }
     }
+    // Validate iteration to the end.
+    assert(tvit == end(tv));
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
-    assert(tvit == end(tv));
+    assert(begin(tvit.base_range()) == end(tvit.base_range()));
 
     // Validate pre-increment iteration with class member access.
     tvit = begin(tv);
     for (const auto &cum : code_unit_maps) {
         for (auto c : cum.characters) {
+            // Validate the underlying code unit sequence.
+            assert(equal(
+                begin(tvit.base_range()),
+                end(tvit.base_range()),
+                begin(cum.code_units)));
             // Decode and advance.
             assert(tvit != end(tv));
             auto tvcp = tvit->get_code_point();
@@ -210,9 +222,11 @@ void test_forward_decode(
             assert(tvcp == c.get_code_point());
         }
     }
+    // Validate iteration to the end.
+    assert(tvit == end(tv));
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
-    assert(tvit == end(tv));
+    assert(begin(tvit.base_range()) == end(tvit.base_range()));
 
     // Validate post-increment iteration with dereference.
     tvit = begin(tv);
@@ -225,9 +239,11 @@ void test_forward_decode(
             assert(tvc == c);
         }
     }
+    // Validate iteration to the end.
+    assert(tvit == end(tv));
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
-    assert(tvit == end(tv));
+    assert(begin(tvit.base_range()) == end(tvit.base_range()));
 
     // Validate post-increment iteration with class member access.
     tvit = begin(tv);
@@ -240,9 +256,11 @@ void test_forward_decode(
             assert(tvcp == c.get_code_point());
         }
     }
+    // Validate iteration to the end.
+    assert(tvit == end(tv));
     // Validate base code unit iterators.
     assert(tvit.base() == end(code_unit_range));
-    assert(tvit == end(tv));
+    assert(begin(tvit.base_range()) == end(tvit.base_range()));
 
     // Validate iterator equality comparison.
     assert(begin(tv) == begin(tv));

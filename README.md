@@ -2713,6 +2713,12 @@ to `error_occurred` returns `false`, then it is guaranteed that a dereference
 operation will not throw an exception; assuming a non-singular iterator that is
 not past the end.
 
+The `look_ahead_range` member function is provided only when the underlying
+code unit iterator is an input iterator; it provides access to code units that
+were read from the code unit iterator, but were not (yet) used to decode a
+character.  Generally such look ahead only occurs when an invalid code unit
+sequence is encountered.
+
 `itext_iterator` is a [proxy iterator][P0022R1] since the value type is computed
 and a meaningful reference type cannot be provided for the dereference and
 subscript operators.  The `reference` member type is an alias of an
@@ -2797,9 +2803,10 @@ public:
 
   const iterator& base() const noexcept;
 
-  /* implementation-defined */ base_range() const noexcept
-    requires TextDecoder<encoding_type, iterator>()
-          && ranges::ForwardIterator<iterator>();
+  /* implementation-defined */ base_range() const noexcept;
+
+  /* implementation-defined */ look_ahead_range() const noexcept
+    requires ! ranges::ForwardIterator<iterator>();
 
   bool error_occurred() const noexcept;
   decode_status get_error() const noexcept;

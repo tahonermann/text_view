@@ -11,10 +11,10 @@
 #include <cassert>
 #include <experimental/ranges/iterator>
 #include <text_view_detail/adl_customization.hpp>
+#include <text_view_detail/caching_iterator.hpp>
 #include <text_view_detail/concepts.hpp>
 #include <text_view_detail/error_policy.hpp>
 #include <text_view_detail/exceptions.hpp>
-#include <text_view_detail/iterator_preserve.hpp>
 #include <text_view_detail/subobject.hpp>
 
 
@@ -121,14 +121,19 @@ public:
     {}
 
     const iterator_type& base() const noexcept {
-        return current;
-    }
-    iterator_type& base() noexcept {
-        return current;
+        return current.base();
     }
 
-private:
-    iterator_type current;
+    decltype(auto) base_range() const noexcept {
+        return current.cached_range();
+    }
+
+    decltype(auto) look_ahead_range() const noexcept {
+        return current.look_ahead_range();
+    }
+
+protected:
+    caching_iterator<iterator_type> current;
 };
 
 template<TextEncoding ET, ranges::View VT>
@@ -169,18 +174,12 @@ public:
     const iterator_type& base() const noexcept {
         return current_view.first;
     }
-    iterator_type& base() noexcept {
-        return current_view.first;
-    }
 
     const current_view_type& base_range() const noexcept {
         return current_view;
     }
-    current_view_type& base_range() noexcept {
-        return current_view;
-    }
 
-private:
+protected:
     current_view_type current_view;
 };
 
@@ -262,10 +261,14 @@ public:
             return this->get().base();
         }
 
-        decltype(auto) base_range() const noexcept
-        requires TextForwardDecoder<encoding_type, iterator_type>()
-        {
+        decltype(auto) base_range() const noexcept {
             return this->get().base_range();
+        }
+
+        decltype(auto) look_ahead_range() const noexcept
+            requires ! ranges::ForwardIterator<iterator_type>()
+        {
+            return this->get().look_ahead_range();
         }
 
         bool error_occurred() const noexcept {
@@ -318,18 +321,18 @@ public:
 
     void next() {
         ok = false;
-        auto preserved_base = make_iterator_preserve(this->base());
-        auto end(text_detail::adl_end(*this->underlying_view()));
-        while (preserved_base.get() != end) {
+        this->current.clear_cache();
+        auto end = make_caching_iterator_sentinel(
+                       text_detail::adl_end(*this->underlying_view()));
+        while (this->current != end) {
             value_type tmp_value;
             int decoded_code_units = 0;
             decode_status ds = encoding_type::decode(
                 this->state(),
-                preserved_base.get(),
+                this->current,
                 end,
                 tmp_value,
                 decoded_code_units);
-            preserved_base.update();
             if (text::error_occurred(ds)) {
                 value.set_error(ds);
                 ok = true;
@@ -340,6 +343,10 @@ public:
                 ok = true;
                 break;
             }
+            // Clear the cache prior to looping to maintain consistency with
+            // forward iterators; non-character encoding sequences are not
+            // reflected in base_range().
+            this->current.clear_cache();
         }
     }
 
@@ -347,8 +354,8 @@ public:
         requires TextForwardDecoder<encoding_type, iterator_type>()
     {
         ok = false;
-        this->base_range().first = this->base_range().last;
-        iterator_type tmp_iterator{this->base_range().first};
+        this->current_view.first = this->current_view.last;
+        iterator_type tmp_iterator{this->current_view.first};
         auto end(text_detail::adl_end(*this->underlying_view()));
         while (tmp_iterator != end) {
             value_type tmp_value;
@@ -359,7 +366,7 @@ public:
                 end,
                 tmp_value,
                 decoded_code_units);
-            this->base_range().last = tmp_iterator;
+            this->current_view.last = tmp_iterator;
             if (text::error_occurred(ds)) {
                 value.set_error(ds);
                 ok = true;
@@ -370,7 +377,7 @@ public:
                 ok = true;
                 break;
             }
-            this->base_range().first = this->base_range().last;
+            this->current_view.first = this->current_view.last;
         }
     }
 
@@ -391,8 +398,8 @@ public:
         requires TextBidirectionalDecoder<encoding_type, iterator_type>()
     {
         ok = false;
-        this->base_range().last = this->base_range().first;
-        std::reverse_iterator<iterator_type> rcurrent{this->base_range().last};
+        this->current_view.last = this->current_view.first;
+        std::reverse_iterator<iterator_type> rcurrent{this->current_view.last};
         std::reverse_iterator<iterator_type> rend{
             text_detail::adl_begin(*this->underlying_view())};
         while (rcurrent != rend) {
@@ -404,7 +411,7 @@ public:
                 rend,
                 tmp_value,
                 decoded_code_units);
-            this->base_range().first = rcurrent.base();
+            this->current_view.first = rcurrent.base();
             if (text::error_occurred(ds)) {
                 value.set_error(ds);
                 ok = true;
@@ -415,7 +422,7 @@ public:
                 ok = true;
                 break;
             }
-            this->base_range().last = this->base_range().first;
+            this->current_view.last = this->current_view.first;
         }
     }
 
@@ -423,11 +430,11 @@ public:
         requires TextRandomAccessDecoder<encoding_type, iterator_type>()
     {
         if (n < 0) {
-            this->base_range().first +=
+            this->current_view.first +=
                 ((n+1) * encoding_type::max_code_units);
             prev();
         } else if (n > 0) {
-            this->base_range().last +=
+            this->current_view.last +=
                 ((n-1) * encoding_type::max_code_units);
             next();
         }
@@ -436,7 +443,7 @@ public:
     difference_type distance_to(const itext_cursor &other) const
         requires TextRandomAccessDecoder<encoding_type, iterator_type>()
     {
-        return (other.base_range().first - this->base_range().first) /
+        return (other.current_view.first - this->current_view.first) /
                encoding_type::max_code_units;
     }
 

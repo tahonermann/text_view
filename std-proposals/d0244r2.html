@@ -220,6 +220,13 @@ blockquote.code
   <li>Updated the <tt>base</tt> member functions of <tt>itext_iterator</tt>,
       <tt>itext_sentinel</tt>, and <tt>otext_iterator</tt> to return const
       references rather than copies.</li>
+  <li>Removed the constraint that the <tt>base_range()</tt> member function of
+      <tt>itext_iterator</tt> be present only for forward views.  Caching is
+      now required for input views.
+  <li>Added the <tt>look_ahead_range()</tt> member function to
+      <tt>itext_iterator</tt> to enable retrieving code units that were consumed
+      from the underlying input iterator, but not used to decode a character.
+      Such consumption happens in error scenarios.
   <li>Removed equality comparison operators for <tt>itext_sentinel</tt>.
       Equality comparison requirements for sentinels was removed from the Ranges
       proposal in N4569.</li>
@@ -3751,6 +3758,12 @@ if a call to <tt>error_occurred</tt> returns <tt>false</tt>, then it is
 guaranteed that a dereference operation will not throw an exception; assuming
 a non-singular iterator that is not past the end.
 
+<p>The <tt>look_ahead_range</tt> member function is provided only when the
+underlying code unit iterator is an input iterator; it provides access to code
+units that were read from the code unit iterator, but were not (yet) used to
+decode a character.  Generally such look ahead only occurs when an invalid code
+unit sequence is encountered.
+
 <blockquote class="code">
 <pre><code>
 template&lt;TextEncoding ET,
@@ -3827,9 +3840,10 @@ public:
 
   const iterator&amp; base() const noexcept;
 
-  /* implementation-defined */ base_range() const noexcept
-    requires TextDecoder&lt;encoding_type, iterator&gt;()
-          &amp;&amp; ranges::ForwardIterator&lt;iterator&gt;();
+  /* implementation-defined */ base_range() const noexcept;
+
+  /* implementation-defined */ look_ahead_range() const noexcept
+    requires ! ranges::ForwardIterator&lt;iterator&gt;();
 
   bool error_occurred() const noexcept;
   decode_status get_error() const noexcept;
