@@ -33,6 +33,18 @@ add_test(
   COMMAND test-encodings)
 
 add_executable(
+  test-error-handling
+  test-error-handling.cpp)
+target_link_libraries(
+  test-error-handling
+  PRIVATE text-view)
+
+include(CTest)
+add_test(
+  NAME test-error-handling
+  COMMAND test-error-handling)
+
+add_executable(
   test-models
   test-models.cpp)
 target_link_libraries(
