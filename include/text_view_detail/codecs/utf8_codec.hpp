@@ -105,7 +105,7 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::ConvertibleTo<
                  ranges::value_type_t<CUIT>,
                  unsigned_code_unit_type>()
@@ -189,7 +189,7 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::ConvertibleTo<
                  ranges::value_type_t<CUIT>,
                  unsigned_code_unit_type>()

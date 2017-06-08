@@ -150,7 +150,7 @@ struct text_encoding_archetype_template
         int &encoded_code_units) noexcept;
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(
@@ -161,7 +161,7 @@ struct text_encoding_archetype_template
         int &decoded_code_units) noexcept;
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(

@@ -248,7 +248,7 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(
@@ -308,7 +308,7 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::ConvertibleTo<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(

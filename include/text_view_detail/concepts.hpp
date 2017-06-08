@@ -207,12 +207,12 @@ concept bool TextEncoder() {
 
 
 /*
- * Text decoder concept
+ * Text forward decoder concept
  */
 template<typename T, typename CUIT>
-concept bool TextDecoder() {
+concept bool TextForwardDecoder() {
     return TextEncoding<T>()
-        && ranges::InputIterator<CUIT>()
+        && ranges::ForwardIterator<CUIT>()
         && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
                                  code_unit_type_t<T>>()
         && requires (
@@ -226,16 +226,6 @@ concept bool TextDecoder() {
                      state, in_next, in_end, c, decoded_code_units) }
                  -> decode_status;
            };
-}
-
-
-/*
- * Text forward decoder concept
- */
-template<typename T, typename CUIT>
-concept bool TextForwardDecoder() {
-    return TextDecoder<T, CUIT>()
-        && ranges::ForwardIterator<CUIT>();
 }
 
 

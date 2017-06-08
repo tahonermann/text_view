@@ -62,6 +62,21 @@ private:
     bool have_character = false;
 };
 
+
+template<ranges::InputIterator I>
+struct itext_current_iterator_type {
+    using type = caching_iterator<I>;
+};
+template<ranges::ForwardIterator I>
+struct itext_current_iterator_type<I> {
+    using type = I;
+};
+
+template<ranges::InputIterator I>
+using itext_current_iterator_type_t =
+    typename itext_current_iterator_type<I>::type;
+
+
 template<TextEncoding ET, ranges::View VT>
 class itext_cursor_base
     : private subobject<typename ET::state_type>
@@ -99,7 +114,7 @@ private:
 };
 
 template<TextEncoding ET, ranges::View VT>
-requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
+requires ranges::InputIterator<ranges::iterator_t<VT>>()
 class itext_cursor_data
     : public itext_cursor_base<ET, VT>
 {
@@ -137,7 +152,7 @@ protected:
 };
 
 template<TextEncoding ET, ranges::View VT>
-requires TextForwardDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
+requires ranges::ForwardIterator<ranges::iterator_t<VT>>()
 class itext_cursor_data<ET, VT>
     : public itext_cursor_base<ET, VT>
 {
@@ -503,7 +518,10 @@ template<
     TextEncoding ET,
     ranges::View VT,
     TextErrorPolicy TEP = text_default_error_policy>
-requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
+requires TextForwardDecoder<
+             ET,
+             text_detail::itext_current_iterator_type_t<
+                 ranges::iterator_t<std::add_const_t<VT>>>>()
 using itext_iterator =
     ranges::basic_iterator<text_detail::itext_cursor<ET, VT, TEP>>;
 

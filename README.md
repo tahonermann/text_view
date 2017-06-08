@@ -318,7 +318,6 @@ template<typename T> concept bool TextEncodingStateTransition();
 template<typename T> concept bool TextErrorPolicy();
 template<typename T> concept bool TextEncoding();
 template<typename T, typename I> concept bool TextEncoder();
-template<typename T, typename I> concept bool TextDecoder();
 template<typename T, typename I> concept bool TextForwardDecoder();
 template<typename T, typename I> concept bool TextBidirectionalDecoder();
 template<typename T, typename I> concept bool TextRandomAccessDecoder();
@@ -458,7 +457,7 @@ using char32_character_encoding = /* implementation-defined */ ;
 template<TextEncoding ET,
          ranges::View VT,
          TextErrorPolicy TEP = text_default_error_policy>
-  requires TextDecoder<ET, ranges::iterator_t<std::add_const_t<VT>>>()
+  requires TextForwardDecoder<ET, /* implementation-defined */ >()
   class itext_iterator;
 
 // itext_sentinel:
@@ -600,7 +599,6 @@ template<TextView TVT>
 - [Concept TextErrorPolicy](#concept-texterrorpolicy)
 - [Concept TextEncoding](#concept-textencoding)
 - [Concept TextEncoder](#concept-textencoder)
-- [Concept TextDecoder](#concept-textdecoder)
 - [Concept TextForwardDecoder](#concept-textforwarddecoder)
 - [Concept TextBidirectionalDecoder](#concept-textbidirectionaldecoder)
 - [Concept TextRandomAccessDecoder](#concept-textrandomaccessdecoder)
@@ -808,17 +806,17 @@ template<typename T, typename I> concept bool TextEncoder() {
 }
 ```
 
-### Concept TextDecoder
-The `TextDecoder` concept specifies requirements of types that are used to
-decode [characters](#character) using a particular [code unit](#code-unit)
-iterator that satisifies `InputIterator`.  Such a type satisfies
+### Concept TextForwardDecoder
+The `TextForwardDecoder` concept specifies requirements of types that are used
+to decode [characters](#character) using a particular [code unit](#code-unit)
+iterator that satisifies `ForwardIterator`.  Such a type satisfies
 `TextEncoding` and defines a static member function used to decode state
 transitions and [characters](#character).
 
 ```C++
-template<typename T, typename I> concept bool TextDecoder() {
+template<typename T, typename I> concept bool TextForwardDecoder() {
   return TextEncoding<T>()
-      && ranges::InputIterator<CUIT>()
+      && ranges::ForwardIterator<CUIT>()
       && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
                                code_unit_type_t<T>>()
       && requires (
@@ -831,19 +829,7 @@ template<typename T, typename I> concept bool TextDecoder() {
            { T::decode(state, in_next, in_end, c, decoded_code_units) }
              -> decode_status;
          };
-}
-```
 
-### Concept TextForwardDecoder
-The `TextForwardDecoder` concept specifies requirements of types that are
-used to decode [characters](#character) using a particular
-[code unit](#code-unit) iterator that satisifies `ForwardIterator`.  Such a
-type satisfies `TextDecoder`.
-
-```C++
-template<typename T, typename I> concept bool TextForwardDecoder() {
-  return TextDecoder<T, CUIT>()
-      && ranges::ForwardIterator<CUIT>();
 }
 ```
 
@@ -1754,7 +1740,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -1765,7 +1751,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -1820,7 +1806,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -1831,7 +1817,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -1893,7 +1879,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -1904,7 +1890,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -1958,7 +1944,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -1969,7 +1955,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2038,7 +2024,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2049,7 +2035,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2102,7 +2088,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2113,7 +2099,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2166,7 +2152,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2177,7 +2163,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2230,7 +2216,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2241,7 +2227,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2314,7 +2300,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2325,7 +2311,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2378,7 +2364,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2389,7 +2375,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2442,7 +2428,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2453,7 +2439,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2506,7 +2492,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2517,7 +2503,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2590,7 +2576,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status decode(state_type &state,
@@ -2601,7 +2587,7 @@ public:
     noexcept(/* implementation defined */);
 
   template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::InputIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>()
           && ranges::Convertible<ranges::value_type_t<CUIT>, code_unit_type>()
           && ranges::Sentinel<CUST, CUIT>()
     static decode_status rdecode(state_type &state,
@@ -2689,23 +2675,23 @@ described in the following table.
 
 When `ET` and `ranges::iterator_t<VT>` satisfy ... | then `itext_iterator<ET, VT>` satisfies ...  | and `itext_iterator<ET, VT>::iterator_category` is ...
 -------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------
-`TextDecoder` | `ranges::InputIterator` | `std::input_iterator_tag`
-`TextForwardDecoder` | `ranges::ForwardIterator` | `std::forward_iterator_tag`
-`TextBidirectionalDecoder` | `ranges::BidirectionalIterator` | `std::bidirectional_iterator_tag`
-`TextRandomAccessDecoder` | `ranges::RandomAccessIterator` | `std::random_access_iterator_tag`
+`ranges::InputIterator<ranges::iterator_t<VT>> &&` <br/> `! ranges::ForwardIterator<ranges::iterator_t<VT>> &&` <br/> `TextForwardDecoder<ET, /* implementation-defined */ >` <br/> (With an internal adapter to provide forward iterator semantics over the input iterator) | `ranges::InputIterator` | `std::input_iterator_tag`
+`TextForwardDecoder<ET, ranges::iterator_t<VT>>` | `ranges::ForwardIterator` | `std::forward_iterator_tag`
+`TextBidirectionalDecoder<ET, ranges::iterator_t<VT>>` | `ranges::BidirectionalIterator` | `std::bidirectional_iterator_tag`
+`TextRandomAccessDecoder<ET, ranges::iterator_t<VT>>` | `ranges::RandomAccessIterator` | `std::random_access_iterator_tag`
 
 Member functions provide access to the stored [encoding](#encoding) state, the
-underlying [code unit](#code-unit) iterator, and, when `ranges::ForwardIterator`
-is satisified, the underlying [code unit](#code-unit) range for the current
-[character](#character).  The underlying [code unit](#code-unit) range is
-returned with an implementation defined type that satisfies `ranges::View`.
-The `is_ok` member function returns true if the iterator is dereferenceable as
-a result of having successfully decoded a [code point](#code-point) (This
-predicate is used to distinguish between an input iterator that just
-successfully decoded the last [code point](#code-point) in the
-[code unit](#code-unit) stream as compared to one that was advanced after having
-done so; in both cases, the underlying [code unit](#code-unit) input iterator
-will compare equal to the end of the stream iterator).
+underlying [code unit](#code-unit) iterator, and the underlying
+[code unit](#code-unit) range for the current [character](#character).  The
+underlying [code unit](#code-unit) range is returned with an implementation
+defined type that satisfies `ranges::View`.  The `is_ok` member function
+returns true if the iterator is dereferenceable as a result of having
+successfully decoded a [code point](#code-point) (This predicate is used to
+distinguish between an input iterator that just successfully decoded the last
+[code point](#code-point) in the [code unit](#code-unit) stream as compared to
+one that was advanced after having done so; in both cases, the underlying
+[code unit](#code-unit) input iterator will compare equal to the end
+iterator).
 
 The `error_occurred` and `get_error` member functions enable retrieving
 information about errors that occurred during decoding operations.  if a call
@@ -2732,9 +2718,9 @@ Note: Implementation of a reference proxy would be simplified if the
 template<TextEncoding ET,
          ranges::View VT,
          TextErrorPolicy TEP = text_default_error_policy>
-  requires TextDecoder<
+  requires TextForwardDecoder<
              ET,
-             ranges::iterator_t<std::add_const_t<VT>>>()
+             /* implementation-defined */ >()
 class itext_iterator {
 public:
   using encoding_type = ET;
