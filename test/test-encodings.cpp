@@ -142,7 +142,7 @@ void test_forward_encode(
 template<
     ranges::InputRange RT,
     TextOutputIterator TIT>
-requires ranges::ForwardIterator<TIT>()
+requires ranges::ForwardIterator<TIT>
 void test_forward_encode(
     const code_unit_map_sequence<encoding_type_t<TIT>> &code_unit_maps,
     const RT &code_unit_range,
@@ -1341,7 +1341,7 @@ void test_utf8_encoding() {
 
     string encoded_string(u8"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 5);
@@ -1396,7 +1396,7 @@ void test_utf8bom_encoding() {
     {
     string encoded_string_no_bom(u8"a\U00011141\U0000FEFF");
     auto tv = make_text_view<ET>(encoded_string_no_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'a'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
@@ -1412,7 +1412,7 @@ void test_utf8bom_encoding() {
     {
     string encoded_string_bom(u8"\U0000FEFFa\U00011141\U0000FEFF");
     auto tv = make_text_view<ET>(encoded_string_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'a'});
     assert(begin(tvit.base_range()) == begin(encoded_string_bom) + 3);
@@ -1448,7 +1448,7 @@ void test_utf16_encoding() {
 
     u16string encoded_string(u"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 3);
@@ -1482,7 +1482,7 @@ void test_utf16be_encoding() {
 
     string encoded_string("\x00\x61\xD8\x04\xDD\x41\x00\x7A", 8);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
@@ -1516,7 +1516,7 @@ void test_utf16le_encoding() {
 
     string encoded_string("\x61\x00\x04\xD8\x41\xDD\x7A\x00", 8);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 2);
     assert(end(tvit.base_range()) == begin(encoded_string) + 6);
@@ -1590,7 +1590,7 @@ void test_utf16bom_encoding() {
     {
     string encoded_string_no_bom("\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 8);
     auto tv = make_text_view<ET>(encoded_string_no_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
@@ -1606,7 +1606,7 @@ void test_utf16bom_encoding() {
     {
     string encoded_string_be_bom("\xFE\xFF\x00\x61\xD8\x04\xDD\x41\xFE\xFF", 10);
     auto tv = make_text_view<ET>(encoded_string_be_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 2);
@@ -1622,7 +1622,7 @@ void test_utf16bom_encoding() {
     {
     string encoded_string_le_bom("\xFF\xFE\x61\x00\x04\xD8\x41\xDD\xFF\xFE", 10);
     auto tv = make_text_view<ET>(encoded_string_le_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 2);
@@ -1658,7 +1658,7 @@ void test_utf32_encoding() {
 
     u32string encoded_string(U"a\U00011141z");
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 1);
     assert(end(tvit.base_range()) == begin(encoded_string) + 2);
@@ -1692,7 +1692,7 @@ void test_utf32be_encoding() {
 
     string encoded_string("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\x00\x7A", 12);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
@@ -1726,7 +1726,7 @@ void test_utf32le_encoding() {
 
     string encoded_string("\x61\x00\x00\x00\x41\x11\x01\x00\x7A\x00\x00\x00", 12);
     auto tv = make_text_view<ET>(encoded_string);
-    static_assert(ranges::Iterator<decltype(end(tv))>());
+    static_assert(ranges::Iterator<decltype(end(tv))>);
     auto tvit = find(begin(tv), end(tv), CT{U'\U00011141'});
     assert(begin(tvit.base_range()) == begin(encoded_string) + 4);
     assert(end(tvit.base_range()) == begin(encoded_string) + 8);
@@ -1800,7 +1800,7 @@ void test_utf32bom_encoding() {
     {
     string encoded_string_no_bom("\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 12);
     auto tv = make_text_view<ET>(encoded_string_no_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_no_bom) + 0);
@@ -1816,7 +1816,7 @@ void test_utf32bom_encoding() {
     {
     string encoded_string_be_bom("\x00\x00\xFE\xFF\x00\x00\x00\x61\x00\x01\x11\x41\x00\x00\xFE\xFF", 16);
     auto tv = make_text_view<ET>(encoded_string_be_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_be_bom) + 4);
@@ -1832,7 +1832,7 @@ void test_utf32bom_encoding() {
     {
     string encoded_string_le_bom("\xFF\xFE\x00\x00\x61\x00\x00\x00\x41\x11\x01\x00\xFF\xFE\x00\x00", 16);
     auto tv = make_text_view<ET>(encoded_string_le_bom);
-    static_assert(! ranges::Iterator<decltype(end(tv))>());
+    static_assert(! ranges::Iterator<decltype(end(tv))>);
     auto tvend = text_detail::advance_to(begin(tv), end(tv));
     auto tvit = find(begin(tv), tvend, CT{U'\U00000061'});
     assert(begin(tvit.base_range()) == begin(encoded_string_le_bom) + 4);

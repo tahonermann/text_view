@@ -183,13 +183,13 @@ directory.
 ## Building and installing [cmcstl2]
 [Text_view] only depends on headers provided by [cmcstl2] and no build or
 installation is required.  [Text_view] is known to build successfully with
-[cmcstl2] git revision `b704dadecd0ae2fc11289e35b37d234d9c8eb644`.  The
+[cmcstl2] git revision `eb5ecdf79e22eb68c86cb62fd0912559593e5597`.  The
 following commands can be used to checkout a known good revision.
 
 ```sh
 $ git clone https://github.com/CaseyCarter/cmcstl2.git cmcstl2
 $ cd cmcstl2
-$ git checkout b704dadecd0ae2fc11289e35b37d234d9c8eb644
+$ git checkout eb5ecdf79e22eb68c86cb62fd0912559593e5597
 ```
 
 ## Building and installing [Text_view]

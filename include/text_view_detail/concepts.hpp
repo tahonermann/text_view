@@ -90,8 +90,8 @@ concept bool CharacterSet() {
 template<typename T>
 concept bool Character() {
     return CharacterSet<character_set_type_t<T>>()
-        && ranges::Regular<T>()
-        && ranges::Constructible<T, code_point_type_t<character_set_type_t<T>>>()
+        && ranges::Regular<T>
+        && ranges::Constructible<T, code_point_type_t<character_set_type_t<T>>>
         && requires (T t,
                      const T ct,
                      code_point_type_t<character_set_type_t<T>> cp)
@@ -110,7 +110,7 @@ concept bool Character() {
  */
 template<typename T>
 concept bool CodeUnitIterator() {
-    return ranges::Iterator<T>()
+    return ranges::Iterator<T>
         && CodeUnit<ranges::value_type_t<T>>();
 }
 
@@ -120,7 +120,7 @@ concept bool CodeUnitIterator() {
  */
 template<typename T, typename V>
 concept bool CodeUnitOutputIterator() {
-    return ranges::OutputIterator<T, V>()
+    return ranges::OutputIterator<T, V>
         && CodeUnit<V>();
 }
 
@@ -132,7 +132,7 @@ concept bool CodeUnitOutputIterator() {
  */
 template<typename T>
 concept bool TextEncodingState() {
-    return ranges::Semiregular<T>();
+    return ranges::Semiregular<T>;
 }
 
 
@@ -141,7 +141,7 @@ concept bool TextEncodingState() {
  */
 template<typename T>
 concept bool TextEncodingStateTransition() {
-    return ranges::Semiregular<T>();
+    return ranges::Semiregular<T>;
 }
 
 
@@ -150,9 +150,9 @@ concept bool TextEncodingStateTransition() {
  */
 template<typename T>
 concept bool TextErrorPolicy() {
-    return ranges::Semiregular<T>()
-        && ranges::DerivedFrom<T, text_error_policy>()
-        && !ranges::Same<std::remove_cv_t<T>, text_error_policy>();
+    return ranges::Semiregular<T>
+        && ranges::DerivedFrom<T, text_error_policy>
+        && !ranges::Same<std::remove_cv_t<T>, text_error_policy>;
 }
 
 
@@ -212,9 +212,9 @@ concept bool TextEncoder() {
 template<typename T, typename CUIT>
 concept bool TextForwardDecoder() {
     return TextEncoding<T>()
-        && ranges::ForwardIterator<CUIT>()
+        && ranges::ForwardIterator<CUIT>
         && ranges::ConvertibleTo<ranges::value_type_t<CUIT>,
-                                 code_unit_type_t<T>>()
+                                 code_unit_type_t<T>>
         && requires (
                typename T::state_type &state,
                CUIT &in_next,
@@ -235,7 +235,7 @@ concept bool TextForwardDecoder() {
 template<typename T, typename CUIT>
 concept bool TextBidirectionalDecoder() {
     return TextForwardDecoder<T, CUIT>()
-        && ranges::BidirectionalIterator<CUIT>()
+        && ranges::BidirectionalIterator<CUIT>
         && requires (
                typename T::state_type &state,
                CUIT &in_next,
@@ -256,7 +256,7 @@ concept bool TextBidirectionalDecoder() {
 template<typename T, typename CUIT>
 concept bool TextRandomAccessDecoder() {
     return TextBidirectionalDecoder<T, CUIT>()
-        && ranges::RandomAccessIterator<CUIT>()
+        && ranges::RandomAccessIterator<CUIT>
         && text_detail::SameValue<int, T::min_code_units, T::max_code_units>()
         && std::is_empty<typename T::state_type>::value;
 }
@@ -267,7 +267,7 @@ concept bool TextRandomAccessDecoder() {
  */
 template<typename T>
 concept bool TextIterator() {
-    return ranges::Iterator<T>()
+    return ranges::Iterator<T>
         && TextEncoding<encoding_type_t<T>>()
         && TextErrorPolicy<typename T::error_policy>()
         && TextEncodingState<typename T::state_type>()
@@ -285,7 +285,7 @@ concept bool TextIterator() {
  */
 template<typename T, typename I>
 concept bool TextSentinel() {
-    return ranges::Sentinel<T, I>()
+    return ranges::Sentinel<T, I>
         && TextIterator<I>()
         && TextErrorPolicy<typename T::error_policy>();
 }
@@ -297,7 +297,7 @@ concept bool TextSentinel() {
 template<typename T>
 concept bool TextOutputIterator() {
     return TextIterator<T>()
-        && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>()
+        && ranges::OutputIterator<T, character_type_t<encoding_type_t<T>>>
         && requires (const T ct) {
                { ct.get_error() } noexcept
                    -> encode_status;
@@ -311,7 +311,7 @@ concept bool TextOutputIterator() {
 template<typename T>
 concept bool TextInputIterator() {
     return TextIterator<T>()
-        && ranges::InputIterator<T>()
+        && ranges::InputIterator<T>
         && Character<ranges::value_type_t<T>>()
         && requires (const T ct) {
                { ct.get_error() } noexcept
@@ -326,7 +326,7 @@ concept bool TextInputIterator() {
 template<typename T>
 concept bool TextForwardIterator() {
     return TextInputIterator<T>()
-        && ranges::ForwardIterator<T>();
+        && ranges::ForwardIterator<T>;
 }
 
 
@@ -336,7 +336,7 @@ concept bool TextForwardIterator() {
 template<typename T>
 concept bool TextBidirectionalIterator() {
     return TextForwardIterator<T>()
-        && ranges::BidirectionalIterator<T>();
+        && ranges::BidirectionalIterator<T>;
 }
 
 
@@ -346,7 +346,7 @@ concept bool TextBidirectionalIterator() {
 template<typename T>
 concept bool TextRandomAccessIterator() {
     return TextBidirectionalIterator<T>()
-        && ranges::RandomAccessIterator<T>();
+        && ranges::RandomAccessIterator<T>;
 }
 
 
@@ -355,10 +355,10 @@ concept bool TextRandomAccessIterator() {
  */
 template<typename T>
 concept bool TextView() {
-    return ranges::View<T>()
+    return ranges::View<T>
         && TextIterator<ranges::iterator_t<T>>()
         && TextEncoding<encoding_type_t<T>>()
-        && ranges::View<typename T::view_type>()
+        && ranges::View<typename T::view_type>
         && TextErrorPolicy<typename T::error_policy>()
         && TextEncodingState<typename T::state_type>()
         && CodeUnitIterator<typename T::code_unit_iterator>()

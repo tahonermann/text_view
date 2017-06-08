@@ -25,8 +25,8 @@ namespace text_detail {
  */
 template<typename I, typename S>
 concept bool NoExceptInputIterator() {
-    return ranges::InputIterator<I>()
-        && ranges::Sentinel<S, I>()
+    return ranges::InputIterator<I>
+        && ranges::Sentinel<S, I>
         && requires(I &i, S &s) {
                { *i } noexcept;
                { ++i } noexcept;
@@ -44,7 +44,7 @@ concept bool NoExceptInputIterator() {
  */
 template<typename I, typename V>
 concept bool NoExceptOutputIterator() {
-    return ranges::OutputIterator<I, V>()
+    return ranges::OutputIterator<I, V>
         && requires(I &i, V &&v) {
                { *i = std::forward<V>(v) } noexcept;
                { *i++ = std::forward<V>(v) } noexcept;

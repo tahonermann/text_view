@@ -114,7 +114,7 @@ private:
 };
 
 template<TextEncoding ET, ranges::View VT>
-requires ranges::InputIterator<ranges::iterator_t<VT>>()
+requires ranges::InputIterator<ranges::iterator_t<VT>>
 class itext_cursor_data
     : public itext_cursor_base<ET, VT>
 {
@@ -152,7 +152,7 @@ protected:
 };
 
 template<TextEncoding ET, ranges::View VT>
-requires ranges::ForwardIterator<ranges::iterator_t<VT>>()
+requires ranges::ForwardIterator<ranges::iterator_t<VT>>
 class itext_cursor_data<ET, VT>
     : public itext_cursor_base<ET, VT>
 {
@@ -236,7 +236,7 @@ class itext_cursor
 
 public:
     using single_pass =
-        std::integral_constant<bool, !ranges::ForwardIterator<iterator_type>()>;
+        std::integral_constant<bool, !ranges::ForwardIterator<iterator_type>>;
 
     class mixin
         : protected ranges::basic_mixin<itext_cursor>
@@ -281,7 +281,7 @@ public:
         }
 
         decltype(auto) look_ahead_range() const noexcept
-            requires ! ranges::ForwardIterator<iterator_type>()
+            requires ! ranges::ForwardIterator<iterator_type>
         {
             return this->get().look_ahead_range();
         }
@@ -475,7 +475,7 @@ public:
             && (!ok || this->base() == other.base());
     }
     bool equal(const itext_cursor &other) const
-        requires ranges::ForwardIterator<iterator_type>()
+        requires ranges::ForwardIterator<iterator_type>
     {
         return this->base() == other.base();
     }

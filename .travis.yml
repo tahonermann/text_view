@@ -20,7 +20,7 @@ matrix:
       compiler: gcc
       env: COMPILER=g++-6
            BUILD_TYPE=RELEASE
-           LAST_KNOWN_GOOD_CMCSTL2=b704dadecd0ae2fc11289e35b37d234d9c8eb644
+           LAST_KNOWN_GOOD_CMCSTL2=eb5ecdf79e22eb68c86cb62fd0912559593e5597
 
     # Linux, gcc 6:
     - os: linux

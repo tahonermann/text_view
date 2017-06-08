@@ -68,7 +68,7 @@ private:
 template<
     typename IT,
     typename T>
-requires std::experimental::ranges::OutputIterator<IT, T>()
+requires std::experimental::ranges::OutputIterator<IT, T>
 class output_iterator_adapter {
 public:
     using iterator_category = std::output_iterator_tag;

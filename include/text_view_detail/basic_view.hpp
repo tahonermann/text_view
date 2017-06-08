@@ -29,14 +29,14 @@ public:
         : first{first}, last{last} {}
 
     template<typename IT2, typename ST2>
-    requires ranges::Constructible<IT, IT2&&>()
-          && ranges::Constructible<ST, ST2&&>()
+    requires ranges::Constructible<IT, IT2&&>
+          && ranges::Constructible<ST, ST2&&>
     basic_view(IT2 first, ST2 last)
         : first(std::move(first)), last(std::move(last)) {}
 
     template<typename IT2, typename ST2>
-    requires ranges::Constructible<IT, IT2&&>()
-          && ranges::Constructible<ST, ST2&&>()
+    requires ranges::Constructible<IT, IT2&&>
+          && ranges::Constructible<ST, ST2&&>
     basic_view(const basic_view<IT2, ST2> &o)
         : first(o.begin()), last(o.end()) {}
 

@@ -80,7 +80,7 @@ public:
         code_unit_iterator first,
         code_unit_sentinel last)
     requires ranges::Constructible<
-                 view_type, code_unit_iterator&&, code_unit_sentinel&&>()
+                 view_type, code_unit_iterator&&, code_unit_sentinel&&>
     :
         base_type{std::move(state)},
         view{std::move(first), std::move(last)}
@@ -93,7 +93,7 @@ public:
         code_unit_iterator first,
         code_unit_sentinel last)
     requires ranges::Constructible<
-                 view_type, code_unit_iterator&&, code_unit_sentinel&&>()
+                 view_type, code_unit_iterator&&, code_unit_sentinel&&>
     :
         base_type{encoding_type::initial_state()},
         view{std::move(first), std::move(last)}
@@ -107,7 +107,7 @@ public:
         code_unit_iterator first,
         ranges::difference_type_t<code_unit_iterator> n)
     requires ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_iterator>()
+                 view_type, code_unit_iterator, code_unit_iterator>
     :
         base_type{std::move(state)},
         view{first, std::next(first, n)}
@@ -120,7 +120,7 @@ public:
         code_unit_iterator first,
         ranges::difference_type_t<code_unit_iterator> n)
     requires ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_iterator>()
+                 view_type, code_unit_iterator, code_unit_iterator>
     :
         base_type{encoding_type::initial_state()},
         view{first, std::next(first, n)}
@@ -146,12 +146,12 @@ public:
     basic_text_view(
         state_type state,
         const basic_string<charT, traits, Allocator> &str)
-    requires ranges::Constructible<code_unit_iterator, const charT *>()
+    requires ranges::Constructible<code_unit_iterator, const charT *>
           && ranges::ConvertibleTo< // Allow narrowing conversions.
                  ranges::difference_type_t<code_unit_iterator>,
-                 typename basic_string<charT, traits, Allocator>::size_type>()
+                 typename basic_string<charT, traits, Allocator>::size_type>
           && ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
+                 view_type, code_unit_iterator, code_unit_sentinel>
     :
         basic_text_view{std::move(state),
                         str.c_str(),
@@ -165,12 +165,12 @@ public:
     template<typename charT, typename traits, typename Allocator>
     basic_text_view(
         const basic_string<charT, traits, Allocator> &str)
-    requires ranges::Constructible<code_unit_iterator, const charT *>()
+    requires ranges::Constructible<code_unit_iterator, const charT *>
           && ranges::ConvertibleTo< // Allow narrowing conversions.
                  ranges::difference_type_t<code_unit_iterator>,
-                 typename basic_string<charT, traits, Allocator>::size_type>()
+                 typename basic_string<charT, traits, Allocator>::size_type>
           && ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
+                 view_type, code_unit_iterator, code_unit_sentinel>
     :
         basic_text_view{str.c_str(),
                         ranges::difference_type_t<code_unit_iterator>(str.size())}
@@ -188,9 +188,9 @@ public:
         state_type state,
         const RT &range)
     requires ranges::Constructible<
-                 code_unit_iterator, ranges::iterator_t<const RT>>()
+                 code_unit_iterator, ranges::iterator_t<const RT>>
           && ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
+                 view_type, code_unit_iterator, code_unit_sentinel>
     :
         basic_text_view(std::move(state),
                         text_detail::adl_begin(range),
@@ -205,9 +205,9 @@ public:
     basic_text_view(
         const RT &range)
     requires ranges::Constructible<
-                 code_unit_iterator, ranges::iterator_t<const RT>>()
+                 code_unit_iterator, ranges::iterator_t<const RT>>
           && ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
+                 view_type, code_unit_iterator, code_unit_sentinel>
     :
         basic_text_view(text_detail::adl_begin(range),
                         text_detail::adl_end(range))
@@ -220,9 +220,9 @@ public:
         iterator last)
     requires ranges::Constructible<
                  code_unit_iterator,
-                 decltype(std::declval<iterator>().base())>()
+                 decltype(std::declval<iterator>().base())>
           && ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_iterator>()
+                 view_type, code_unit_iterator, code_unit_iterator>
     :
         basic_text_view{first.state(), first.base(), last.base()}
     {}
@@ -234,9 +234,9 @@ public:
         sentinel last)
     requires ranges::Constructible<
                  code_unit_iterator,
-                 decltype(std::declval<iterator>().base())>()
+                 decltype(std::declval<iterator>().base())>
           && ranges::Constructible<
-                 view_type, code_unit_iterator, code_unit_sentinel>()
+                 view_type, code_unit_iterator, code_unit_sentinel>
     :
         basic_text_view{first.state(), first.base(), last.base()}
     {}
@@ -254,14 +254,14 @@ public:
     }
     iterator end() const
     requires std::is_empty<state_type>::value
-          && ranges::Iterator<code_unit_sentinel>()
+          && ranges::Iterator<code_unit_sentinel>
     {
         // Use the (empty) initial state to construct the end iterator.
         return iterator{ET::initial_state(), &view, text_detail::adl_end(view)};
     }
     sentinel end() const
     requires !std::is_empty<state_type>::value
-          || !ranges::Iterator<code_unit_sentinel>()
+          || !ranges::Iterator<code_unit_sentinel>
     {
         return sentinel{text_detail::adl_end(view)};
     }

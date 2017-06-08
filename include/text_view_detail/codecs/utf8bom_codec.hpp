@@ -148,11 +148,11 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::ForwardIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>
           && ranges::ConvertibleTo<
                  ranges::value_type_t<CUIT>,
-                 unsigned_code_unit_type>()
-          && ranges::Sentinel<CUST, CUIT>()
+                 unsigned_code_unit_type>
+          && ranges::Sentinel<CUST, CUIT>
     static decode_status decode(
         state_type &state,
         CUIT &in_next,
@@ -189,11 +189,11 @@ public:
     }
 
     template<CodeUnitIterator CUIT, typename CUST>
-    requires ranges::ForwardIterator<CUIT>()
+    requires ranges::ForwardIterator<CUIT>
           && ranges::ConvertibleTo<
                  ranges::value_type_t<CUIT>,
-                 unsigned_code_unit_type>()
-          && ranges::Sentinel<CUST, CUIT>()
+                 unsigned_code_unit_type>
+          && ranges::Sentinel<CUST, CUIT>
     static decode_status rdecode(
         state_type &state,
         CUIT &in_next,

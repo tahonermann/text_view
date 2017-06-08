@@ -77,7 +77,7 @@ private:
             && ! ti.is_ok();
     }
     bool equal(const itext_iterator<ET, VT, TEP> &ti) const
-        requires ranges::ForwardIterator<decltype(ti.base())>()
+        requires ranges::ForwardIterator<decltype(ti.base())>
     {
         return ti.base() == base();
     }

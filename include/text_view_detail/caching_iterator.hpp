@@ -42,7 +42,7 @@ namespace text_detail {
 // require some degree of look ahead, but that still require further processing.
 
 template<ranges::InputIterator I>
-requires ! ranges::ForwardIterator<I>()
+requires ! ranges::ForwardIterator<I>
 class caching_cursor
 {
     using iterator_type = I;
@@ -170,7 +170,7 @@ private:
  * caching_iterator
  */
 template<ranges::InputIterator I>
-requires ! ranges::ForwardIterator<I>()
+requires ! ranges::ForwardIterator<I>
 using caching_iterator =
     ranges::basic_iterator<caching_cursor<I>>;
 
@@ -179,7 +179,7 @@ using caching_iterator =
  * make_caching_iterator
  */
 template<ranges::InputIterator I>
-requires ! ranges::ForwardIterator<I>()
+requires ! ranges::ForwardIterator<I>
 caching_iterator<I>
 make_caching_iterator(I i) {
     return { i };
@@ -201,7 +201,7 @@ public:
         : s(std::move(s)) {}
 
     template<ranges::InputIterator I>
-    requires ranges::Sentinel<S, I>()
+    requires ranges::Sentinel<S, I>
     friend bool operator==(
         const caching_iterator<I> &ci,
         const caching_iterator_sentinel &cis)
@@ -209,7 +209,7 @@ public:
         return cis.equal(ci);
     }
     template<ranges::InputIterator I>
-    requires ranges::Sentinel<S, I>()
+    requires ranges::Sentinel<S, I>
     friend bool operator!=(
         const caching_iterator<I> &ci,
         const caching_iterator_sentinel &cis)
@@ -217,7 +217,7 @@ public:
         return !(ci == cis);
     }
     template<ranges::InputIterator I>
-    requires ranges::Sentinel<S, I>()
+    requires ranges::Sentinel<S, I>
     friend bool operator==(
         const caching_iterator_sentinel &cis,
         const caching_iterator<I> &ci)
@@ -225,7 +225,7 @@ public:
         return ci == cis;
     }
     template<ranges::InputIterator I>
-    requires ranges::Sentinel<S, I>()
+    requires ranges::Sentinel<S, I>
     friend bool operator!=(
         const caching_iterator_sentinel &cis,
         const caching_iterator<I> &ci)
@@ -239,7 +239,7 @@ public:
 
 private:
     template<ranges::InputIterator I>
-    requires ranges::Sentinel<S, I>()
+    requires ranges::Sentinel<S, I>
     bool equal(const caching_iterator<I> &ci) const {
         return ci.position() == ci.cache_size()
             && ci.base() == s;
