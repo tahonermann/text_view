@@ -18,15 +18,14 @@
 // additional requirements.  istream_iterator, for example, requires a
 // char_traits specialization for its character type.
 template<std::experimental::ranges::InputIterator IT>
-class input_iterator_adapter
-    : public std::iterator<
-                 std::input_iterator_tag,
-                 typename std::iterator_traits<IT>::value_type,
-                 typename std::iterator_traits<IT>::difference_type,
-                 typename std::iterator_traits<IT>::pointer,
-                 typename std::iterator_traits<IT>::reference>
-{
+class input_iterator_adapter {
 public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = typename std::iterator_traits<IT>::value_type;
+    using difference_type = typename std::iterator_traits<IT>::difference_type;
+    using pointer = typename std::iterator_traits<IT>::pointer;
+    using reference = typename std::iterator_traits<IT>::reference;
+
     input_iterator_adapter() = default;
     input_iterator_adapter(IT it) : it(it) {}
 
@@ -70,15 +69,14 @@ template<
     typename IT,
     typename T>
 requires std::experimental::ranges::OutputIterator<IT, T>()
-class output_iterator_adapter
-    : public std::iterator<
-                 std::output_iterator_tag,
-                 typename std::iterator_traits<IT>::value_type,
-                 typename std::iterator_traits<IT>::difference_type,
-                 typename std::iterator_traits<IT>::pointer,
-                 typename std::iterator_traits<IT>::reference>
-{
+class output_iterator_adapter {
 public:
+    using iterator_category = std::output_iterator_tag;
+    using value_type = typename std::iterator_traits<IT>::value_type;
+    using difference_type = typename std::iterator_traits<IT>::difference_type;
+    using pointer = typename std::iterator_traits<IT>::pointer;
+    using reference = typename std::iterator_traits<IT>::reference;
+
     output_iterator_adapter() = default;
     output_iterator_adapter(IT it) : it(it) {}
 
