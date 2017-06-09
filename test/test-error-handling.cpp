@@ -779,9 +779,385 @@ void test_iso_10646_wide_character_encoding() {
 #endif // __STDC_ISO_10646__
 
 void test_utf8_encoding() {
-    // using ET = utf8_encoding;
+    using ET = utf8_encoding;
+    using CT = character_type_t<ET>;
+    using CUT = code_unit_type_t<ET>;
 
-    // FIXME: test the UTF-8 encoding.
+    // FIXME: code_unit_type for UTF-8 is char, but the values below require
+    // FIXME: an unsigned (8-bit) char.  An initializer that allows narrowing
+    // FIXME: conversions is used to support implementations with a signed
+    // FIXME: 8-bit char.
+
+    expected_code_unit_map_sequence<ET> encode_tests[] = {
+        // Test attempting to encode a lone UTF-16 high surrogate.
+        { {
+            CT{0x0000D800}, {
+                /*strict*/     {},
+                /*permissive*/ { { CUT(0xEF), CUT(0xBF), CUT(0xBD) } }
+            }
+        } },
+        { {
+            CT{U'A'}, {
+                /*strict*/     { { CUT(0x41) } },
+                /*permissive*/ { { CUT(0x41) } }
+            }
+          }, {
+            CT{0x0000D800}, {
+                /*strict*/     {},
+                /*permissive*/ { { CUT(0xEF), CUT(0xBF), CUT(0xBD) } }
+            }
+          }, {
+            CT{U'C'}, {
+                /*strict*/     { { CUT(0x43) } },
+                /*permissive*/ { { CUT(0x43) } }
+            }
+        } },
+        // Test attempting to encode a lone UTF-16 low surrogate.
+        { {
+            CT{0x0000DC00}, {
+                /*strict*/     {},
+                /*permissive*/ { { CUT(0xEF), CUT(0xBF), CUT(0xBD) } }
+            }
+        } },
+        { {
+            CT{U'A'}, {
+                /*strict*/     { { CUT(0x41) } },
+                /*permissive*/ { { CUT(0x41) } }
+            }
+          }, {
+            CT{0x0000DC00}, {
+                /*strict*/     {},
+                /*permissive*/ { { CUT(0xEF), CUT(0xBF), CUT(0xBD) } }
+            }
+          }, {
+            CT{U'C'}, {
+                /*strict*/     { { CUT(0x43) } },
+                /*permissive*/ { { CUT(0x43) } }
+            }
+        } },
+        // Test attempting to encode a code point value outside the Unicode range.
+        { {
+            CT{U'A'}, {
+                /*strict*/     { { CUT(0x41) } },
+                /*permissive*/ { { CUT(0x41) } }
+            }
+          }, {
+            CT{0x00110000}, {
+                /*strict*/     {},
+                /*permissive*/ { { CUT(0xEF), CUT(0xBF), CUT(0xBD) } }
+            }
+          }, {
+            CT{U'C'}, {
+                /*strict*/     { { CUT(0x43) } },
+                /*permissive*/ { { CUT(0x43) } }
+            }
+        } }
+    };
+
+    expected_character_map_sequence<ET> decode_tests[] = {
+        // Test attempting to decode missing trailing code units.
+        { {
+            { CUT(0xC2) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0xC2) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xC2) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0xC2), CUT(0x80) }, {
+                /*strict*/     { CT{U'\u0080'} },
+                /*permissive*/ { CT{U'\u0080'} }
+            }
+        } },
+        { {
+            { CUT(0xE0) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0xE0) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xE0), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0xE0), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xF0) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0xF0) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xF0), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0xF0), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xF0), CUT(0x80), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0xF0), CUT(0x80), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        // Test attempting to decode missing leading code units.
+        { {
+            { CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0x80), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+        } },
+        { {
+            { CUT(0x41) }, {
+                /*strict*/     { CT{U'A'} },
+                /*permissive*/ { CT{U'A'} }
+            }
+          }, {
+            { CUT(0x80), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        // Test outside the boundaries of well-formed code unit sequences.
+        { {
+            { CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xC0), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            },
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xC2) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            },
+          }, {
+            { CUT(0x7F) }, {
+                /*strict*/     { CT{U'\u007F'} },
+                /*permissive*/ { CT{U'\u007F'} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xDF), CUT(0xC0) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xE0), CUT(0x9F), CUT(0xBF) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xED), CUT(0xA0), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xF0), CUT(0x8F), CUT(0xBF), CUT(0xBF) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xF4), CUT(0x90), CUT(0x80), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } },
+        { {
+            { CUT(0xF5), CUT(0x80), CUT(0x80), CUT(0x80) }, {
+                /*strict*/     {},
+                /*permissive*/ { CT{0x0000FFFD} }
+            }
+          }, {
+            { CUT(0x43) }, {
+                /*strict*/     { CT{U'C'} },
+                /*permissive*/ { CT{U'C'} }
+            }
+        } }
+    };
+
+    for (const auto &ecums : encode_tests) {
+        test_bidirectional_encoding<ET>(ecums);
+    }
+
+    for (const auto &ecms : decode_tests) {
+        test_bidirectional_encoding<ET>(ecms);
+    }
 }
 
 void test_utf8bom_encoding() {

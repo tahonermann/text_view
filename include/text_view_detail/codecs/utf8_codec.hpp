@@ -77,17 +77,15 @@ public:
             ++encoded_code_units;
             *out++ = unsigned_code_unit_type(0x80 + (cp & 0x3F));
             ++encoded_code_units;
-        } else if (cp <= 0x0000E000) {
+        } else if (cp <= 0x0000DFFF) {
             return encode_status::invalid_character;
-        } else if (cp <= 0x0000FFFD) {
+        } else if (cp <= 0x0000FFFF) {
             *out++ = unsigned_code_unit_type(0xE0 + ((cp >> 12) & 0x0F));
             ++encoded_code_units;
             *out++ = unsigned_code_unit_type(0x80 + ((cp >> 6) & 0x3F));
             ++encoded_code_units;
             *out++ = unsigned_code_unit_type(0x80 + (cp & 0x3F));
             ++encoded_code_units;
-        } else if (cp <= 0x0000FFFF) {
-            return encode_status::invalid_character;
         } else if (cp <= 0x0010FFFF) {
             *out++ = unsigned_code_unit_type(0xF0 + ((cp >> 18) & 0x07));
             ++encoded_code_units;
@@ -126,7 +124,13 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type cu1 = *in_next++;
+        unsigned_code_unit_type cu1 = *in_next;
+        if (is_invalid_leading_code_unit(cu1)) {
+            // First code unit is not a leading code unit.
+            skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
+            return decode_status::invalid_code_unit_sequence;
+        }
+        ++in_next;
         ++decoded_code_units;
         if (cu1 <= 0x7F) {
             cp = (cu1 & 0x7F);
@@ -136,14 +140,14 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type cu2 = *in_next++;
-        ++decoded_code_units;
-        if (!(cu2 & 0x80)) {
+        unsigned_code_unit_type cu2 = *in_next;
+        if (is_invalid_second_code_unit(cu1, cu2)) {
+            skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
         }
-        if (((cu1 & 0xE0) == 0xC0) &&
-            ((cu2 & 0xC0) == 0x80))
-        {
+        ++in_next;
+        ++decoded_code_units;
+        if ((cu1 & 0xE0) == 0xC0) {
             cp = ((cu1 & 0x1F) << 6) + (cu2 & 0x3F);
             c.set_code_point(cp);
             return decode_status::no_error;
@@ -151,15 +155,14 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type cu3 = *in_next++;
-        ++decoded_code_units;
-        if (!(cu3 & 0x80)) {
+        unsigned_code_unit_type cu3 = *in_next;
+        if (is_invalid_third_or_fourth_code_unit(cu3)) {
+            skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
         }
-        if (((cu1 & 0xF0) == 0xE0) &&
-            ((cu2 & 0xC0) == 0x80) &&
-            ((cu3 & 0xC0) == 0x80))
-        {
+        ++in_next;
+        ++decoded_code_units;
+        if ((cu1 & 0xF0) == 0xE0) {
             cp = ((cu1 & 0x0F) << 12) + ((cu2 & 0x3F) << 6) + (cu3 & 0x3F);
             c.set_code_point(cp);
             return decode_status::no_error;
@@ -167,16 +170,14 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type cu4 = *in_next++;
-        ++decoded_code_units;
-        if (!(cu4 & 0x80)) {
+        unsigned_code_unit_type cu4 = *in_next;
+        if (is_invalid_third_or_fourth_code_unit(cu4)) {
+            skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
         }
-        if (((cu1 & 0xF8) == 0xF0) &&
-            ((cu2 & 0xC0) == 0x80) &&
-            ((cu3 & 0xC0) == 0x80) &&
-            ((cu4 & 0xC0) == 0x80))
-        {
+        ++in_next;
+        ++decoded_code_units;
+        if ((cu1 & 0xF8) == 0xF0) {
             cp = ((cu1 & 0x07) << 18) +
                  ((cu2 & 0x3F) << 12) +
                  ((cu3 & 0x3F) << 6) +
@@ -185,6 +186,8 @@ public:
             return decode_status::no_error;
         }
 
+        // This should be unreachable.
+        skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
         return decode_status::invalid_code_unit_sequence;
     }
 
@@ -210,7 +213,12 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type rcu1 = *in_next++;
+        unsigned_code_unit_type rcu1 = *in_next;
+        if (is_invalid_trailing_code_unit(rcu1)) {
+            skip_to_trailing_code_unit(in_next, in_end, decoded_code_units);
+            return decode_status::invalid_code_unit_sequence;
+        }
+        ++in_next;
         ++decoded_code_units;
         if (rcu1 <= 0x7F) {
             cp = (rcu1 & 0x7F);
@@ -220,12 +228,16 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type rcu2 = *in_next++;
-        ++decoded_code_units;
-        if (!(rcu2 & 0x80)) {
+        unsigned_code_unit_type rcu2 = *in_next;
+        if (rcu2 < 0x80 ||
+            (rcu2 > 0xBF && ! (rcu2 >= 0xC2 && rcu2 <= 0xDF)))
+        {
+            skip_to_trailing_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
         }
-        if (rcu2 & 0x40) {
+        ++in_next;
+        ++decoded_code_units;
+        if ((rcu2 & 0xE0) == 0xC0) {
             cp = ((rcu2 & 0x1F) << 6) + (rcu1 & 0x3F);
             c.set_code_point(cp);
             return decode_status::no_error;
@@ -233,12 +245,19 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type rcu3 = *in_next++;
-        ++decoded_code_units;
-        if (!(rcu3 & 0x80)) {
+        unsigned_code_unit_type rcu3 = *in_next;
+        if (rcu3 < 0x80 ||
+            (rcu3 > 0xBF &&
+             ! (rcu3 >= 0xE0 &&
+                rcu3 <= 0xEF &&
+                ! is_invalid_second_code_unit(rcu3, rcu2))))
+        {
+            skip_to_trailing_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
         }
-        if (rcu3 & 0x40) {
+        ++in_next;
+        ++decoded_code_units;
+        if ((rcu3 & 0xF0) == 0xE0) {
             cp = ((rcu3 & 0x0F) << 12) + ((rcu2 & 0x3F) << 6) + (rcu1 & 0x3F);
             c.set_code_point(cp);
             return decode_status::no_error;
@@ -246,21 +265,93 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        unsigned_code_unit_type rcu4 = *in_next++;
-        ++decoded_code_units;
-        if (!(rcu4 & 0x80)) {
+        unsigned_code_unit_type rcu4 = *in_next;
+        if (! (rcu4 >= 0xF0 &&
+               rcu4 <= 0xF4 &&
+               ! is_invalid_second_code_unit(rcu4, rcu3)))
+        {
+            skip_to_trailing_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
         }
-        if (rcu4 & 0x40) {
-            cp = ((rcu4 & 0x07) << 18) +
-                 ((rcu3 & 0x3F) << 12) +
-                 ((rcu2 & 0x3F) << 6) +
-                  (rcu1 & 0x3F);
-            c.set_code_point(cp);
-            return decode_status::no_error;
-        }
+        ++in_next;
+        ++decoded_code_units;
+        cp = ((rcu4 & 0x07) << 18) +
+             ((rcu3 & 0x3F) << 12) +
+             ((rcu2 & 0x3F) << 6) +
+              (rcu1 & 0x3F);
+        c.set_code_point(cp);
+        return decode_status::no_error;
+    }
 
-        return decode_status::invalid_code_unit_sequence;
+private:
+    static bool is_invalid_leading_code_unit(
+        unsigned_code_unit_type cu)
+    {
+        // See Unicode 9.0, table 3-7 in chapter 3.9, "Unicode Encoding Forms".
+        return (cu >= 0x80 && cu <= 0xC1) ||
+               (cu >= 0xF5);
+    }
+
+    static bool is_invalid_trailing_code_unit(
+        unsigned_code_unit_type cu)
+    {
+        // See Unicode 9.0, table 3-7 in chapter 3.9, "Unicode Encoding Forms".
+        return cu > 0xBF;
+    }
+
+    static bool is_invalid_second_code_unit(
+        unsigned_code_unit_type cu1,
+        unsigned_code_unit_type cu2)
+    {
+        // See Unicode 9.0, table 3-7 in chapter 3.9, "Unicode Encoding Forms".
+        return (cu2 < 0x80 || cu2 > 0xBF) ||
+               (cu1 == 0xE0 && cu2 < 0xA0) ||
+               (cu1 == 0xED && cu2 > 0x9F) ||
+               (cu1 == 0xF0 && cu2 < 0x90) ||
+               (cu1 == 0xF4 && cu2 > 0x8F);
+    }
+
+    static bool is_invalid_third_or_fourth_code_unit(
+        unsigned_code_unit_type cu)
+    {
+        // See Unicode 9.0, table 3-7 in chapter 3.9, "Unicode Encoding Forms".
+        return cu < 0x80 || cu > 0xBF;
+    }
+
+    template<CodeUnitIterator CUIT, ranges::Sentinel<CUIT> CUST>
+    static void skip_to_leading_code_unit(
+        CUIT &in_next,
+        CUST in_end,
+        int &decoded_code_units)
+    noexcept(text_detail::NoExceptInputIterator<CUIT, CUST>())
+    {
+        while (in_next != in_end) {
+            unsigned_code_unit_type cu = *in_next;
+            if (cu <= 0x7F || (cu >= 0xC2 && cu <= 0xF4)) {
+                // Found a leading code unit.
+                return;
+            }
+            ++in_next;
+            ++decoded_code_units;
+        }
+    }
+
+    template<CodeUnitIterator CUIT, ranges::Sentinel<CUIT> CUST>
+    static void skip_to_trailing_code_unit(
+        CUIT &in_next,
+        CUST in_end,
+        int &decoded_code_units)
+    noexcept(text_detail::NoExceptInputIterator<CUIT, CUST>())
+    {
+        while (in_next != in_end) {
+            unsigned_code_unit_type cu = *in_next;
+            if (cu <= 0xBF) {
+                // Found a trailing code unit.
+                return;
+            }
+            ++in_next;
+            ++decoded_code_units;
+        }
     }
 };
 
