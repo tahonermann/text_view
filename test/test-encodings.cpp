@@ -1333,7 +1333,7 @@ void test_utf8_encoding() {
     // Test well-formed UTF-8 code unit sequence boundaries.  See Unicode 9.0
     // table 3-7 in chapter 3.9, "Unicode Encoding Forms".
     CUMS code_unit_maps{
-        { {}, { CT{U'\U00000000'} }, { CUT(0x00) } },
+        { {}, { CT{U'\0'}         }, { CUT(0x00) } },
         { {}, { CT{U'\U0000007F'} }, { CUT(0x7F) } },
         { {}, { CT{U'\U00000080'} }, { CUT(0xC2), CUT(0x80) } },
         { {}, { CT{U'\U000007FF'} }, { CUT(0xDF), CUT(0xBF) } },
@@ -1394,7 +1394,7 @@ void test_utf8bom_encoding() {
     CUMS code_unit_maps_no_bom{
         { { STT::to_assume_bom_written_state() },
               {},                    {} },
-        { {}, { CT{U'\U00000000'} }, { CUT(0x00) } },
+        { {}, { CT{U'\0'}         }, { CUT(0x00) } },
         { {}, { CT{U'\U0000007F'} }, { CUT(0x7F) } },
         { {}, { CT{U'\U00000080'} }, { CUT(0xC2), CUT(0x80) } },
         { {}, { CT{U'\U000007FF'} }, { CUT(0xDF), CUT(0xBF) } },
@@ -1421,7 +1421,7 @@ void test_utf8bom_encoding() {
     // See Unicode 9.0 table 3-7 in chapter 3.9, "Unicode Encoding Forms".
     CUMS code_unit_maps_bom{
         { {}, {},                    { CUT(0xEF), CUT(0xBB), CUT(0xBF) } }, // BOM
-        { {}, { CT{U'\U00000000'} }, { CUT(0x00) } },
+        { {}, { CT{U'\0'}         }, { CUT(0x00) } },
         { {}, { CT{U'\U0000007F'} }, { CUT(0x7F) } },
         { {}, { CT{U'\U00000080'} }, { CUT(0xC2), CUT(0x80) } },
         { {}, { CT{U'\U000007FF'} }, { CUT(0xDF), CUT(0xBF) } },
