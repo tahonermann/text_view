@@ -1,6 +1,8 @@
 [![Travis Build Status](https://travis-ci.org/tahonermann/text_view.svg?branch=master)](https://travis-ci.org/tahonermann/text_view)
 Travis CI (Linux:gcc)
 
+[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
+
 # [Text_view]
 A [C++ Concepts][ISO/IEC 19217:2015]
 based character encoding and code point enumeration library.
