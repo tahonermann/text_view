@@ -35,7 +35,7 @@ blockquote.code
   </tr>
   <tr>
     <th>Date:</th>
-    <td>2017-06-05</td>
+    <td>2017-06-11</td>
   </tr>
   <tr>
     <th>Audience:</th>
@@ -147,16 +147,88 @@ blockquote.code
 
 <h1 id="changes_since_p0244r1">Changes Since P0244R1</h1>
 
+<h2 id="major_changes">Major changes</h2>
+
 <ul>
-  <li>Added default_encoding_type_t to allow assuming an encoding type based on
-      code unit type.  Added corresponding <tt>make_text_view</tt> overloads.
-      </li>
-  <li>Updated the FAQ "Why do I have to specify the encoding for UTF-8 string
-      literals?" section and added references to
+  <li>Added support for error handling policies to allow choosing how encoding
+      and decoding errors are communicated.  Two policies have been introduced:
+      <ul>
+        <li><em><b>strict</b></em> (default)<br/>
+            Exceptions are thrown for attempts to encode an invalid character
+            or to retrieve a character corresponding to an ill-formed code unit
+            sequence (exceptions are not thrown when the ill-formed code unit
+            sequence is first decoded).
+        </li>
+        <li><em><b>permissive</b></em><br/>
+            No exceptions are thrown for attempts to encode an invalid character
+            or to decode an ill-formed code unit sequence.  Instead,
+            substitution characters are encoded in place of invalid characters
+            or produced in place of ill-formed code unit sequences.
+        </li>
+      </ul>
+  </li>
+  <li>Updated text iterator requirements to enable checking for errors before
+      performing an operation that might throw an exception.  For example:
+      <blockquote class="code">
+<pre><code>const char s[] = "\xC0"; // ill-formed UTF-8 code unit sequence.
+auto tv = make_text_view&lt;char8_character_encoding&gt;(s);
+auto ti = tv.begin();
+if (ti.error_occurred()) {
+  decode_status ds = ti.get_error();
+}
+*ti; // would throw text_decode_error.
+</code></pre>
+      </blockquote>
+  </li>
+  </li>
+  <li>Added support for assuming a default encoding for calls to
+      <tt>make_text_view</tt> that do not specify an explicit encoding.  Default
+      encodings are assumed based on the code unit type of the range type
+      provided in the call as follows.
+      <blockquote>
+        <table border="1">
+          <tr>
+            <th>Code unit type</th>
+            <th>Default encoding</th>
+          </tr>
+          <tr>
+            <td><tt>char</tt></td>
+            <td><tt>execution_character_encoding</tt></td>
+          </tr>
+          <tr>
+            <td><tt>wchar_t</tt></td>
+            <td><tt>execution_wide_character_encoding</tt></td>
+          </tr>
+          <tr>
+            <td><tt>char16_t</tt></td>
+            <td><tt>char16_character_encoding</tt></td>
+          </tr>
+          <tr>
+            <td><tt>char32_t</tt></td>
+            <td><tt>char32_character_encoding</tt></td>
+          </tr>
+        </table>
+      </blockquote>
+      Note that support for assuming the <tt>char8_character_encoding</tt> is
+      not present.  Such support would require a unique code unit type as
+      proposed in
       <a title="char8_t: A type for UTF-8 characters and strings"
          href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
-      P0482R0</a>.</li>
-  <li>Reworked error handling:
+      P0482R0</a> <sup><a href="#ref_p0482r0">[P0482R0]</a></sup>.
+  </li>
+</ul>
+
+<h2 id="detailed_changes">Detailed changes</h2>
+
+<ul>
+  <li>Updated the FAQ
+      <a href="#faq_explicit_encodings">
+      Why do I have to specify the encoding for UTF-8 string literals?</a>
+      section and added references to
+      <a title="char8_t: A type for UTF-8 characters and strings"
+         href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">
+      P0482R0</a> <sup><a href="#ref_p0482r0">[P0482R0]</a></sup>.</li>
+  <li>Error handling changes:
     <ul>
       <li>Updated the <a href="#error_handling">Error Handling</a> section with
           a description of the new error handling behavior.</li>
@@ -169,20 +241,20 @@ blockquote.code
           error policy template parameter.  Added
           <tt>make_otext_iterator</tt> and <tt>make_text_view</tt> overloads to
           enable construction of text views with a particular error policy.
-      <li>Added the <tt>encode_status</tt> and <tt>decode_status</tt> enum
-          classes to support error handling without exceptions.</li>
-      <li>Added <tt>error_occurred</tt> and <tt>get_error</tt> member function
-          requirements to the text iterator concepts.</li>
-      <li>Modified the <tt>encode_state_transition</tt> and <tt>encode</tt>
-          member functions required by the <tt>TextEncoder</tt> concept to
-          return a value of type <tt>encode_status</tt> rather than
-          <tt>void</tt>.</li>
       <li>Removed the <tt>TextDecoder</tt> concept and modified the
           <tt>decode</tt> and <tt>rdecode</tt> member functions of all codecs
           to require iterators that satisfy <tt>ForwardIterator</tt>.  In
           general, it isn't possible to implement the <tt>decode</tt> and
           <tt>rdecode</tt> interfaces for input iterators and support
           reasonable error recovery.
+      <li>Added noexcept requirements and conditional noexcept specifications
+          for encode and decode operations.</li>
+      <li>Added the <tt>encode_status</tt> and <tt>decode_status</tt> enum
+          classes to support error handling without exceptions.</li>
+      <li>Modified the <tt>encode_state_transition</tt> and <tt>encode</tt>
+          member functions required by the <tt>TextEncoder</tt> concept to
+          return a value of type <tt>encode_status</tt> rather than
+          <tt>void</tt>.</li>
       <li>Modified the <tt>decode</tt> and <tt>rdecode</tt> member functions
           required by the <tt>TextForwardDecoder</tt> and
           <tt>TextBidirectionalDecoder</tt> concepts to return a value of type
@@ -190,6 +262,8 @@ blockquote.code
           <tt>decode_status::no_error</tt> corresponds to a prior return of
           <tt>true</tt> and a value of <tt>decode_status::no_character</tt>
           corresponds to a prior return of <tt>false</tt>.</li>
+      <li>Added <tt>error_occurred</tt> and <tt>get_error</tt> member function
+          requirements to the text iterator concepts.</li>
       <li>Renamed the <tt>text_runtime_error</tt> exception class to
           <tt>text_error</tt>.</li>
       <li>Modified the <tt>text_encode_error</tt> and <tt>text_decode_error</tt>
@@ -198,10 +272,11 @@ blockquote.code
           <tt>status_code</tt> member function.</li>
       <li>Removed the <tt>text_encode_overflow_error</tt> and
           <tt>text_decode_underflow_error</tt> exception classes.</li>
-      <li>Added noexcept requirements and conditional noexcept specifications
-          for encode and decode operations.</li>
     </ul>
   </li>
+  <li>Added default_encoding_type_t to allow assuming an encoding type based on
+      code unit type.  Added corresponding <tt>make_text_view</tt> overloads.
+      </li>
   <li>Updated the <tt>CharacterSet</tt> concept to require a
       <tt>get_substitution_code_point</tt> static member function and added
       implementations to <tt>any_character_set</tt>,
@@ -383,7 +458,7 @@ if (r != std::codecvt_base::error &amp;&amp; to[0] == char32_t{0x00F8}) {
 <p>The above method is not the only method available to identify a search term
 in an encoded string.  For some encodings, it is feasible to encode the search
 term in the encoding and to search for a matching code unit sequence.  This
-approach works for UTF-8, UTF-16, and UTF-32 (assuming the search term and 
+approach works for UTF-8, UTF-16, and UTF-32 (assuming the search term and
 text to search are similarly normalized), but not for many other encodings.
 Consider the Shift-JIS encoding of U+6D6C.  This is encoded as 0x8A 0x5C.
 Shift-JIS is a multibyte encoding that is almost ASCII compatible.  The code
@@ -647,10 +722,6 @@ end of an encoded text to go unnoticed.  In a non-buffering scenario, an
 iterator might silently compare equal to the end iterator even though there
 are (possibly invalid) code units remaining.
 
-<p>It might be feasible to address this by adding a policy template parameter
-to basic_text_view and itext_iterator similiar to what is discussed in the
-<a href="#error_handling">error handling</a> section.
-
 <h2 id="char_types">Character Types</h2>
 
 <p>This library defines a character class template parameterized by character
@@ -751,8 +822,8 @@ https://github.com/tahonermann/text_view</a>
 The implementation requires a compiler that implements the C++ Concepts
 technical specification
 <sup><a href="#ref_concepts">[Concepts]</a></sup>.
-The only compiler known to do so at the time of this
-writing is the in-development gcc 6.0 release.
+The only compilers known to do so at the time of this
+writing are gcc 6.2 and newer releases.
 
 <p>The reference implementation currently depends on Casey Carter and Eric
 Niebler's <a href="https://github.com/CaseyCarter/cmcstl2">cmcstl2</a>
