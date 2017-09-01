@@ -66,7 +66,7 @@ public:
             return encode_status::invalid_character;
         }
 
-        if (cp < 0xFFFF) {
+        if (cp <= 0xFFFF) {
             code_unit_type octet1 = cp & 0xFF;
             code_unit_type octet2 = (cp >> 8) & 0xFF;
 

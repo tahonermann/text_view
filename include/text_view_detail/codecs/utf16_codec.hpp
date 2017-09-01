@@ -65,7 +65,7 @@ public:
             return encode_status::invalid_character;
         }
 
-        if (cp < 0xFFFF) {
+        if (cp <= 0xFFFF) {
             *out++ = code_unit_type(cp);
             ++encoded_code_units;
         } else {
