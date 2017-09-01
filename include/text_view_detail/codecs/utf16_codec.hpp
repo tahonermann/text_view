@@ -61,18 +61,21 @@ public:
             code_point_type_t<character_set_type_t<character_type>>;
         code_point_type cp{c.get_code_point()};
 
-        if (cp >= 0xD800 && cp <= 0xDFFF) {
-            return encode_status::invalid_character;
-        }
-
-        if (cp <= 0xFFFF) {
+        if (cp <= 0xD7FF) {
             *out++ = code_unit_type(cp);
             ++encoded_code_units;
-        } else {
+        } else if (cp <= 0xDFFF) {
+            return encode_status::invalid_character;
+        } else if (cp <= 0xFFFF) {
+            *out++ = code_unit_type(cp);
+            ++encoded_code_units;
+        } else if (cp <= 0x0010FFFF) {
             *out++ = code_unit_type(0xD800 + (((cp - 0x10000) >> 10) & 0x03FF));
             ++encoded_code_units;
             *out++ = code_unit_type(0xDC00 + ((cp - 0x10000) & 0x03FF));
             ++encoded_code_units;
+        } else {
+            return encode_status::invalid_character;
         }
 
         return encode_status::no_error;
@@ -98,25 +101,31 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        code_unit_type cu1 = *in_next++;
-        ++decoded_code_units;
-        if (cu1 >= 0xD800 && cu1 <= 0xDBFF) {
-            if (in_next == in_end)
-                return decode_status::underflow;
-            code_unit_type cu2 = *in_next++;
-            ++decoded_code_units;
-            if (cu2 < 0xDC00 || cu2 > 0xDFFF) {
-                return decode_status::invalid_code_unit_sequence;
-            }
-            cp = 0x10000 + (((cu1 & 0x3FF) << 10) | (cu2 & 0x3FF));
-            c.set_code_point(cp);
-        } else if (cu1 >= 0xDC00 && cu1 <= 0xDFFF) {
+        code_unit_type cu1 = *in_next;
+        if (is_invalid_leading_code_unit(cu1)) {
+            // First code unit is not a leading code unit.
+            skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
-        } else {
+        }
+        ++in_next;
+        ++decoded_code_units;
+        if (cu1 < 0xD800 || cu1 >= 0xE000) {
             cp = cu1;
             c.set_code_point(cp);
+            return decode_status::no_error;
         }
 
+        if (in_next == in_end)
+            return decode_status::underflow;
+        code_unit_type cu2 = *in_next;
+        if (is_invalid_second_code_unit(cu2)) {
+            skip_to_leading_code_unit(in_next, in_end, decoded_code_units);
+            return decode_status::invalid_code_unit_sequence;
+        }
+        ++in_next;
+        ++decoded_code_units;
+        cp = 0x10000 + (((cu1 & 0x3FF) << 10) | (cu2 & 0x3FF));
+        c.set_code_point(cp);
         return decode_status::no_error;
     }
 
@@ -140,26 +149,88 @@ public:
 
         if (in_next == in_end)
             return decode_status::underflow;
-        code_unit_type rcu1 = *in_next++;
-        ++decoded_code_units;
-        if (rcu1 >= 0xDC00 && rcu1 <= 0xDFFF) {
-            if (in_next == in_end)
-                return decode_status::underflow;
-            code_unit_type rcu2 = *in_next++;
-            ++decoded_code_units;
-            if (rcu2 < 0xD800 || rcu2 > 0xDBFF) {
-                return decode_status::invalid_code_unit_sequence;
-            }
-            cp = 0x10000 + (((rcu2 & 0x3FF) << 10) | (rcu1 & 0x3FF));
-            c.set_code_point(cp);
-        } else if (rcu1 >= 0xD800 && rcu1 <= 0xDBFF) {
+        code_unit_type rcu1 = *in_next;
+        if (is_invalid_trailing_code_unit(rcu1)) {
+            skip_to_trailing_code_unit(in_next, in_end, decoded_code_units);
             return decode_status::invalid_code_unit_sequence;
-        } else {
+        }
+        ++in_next;
+        ++decoded_code_units;
+        if (rcu1 < 0xD800 || rcu1 >= 0xE000) {
             cp = rcu1;
             c.set_code_point(cp);
+            return decode_status::no_error;
         }
 
+        if (in_next == in_end)
+            return decode_status::underflow;
+        code_unit_type rcu2 = *in_next;
+        if (rcu2 < 0xD800 || rcu2 >= 0xDC00) {
+            skip_to_trailing_code_unit(in_next, in_end, decoded_code_units);
+            return decode_status::invalid_code_unit_sequence;
+        }
+        ++in_next;
+        ++decoded_code_units;
+        cp = 0x10000 + (((rcu2 & 0x3FF) << 10) | (rcu1 & 0x3FF));
+        c.set_code_point(cp);
         return decode_status::no_error;
+    }
+
+private:
+    static bool is_invalid_leading_code_unit(
+        code_unit_type cu)
+    {
+        return (cu >= 0xDC00 && cu < 0xE000) ||
+               (cu > 0xFFFF);
+    }
+
+    static bool is_invalid_trailing_code_unit(
+        code_unit_type cu)
+    {
+        return (cu >= 0xD800 && cu < 0xDC00) ||
+               (cu > 0xFFFF);
+    }
+
+    static bool is_invalid_second_code_unit(
+        code_unit_type cu)
+    {
+        return cu < 0xDC00 || cu > 0xDFFF;
+    }
+
+    template<CodeUnitIterator CUIT, ranges::Sentinel<CUIT> CUST>
+    static void skip_to_leading_code_unit(
+        CUIT &in_next,
+        CUST in_end,
+        int &decoded_code_units)
+    noexcept(text_detail::NoExceptInputIterator<CUIT, CUST>())
+    {
+        while (in_next != in_end) {
+            code_unit_type cu = *in_next;
+            if (cu < 0xDC00 || (cu >= 0xE000 && cu <= 0xFFFF)) {
+                // Found a leading code unit.
+                return;
+            }
+            ++in_next;
+            ++decoded_code_units;
+        }
+    }
+
+    template<CodeUnitIterator CUIT, ranges::Sentinel<CUIT> CUST>
+    static void skip_to_trailing_code_unit(
+        CUIT &in_next,
+        CUST in_end,
+        int &decoded_code_units)
+    noexcept(text_detail::NoExceptInputIterator<CUIT, CUST>())
+    {
+        while (in_next != in_end) {
+            code_unit_type cu = *in_next;
+            if (cu < 0xD800 || (cu >= 0xDC00 && cu <= 0xFFFF)) {
+                // Found a trailing code unit.
+                return;
+            }
+            ++in_next;
+            ++decoded_code_units;
+        }
     }
 };
 
