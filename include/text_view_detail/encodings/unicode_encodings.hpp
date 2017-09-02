@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Tom Honermann
+// Copyright (c) 2017, Tom Honermann
 //
 // This file is distributed under the MIT License. See the accompanying file
 // LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -18,6 +18,7 @@
 #include <text_view_detail/codecs/utf16be_codec.hpp>
 #include <text_view_detail/codecs/utf16le_codec.hpp>
 #include <text_view_detail/codecs/utf16bom_codec.hpp>
+#include <text_view_detail/codecs/utf32_codec.hpp>
 #include <text_view_detail/codecs/utf32be_codec.hpp>
 #include <text_view_detail/codecs/utf32le_codec.hpp>
 #include <text_view_detail/codecs/utf32bom_codec.hpp>
@@ -125,7 +126,7 @@ struct utf16bom_encoding
  * Unicode UTF-32 character encodings
  */
 struct utf32_encoding
-    : public text_detail::trivial_codec<
+    : public text_detail::utf32_codec<
                  character<unicode_character_set>,
                  char32_t>
 {
