@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Tom Honermann
+# Copyright (c) 2017, Tom Honermann
 #
 # This file is distributed under the MIT License. See the accompanying file
 # LICENSE.txt or http://www.opensource.org/licenses/mit-license.php for terms
@@ -15,6 +15,7 @@ matrix:
         apt:
           packages:
             - g++-6
+            - lcov
           sources:
             - ubuntu-toolchain-r-test
       compiler: gcc
@@ -31,6 +32,10 @@ matrix:
       addons: *gcc6
       compiler: gcc
       env: COMPILER=g++-6 BUILD_TYPE=DEBUG
+    - os: linux
+      addons: *gcc6
+      compiler: gcc
+      env: COMPILER=g++-6 BUILD_TYPE=DEBUG GCOV=true
 
     # Linux, clang 3.6:
     # - os: linux
@@ -93,5 +98,20 @@ before_script:
 
 script:
   - mkdir build
+  - |
+    if [ -n "$GCOV" ]; then
+      CXXFLAGS="-O0 --coverage -fprofile-arcs -ftest-coverage"; export CXXFLAGS
+      LDFLAGS="--coverage"; export LDFLAGS
+    fi
   - (cd build && cmake -DCMAKE_BUILD_TYPE="$BUILD_TYPE" ..)
   - (cd build && cmake --build . --config "$BUILD_TYPE" --target check-install)
+
+after_success:
+  - |
+    if [ -n "$GCOV" ]; then
+      lcov --directory . --capture --output-file coverage.info
+      lcov --extract coverage.info "$PWD/*" --output-file coverage.info
+      lcov --remove coverage.info "$PWD/build/*" --output-file coverage.info
+      lcov --list coverage.info
+      bash <(curl -s https://codecov.io/bash)
+    fi
