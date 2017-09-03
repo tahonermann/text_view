@@ -1,6 +1,8 @@
 [![Travis Build Status](https://travis-ci.org/tahonermann/text_view.svg?branch=master)](https://travis-ci.org/tahonermann/text_view)
 Travis CI (Linux:gcc)
 
+[![codecov](https://codecov.io/gh/tahonermann/text_view/branch/master/graph/badge.svg)](https://codecov.io/gh/tahonermann/text_view)
+
 [![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
 # [Text_view]
